@@ -6,6 +6,7 @@
 #include "maneuvering.h"
 #include "lua.hpp"
 #include "scenario.h"
+#include "aux-skills.h"
 
 AI::AI(ServerPlayer *player)
     :self(player)
@@ -152,6 +153,8 @@ void AI::filterEvent(TriggerEvent event, ServerPlayer *player, const QVariant &d
 TrustAI::TrustAI(ServerPlayer *player)
     :AI(player)
 {
+    response_skill = new ResponseSkill;
+    response_skill->setParent(this);
 }
 
 void TrustAI::activate(CardUseStruct &card_use){
@@ -203,7 +206,7 @@ QString TrustAI::askForKingdom(){
     QString role;
     switch(self->getRoleEnum()){
     case Player::Lord:
-    case Player::Rebel: role = "e"; break;
+    case Player::Rebel: role = "wei"; break;
     case Player::Loyalist:
     case Player::Renegade:
         role = room->getLord()->getKingdom(); break;
@@ -266,37 +269,12 @@ int TrustAI::askForCardChosen(ServerPlayer *who, const QString &flags, const QSt
     return cards.at(r)->getId();
 }
 
-const Card *TrustAI::askForCard(const QString &pattern, const QString &prompt){
-    static QRegExp id_rx("\\d+");
-
-    if(pattern.contains("+")){
-        QStringList subpatterns = pattern.split("+");
-        foreach(QString subpattern, subpatterns){
-            const Card *result = askForCard(subpattern, prompt);
-            if(result)
-                return result;
-        }
-    }
-
+const Card *TrustAI::askForCard(const QString &pattern, const QString &){
+    response_skill->setPattern(pattern);
     QList<const Card *> cards = self->getHandcards();
-    if(id_rx.exactMatch(pattern)){
-        int card_id = pattern.toInt();
-        foreach(const Card *card, cards)
-            if(card->getId() == card_id)
-                return card;
-    }else if(pattern.startsWith(".")){
-        if(pattern == ".")
-            return cards.isEmpty() ? NULL : cards.first();
-
-        QChar end = pattern.at(1).toLower();
-        foreach(const Card *card, cards){
-            if(card->getSuitString().startsWith(end, Qt::CaseInsensitive))
-                return card;
-        }
-    }else{
-        foreach(const Card *card, cards)
-            if(card->match(pattern))
-                return card;
+    foreach(const Card *card, cards){
+        if(response_skill->matchPattern(self, card))
+            return card;
     }
 
     return NULL;
@@ -322,9 +300,13 @@ static bool CompareByNumber(const Card *c1, const Card *c2){
     return c1->getNumber() < c2->getNumber();
 }
 
-const Card *TrustAI::askForPindian(ServerPlayer *requestor, const QString &){
+const Card *TrustAI::askForPindian(ServerPlayer *requestor, const QString &reason){
     QList<const Card *> cards = self->getHandcards();
     qSort(cards.begin(), cards.end(), CompareByNumber);
+
+    // zhiba special case
+    if(reason == "zhiba" && self->hasLordSkill("sunce_zhiba"))
+        return cards.last();
 
     if(requestor != self && isFriend(requestor))
         return cards.first();
@@ -392,6 +374,7 @@ void TrustAI::askForGuanxing(const QList<int> &cards, QList<int> &up, QList<int>
     Q_UNUSED(up_only);
 
     up = cards;
+    bottom.clear();
 }
 
 LuaAI::LuaAI(ServerPlayer *player)

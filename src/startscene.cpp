@@ -53,14 +53,25 @@ void StartScene::setServerLogBackground(){
 }
 
 #ifdef AUDIO_SUPPORT
-extern irrklang::ISoundEngine *SoundEngine;
+#ifdef  Q_OS_WIN32
+    extern irrklang::ISoundEngine *SoundEngine;
+#else
+    #include <phonon/MediaObject>
+    #include <phonon/AudioOutput>
+    extern Phonon::MediaObject *SoundEngine;
+    extern Phonon::AudioOutput *SoundOutput;
+#endif
 #endif
 
 void StartScene::switchToServer(Server *server){    
 #ifdef AUDIO_SUPPORT
-    if(SoundEngine){
+    if(SoundEngine) {
+#ifdef  Q_OS_WIN32
         SoundEngine->drop();
         SoundEngine = NULL;
+#else
+        delete SoundEngine;
+#endif
     }
 #endif
 
@@ -146,8 +157,19 @@ void StartScene::printServerInfo(){
     }else
         server_log->append(tr("Seconardary general is disabled"));
 
-    if(Config.EnableAI)
+    if(Config.EnableScene)
+        server_log->append(tr("Scene Mode is enabled"));
+    else
+        server_log->append(tr("Scene Mode is disabled"));
+
+    if(Config.EnableAI){
         server_log->append(tr("This server is AI enabled, AI delay is %1 milliseconds").arg(Config.AIDelay));
+        if(Config.value("AIChat", true).toBool())
+            server_log->append(tr("This server is AI chat enabled"));
+        else
+            server_log->append(tr("This server is AI chat disabled"));
+    }
     else
         server_log->append(tr("This server is AI disabled"));
+
 }

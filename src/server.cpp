@@ -260,7 +260,8 @@ QGroupBox *ServerDialog::createGameModeBox(){
         layout->addLayout(HLay(scenario_button, scenario_combobox));
     }
 
-/*
+#if 0
+
     {
         // add challenge modes
         QRadioButton *challenge_button = new QRadioButton(tr("Challenge mode"));
@@ -304,7 +305,9 @@ QGroupBox *ServerDialog::createGameModeBox(){
         //layout->addWidget(challenge_combobox);
         //layout->addLayout(challenge_layout);
     }
-*/
+
+#endif
+
     mode_box->setLayout(layout);
 
     return mode_box;
@@ -375,16 +378,23 @@ QLayout *ServerDialog::createRight(){
         free_choose_checkbox = new QCheckBox(tr("Choose generals and cards freely"));
         free_choose_checkbox->setChecked(Config.FreeChoose);
 
+        free_assign_checkbox = new QCheckBox(tr("Assign role and seat freely"));
+        free_assign_checkbox->setChecked(Config.value("FreeAssign").toBool());
+
+        maxchoice_spinbox = new QSpinBox;
+        maxchoice_spinbox->setRange(3, 10);
+        maxchoice_spinbox->setValue(Config.value("MaxChoice", 5).toInt());
+
         forbid_same_ip_checkbox = new QCheckBox(tr("Forbid same IP with multiple connection"));
         forbid_same_ip_checkbox->setChecked(Config.ForbidSIMC);
-
 
         disable_chat_checkbox = new QCheckBox(tr("Disable chat"));
         disable_chat_checkbox->setChecked(Config.DisableChat);
 
-
         second_general_checkbox = new QCheckBox(tr("Enable second general"));
 
+        scene_checkbox  = new QCheckBox(tr("Enable Scene"));
+        //changjing
 
         max_hp_scheme_combobox = new QComboBox;
         max_hp_scheme_combobox->addItem(tr("Sum - 3"));
@@ -394,7 +404,9 @@ QLayout *ServerDialog::createRight(){
         max_hp_scheme_combobox->setEnabled(Config.Enable2ndGeneral);
         connect(second_general_checkbox, SIGNAL(toggled(bool)), max_hp_scheme_combobox, SLOT(setEnabled(bool)));
 
-        second_general_checkbox->setChecked(Config.Enable2ndGeneral);        
+        second_general_checkbox->setChecked(Config.Enable2ndGeneral);
+
+        scene_checkbox->setChecked(Config.EnableScene);	//changjing
 
         QPushButton *banpair_button = new QPushButton(tr("Ban pairs table ..."));
         BanPairDialog *banpair_dialog = new BanPairDialog(this);
@@ -408,7 +420,10 @@ QLayout *ServerDialog::createRight(){
 
         address_edit = new QLineEdit;
         address_edit->setText(Config.Address);
+
+        #if QT_VERSION >= 0x040700
         address_edit->setPlaceholderText(tr("Public IP or domain"));
+        #endif  
 
         QPushButton *detect_button = new QPushButton(tr("Detect my WAN IP"));
         connect(detect_button, SIGNAL(clicked()), this, SLOT(onDetectButtonClicked()));
@@ -424,8 +439,11 @@ QLayout *ServerDialog::createRight(){
         layout->addWidget(forbid_same_ip_checkbox);
         layout->addWidget(disable_chat_checkbox);
         layout->addWidget(free_choose_checkbox);
+        //layout->addWidget(free_assign_checkbox);
+        layout->addLayout(HLay(new QLabel(tr("Upperlimit for general")), maxchoice_spinbox));
         layout->addLayout(HLay(second_general_checkbox, banpair_button));
         layout->addLayout(HLay(new QLabel(tr("Max HP scheme")), max_hp_scheme_combobox));
+        layout->addWidget(scene_checkbox);		//changjing
         layout->addWidget(announce_ip_checkbox);
         layout->addLayout(HLay(new QLabel(tr("Address")), address_edit));
         layout->addWidget(detect_button);
@@ -445,6 +463,9 @@ QLayout *ServerDialog::createRight(){
         role_predictable_checkbox = new QCheckBox(tr("Role predictable"));
         role_predictable_checkbox->setChecked(Config.value("RolePredictable", true).toBool());
 
+        ai_chat_checkbox = new QCheckBox(tr("AI Chat"));
+        ai_chat_checkbox->setChecked(Config.value("AIChat", true).toBool());
+
         ai_delay_spinbox = new QSpinBox;
         ai_delay_spinbox->setMinimum(0);
         ai_delay_spinbox->setMaximum(5000);
@@ -453,6 +474,7 @@ QLayout *ServerDialog::createRight(){
 
         layout->addWidget(ai_enable_checkbox);
         layout->addWidget(role_predictable_checkbox);
+        layout->addWidget(ai_chat_checkbox);
         layout->addLayout(HLay(new QLabel(tr("AI delay")), ai_delay_spinbox));
     }
 
@@ -524,8 +546,8 @@ Select3v3GeneralDialog::Select3v3GeneralDialog(QDialog *parent)
 
     QVBoxLayout *layout = new QVBoxLayout;
 
-    toolbox = new QToolBox;
-    fillToolBox();
+    tab_widget = new QTabWidget;
+    fillTabWidget();
 
     QPushButton *ok_button = new QPushButton(tr("OK"));
     connect(ok_button, SIGNAL(clicked()), this, SLOT(accept()));
@@ -533,15 +555,17 @@ Select3v3GeneralDialog::Select3v3GeneralDialog(QDialog *parent)
     hlayout->addStretch();
     hlayout->addWidget(ok_button);
 
-    layout->addWidget(toolbox);
+    layout->addWidget(tab_widget);
     layout->addLayout(hlayout);
 
     setLayout(layout);
 
+    setMinimumWidth(550);
+
     connect(this, SIGNAL(accepted()), this, SLOT(save3v3Generals()));
 }
 
-void Select3v3GeneralDialog::fillToolBox(){
+void Select3v3GeneralDialog::fillTabWidget(){
     QList<const Package *> packages = Sanguosha->findChildren<const Package *>();
     foreach(const Package *package, packages){
         switch(package->getType()){
@@ -551,8 +575,9 @@ void Select3v3GeneralDialog::fillToolBox(){
                 list->setIconSize(General::TinyIconSize);
                 list->setViewMode(QListView::IconMode);
                 list->setDragDropMode(QListView::NoDragDrop);
-                toolbox->addItem(list, Sanguosha->translate(package->objectName()));
                 fillListWidget(list, package);
+
+                tab_widget->addTab(list, Sanguosha->translate(package->objectName()));
             }
         default:
             break;
@@ -572,8 +597,8 @@ void Select3v3GeneralDialog::fillListWidget(QListWidget *list, const Package *pa
 
         bool checked = false;
         if(ex_generals.isEmpty()){
-            checked = pack->objectName() == "standard" || pack->objectName() == "wind"
-                      || general->objectName() == "xiaoqiao";
+            checked = (pack->objectName() == "standard" || pack->objectName() == "wind")
+                      && general->objectName() != "yuji";
         }else
             checked = ex_generals.contains(general->objectName());
 
@@ -586,12 +611,13 @@ void Select3v3GeneralDialog::fillListWidget(QListWidget *list, const Package *pa
     QAction *action = new QAction(tr("Check/Uncheck all"), list);
     list->addAction(action);
     list->setContextMenuPolicy(Qt::ActionsContextMenu);
+    list->setResizeMode(QListView::Adjust);
 
     connect(action, SIGNAL(triggered()), this, SLOT(toggleCheck()));
 }
 
 void Select3v3GeneralDialog::toggleCheck(){
-    QWidget *widget = toolbox->currentWidget();
+    QWidget *widget = tab_widget->currentWidget();
     QListWidget *list = qobject_cast<QListWidget *>(widget);
 
     if(list == NULL || list->item(0) == NULL)
@@ -608,8 +634,8 @@ void Select3v3GeneralDialog::save3v3Generals(){
     ex_generals.clear();
 
     int i;
-    for(i=0; i<toolbox->count(); i++){
-        QWidget *widget = toolbox->widget(i);
+    for(i=0; i<tab_widget->count(); i++){
+        QWidget *widget = tab_widget->widget(i);
         QListWidget *list = qobject_cast<QListWidget *>(widget);
         if(list){
             int i;
@@ -645,6 +671,7 @@ bool ServerDialog::config(){
     Config.ForbidSIMC = forbid_same_ip_checkbox->isChecked();
     Config.DisableChat = disable_chat_checkbox->isChecked();
     Config.Enable2ndGeneral = second_general_checkbox->isChecked();
+    Config.EnableScene = scene_checkbox->isChecked();		//changjing
     Config.MaxHpScheme = max_hp_scheme_combobox->currentIndex();
     Config.AnnounceIP = announce_ip_checkbox->isChecked();
     Config.Address = address_edit->text();
@@ -667,12 +694,16 @@ bool ServerDialog::config(){
     Config.setValue("OperationNoLimit", Config.OperationNoLimit);
     Config.setValue("ContestMode", Config.ContestMode);
     Config.setValue("FreeChoose", Config.FreeChoose);
+    Config.setValue("FreeAssign", free_assign_checkbox->isChecked());
+    Config.setValue("MaxChoice", maxchoice_spinbox->value());
     Config.setValue("ForbidSIMC", Config.ForbidSIMC);
     Config.setValue("DisableChat", Config.DisableChat);
     Config.setValue("Enable2ndGeneral", Config.Enable2ndGeneral);
+    Config.setValue("EnableScene", Config.EnableScene);	//changjing
     Config.setValue("MaxHpScheme", Config.MaxHpScheme);
     Config.setValue("EnableAI", Config.EnableAI);
     Config.setValue("RolePredictable", role_predictable_checkbox->isChecked());
+    Config.setValue("AIChat", ai_chat_checkbox->isChecked());
     Config.setValue("AIDelay", Config.AIDelay);
     Config.setValue("ServerPort", Config.ServerPort);
     Config.setValue("AnnounceIP", Config.AnnounceIP);
@@ -734,15 +765,22 @@ void Server::daemonize(){
     createNewRoom();
 }
 
-void Server::createNewRoom(){
-    current = new Room(this, Config.GameMode);
-    rooms.insert(current);
-    QString error_msg = current->createLuaState();
+Room *Server::createNewRoom(){
+    Room *new_room = new Room(this, Config.GameMode);
+    QString error_msg = new_room->createLuaState();
+
     if(!error_msg.isEmpty()){
         QMessageBox::information(NULL, tr("Lua scripts error"), error_msg);
-    }else{
-        connect(current, SIGNAL(room_message(QString)), this, SIGNAL(server_message(QString)));
+        return NULL;
     }
+
+    current = new_room;
+    rooms.insert(current);
+
+    connect(current, SIGNAL(room_message(QString)), this, SIGNAL(server_message(QString)));
+    connect(current, SIGNAL(game_over(QString)), this, SLOT(gameOver()));
+
+    return current;
 }
 
 void Server::processNewConnection(ClientSocket *socket){
@@ -753,22 +791,91 @@ void Server::processNewConnection(ClientSocket *socket){
             emit server_message(tr("Forbid the connection of address %1").arg(addr));
             return;
         }else
-            addresses.insert(addr);        
+            addresses.insert(addr);
     }
 
-    if(current->isFull()){
-        createNewRoom();
-    }
-
-    current->addSocket(socket);
     connect(socket, SIGNAL(disconnected()), this, SLOT(cleanup()));
-
+    socket->send("checkVersion " + Sanguosha->getVersion());
+    socket->send("setup " + Sanguosha->getSetupString());
     emit server_message(tr("%1 connected").arg(socket->peerName()));
+
+    connect(socket, SIGNAL(message_got(char*)), this, SLOT(processRequest(char*)));
+}
+
+static inline QString ConvertFromBase64(const QString &base64){
+    QByteArray data = QByteArray::fromBase64(base64.toAscii());
+    return QString::fromUtf8(data);
+}
+
+void Server::processRequest(char *request){
+    ClientSocket *socket = qobject_cast<ClientSocket *>(sender());
+    socket->disconnect(this, SLOT(processRequest(char*)));
+
+    QRegExp rx("(signupr?) (.+):(.+)(:.+)?\n");
+    if(!rx.exactMatch(request)){
+        emit server_message(tr("Invalid signup string: %1").arg(request));
+        socket->send("warn INVALID_FORMAT");
+        socket->disconnectFromHost();
+        return;
+    }
+
+    QStringList texts = rx.capturedTexts();
+    QString command = texts.at(1);
+    QString screen_name = ConvertFromBase64(texts.at(2));
+    QString avatar = texts.at(3);
+
+    if(Config.ContestMode){
+        QString password = texts.value(4);
+        if(password.isEmpty()){
+            socket->send("warn REQUIRE_PASSWORD");
+            socket->disconnectFromHost();
+            return;
+        }
+
+        password.remove(QChar(':'));
+        ContestDB *db = ContestDB::GetInstance();
+        if(!db->checkPassword(screen_name, password)){
+            socket->send("warn WRONG_PASSWORD");
+            socket->disconnectFromHost();
+            return;
+        }
+    }
+
+    if(command == "signupr"){
+        foreach(QString objname, name2objname.values(screen_name)){
+            ServerPlayer *player = players.value(objname);
+            if(player && player->getState() == "offline"){
+                player->getRoom()->reconnect(player, socket);
+                return;
+            }
+        }
+    }
+
+    if(current->isFull())
+        createNewRoom();
+
+    ServerPlayer *player = current->addSocket(socket);
+    current->signup(player, screen_name, avatar, false);
 }
 
 void Server::cleanup(){
-    ClientSocket *socket = qobject_cast<ClientSocket *>(sender());
+    const ClientSocket *socket = qobject_cast<const ClientSocket *>(sender());
 
     if(Config.ForbidSIMC)
         addresses.remove(socket->peerAddress());
+}
+
+void Server::signupPlayer(ServerPlayer *player){
+    name2objname.insert(player->screenName(), player->objectName());
+    players.insert(player->objectName(), player);
+}
+
+void Server::gameOver(){
+    Room *room = qobject_cast<Room *>(sender());
+    rooms.remove(room);
+
+    foreach(ServerPlayer *player, room->findChildren<ServerPlayer *>()){
+        name2objname.remove(player->screenName(), player->objectName());
+        players.remove(player->objectName());
+    }
 }

@@ -22,7 +22,7 @@ class BlackEdgeTextItem: public QGraphicsObject{
     Q_OBJECT
 
 public:
-    BlackEdgeTextItem();  
+    BlackEdgeTextItem();
     void setColor(const QColor &color);
     void setOutline(int outline);
     void toCenter(const QRectF &rect);
@@ -34,7 +34,7 @@ public slots:
 
     virtual QRectF boundingRect() const;
 
-protected:    
+protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
 private:
@@ -51,8 +51,9 @@ public:
 
 protected:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    virtual void keyReleaseEvent(QKeyEvent *event);
 };
+
+class SkillTitle;
 
 class SkillBox: public QGraphicsObject{
     Q_OBJECT
@@ -62,14 +63,16 @@ public:
     void setKingdom(const QString &kingdom);
     void setMiddleHeight(int height);
     void setTextEditable(bool editable);
+    void addSkill(const QString &text);
+    SkillTitle *getFocusTitle() const;
 
     virtual QRectF boundingRect() const;
 
 public slots:
-    void addSkill();
     void removeSkill();
     void setSkillTitleFont(const QFont &font);
     void setSkillDescriptionFont(const QFont &font);
+    void setTinyFont(const QFont &font);
     void insertSuit(int index);
     void insertBoldText(const QString &bold_text);
     void saveConfig();
@@ -85,7 +88,7 @@ private:
     int middle_height;
     QPixmap up, middle, down;
     QString kingdom;
-    QList<QGraphicsTextItem *> skill_titles;
+    QList<SkillTitle *> skill_titles;
     QGraphicsTextItem *skill_description;
     QGraphicsTextItem *copyright_text;
 };
@@ -126,6 +129,7 @@ public slots:
     void doneMakingAvatar();
     void hideAvatarRects();
     void setAvatarNameBox(const QString &text);
+    void resetPhoto();
 
 protected:
     virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
@@ -183,8 +187,11 @@ private slots:
     void setCardFrame();
     void import();
     void saveImage();
+    void copyPhoto();
     void updateButtonText(const QFont &font);
     void saveAvatar(const QRectF &rect);
+    void addSkill();
+    void editSkill();
 };
 
 #endif // CARDEDITOR_H

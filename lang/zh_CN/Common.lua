@@ -30,15 +30,14 @@ return {
 	["yes"] = "是", 
 	["no"] = "否", 
 	
-	["di"] = "帝", 
-	["ba"] = "巴", 
-	["e"] = "恶", 
-	["yin"] = "隐", 
+	["wei"] = "魏", 
+	["shu"] = "蜀", 
+	["wu"] = "吴", 
+	["qun"] = "群", 
+	
 	["test"] = "测试",
-	["uzumaki"] = "漩涡鸣人",
-	["uzu"] = "漩涡",
-	[":uzu"] = "锁定技，回合开始阶段，你失去一点体力；回合结束阶段，你失去一点体力上限",
-        ["haruno"] = "春野樱",
+	["sujiang"] = "素将",
+	["sujiangf"] = "素将(女)",
 	
 	["#Murder"] = "%to【%arg】 挂了，凶手是 %from", 
 	["#Suicide"] = "%to【%arg】 自杀身亡", 
@@ -50,7 +49,7 @@ return {
 	["#DamageNoSource"] = "%to 受到了 %arg 点伤害[%arg2]", 
 	["#Recover"] = "%from 恢复了 %arg 点体力", 
 	["#AskForPeaches"] = "%from 向 %to 求桃，一共需要 %arg 个桃子", 
-	["#ChooseKingdom"] = "%from 选择了 %arg 作为他的角色属性", 
+	["#ChooseKingdom"] = "%from 选择了 %arg 作为他的国籍", 
 	["#NullificationDetails"] = "无懈的对象是 %from 对 %to 的锦囊 %arg", 
 	["#SkillAvoid"] = "%from 的 %arg 技能被触发，这张 %arg2 不能指定其作为目标",
 	["#Transfigure"] = "%from 变身为 %arg", 
@@ -90,11 +89,4 @@ return {
 	["cw"] = "顺时针",
 	["ccw"] = "逆时针",
 	["#TrickDirection"] = "%from 选择了 %arg 作为锦囊的顺序",
-
-	["#slashtogether"] = "援助合击",
-	["#Slashok"] = "%to 同时发动合击，%from 不能闪避",
-	["#slashtogether:yes"] = "请求援助！",
-	["yoxi"] = "援助合击事件",
-	["yoxi:yes"] = "合击！",
-	["yoxi:no"] = "算了",
 }

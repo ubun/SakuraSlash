@@ -2,15 +2,14 @@
 #define HONGYANSCENARIO_H
 
 #include "scenario.h"
-#include "god.h"
-#include "evil.h"
+#include "standard-skillcards.h"
 
 class LesbianJieyinCard : public JieyinCard{
     Q_OBJECT
 
 public:
     Q_INVOKABLE LesbianJieyinCard();
-    virtual bool targetFilter(const QList<const ClientPlayer *> &targets, const ClientPlayer *to_select) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
 
 class LesbianLijianCard: public LijianCard{
@@ -19,7 +18,7 @@ class LesbianLijianCard: public LijianCard{
 public:
     Q_INVOKABLE LesbianLijianCard();
 
-    virtual bool targetFilter(const QList<const ClientPlayer *> &targets, const ClientPlayer *to_select) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
 
 class HongyanScenario : public Scenario{

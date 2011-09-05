@@ -22,27 +22,7 @@ public:
     static bool HasShit(const Card *card);
 };
 
-class Sakura:public BasicCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Sakura(Card::Suit suit, int number);
-    virtual QString getSubtype() const;
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-    virtual void onMove(const CardMoveStruct &move) const;
-};
-
-class Erica:public BasicCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Erica(Card::Suit suit, int number);
-    virtual QString getSubtype() const;
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-    virtual void onMove(const CardMoveStruct &move) const;
-};
-
-// six disasters:
+// five disasters:
 
 class Deluge: public Disaster{
     Q_OBJECT
@@ -84,33 +64,28 @@ public:
     virtual void takeEffect(ServerPlayer *target) const;
 };
 
-class Locust: public Disaster{
+class Monkey: public OffensiveHorse{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE Locust(Card::Suit suit, int number);
+    Q_INVOKABLE Monkey(Card::Suit suit, int number);
+
+    virtual void onInstall(ServerPlayer *player) const;
+    virtual void onUninstall(ServerPlayer *player) const;
+    virtual QString getEffectPath(bool is_male) const;
+
+private:
+    TriggerSkill *grab_peach;
+};
+
+class GaleShell:public Armor{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE GaleShell(Card::Suit suit, int number);
+
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const;
-    virtual void takeEffect(ServerPlayer *target) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
 };
-
-
-//
-class YitianSword:public Weapon{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE YitianSword(Card::Suit suit, int number);
-
-    virtual void onMove(const CardMoveStruct &move) const;
-};
-
-class MoonSpear:public Weapon{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE MoonSpear(Card::Suit suit, int number);
-};
-
 
 #endif // JOYPACKAGE_H

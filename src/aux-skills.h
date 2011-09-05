@@ -21,13 +21,30 @@ private:
     bool include_equip;
 };
 
+class CardPattern;
+
+class ResponseSkill: public OneCardViewAsSkill{
+    Q_OBJECT
+
+public:
+    ResponseSkill();
+    bool matchPattern(const Player *player, const Card *card) const;
+
+    virtual void setPattern(const QString &pattern);
+    virtual bool viewFilter(const CardItem *to_select) const;
+    virtual const Card *viewAs(CardItem *card_item) const;
+
+private:
+    const CardPattern *pattern;
+};
+
 class FreeDiscardSkill: public ViewAsSkill{
     Q_OBJECT
 
 public:
     explicit FreeDiscardSkill(QObject *parent);
 
-    virtual bool isEnabledAtPlay() const;
+    virtual bool isEnabledAtPlay(const Player *) const;
 
     virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const;
     virtual const Card *viewAs(const QList<CardItem *> &cards) const;

@@ -18,7 +18,8 @@ class QRadioButton;
 #include <QLayoutItem>
 #include <QListWidget>
 #include <QSplitter>
-#include <QToolBox>
+#include <QTabWidget>
+#include <QMultiHash>
 
 class Package;
 
@@ -29,10 +30,10 @@ public:
     Select3v3GeneralDialog(QDialog *parent);
 
 private:
-    QToolBox *toolbox;
+    QTabWidget *tab_widget;
     QSet<QString> ex_generals;
 
-    void fillToolBox();
+    void fillTabWidget();
     void fillListWidget(QListWidget *list, const Package *pack);
 
 private slots:
@@ -76,9 +77,12 @@ private:
     QCheckBox *nolimit_checkbox;
     QCheckBox *contest_mode_checkbox;
     QCheckBox *free_choose_checkbox;
+    QCheckBox *free_assign_checkbox;
+    QSpinBox *maxchoice_spinbox;
     QCheckBox *forbid_same_ip_checkbox;
     QCheckBox *disable_chat_checkbox;
     QCheckBox *second_general_checkbox;
+    QCheckBox *scene_checkbox;	//changjing
     QComboBox *max_hp_scheme_combobox;
     QCheckBox *announce_ip_checkbox;
     QComboBox *scenario_combobox;
@@ -88,6 +92,7 @@ private:
     QLineEdit *port_edit;
     QCheckBox *ai_enable_checkbox;
     QCheckBox *role_predictable_checkbox;
+    QCheckBox *ai_chat_checkbox;
     QSpinBox *ai_delay_spinbox;
     QRadioButton *standard_3v3_radiobutton;
     QComboBox *role_choose_combobox;
@@ -106,6 +111,7 @@ private slots:
 };
 
 class Scenario;
+class ServerPlayer;
 
 class Server : public QObject{
     Q_OBJECT
@@ -116,17 +122,22 @@ public:
     void broadcast(const QString &msg);
     bool listen();
     void daemonize();
-    void createNewRoom();
+    Room *createNewRoom();
+    void signupPlayer(ServerPlayer *player);
 
 private:
     ServerSocket *server;
     Room *current;
     QSet<Room *> rooms;
-    QSet<QString> addresses;    
+    QHash<QString, ServerPlayer*> players;
+    QSet<QString> addresses;
+    QMultiHash<QString, QString> name2objname;
 
 private slots:
     void processNewConnection(ClientSocket *socket);
+    void processRequest(char *request);
     void cleanup();
+    void gameOver();
 
 signals:
     void server_message(const QString &);

@@ -43,18 +43,19 @@ void Settings::init(){
     TextEditColor = QColor(value("TextEditColor", "white").toString());
 
     CountDownSeconds = value("CountDownSeconds", 3).toInt();
-    GameMode = value("GameMode", "08p").toString();
+    GameMode = value("GameMode", "02p").toString();
     BanPackages = value("BanPackages").toStringList();
     ContestMode = value("ContestMode", false).toBool();
     FreeChoose = value("FreeChoose", false).toBool();
     ForbidSIMC = value("ForbidSIMC", false).toBool();
     DisableChat = value("DisableChat", false).toBool();
     Enable2ndGeneral = value("Enable2ndGeneral", false).toBool();
+    EnableScene = value("EnableScene", false).toBool();	//changjing
     MaxHpScheme = value("MaxHpScheme", 0).toInt();
     AnnounceIP = value("AnnounceIP", false).toBool();
     Address = value("Address", QString()).toString();
-    EnableAI = value("EnableAI", true).toBool();
-    AIDelay = value("AIDelay", 2000).toInt();
+    EnableAI = value("EnableAI", false).toBool();
+    AIDelay = value("AIDelay", 1000).toInt();
     ServerPort = value("ServerPort", 9527u).toUInt();
 
     UserName = value("UserName", qgetenv("USERNAME")).toString();
@@ -63,7 +64,7 @@ void Settings::init(){
     ServerName = value("ServerName", tr("%1's server").arg(UserName)).toString();
 
     HostAddress = value("HostAddress", "127.0.0.1").toString();
-    UserAvatar = value("UserAvatar", "lihonglan").toString();
+    UserAvatar = value("UserAvatar", "zhangliao").toString();
     HistoryIPs = value("HistoryIPs").toStringList();
     DetectorPort = value("DetectorPort", 9526u).toUInt();
     MaxCards = value("MaxCards", 15).toInt();
@@ -80,17 +81,11 @@ void Settings::init(){
     EnableBgMusic = value("EnableBgMusic", true).toBool();
     Volume = value("Volume", 1.0f).toFloat();
 
-    BackgroundBrush = value("BackgroundBrush", "backdrop/sakura4.jpg").toString();
-    BackgroundMusic = value("BackgroundMusic", "backdrop/HanasakuOtome.mp3").toString();
+    BackgroundBrush = value("BackgroundBrush", "backdrop/guixin.jpg").toString();
 
     if(!contains("1v1/Banlist")){
         QStringList banlist;
-        banlist << "ci" << "kasumi" << "kyougoku" << "granma";
+        banlist << "sunquan" << "huatuo" << "zhangliao" << "liubei";
         setValue("1v1/Banlist", banlist);
-    }
-    if(!contains("3v3/ExtensionGenerals")){
-        QStringList trilist;
-        trilist << "ogami" << "sakura" << "sumire" << "maria" << "alice" << "lihonglan" << "kanna" << "orihime" << "reni" << "erica" << "glycine" << "coquelicot" << "lobelia" << "hanabi" << "mell" << "ci" << "kayama" << "nonomura" << "tsubaki" << "kasumi" << "yuri" << "poshui" << "sb1" << "sb2" << "sb3" << "kyougoku" << "ou" << "aoisatan" << "king" << "mushit" << "train" << "fox" << "spider" << "yoneda" << "ayame" << "kaede" << "kazuma" << "yamazaki" << "granma";
-        setValue("3v3/ExtensionGenerals", trilist);
     }
 }

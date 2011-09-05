@@ -25,6 +25,9 @@ public:
                 }else if(player->getGeneralName() == "zhugeliang"){
                     if(player->askForSkillInvoke("reselect"))
                         room->transfigure(player, "wolong", true);
+                }else if(player->getGeneralName() == "caopi"){
+                    if(player->askForSkillInvoke("reselect"))
+                        room->transfigure(player, "caozhi", true);
                 }
 
                 break;
@@ -122,10 +125,12 @@ CoupleScenario::CoupleScenario()
     map["lubu"] = "diaochan";
     map["zhangfei"] = "xiahoujuan";
     map["sunjian"] = "wuguotai";
+    map["sunce"] = "daqiao";
 
     full_map = map;
     full_map["dongzhuo"] = "diaochan";
     full_map["wolong"] = "huangyueying";
+    full_map["caozhi"] = "zhenji";
 }
 
 void CoupleScenario::marryAll(Room *room) const{

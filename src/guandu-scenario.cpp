@@ -9,7 +9,7 @@ ZhanShuangxiongCard::ZhanShuangxiongCard(){
     once = true;
 }
 
-bool ZhanShuangxiongCard::targetFilter(const QList<const ClientPlayer *> &targets, const ClientPlayer *to_select) const{
+bool ZhanShuangxiongCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     return targets.isEmpty() && to_select->getGeneralName() == "shuangxiong" && !to_select->isKongcheng();
 }
 
@@ -70,8 +70,8 @@ public:
     ZhanShuangxiong():ZeroCardViewAsSkill("zhanshuangxiong"){
     }
 
-    virtual bool isEnabledAtPlay() const{
-        return !Self->isKongcheng() && !Self->hasUsed("ZhanShuangxiongCard");
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return !player->isKongcheng() && !player->hasUsed("ZhanShuangxiongCard");
     }
 
     virtual const Card *viewAs() const{
@@ -82,7 +82,7 @@ public:
 SmallTuxiCard::SmallTuxiCard(){
 }
 
-bool SmallTuxiCard::targetFilter(const QList<const ClientPlayer *> &targets, const ClientPlayer *to_select) const{
+bool SmallTuxiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     if(!targets.isEmpty())
         return false;
 
@@ -108,12 +108,12 @@ public:
     }
 
 protected:
-    virtual bool isEnabledAtPlay() const{
+    virtual bool isEnabledAtPlay(const Player *player) const{
         return false;
     }
 
-    virtual bool isEnabledAtResponse() const{
-        return ClientInstance->card_pattern == "@@smalltuxi";
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return  pattern == "@@smalltuxi";
     }
 };
 
@@ -164,19 +164,19 @@ public:
         switch(event){
         case GameStart:{
                 if(player->isLord()){
-                    room->installEquip(player, "floriation");
+                    room->installEquip(player, "renwang_shield");
                     room->installEquip(player, "hualiu");
 
                     ServerPlayer *caocao = room->findPlayer("caocao");
                     room->installEquip(caocao, "qinggang_sword");
-                    room->installEquip(caocao, "mocao");
+                    room->installEquip(caocao, "zhuahuangfeidian");
 
                     ServerPlayer *liubei = room->findPlayer("liubei");
                     room->installEquip(liubei, "double_sword");
 
                     ServerPlayer *guanyu = room->findPlayer("guanyu");
                     room->installEquip(guanyu, "blade");
-                    room->installEquip(guanyu, "isenclight");
+                    room->installEquip(guanyu, "chitu");
                     room->acquireSkill(guanyu, "zhanshuangxiong");
 
 
@@ -275,22 +275,20 @@ GuanduScenario::GuanduScenario()
     addMetaObject<ZhanShuangxiongCard>();
     addMetaObject<SmallTuxiCard>();
 }
-/*
+
 AI::Relation GuanduScenario::relationTo(const ServerPlayer *a, const ServerPlayer *b) const{
     if(a->getRole() == "renegade" && b->getRole() == "renegade")
         return AI::Friend;
     else
         return AI::GetRelation(a, b);
 }
-*/
+
 void GuanduScenario::onTagSet(Room *room, const QString &key) const{
     bool zhanshuangxiong = room->getTag("ZhanShuangxiong").toBool();
     bool burnwuchao = room->getTag("BurnWuchao").toBool();
     if(zhanshuangxiong && burnwuchao){
         ServerPlayer *guojia = room->findPlayer("guojia");
         if(guojia && !guojia->hasSkill("greatyiji")){
-            room->getThread()->removeTriggerSkill("yiji");
-
             room->acquireSkill(guojia, "greatyiji");
             room->acquireSkill(guojia, "damagebeforeplay", false);
         }

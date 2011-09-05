@@ -15,14 +15,16 @@ class ServerPlayer : public Player
 {
     Q_OBJECT
 
+    Q_PROPERTY(QString ip READ getIp)
+
 public:
     explicit ServerPlayer(Room *room);
 
     void setSocket(ClientSocket *socket);
     void invoke(const char *method, const QString &arg = ".");
     QString reportHeader() const;
-    void sendProperty(const char *property_name);
-    void unicast(const QString &message);
+    void sendProperty(const char *property_name, const Player *player = NULL) const;
+    void unicast(const QString &message) const;
     void drawCard(const Card *card);
     Room *getRoom() const;
     void playCardEffect(const Card *card);
@@ -55,9 +57,6 @@ public:
     void loseMark(const QString &mark, int n = 1);
     void loseAllMarks(const QString &mark_name);
 
-    void addCardToPile(const QString &pile_name, int card_id);
-    void removeCardFromPile(const QString &pile_name, int card_id);
-
     void setAI(AI *ai);
     AI *getAI() const;
     AI *getSmartAI() const;
@@ -66,6 +65,7 @@ public:
     virtual int getHandcardNum() const;
     virtual void removeCard(const Card *card, Place place);
     virtual void addCard(const Card *card, Place place);
+    virtual bool isLastHandCard(const Card *card) const;
 
     void addVictim(ServerPlayer *victim);
     QList<ServerPlayer *> getVictims() const;
@@ -83,6 +83,14 @@ public:
 
     int getGeneralMaxHP() const;
     virtual bool hasLordSkill(const QString &skill_name) const;
+
+    QString getIp() const;
+    void introduceTo(ServerPlayer *player);
+    void marshal(ServerPlayer *player) const;
+
+    void addToPile(const QString &pile_name, int card_id, bool open = true);
+
+    void copyFrom(ServerPlayer* sp);
 
 private:
     ClientSocket *socket;
@@ -103,7 +111,7 @@ private slots:
 signals:
     void disconnected();
     void request_got(const QString &request);
-    void message_cast(const QString &message);
+    void message_cast(const QString &message) const;
 };
 
 #endif // SERVERPLAYER_H

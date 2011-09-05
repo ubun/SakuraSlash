@@ -61,12 +61,7 @@ bool ClientPlayer::isLastHandCard(const Card *card) const{
     if(known_cards.length() != 1)
         return false;
 
-    if(!card->isVirtualCard()){
-        return known_cards.first() == card;
-    }else{
-        QList<int> subcards = card->getSubcards();
-        return subcards.length() == 1 && subcards.first() == known_cards.first()->getId();
-    }
+    return known_cards.first()->getEffectiveId() == card->getEffectiveId();
 }
 
 void ClientPlayer::removeCard(const Card *card, Place place){
@@ -110,11 +105,10 @@ QTextDocument *ClientPlayer::getMarkDoc() const{
 }
 
 void ClientPlayer::changePile(const QString &name, bool add, int card_id){
-    QList<int> &pile = getPile(name);
     if(add)
-        pile.append(card_id);
+        piles[name] << card_id;
     else
-        pile.removeOne(card_id);
+        piles[name].removeOne(card_id);
 
     emit pile_changed(name);
 }
@@ -137,7 +131,7 @@ QString ClientPlayer::getDeathPixmapPath() const{
 }
 
 bool ClientPlayer::hasLordSkill(const QString &skill_name) const{
-    if(ServerInfo.GameMode == "06_3v3")
+    if(ServerInfo.GameMode == "06_3v3" || ServerInfo.GameMode == "02_1v1")
         return false;
     else if(acquired_skills.contains(skill_name))
         return true;

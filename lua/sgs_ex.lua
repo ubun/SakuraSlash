@@ -2,6 +2,9 @@
 
 -- trigger skills
 function sgs.CreateTriggerSkill(spec)
+	assert(type(spec.name) == "string")
+	assert(type(spec.on_trigger) == "function")
+
 	local frequency = spec.frequency or sgs.Skill_NotFrequent
 	local skill = sgs.LuaTriggerSkill(spec.name, frequency)
 	
@@ -23,6 +26,10 @@ function sgs.CreateTriggerSkill(spec)
 		skill:setViewAsSkill(spec.view_as_skill)
 	end
 
+	if type(spec.priority) == "number" then
+		skill.priority = spec.priority
+	end
+
 	return skill
 end
 
@@ -37,6 +44,38 @@ function sgs.CreateGameStartSkill(spec)
 	end
 	
 	return sgs.CreateTriggerSkill(spec)
+end
+
+function sgs.CreateProhibitSkill(spec)
+	assert(type(spec.name) == "string")
+	assert(type(spec.is_prohibit) == "function")
+	
+	local skill = sgs.LuaProhibitSkill(spec.name)	
+	skill.is_prohibit = spec.is_prohibit
+	
+	return skill
+end
+
+function sgs.CreateFilterSkill(spec)
+	assert(type(spec.name) == "string")
+	assert(type(spec.view_filter) == "function")
+	assert(type(spec.view_as) == "function")
+
+	local skill = sgs.LuaFilterSkill(spec.name)
+	skill.view_filter = spec.view_filter
+	skill.view_as = spec.view_as
+
+	return skill
+end
+
+function sgs.CreateDistanceSkill(spec)
+	assert(type(spec.name) == "string")
+	assert(type(spec.correct_func) == "function")
+
+	local skill = sgs.LuaDistanceSkill(spec.name)
+	skill.correct_func = spec.correct_func
+
+	return skill
 end
 
 function sgs.CreateMasochismSkill(spec)
@@ -61,10 +100,14 @@ function sgs.CreateSkillCard(spec)
 	
 	local card = sgs.LuaSkillCard(spec.name)
 	
-	card:setTargetFixed(spec.target_fixed)
-	card:setWillThrow(spec.will_throw)	
+	if type(spec.target_fixed) == "boolean" then
+		card:setTargetFixed(spec.target_fixed)
+	end
+
+	if type(spec.will_throw) == "boolean" then
+		card:setWillThrow(spec.will_throw)	
+	end
 	
-	card.available = spec.available
 	card.filter = spec.filter
 	card.feasible = spec.feasible
 	card.on_use = spec.on_use

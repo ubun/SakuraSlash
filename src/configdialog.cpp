@@ -3,7 +3,13 @@
 #include "settings.h"
 
 #ifdef AUDIO_SUPPORT
-#include "irrKlang.h"
+#ifdef  Q_OS_WIN32
+    #include "irrKlang.h"
+    extern irrklang::ISoundEngine *SoundEngine;
+#else
+    #include <phonon/AudioOutput>
+    extern Phonon::AudioOutput *SoundOutput;
+#endif
 #endif
 
 #include <QFileDialog>
@@ -26,7 +32,7 @@ ConfigDialog::ConfigDialog(QWidget *parent) :
 
     ui->enableEffectCheckBox->setChecked(Config.EnableEffects);
     ui->enableLastWordCheckBox->setChecked(Config.EnableLastWord);
-    ui->enableBgMusicCheckBox->setChecked(Config.EnableBgMusic);    
+    ui->enableBgMusicCheckBox->setChecked(Config.EnableBgMusic);
     ui->fitInViewCheckBox->setChecked(Config.FitInView);
     ui->circularViewCheckBox->setChecked(Config.value("CircularView", false).toBool());
 
@@ -89,16 +95,12 @@ void ConfigDialog::on_resetBgButton_clicked()
 {
     ui->bgPathLineEdit->clear();
 
-    QString filename = "backdrop/duanwu.jpg";
+    QString filename = "backdrop/guixin.jpg";
     Config.BackgroundBrush = filename;
     Config.setValue("BackgroundBrush", filename);
 
     emit bg_changed();
 }
-
-#ifdef AUDIO_SUPPORT
-extern irrklang::ISoundEngine *SoundEngine;
-#endif
 
 void ConfigDialog::saveConfig()
 {
@@ -108,11 +110,16 @@ void ConfigDialog::saveConfig()
 
     float volume = ui->volumeSlider->value() / 100.0;
     Config.Volume = volume;
-    Config.setValue("Volume", volume);    
+    Config.setValue("Volume", volume);
 
 #ifdef AUDIO_SUPPORT
+#ifdef  Q_OS_WIN32
     if(SoundEngine)
         SoundEngine->setSoundVolume(Config.Volume);
+#else
+    if(SoundOutput)
+        SoundOutput->setVolume(Config.Volume);
+#endif
 #endif
 
     bool enabled = ui->enableEffectCheckBox->isChecked();
@@ -139,7 +146,7 @@ void ConfigDialog::saveConfig()
     Config.setValue("Contest/Sender", ui->senderLineEdit->text());
     Config.setValue("Contest/Password", ui->passwordLineEdit->text());
     Config.setValue("Contest/Receiver", ui->receiverLineEdit->text());
-    Config.setValue("Contest/OnlySaveLordRecord", ui->onlySaveLordCheckBox->isChecked());    
+    Config.setValue("Contest/OnlySaveLordRecord", ui->onlySaveLordCheckBox->isChecked());
 }
 
 void ConfigDialog::on_browseBgMusicButton_clicked()

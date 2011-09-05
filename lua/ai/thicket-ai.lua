@@ -82,7 +82,7 @@ function xuhuang_ai:activate_dummy(use)
 	local cards = self.player:getCards("he")
 	local to_use
 	for _, card in sgs.qlist(cards) do		
-		if (card:getSuit() == sgs.Card_Club) and (card:inherits("BasicCard") or card:inherits("EquipCard")) then
+		if card:isBlack() and (card:inherits("BasicCard") or card:inherits("EquipCard")) then
 			to_use = card
 			break
 		end

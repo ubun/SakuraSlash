@@ -1,7 +1,7 @@
 
 #include "zombie-mode-scenario.h"
 #include "engine.h"
-#include "standard.h"
+#include "standard-skillcards.h"
 #include "clientplayer.h"
 #include "client.h"
 #include "carditem.h"
@@ -110,7 +110,7 @@ public:
             break;
         }
 
-        case TurnStart:{                
+        case TurnStart:{
                 int round = room->getTag("Round").toInt();
                 if(player->isLord()){
                     room->setTag("Round", ++round);
@@ -275,7 +275,9 @@ public:
             log.arg2 = QString::number(damage.damage + 1);
             zombie->getRoom()->sendLog(log);
 
-            if(zombie->getHp()>2)zombie->getRoom()->loseHp(zombie);
+            if(zombie->getHp()>2)
+                zombie->getRoom()->loseHp(zombie);
+
             damage.damage ++;
             data = QVariant::fromValue(damage);
         }
@@ -290,7 +292,7 @@ PeachingCard::PeachingCard()
 
 }
 
-bool PeachingCard::targetFilter(const QList<const ClientPlayer *> &targets, const ClientPlayer *to_select) const{
+bool PeachingCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     if(targets.length() > 0)return false;
     return to_select->isWounded() && (Self->distanceTo(to_select) <= 1);
 }
@@ -301,7 +303,7 @@ public:
 
     }
 
-    virtual bool isEnabledAtPlay() const{
+    virtual bool isEnabledAtPlay(const Player *player) const{
         return true;
     }
 
@@ -351,7 +353,7 @@ ZombieScenario::ZombieScenario()
 
     skills<< new Peaching;
 
-    General *zombie = new General(this,"zombie","zombies",3, true, true);
+    General *zombie = new General(this,"zombie","zombie",3, true, true);
     zombie->addSkill(new Xunmeng);
     zombie->addSkill(new Ganran);
     zombie->addSkill(new Zaibian);

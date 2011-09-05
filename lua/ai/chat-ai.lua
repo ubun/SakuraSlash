@@ -7,37 +7,30 @@ function speakTrigger(card,from,to,event)
 	if (event=="death") and from:hasSkill("ganglie") then
 		speak(from,"ganglie_death")
 	end
-	if from:hasSkill("yongsi") then
-		speak(from,"yongsi")
-	end
-
+	
 	if not card then return end
 	
 	if card:inherits("Indulgence") and (to:getHandcardNum()>to:getHp()) then
 		speak(to,"indulgence")
-	elseif card:inherits("Bathroom") then
-		speak(to,"bathroom")
-	elseif card:inherits("Renew") then
-		speak(from,"renew")
 	elseif card:inherits("LeijiCard") then
 		speak(from,"leiji_jink")
-	elseif card:inherits("TuxiCard") then
-		speak(to,"tuxi")
 	elseif card:inherits("QuhuCard") then
 		speak(from,"quhu")
-	elseif card:inherits("NonoCard") and from:hasSkill("nono3") then
-		speak(from,"nono")
+	elseif card:inherits("Slash") and from:hasSkill("wusheng") and to:hasSkill("yizhong") then
+		speak(from,"wusheng_yizhong")
 	elseif card:inherits("Slash") and to:hasSkill("yiji") and (to:getHp()<=1) then
 		speak(to,"guojia_weak")
-	elseif card:inherits("SavageAssault") and (to:hasSkill("tieji") or to:hasSkill("jizhi") or to:hasSkill("huoji")) then
+	elseif card:inherits("SavageAssault") and (to:hasSkill("kongcheng") or to:hasSkill("huoji")) then
 		speak(to,"daxiang")
-	elseif to:hasSkill("guangrong") then
-		speak(to,"guangrong")
+	elseif card:inherits("FireAttack") and to:hasSkill("luanji") then
+		speak(to,"yuanshao_fire")
 	end
 end
 
 
 function SmartAI:speak(type, isFemale) 
+	if not sgs.GetConfig("AIChat", true) then return end
+	
     local i =math.random(1,#sgs.ai_chat[type])
 	if isFemale then 
 		type = type .. "_female" 
@@ -47,16 +40,10 @@ end
 
 sgs.ai_chat={}
 
-sgs.ai_chat.tuxi=
-{
-"这，就是传说中的天地一屎？",
-"回头弄不死你！"
-}
-
 sgs.ai_chat.yiji=
 {
-"有胆就来打我吧!",
-"狼虎灭却·金城铁壁!"
+"再用力一点",
+"要死了啊!"
 }
 
 sgs.ai_chat.hostile_female= 
@@ -67,10 +54,9 @@ sgs.ai_chat.hostile_female=
 }
 
 sgs.ai_chat.hostile={
-"你喜欢雷尼么？我还是萌花火~",
+"yoooo少年，不来一发么",
 "果然还是看你不爽",
-"我看你霸气外露，不可不防啊",
-"还是爱丽丝最可爱:)"
+"我看你霸气外露，不可不防啊"
 }
 
 sgs.ai_chat.resbond_hostile={
@@ -79,10 +65,10 @@ sgs.ai_chat.resbond_hostile={
 }
 
 sgs.ai_chat.friendly=
-{ "……" }
+{ "。。。" }
 
 sgs.ai_chat.resbond_friendly= 
-{ "谢了……" }
+{ "谢了。。。" }
 
 sgs.ai_chat.duel_female= 
 { 
@@ -91,7 +77,7 @@ sgs.ai_chat.duel_female=
 
 sgs.ai_chat.duel=
 {
-"来！一决胜负吧！"
+"来吧！像男人一样决斗吧！"
 }
 
 sgs.ai_chat.lucky=
@@ -112,29 +98,29 @@ sgs.ai_chat.collateral=
 
 sgs.ai_chat.jijiang_female= 
 { 
-"队长你现在和我不是一拨……爱莫能助啦" 
+"别指望下次我会帮你哦" 
 }
 
 sgs.ai_chat.jijiang=
 {
-"队长稳住，我来帮你！"
+"主公，我来啦"
 }
 
 --huanggai
 sgs.ai_chat.kurou=
 {
 "有桃么!有桃么？",
-"我，我想要桃……",
+"教练，我想要摸桃",
 "桃桃桃我的桃呢",
-"求桃求小机器人各种求"
+"求桃求连弩各种求"
 }
 
 --indulgence
 sgs.ai_chat.indulgence=
 {
-"我去，机器又出故障了！",
-"擦，敢弄我爱机？",
-"诶诶诶被摆了一道……"
+"乐，乐你妹啊乐",
+"擦，乐我",
+"诶诶诶被乐了！"
 }
 
 --leiji
@@ -153,27 +139,26 @@ sgs.ai_chat.quhu=
 "哟，拼点吧"
 }
 
---coquelicot
-sgs.ai_chat.nono=
+--wusheng to yizhong
+sgs.ai_chat.wusheng_yizhong=
 {
-"精彩的魔术，现在开始了！",
-"喜欢我送的装备么？嘻嘻~~",
-"下次可要好好谢我哦~"
-}
-
---drawcard
-sgs.ai_chat.guangrong=
-{
-"嘻嘻，旧的不去，新的不来~",
-"我的手牌是无穷无尽的！"
+"诶你技能是啥来着？",
+"在杀的颜色这个问题上咱是色盲",
+"咦你的技能呢？"
 }
 
 --salvageassault
 sgs.ai_chat.daxiang=
 {
-"帝国华击团又出动了，赶紧避难！",
-"擦，还好三笠号没有出来……",
-"内牛满面啊死伤无数啊……"
+"好多大象啊！",
+"擦，孟获你的宠物又调皮了",
+"内牛满面啊敢不敢少来点AOE"
+}
+
+--xiahoudun
+sgs.ai_chat.ganglie_death=
+{
+"菊花残，满地伤。。。"
 }
 
 sgs.ai_chat.guojia_weak=
@@ -182,30 +167,15 @@ sgs.ai_chat.guojia_weak=
 "不敢再卖了诶诶诶诶"
 }
 
---bathroom
-sgs.ai_chat.bathroom=
+sgs.ai_chat.yuanshao_fire=
 {
-"哇……色狼啊……",
-"谁、谁在偷窥我……",
-"555……被看光了……"
-}				  
-
---renew
-sgs.ai_chat.renew=
-{
-"爆发吧！",
-"赐予我力量吧……我是超人！",
-"哇哈哈~~"
+"谁去打119啊",
+"别别别烧了别烧了。。。",
+"又烧啊，饶了我吧。。。"
 }				  
 
 --xuchu
 sgs.ai_chat.luoyi=
 {
-"知道我在德国是怎么活下来的么？受死吧！"
-}
-
---yongsi
-sgs.ai_chat.yongsi=
-{
-"我可爱的拿破仑又拿了一堆破轮子~~"
+"不脱光衣服干不过你"
 }

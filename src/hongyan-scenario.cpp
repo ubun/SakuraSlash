@@ -1,5 +1,6 @@
 #include "hongyan-scenario.h"
 #include "engine.h"
+#include "standard-skillcards.h"
 #include "clientplayer.h"
 #include "client.h"
 #include "carditem.h"
@@ -10,7 +11,7 @@ LesbianJieyinCard::LesbianJieyinCard()
 
 }
 
-bool LesbianJieyinCard::targetFilter(const QList<const ClientPlayer *> &targets, const ClientPlayer *to_select) const{
+bool LesbianJieyinCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     if(!targets.isEmpty())
         return false;
 
@@ -23,8 +24,8 @@ public:
 
     }
 
-    virtual bool isEnabledAtPlay() const{
-        return ! Self->hasUsed("LesbianJieyinCard");
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return ! player->hasUsed("LesbianJieyinCard");
     }
 
     virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
@@ -52,7 +53,7 @@ LesbianLijianCard::LesbianLijianCard()
 {
 }
 
-bool LesbianLijianCard::targetFilter(const QList<const ClientPlayer *> &targets, const ClientPlayer *to_select) const{
+bool LesbianLijianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     if(!to_select->getGeneral()->isFemale())
         return false;
 
@@ -69,8 +70,8 @@ public:
 
     }
 
-    virtual bool isEnabledAtPlay() const{
-        return ! Self->hasUsed("LesbianLijianCard");
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return ! player->hasUsed("LesbianLijianCard");
     }
 
     virtual bool viewFilter(const CardItem *) const{

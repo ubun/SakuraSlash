@@ -25,10 +25,9 @@ public:
         Responsing,
         Playing,
         Discarding,
-        ExecDialog,   
+        ExecDialog,
         AskForAG,
         AskForPlayerChoose,
-        AskForCardShow,
         AskForYiji,
         AskForGuanxing,
         AskForGongxin,
@@ -38,28 +37,26 @@ public:
 
     void disconnectFromHost();
     void request(const QString &message);
-    void useCard(const Card *card, const QList<const ClientPlayer *> &targets = QList<const ClientPlayer *>());
+    void useCard(const Card *card, const QList<const Player *> &targets = QList<const Player *>());
     void setStatus(Status status);
     Status getStatus() const;
     int alivePlayerCount() const;
     void responseCard(const Card *card);
     bool noTargetResponsing() const;
     void discardCards(const Card *card);
-    void replyYiji(const Card *card, const ClientPlayer *to);
+    void replyYiji(const Card *card, const Player *to);
     void replyGuanxing(const QList<int> &up_cards, const QList<int> &down_cards);
     QList<const ClientPlayer *> getPlayers() const;
-    void speakToServer(const QString &text);    
+    void speakToServer(const QString &text);
     ClientPlayer *getPlayer(const QString &name);
     void surrender();
     void kick(const QString &to_kick);
     bool save(const QString &filename) const;
-    bool isProhibited(const Player *to, const Card *card) const;
     void setLines(const QString &skill_name);
-    bool isJilei(const Card *card) const;
-    bool canSlashWithCrossbow() const;
     QString getSkillLine() const;
     Replayer *getReplayer() const;
     QString getPlayerName(const QString &str);
+    QString getPattern() const;
 
     QTextDocument *getLinesDoc() const;
     QTextDocument *getPromptDoc() const;
@@ -75,7 +72,7 @@ public:
     void doChooseGeneral(const QString &generals_str);
     void doChooseGeneral2(const QString &generals_str);
     void startInXs(const QString &);
-    void arrangeSeats(const QString &seats);    
+    void arrangeSeats(const QString &seats);
     void activate(const QString &focus_player);
     void startGame(const QString &);
     void hpChange(const QString &change_str);
@@ -93,21 +90,18 @@ public:
     void doGuanxing(const QString &guanxing_str);
     void doGongxin(const QString &gongxin_str);
     void log(const QString &log_str);
-    void speak(const QString &speak_data);    
-    void increaseSlashCount(const QString & = QString());
+    void speak(const QString &speak_data);
     void addHistory(const QString &card);
     void moveFocus(const QString &focus);
     void setEmotion(const QString &set_str);
     void skillInvoked(const QString &invoke_str);
     void acquireSkill(const QString &acquire_str);
-    void addProhibitSkill(const QString &skill_name);
     void animate(const QString &animate_str);
-    void setPrompt(const QString &prompt_str);
     void jilei(const QString &jilei_str);
-    void judgeResult(const QString &result_str);    
+    void judgeResult(const QString &result_str);
     void setScreenName(const QString &set_str);
     void setFixedDistance(const QString &set_str);
-    void pile(const QString &pile_str);    
+    void pile(const QString &pile_str);
     void transfigure(const QString &transfigure_tr);
 
     void moveCard(const QString &move_str);
@@ -130,7 +124,7 @@ public:
     void askForExchange(const QString &exchange_str);
     void askForSuit(const QString &);
     void askForKingdom(const QString &);
-    void askForNullification(const QString &ask_str);    
+    void askForNullification(const QString &ask_str);
     void askForPindian(const QString &ask_str);
     void askForYiji(const QString &card_list);
     void askForCardChosen(const QString &ask_str);
@@ -151,14 +145,15 @@ public:
     void attachSkill(const QString &skill_name);
     void detachSkill(const QString &skill_name);
 
+    void askForAssign(const QString &);
+
     // public fields
-    QString card_pattern;
     bool refusable;
     bool include_equip;
     int discard_num;
     QList<const Card*> discarded_list;
     QDialog *ask_dialog;
-    QStringList players_to_choose;    
+    QStringList players_to_choose;
 
 public slots:
     void signup();
@@ -166,7 +161,7 @@ public slots:
     void selectChoice();
     void updateFrequentFlags(int state);
     void chooseCard(int card_id = -2);
-    void choosePlayer(const ClientPlayer *player);
+    void choosePlayer(const Player *player);
     void trust();
     void requestCard(int card_id);
     void addRobot();
@@ -186,12 +181,12 @@ private:
     QStringList ban_packages;
     Recorder *recorder;
     Replayer *replayer;
-    QList<const ProhibitSkill *> prohibit_skills;
     QTextDocument *lines_doc, *prompt_doc;
     int pile_num;
     QString skill_title, skill_line;
-    QString jilei_flags;
     QString choose_command;
+    QString card_pattern;
+    int swap_pile;
 
     void updatePileNum();
     void setPromptList(const QStringList &text);
@@ -211,9 +206,9 @@ signals:
     void server_connected();
     void error_message(const QString &msg);
     void player_added(ClientPlayer *new_player);
-    void player_removed(const QString &player_name);    
+    void player_removed(const QString &player_name);
     void generals_got(const QStringList &generals);
-    void seats_arranged(const QList<const ClientPlayer*> &seats);    
+    void seats_arranged(const QList<const ClientPlayer*> &seats);
     void hp_changed(const QString &who, int delta, DamageStruct::Nature nature);
     void status_changed(Client::Status new_status);
     void avatars_hiden();
@@ -229,11 +224,12 @@ signals:
     void skill_invoked(const QString &who, const QString &skill_name);
     void skill_acquired(const ClientPlayer *player, const QString &skill_name);
     void animated(const QString &name, const QStringList &args);
-    void words_spoken(const QString &line);
+    void text_spoken(const QString &text);
+    void line_spoken(const QString &line);
     void judge_result(const QString &who, const QString &result);
 
     void game_started();
-    void game_over(bool victory, const QList<bool> &result_list);
+    void game_over();
     void standoff();
 
     void cards_drawed(const QList<const Card *> &cards);
@@ -255,6 +251,8 @@ signals:
     void arrange_started();
     void general_recovered(int index, const QString &name);
     void general_revealed(bool self, const QString &general);
+
+    void assign_asked();
 };
 
 extern Client *ClientInstance;

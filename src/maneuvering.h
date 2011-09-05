@@ -33,9 +33,9 @@ public:
     virtual QString getSubtype() const;
     virtual QString getEffectPath(bool is_male) const;
 
-    static bool IsAvailable();
+    static bool IsAvailable(const Player *player);
 
-    virtual bool isAvailable() const;
+    virtual bool isAvailable(const Player *player) const;
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
@@ -54,18 +54,20 @@ public:
     Q_INVOKABLE GudingBlade(Card::Suit suit, int number);
 };
 
-class Machine: public Armor{
+class Vine: public Armor{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE Machine(Card::Suit suit, int number);
+    Q_INVOKABLE Vine(Card::Suit suit, int number);
 };
 
-class Doggy: public Armor{
+class SilverLion: public Armor{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE Doggy(Card::Suit suit, int number);
+    Q_INVOKABLE SilverLion(Card::Suit suit, int number);
+
+    virtual void onUninstall(ServerPlayer *player) const;
 };
 
 class IronChain: public TrickCard{
@@ -77,8 +79,8 @@ public:
     virtual QString getSubtype() const;
     virtual QString getEffectPath(bool is_male) const;
 
-    virtual bool targetFilter(const QList<const ClientPlayer *> &targets, const ClientPlayer *to_select) const;
-    virtual bool targetsFeasible(const QList<const ClientPlayer *> &targets) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
 
     virtual void onUse(Room *room, const CardUseStruct &card_use) const;
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
@@ -91,7 +93,7 @@ class FireAttack: public SingleTargetTrick{
 public:
     Q_INVOKABLE FireAttack(Card::Suit suit, int number);
 
-    virtual bool targetFilter(const QList<const ClientPlayer *> &targets, const ClientPlayer *to_select) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
@@ -101,125 +103,9 @@ class SupplyShortage: public DelayedTrick{
 public:
     Q_INVOKABLE SupplyShortage(Card::Suit suit, int number);
 
-    virtual bool targetFilter(const QList<const ClientPlayer *> &targets, const ClientPlayer *to_select) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual void takeEffect(ServerPlayer *target) const;
 };
-
-class Floriation: public Armor{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Floriation(Card::Suit suit, int number);
-};
-
-class Yajiao: public Weapon{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Yajiao(Card::Suit suit, int number);
-};
-
-//sakura
-class Pistol: public Weapon{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Pistol(Card::Suit suit, int number);
-    virtual void onInstall(ServerPlayer *player) const;
-};
-
-class Muramasa: public Weapon{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Muramasa(Card::Suit suit, int number);
-};
-
-class Mazinka: public Armor{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Mazinka(Card::Suit suit, int number);
-    virtual void onUninstall(ServerPlayer *player) const;
-    virtual void onMove(const CardMoveStruct &move) const;
-};
-
-class Cat: public Armor{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Cat(Card::Suit suit, int number);
-
-    virtual void onInstall(ServerPlayer *player) const;
-    virtual void onUninstall(ServerPlayer *player) const;
-    virtual QString getEffectPath(bool is_male) const;
-
-private:
-    TriggerSkill *grab_peach;
-};
-
-class Ufo:public Armor{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Ufo(Card::Suit suit, int number);
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const;
-};
-
-class ET:public Armor{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE ET(Card::Suit suit, int number);
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const;
-};
-
-class Redalert:public AOE{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Redalert(Card::Suit suit, int number);
-    virtual void onEffect(const CardEffectStruct &effect) const;
-};
-
-class Renew: public SingleTargetTrick{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Renew(Card::Suit suit, int number);
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-};
-
-class Hitself:public DelayedTrick{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Hitself(Card::Suit suit, int number);
-
-    virtual bool targetFilter(const QList<const ClientPlayer *> &targets, const ClientPlayer *to_select) const;
-    virtual void takeEffect(ServerPlayer *target) const;
-};
-
-class Turnover: public SingleTargetTrick{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Turnover(Card::Suit suit, int number);
-
-    virtual bool targetFilter(const QList<const ClientPlayer *> &targets, const ClientPlayer *to_select) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
-};
-
-class Bathroom: public SingleTargetTrick{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Bathroom(Card::Suit suit, int number);
-
-    virtual bool targetFilter(const QList<const ClientPlayer *> &targets, const ClientPlayer *to_select) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
-};
-
 
 class ManeuveringPackage: public Package{
     Q_OBJECT

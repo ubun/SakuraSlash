@@ -33,6 +33,7 @@ public:
     bool ForbidSIMC;
     bool DisableChat;
     bool Enable2ndGeneral;
+    bool EnableScene;	//changjing
     int MaxHpScheme;
     bool AnnounceIP;
     QString Address;
@@ -62,7 +63,6 @@ public:
     float Volume;
 
     QString BackgroundBrush;
-    QString BackgroundMusic;
 };
 
 extern Settings Config;

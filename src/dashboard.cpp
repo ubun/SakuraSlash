@@ -126,6 +126,11 @@ void Dashboard::setActionState(){
 
 void Dashboard::setFilter(const FilterSkill *filter){
     this->filter = filter;
+
+    if(filter == NULL){
+        foreach(CardItem *card_item, card_items)
+            card_item->filter(NULL);
+    }
 }
 
 const FilterSkill *Dashboard::getFilter() const{
@@ -141,9 +146,11 @@ void Dashboard::addCardItem(CardItem *card_item){
     card_item->filter(filter);
 
     if(ClientInstance->getStatus() == Client::Playing)
-        card_item->setEnabled(card_item->getFilteredCard()->isAvailable());
-    else
+        card_item->setEnabled(card_item->getFilteredCard()->isAvailable(Self));
+    else{
+        card_item->setEnabled(true);
         card_item->setEnabled(false);
+    }
 
     card_item->setPos(mapFromScene(card_item->pos()));
     card_item->setParentItem(this);
@@ -174,7 +181,20 @@ void Dashboard::setPlayer(const ClientPlayer *player){
 void Dashboard::updateAvatar(){
     const General *general = Self->getAvatarGeneral();
     avatar->setToolTip(general->getSkillDescription());
-    avatar->changePixmap(general->getPixmapPath("big"));
+    if(!avatar->changePixmap(general->getPixmapPath("big"))){
+        QPixmap pixmap(General::BigIconSize);
+        pixmap.fill(Qt::black);
+
+        QPainter painter(&pixmap);
+
+        painter.setPen(Qt::white);
+        painter.setFont(Config.SmallFont);
+        painter.drawText(0, 0, pixmap.width(), pixmap.height(),
+                         Qt::AlignCenter,
+                         Sanguosha->translate(Self->getGeneralName()));
+
+        avatar->setPixmap(pixmap);
+    }
 
     kingdom->setPixmap(QPixmap(Self->getKingdomIcon()));
 
@@ -188,7 +208,21 @@ void Dashboard::updateSmallAvatar(){
     const General *general2 = Self->getGeneral2();
     if(general2){
         small_avatar->setToolTip(general2->getSkillDescription());
-        small_avatar->changePixmap(general2->getPixmapPath("tiny"));
+        bool success = small_avatar->changePixmap(general2->getPixmapPath("tiny"));
+
+        if(!success){
+            QPixmap pixmap(General::TinyIconSize);
+            pixmap.fill(Qt::black);
+
+            QPainter painter(&pixmap);
+
+            painter.setPen(Qt::white);
+            painter.drawText(0, 0, pixmap.width(), pixmap.height(),
+                             Qt::AlignCenter,
+                             Sanguosha->translate(Self->getGeneral2Name()));
+
+            small_avatar->setPixmap(pixmap);
+        }
     }
 
     update();
@@ -218,7 +252,7 @@ void Dashboard::selectCard(const QString &pattern, bool forward){
     }
 
     if(matches.isEmpty()){
-        unselectAll();        
+        unselectAll();
         return;
     }
 
@@ -332,7 +366,7 @@ QPushButton *Dashboard::createButton(const QString &name){
     QIcon icon(icon_pixmap);
     icon.addPixmap(icon_pixmap_disabled, QIcon::Disabled);
 
-    button->setIcon(icon);    
+    button->setIcon(icon);
     button->setIconSize(icon_pixmap.size());
     button->setFixedSize(icon_pixmap.size());
     button->setObjectName(name);
@@ -399,6 +433,9 @@ void Dashboard::killPlayer(){
     death_item->setPos(397, 55);
 
     filter = NULL;
+
+    avatar->makeGray();
+    small_avatar->makeGray();
 }
 
 void Dashboard::revivePlayer(){
@@ -406,6 +443,8 @@ void Dashboard::revivePlayer(){
         delete death_item;
         death_item = NULL;
     }
+
+    updateAvatar();
 }
 
 void Dashboard::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *){
@@ -703,65 +742,18 @@ void Dashboard::disableAllCards(){
     }
 }
 
-void Dashboard::enableCards(){    
+void Dashboard::enableCards(){
     foreach(CardItem *card_item, card_items){
-        if(ClientInstance->isJilei(card_item->getFilteredCard()))
+        if(Self->isJilei(card_item->getFilteredCard()))
             card_item->setEnabled(false);
         else
-            card_item->setEnabled(card_item->getFilteredCard()->isAvailable());
+            card_item->setEnabled(card_item->getFilteredCard()->isAvailable(Self));
     }
 }
 
 void Dashboard::enableAllCards(){
     foreach(CardItem *card_item, card_items)
         card_item->setEnabled(true);
-}
-
-void Dashboard::enableCards(const QString &pattern){
-    static QRegExp id_rx("\\d+");
-    static QRegExp suit_rx("\\.[SCHD]");
-
-    if(pattern.contains("+")){
-        QStringList subpatterns = pattern.split("+");
-
-        foreach(CardItem *card_item, card_items){
-            const Card *card = card_item->getFilteredCard();
-            bool enabled = false;
-            foreach(QString subpattern, subpatterns){
-                if(card->match(subpattern)){
-                    enabled = true;
-                    break;
-                }
-            }
-
-            card_item->setEnabled(enabled);
-        }
-        return;
-    }else if(id_rx.exactMatch(pattern)){
-        int id = pattern.toInt();
-        foreach(CardItem *card_item, card_items)
-            card_item->setEnabled(card_item->getCard()->getId() == id);
-        return;
-    }else if(pattern == "."){
-        enableAllCards();
-        return;
-    }else if(suit_rx.exactMatch(pattern)){
-        QChar end = pattern.at(1).toLower();
-        foreach(CardItem *card_item, card_items){
-            bool enabled = card_item->getFilteredCard()->getSuitString().startsWith(end);
-            card_item->setEnabled(enabled);
-        }
-    }else{
-        foreach(CardItem *card_item, card_items){
-            card_item->setEnabled(card_item->getFilteredCard()->match(pattern));
-        }
-    }
-
-    // insert jilei
-    foreach(CardItem *card_item, card_items){
-        if(ClientInstance->isJilei(card_item->getFilteredCard()))
-            card_item->setEnabled(false);
-    }
 }
 
 void Dashboard::startPending(const ViewAsSkill *skill){

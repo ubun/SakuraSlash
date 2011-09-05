@@ -47,7 +47,7 @@ sgs.ai_skill_use["@tianxiang"]=function(self, data)
         cards=sgs.QList2Table(cards)
 		self:sortByUseValue(cards,true)
         for _,card in ipairs(cards) do
-			if (card:getSuit() == sgs.Card_Heart) then
+			if (card:getSuit() == sgs.Card_Spade or card:getSuit() == sgs.Card_Heart) then
 				card_id = card:getId()
 				return "@TianxiangCard="..card_id.."->"..target:objectName()
 			end	
@@ -81,7 +81,7 @@ sgs.ai_skill_use["@tianxiang"]=function(self, data)
         cards=sgs.QList2Table(cards)
 		self:sortByUseValue(cards,true)
         for _,card in ipairs(cards) do
-			if (card:getSuit() == sgs.Card_Heart) and not card:inherits("Peach") then
+			if (card:getSuit() == sgs.Card_Spade or card:getSuit() == sgs.Card_Heart) and not card:inherits("Peach") then
 				card_id = card:getId()
 				return "@TianxiangCard="..card_id.."->"..target:objectName()
 			end	
@@ -110,7 +110,7 @@ sgs.ai_skill_use["@tianxiang"]=function(self, data)
         cards=sgs.QList2Table(cards)
 		self:sortByUseValue(cards,true)
         for _,card in ipairs(cards) do
-			if (card:getSuit() == sgs.Card_Heart) and not card:inherits("Peach") then
+			if (card:getSuit() == sgs.Card_Spade or card:getSuit() == sgs.Card_Heart) and not card:inherits("Peach") then
 				card_id = card:getId()
 				return "@TianxiangCard="..card_id.."->"..target:objectName()
 			end	

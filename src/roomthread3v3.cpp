@@ -18,12 +18,10 @@ QStringList RoomThread3v3::getGeneralsWithoutExtension() const{
     QList<const General *> generals;
 
     const Package *stdpack = Sanguosha->findChild<const Package *>("standard");
-    const Package *degopack = Sanguosha->findChild<const Package *>("dego");
-    const Package *paripack = Sanguosha->findChild<const Package *>("pari");
+    const Package *windpack = Sanguosha->findChild<const Package *>("wind");
 
     generals = stdpack->findChildren<const General *>();
-    generals << degopack->findChildren<const General *>();
-    generals << paripack->findChildren<const General *>();
+    generals << windpack->findChildren<const General *>();
 
     // remove hidden generals
     QMutableListIterator<const General *> itor(generals);
@@ -34,8 +32,7 @@ QStringList RoomThread3v3::getGeneralsWithoutExtension() const{
             itor.remove();
     }
 
-    generals << Sanguosha->getGeneral("yoneda")
-            << Sanguosha->getGeneral("granma");
+    generals.removeOne(Sanguosha->getGeneral("yuji"));
 
     Q_ASSERT(generals.length() == 32);
 

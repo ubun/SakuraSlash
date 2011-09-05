@@ -1,5 +1,6 @@
 class QVariant{
 public:
+	QVariant();
 	QVariant(int);
 	QVariant(const char *);
 	QVariant(bool);
@@ -46,12 +47,12 @@ public:
 		$self->setValue(QVariant::fromValue(*use));
 	}
 	
-	CardMoveStruct toCardMove() const{
-		return $self->value<CardMoveStruct>();
+	const CardMoveStruct *toCardMove() const{
+		return $self->value<CardMoveStar>();
 	}
 	
-	void setValue(CardMoveStruct *move){
-		$self->setValue(QVariant::fromValue(*move));
+	void setValue(const CardMoveStruct *move){
+		$self->setValue(move);
 	}
 	
 	const Card *toCard() const{
@@ -92,5 +93,13 @@ public:
 
 	JudgeStruct *toJudge() const{
 		return $self->value<JudgeStar>();
+	}
+
+	void setValue(PindianStruct *pindian){
+		$self->setValue(QVariant::fromValue(pindian));
+	}
+
+	PindianStruct *toPindian() const{
+		return $self->value<PindianStar>();
 	}
 };

@@ -4,7 +4,7 @@
 TARGET = QSanguosha
 QT += network sql
 TEMPLATE = app
-CONFIG += warn_on audio joystick
+CONFIG += warn_on audio joystick qaxcontainer
 SOURCES += src/main.cpp \
     src/mainwindow.cpp \
     src/button.cpp \
@@ -29,13 +29,18 @@ SOURCES += src/main.cpp \
     src/serverplayer.cpp \
     src/clientplayer.cpp \
     src/standard-cards.cpp \
+    src/standard-generals.cpp \
     src/standard.cpp \
+    src/standard-skillcards.cpp \
     src/gamerule.cpp \
     src/playercarddialog.cpp \
     src/roomthread.cpp \
-    src/optionbutton.cpp \
     src/maneuvering.cpp \
+    src/wind.cpp \
+    src/thicket.cpp \
     src/distanceviewdialog.cpp \
+    src/yitianpackage.cpp \
+    src/firepackage.cpp \
     src/god.cpp \
     src/configdialog.cpp \
     src/clientlogbox.cpp \
@@ -52,6 +57,7 @@ SOURCES += src/main.cpp \
     src/fancheng-scenario.cpp \
     src/scenario-overview.cpp \
     src/challengemode.cpp \
+    src/nostalgia.cpp \
     src/joypackage.cpp \
     src/rolecombobox.cpp \
     src/couple-scenario.cpp \
@@ -60,18 +66,19 @@ SOURCES += src/main.cpp \
     src/window.cpp \
     src/contestdb.cpp \
     src/hongyan-scenario.cpp \
+    src/sp-package.cpp \
+    src/yjcm-package.cpp \
     src/roomthread3v3.cpp \
     src/cardcontainer.cpp \
     src/roomthread1v1.cpp \
-    src/othe.cpp \
-    src/pari.cpp \
-    src/evil.cpp \
-    src/dego.cpp \
-    src/evilplus.cpp \
     src/cardeditor.cpp \
     src/zombie-mode-scenario.cpp \
     src/generalselector.cpp \
-    src/packagingeditor.cpp
+    src/packagingeditor.cpp \
+    src/boss-mode-scenario.cpp \
+    src/legend-mode-scenario.cpp \
+    src/mountainpackage.cpp \
+    src/scenerule.cpp
 HEADERS += src/mainwindow.h \
     src/button.h \
     src/settings.h \
@@ -99,9 +106,12 @@ HEADERS += src/mainwindow.h \
     src/gamerule.h \
     src/playercarddialog.h \
     src/roomthread.h \
-    src/optionbutton.h \
     src/maneuvering.h \
+    src/wind.h \
+    src/thicket.h \
     src/distanceviewdialog.h \
+    src/yitianpackage.h \
+    src/firepackage.h \
     src/god.h \
     src/configdialog.h \
     src/clientlogbox.h \
@@ -119,33 +129,35 @@ HEADERS += src/mainwindow.h \
     src/fancheng-scenario.h \
     src/scenario-overview.h \
     src/challengemode.h \
+    src/nostalgia.h \
     src/joypackage.h \
     src/rolecombobox.h \
     src/standard-equips.h \
     src/couple-scenario.h \
+    src/standard-skillcards.h \
     src/structs.h \
     src/lua-wrapper.h \
     src/window.h \
     src/contestdb.h \
     src/hongyan-scenario.h \
+    src/sp-package.h \
+    src/yjcm-package.h \
     src/roomthread3v3.h \
     src/cardcontainer.h \
     src/roomthread1v1.h \
-    src/othe.h \
-    src/evil.h \
-    src/dego.h \
-    src/pari.h \
-    src/evilplus.h \
     src/cardeditor.h \
     src/zombie-mode-scenario.h \
     src/generalselector.h \
-    src/packagingeditor.h
+    src/packagingeditor.h \
+    src/boss-mode-scenario.h \
+    src/legend-mode-scenario.h \
+    src/mountainpackage.h \
+    src/scenerule.h
 
 FORMS += src/mainwindow.ui \
     src/connectiondialog.ui \
     src/generaloverview.ui \
     src/cardoverview.ui \
-    src/distanceviewdialog.ui \
     src/configdialog.ui
 
 
@@ -166,7 +178,7 @@ CONFIG(audio){
     DEFINES += AUDIO_SUPPORT
     INCLUDEPATH += include/irrKlang
     win32: LIBS += irrKlang.lib
-    unix: LIBS += -lIrrKlang
+    unix: LIBS += -lphonon
 }
 
 CONFIG(joystick){

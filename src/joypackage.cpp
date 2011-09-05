@@ -19,12 +19,17 @@ void Shit::onMove(const CardMoveStruct &move) const{
        && move.to == NULL
        && from->isAlive()){
 
+        if(getSuit() == Spade){
+            from->getRoom()->loseHp(from);
+            return;
+        }
+
         DamageStruct damage;
         damage.from = damage.to = from;
         damage.card = this;
 
         switch(getSuit()){
-        case Spade: damage.nature = DamageStruct::Thunder; break;
+        case Club: damage.nature = DamageStruct::Thunder; break;
         case Heart: damage.nature = DamageStruct::Fire; break;
         default:
             damage.nature = DamageStruct::Normal;
@@ -46,81 +51,6 @@ bool Shit::HasShit(const Card *card){
         return false;
     }else
         return card->objectName() == "shit";
-}
-
-//girls
-Sakura::Sakura(Suit suit, int number):BasicCard(suit, number){
-    setObjectName("sakura");
-    target_fixed = true;
-}
-
-QString Sakura::getSubtype() const{
-    return "girl_card";
-}
-
-void Sakura::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-//    default_choice = "later";
-    room->throwCard(this);
-    foreach(ServerPlayer *player, room->getAlivePlayers())
-        if(player->getGeneralName() == objectName()){
-            room->drawCards(source,1);
-            return;
-        }
-    room->transfigure(source,objectName(),false);
-//    room->acquireSkill(source, "sakura", false);
-}
-
-void Sakura::onMove(const CardMoveStruct &move) const{
-    if(move.to_place != Player::Hand) return;
-    Room *room = move.to->getRoom();
-    ServerPlayer *from = move.to;
-//    if(move.from_place == Player::DrawPile){
-    QString answer = room->askForChoice(from, objectName(), "use+zhi+later");
-        if (answer=="use")
-            use(room,move.to,room->getAllPlayers());
-        else if(answer=="zhi"){
-            room->throwCard(this);
-            room->drawCards(from, 1);
-        }
-        else return;
-//    }
-}
-
-Erica::Erica(Suit suit, int number):BasicCard(suit, number){
-    setObjectName("erica");
-    target_fixed = true;
-}
-
-QString Erica::getSubtype() const{
-    return "girl_card";
-}
-
-void Erica::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-//    default_choice = "later";
-    room->throwCard(this);
-    foreach(ServerPlayer *player, room->getAlivePlayers())
-        if(player->getGeneralName() == objectName()){
-            room->drawCards(source,1);
-            return;
-        }
-    room->transfigure(source, objectName(), false);
-//    room->acquireSkill(source, "sakura", false);
-}
-
-void Erica::onMove(const CardMoveStruct &move) const{
-    if(move.to_place != Player::Hand) return;
-    Room *room = move.to->getRoom();
-    ServerPlayer *from = move.to;
-//    if(move.from_place == Player::DrawPile){
-    QString answer = room->askForChoice(from, objectName(), "use+zhi+later");
-        if (answer=="use")
-            use(room,move.to,room->getAllPlayers());
-        else if(answer=="zhi"){
-            room->throwCard(this);
-            room->drawCards(from, 1);
-        }
-        else return;
-//    }
 }
 
 // -----------  Deluge -----------------
@@ -305,131 +235,101 @@ void MudSlide::takeEffect(ServerPlayer *target) const{
     }
 }
 
-// -----------  Locust -----------------
-
-Locust::Locust(Card::Suit suit, int number)
-    :Disaster(suit, number)
-{
-    setObjectName("locust");
-
-    judge.pattern = QRegExp("(.*):(.*):([JQ])");
-    judge.good = true;
-    judge.reason = objectName();
-}
-
-void Locust::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    room->moveCardTo(this, source->getNextAlive(), Player::Judging);
-}
-
-void Locust::takeEffect(ServerPlayer *target) const{
-    Room *room = target->getRoom();
-    if(target->isKongcheng())
-        room->loseHp(target);
-    else room->askForDiscard(target,objectName(),1);
-    onNullified(target);
-//    room->moveCardTo(this, target->getNextAlive(), Player::Judging);
-}
-
-void Locust::onEffect(const CardEffectStruct &effect) const{
-    Room *room = effect.to->getRoom();
-
-    LogMessage log;
-    log.from = effect.to;
-    log.type = "#DelayedTrick";
-    log.arg = effect.card->objectName();
-    room->sendLog(log);
-
-    JudgeStruct judge_struct = judge;
-    judge_struct.who = effect.to;
-    room->judge(judge_struct);
-
-    if(judge_struct.isBad()){
-        takeEffect(effect.to);
-    }else {
-        if(room->askForChoice(effect.to,objectName(),"move+throw")=="throw")
-            room->throwCard(this);
-        else
-//        room->moveCardTo(this, effect.to->getNextAlive(), Player::Judging);
-        onNullified(effect.to);
-    }
-}
-
-//extra 2 items
-class YitianSwordSkill : public WeaponSkill{
+class GrabPeach: public TriggerSkill{
 public:
-    YitianSwordSkill():WeaponSkill("yitian_sword"){
-        events << DamageComplete;
+    GrabPeach():TriggerSkill("grab_peach"){
+        events << CardUsed;
     }
 
-    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &) const{
-        if(player->getPhase() != Player::NotActive)
-           return false;
+    virtual bool triggerable(const ServerPlayer *) const{
+        return true;
+    }
 
-        if(player->askForSkillInvoke("yitian"))
-            player->getRoom()->askForUseCard(player, "slash", "yitian-slash");
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        CardUseStruct use = data.value<CardUseStruct>();
+        if(use.card->inherits("Peach")){
+            Room *room = player->getRoom();
+            QList<ServerPlayer *> players = room->getOtherPlayers(player);
+
+            foreach(ServerPlayer *p, players){
+                if(p->getOffensiveHorse() == parent() &&
+                   p->askForSkillInvoke("grab_peach", data))
+                {
+                    room->throwCard(p->getOffensiveHorse());
+                    room->playCardEffect(objectName(), p->getGeneral()->isMale());
+                    p->obtainCard(use.card);
+
+                    return true;
+                }
+            }
+        }
 
         return false;
     }
 };
 
-YitianSword::YitianSword(Suit suit, int number)
-    :Weapon(suit, number, 2)
+Monkey::Monkey(Card::Suit suit, int number)
+    :OffensiveHorse(suit, number)
 {
-    setObjectName("yitian_sword");
-    skill = new YitianSwordSkill;
+    setObjectName("monkey");
+
+    grab_peach = new GrabPeach;
+    grab_peach->setParent(this);
 }
 
-void YitianSword::onMove(const CardMoveStruct &move) const{
-    if(move.from_place == Player::Equip && move.from->isAlive()){
-        Room *room = move.from->getRoom();
-
-        bool invoke = move.from->askForSkillInvoke("yitian-lost");
-        if(!invoke)
-            return;
-
-        ServerPlayer *target = room->askForPlayerChosen(move.from, room->getAllPlayers(), "yitian-lost");
-        DamageStruct damage;
-        damage.from = move.from;
-        damage.to = target;
-        damage.card = this;
-
-        room->damage(damage);
-    }
+void Monkey::onInstall(ServerPlayer *player) const{
+    player->getRoom()->getThread()->addTriggerSkill(grab_peach);
 }
 
-class MoonSpearSkill: public WeaponSkill{
+void Monkey::onUninstall(ServerPlayer *player) const{
+
+}
+
+QString Monkey::getEffectPath(bool ) const{
+    return "audio/card/common/monkey.ogg";
+}
+
+class GaleShellSkill: public ArmorSkill{
 public:
-    MoonSpearSkill():WeaponSkill("moon_spear"){
-        events << CardFinished << CardResponsed;
+    GaleShellSkill():ArmorSkill("gale-shell"){
+        events << Predamaged;
     }
 
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        if(player->getPhase() != Player::NotActive)
-            return false;
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        if(damage.nature == DamageStruct::Fire){
+            LogMessage log;
+            log.type = "#GaleShellDamage";
+            log.from = player;
+            log.arg = QString::number(damage.damage);
+            log.arg2 = QString::number(damage.damage + 1);
+            player->getRoom()->sendLog(log);
 
-
-        CardStar card = NULL;
-        if(event == CardFinished){
-            CardUseStruct card_use = data.value<CardUseStruct>();
-            card = card_use.card;
-        }else if(event == CardResponsed)
-            card = data.value<CardStar>();
-
-        if(card == NULL || !card->isBlack())
-            return false;
-
-        Room *room = player->getRoom();
-        room->askForUseCard(player, "slash", "@moon-spear-slash");
-
+            damage.damage ++;
+            data = QVariant::fromValue(damage);
+        }
         return false;
     }
 };
 
-MoonSpear::MoonSpear(Suit suit, int number)
-    :Weapon(suit, number, 3)
-{
-        setObjectName("moon_spear");
-        skill = new MoonSpearSkill;
+GaleShell::GaleShell(Suit suit, int number) :Armor(suit, number){
+    setObjectName("gale-shell");
+    skill = new GaleShellSkill;
+
+    target_fixed = false;
+}
+
+bool GaleShell::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && Self->distanceTo(to_select) <= 1;
+}
+
+void GaleShell::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    ServerPlayer *target = targets.value(0, source);
+
+    if(target->getArmor())
+        room->throwCard(target->getArmor());
+
+    room->moveCardTo(this, target, Player::Equip, true);
 }
 
 
@@ -438,25 +338,19 @@ JoyPackage::JoyPackage()
 {
     QList<Card *> cards;
 
-    cards
-            << new Shit(Card::Club, 1)
-            << new Shit(Card::Heart, 5)
-            << new Shit(Card::Spade, 9)
+    cards << new Shit(Card::Club, 1)
+            << new Shit(Card::Heart, 8)
             << new Shit(Card::Diamond, 13)
-            << new Sakura(Card::Heart, 4)
-            << new Erica(Card::Diamond, 4);
+            << new Shit(Card::Spade, 10);
 
-    cards
-            << new YitianSword(Card::Spade, 6)
-            << new MoonSpear(Card::Diamond, 12)
-            << new Deluge(Card::Spade, 1)   //洪水
-            << new Typhoon(Card::Diamond, 4) //台风
-            << new Earthquake(Card::Club, 10)  //地震
-            << new Volcano(Card::Heart, 13)  //火山
-            << new MudSlide(Card::Heart, 7)  //泥石流
-            << new Locust(Card::Club, 6);  //虫灾
+    cards << new Deluge(Card::Spade, 1)
+            << new Typhoon(Card::Spade, 4)
+            << new Earthquake(Card::Club, 10)
+            << new Volcano(Card::Heart, 13)
+            << new MudSlide(Card::Heart, 7);
 
-
+    cards << new Monkey(Card::Diamond, 5)
+            << new GaleShell(Card::Heart, 1);
 
     foreach(Card *card, cards)
         card->setParent(this);

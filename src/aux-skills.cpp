@@ -3,7 +3,8 @@
 #include "carditem.h"
 #include "standard.h"
 #include "clientplayer.h"
-#include "othe.h"
+#include "standard-skillcards.h"
+#include "engine.h"
 
 DiscardSkill::DiscardSkill()
     :ViewAsSkill("discard"), card(new DummyCard),
@@ -27,7 +28,7 @@ bool DiscardSkill::viewFilter(const QList<CardItem *> &selected, const CardItem 
     if(!include_equip && to_select->isEquipped())
         return false;
 
-    if(ClientInstance->isJilei(to_select->getFilteredCard()))
+    if(Self->isJilei(to_select->getFilteredCard()))
         return false;
 
     return true;
@@ -44,6 +45,37 @@ const Card *DiscardSkill::viewAs(const QList<CardItem *> &cards) const{
 
 // -------------------------------------------
 
+ResponseSkill::ResponseSkill()
+    :OneCardViewAsSkill("response-skill")
+{
+
+}
+
+void ResponseSkill::setPattern(const QString &pattern){
+    this->pattern = Sanguosha->getPattern(pattern);
+}
+
+bool ResponseSkill::matchPattern(const Player *player, const Card *card) const{
+    if(player->isJilei(card))
+        return false;
+
+    return pattern && pattern->match(player, card);
+}
+
+bool ResponseSkill::viewFilter(const CardItem *to_select) const{
+    if(to_select->isEquipped())
+        return false;
+
+    const Card *card = to_select->getFilteredCard();
+    return matchPattern(Self, card);
+}
+
+const Card *ResponseSkill::viewAs(CardItem *card_item) const{
+    return card_item->getFilteredCard();
+}
+
+// -------------------------------------------
+
 FreeDiscardSkill::FreeDiscardSkill(QObject *parent)
     :ViewAsSkill("free-discard")
 {
@@ -51,7 +83,7 @@ FreeDiscardSkill::FreeDiscardSkill(QObject *parent)
     card = new DummyCard;
 }
 
-bool FreeDiscardSkill::isEnabledAtPlay() const{
+bool FreeDiscardSkill::isEnabledAtPlay(const Player *) const{
     return true;
 }
 
@@ -109,7 +141,7 @@ public:
         set = names.toSet();
     }
 
-    virtual bool targetFilter(const QList<const ClientPlayer *> &targets, const ClientPlayer *to_select) const{
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
         return targets.isEmpty() && set.contains(to_select->objectName());
     }
 

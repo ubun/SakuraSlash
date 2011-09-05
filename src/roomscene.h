@@ -27,6 +27,7 @@ class QGroupBox;
 #include <QDialog>
 #include <QGraphicsWidget>
 #include <QGraphicsProxyWidget>
+#include <QThread>
 
 class DeathNoteDialog: public QDialog{
     Q_OBJECT
@@ -91,7 +92,32 @@ private:
     qreal speed;
 };
 
-class RoomScene : public QGraphicsScene{    
+#ifdef Q_OS_WIN32
+
+class QAxObject;
+
+class SpeakThread: public QThread{
+    Q_OBJECT
+
+public:
+    SpeakThread(QObject *parent);
+
+public slots:
+    void speak(const QString &text);
+    void finish();
+
+protected:
+    virtual void run();
+
+private:
+    QAxObject *voice_obj;
+    QSemaphore sem;
+    QString to_speak;
+};
+
+#endif
+
+class RoomScene : public QGraphicsScene{
     Q_OBJECT
 
 public:
@@ -111,7 +137,7 @@ public slots:
     void toggleDiscards();
     void enableTargets(const Card *card);
     void useSelectedCard();
-    void updateStatus(Client::Status status);    
+    void updateStatus(Client::Status status);
     void killPlayer(const QString &who);
     void revivePlayer(const QString &who);
     void showServerInformation();
@@ -142,10 +168,11 @@ private:
     QComboBox *role_combobox;
     QPushButton *trust_button, *untrust_button;
     QPushButton *ok_button, *cancel_button, *discard_button;
+    QPushButton *reverse_button;
     QMenu *known_cards_menu, *change_general_menu;
     Window *prompt_box;
     QGraphicsItem *control_panel;
-    QMap<QGraphicsItem *, const ClientPlayer *> item2player;    
+    QMap<QGraphicsItem *, const ClientPlayer *> item2player;
     QDockWidget *skill_dock;
     QComboBox *sort_combobox;
 
@@ -160,11 +187,12 @@ private:
     QList<QAbstractButton *> skill_buttons;
     QMap<QAbstractButton *, const ViewAsSkill *> button2skill;
 
+    ResponseSkill *response_skill;
     DiscardSkill *discard_skill;
     YijiViewAsSkill *yiji_skill;
     ChoosePlayerSkill *choose_skill;
 
-    QList<const ClientPlayer *> selected_targets;
+    QList<const Player *> selected_targets;
 
     GuanxingBox *guanxing_box;
 
@@ -224,6 +252,7 @@ private:
     void doMovingAnimation(const QString &name, const QStringList &args);
     void doAppearingAnimation(const QString &name, const QStringList &args);
     void doLightboxAnimation(const QString &name, const QStringList &args);
+    void doHuashen(const QString &name, const QStringList &args);
 
 private slots:
     void updateSkillButtons();
@@ -251,14 +280,20 @@ private slots:
     void clearPile();
     void removeLightBox();
 
-    void showCard(const QString &player_name, int card_id);    
+    void showCard(const QString &player_name, int card_id);
     void viewDistance();
 
-    void speak();    
+    void speak();
 
     void onGameStart();
-    void onGameOver(bool victory, const QList<bool> &result_list);
+    void onGameOver();
     void onStandoff();
+
+#ifdef AUDIO_SUPPORT
+#ifndef  Q_OS_WIN32
+    void onMusicFinish();
+#endif
+#endif
 
 #ifdef JOYSTICK_SUPPORT
     void onJoyButtonClicked(int bit);
@@ -274,6 +309,9 @@ private slots:
     void detachSkill(const QString &skill_name);
 
     void doGongxin(const QList<int> &card_ids, bool enable_heart);
+
+    void startAssign();
+    void finishAssign();
 
     // 3v3 mode & 1v1 mode
     void fillGenerals(const QStringList &names);

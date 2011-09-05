@@ -24,9 +24,9 @@ public:
 
     typedef void (Room::*Callback)(ServerPlayer *, const QString &);
 
-    explicit Room(QObject *parent, const QString &mode);    
+    explicit Room(QObject *parent, const QString &mode);
     QString createLuaState();
-    void addSocket(ClientSocket *socket);
+    ServerPlayer *addSocket(ClientSocket *socket);
     bool isFull() const;
     bool isFinished() const;
     int getLack() const;
@@ -47,14 +47,14 @@ public:
     QStringList aliveRoles(ServerPlayer *except = NULL) const;
     void gameOver(const QString &winner);
     void slashEffect(const SlashEffectStruct &effect);
-    void slashResult(const SlashEffectStruct &effect, bool hit);
+    void slashResult(const SlashEffectStruct &effect, const Card *jink);
     void attachSkillToPlayer(ServerPlayer *player, const QString &skill_name);
     void detachSkillFromPlayer(ServerPlayer *player, const QString &skill_name);
     bool obtainable(const Card *card, ServerPlayer *player);
     void setPlayerFlag(ServerPlayer *player, const QString &flag);
     void setPlayerProperty(ServerPlayer *player, const char *property_name, const QVariant &value);
     void setPlayerMark(ServerPlayer *player, const QString &mark, int value);
-    void useCard(const CardUseStruct &card_use);
+    void useCard(const CardUseStruct &card_use, bool add_history = true);
     void damage(const DamageStruct &data);
     void sendDamageLog(const DamageStruct &data);
     void loseHp(ServerPlayer *victim, int lose = 1);
@@ -71,12 +71,11 @@ public:
     void doGuanxing(ServerPlayer *zhuge, const QList<int> &cards, bool up_only);
     void doGongxin(ServerPlayer *shenlumeng, ServerPlayer *target);
     int drawCard();
-    const Card *peek();    
+    const Card *peek();
     void fillAG(const QList<int> &card_ids, ServerPlayer *who = NULL);
     void takeAG(ServerPlayer *player, int card_id);
     void provide(const Card *card);
     QList<ServerPlayer *> getLieges(const QString &kingdom, ServerPlayer *lord) const;
-    QList<ServerPlayer *> getSamesex(const QString &sex, ServerPlayer *people) const;
     void sendLog(const LogMessage &log);
     void showCard(ServerPlayer *player, int card_id, ServerPlayer *only_viewer = NULL);
     void showAllCards(ServerPlayer *player, ServerPlayer *to = NULL);
@@ -89,6 +88,7 @@ public:
     ServerPlayer *findPlayer(const QString &general_name, bool include_dead = false) const;
     ServerPlayer *findPlayerBySkillName(const QString &skill_name, bool include_dead = false) const;
     void installEquip(ServerPlayer *player, const QString &equip_name);
+    void resetAI(ServerPlayer *player);
     void transfigure(ServerPlayer *player, const QString &new_general, bool full_state, bool invoke_start = true);
     void swapSeat(ServerPlayer *a, ServerPlayer *b);
     lua_State *getLuaState() const;
@@ -96,9 +96,17 @@ public:
     void reverseFor3v3(const Card *card, ServerPlayer *player, QList<ServerPlayer *> &list);
     bool hasWelfare(const ServerPlayer *player) const;
     ServerPlayer *getFront(ServerPlayer *a, ServerPlayer *b) const;
+    void signup(ServerPlayer *player, const QString &screen_name, const QString &avatar, bool is_robot);
 
-    void addProhibitSkill(const ProhibitSkill *skill);
-    const ProhibitSkill *isProhibited(Player *from, Player *to, const Card *card) const;
+    void reconnect(ServerPlayer *player, ClientSocket *socket);
+    void marshal(ServerPlayer *player);
+
+    bool isVirtual();
+    void setVirtual();
+    void copyFrom(Room* rRoom);
+    Room* duplicate();
+
+    const ProhibitSkill *isProhibited(const Player *from, const Player *to, const Card *card) const;
 
     void setTag(const QString &key, const QVariant &value);
     QVariant getTag(const QString &key) const;
@@ -137,7 +145,7 @@ public:
     bool askForYiji(ServerPlayer *guojia, QList<int> &cards);
     const Card *askForPindian(ServerPlayer *player, ServerPlayer *from, ServerPlayer *to, const QString &reason);
     ServerPlayer *askForPlayerChosen(ServerPlayer *player, const QList<ServerPlayer *> &targets, const QString &reason);
-    QString askForGeneral(ServerPlayer *player, const QStringList &generals);    
+    QString askForGeneral(ServerPlayer *player, const QStringList &generals);
     const Card *askForSinglePeach(ServerPlayer *player, ServerPlayer *dying);
 
     void speakCommand(ServerPlayer *player, const QString &arg);
@@ -145,13 +153,13 @@ public:
     void kickCommand(ServerPlayer *player, const QString &arg);
     void surrenderCommand(ServerPlayer *player, const QString &);
     void commonCommand(ServerPlayer *player, const QString &arg);
-    void signupCommand(ServerPlayer *player, const QString &arg);
     void addRobotCommand(ServerPlayer *player, const QString &arg);
     void fillRobotsCommand(ServerPlayer *player, const QString &arg);
     void chooseCommand(ServerPlayer *player, const QString &general_name);
     void choose2Command(ServerPlayer *player, const QString &general_name);
     void broadcastProperty(ServerPlayer *player, const char *property_name, const QString &value = QString());
-    void broadcastInvoke(const char *method, const QString &arg = ".", ServerPlayer *except = NULL);   
+    void broadcastInvoke(const char *method, const QString &arg = ".", ServerPlayer *except = NULL);
+    void startTest(const QString &to_test);
 
 protected:
     virtual void timerEvent(QTimerEvent *);
@@ -191,14 +199,13 @@ private:
     QVariantMap tag;
     const Scenario *scenario;
 
-    QList<const ProhibitSkill *> prohibit_skills;
+    bool _virtual;
 
     static QString generatePlayerName();
     void prepareForStart();
     AI *cloneAI(ServerPlayer *player);
-    void signup(ServerPlayer *player, const QString &screen_name, const QString &avatar, bool is_robot);
     void broadcast(const QString &message, ServerPlayer *except = NULL);
-    void initCallbacks();   
+    void initCallbacks();
     void arrangeCommand(ServerPlayer *player, const QString &arg);
     void takeGeneralCommand(ServerPlayer *player, const QString &arg);
     QString askForOrder(ServerPlayer *player);
@@ -215,10 +222,12 @@ private slots:
     void reportDisconnection();
     void processRequest(const QString &request);
     void assignRoles();
-    void startGame();    
+    void startGame();
 
 signals:
-    void room_message(const QString &);
+    void room_message(const QString &msg);
+    void game_start();
+    void game_over(const QString &winner);
 };
 
 #endif // ROOM_H

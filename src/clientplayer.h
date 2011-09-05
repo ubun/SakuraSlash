@@ -25,7 +25,7 @@ public:
 
     virtual void setFlags(const QString &flag);
     virtual int aliveCount() const;
-    virtual int getHandcardNum() const;    
+    virtual int getHandcardNum() const;
     virtual void removeCard(const Card *card, Place place);
     virtual void addCard(const Card *card, Place place);
     virtual void addKnownHandCard(const Card *card);

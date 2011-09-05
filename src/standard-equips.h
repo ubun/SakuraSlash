@@ -73,83 +73,18 @@ public:
     Q_INVOKABLE IceSword(Card::Suit suit, int number);
 };
 
-class Koubu: public DefensiveHorse{
+class RenwangShield: public Armor{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE Koubu(Card::Suit suit, int number);
-
-    virtual void onInstall(ServerPlayer *player) const;
-    virtual void onUninstall(ServerPlayer *player) const;
-
-private:
-    TriggerSkill *jue_ying;
+    Q_INVOKABLE RenwangShield(Card::Suit suit, int number);
 };
 
-class Koubux: public DefensiveHorse{
+class StandardCardPackage: public Package{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE Koubux(Card::Suit suit, int number);
-
-    virtual void onInstall(ServerPlayer *player) const;
-    virtual void onUninstall(ServerPlayer *player) const;
-
-private:
-    TriggerSkill *di_lu;
+    StandardCardPackage();
 };
-
-class Isenclight: public OffensiveHorse{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Isenclight(Card::Suit suit, int number);
-
-    virtual void onInstall(ServerPlayer *player) const;
-    virtual void onUninstall(ServerPlayer *player) const;
-
-private:
-    TriggerSkill *chi_tu;
-};
-
-class KoubuF: public OffensiveHorse{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE KoubuF(Card::Suit suit, int number);
-
-    virtual void onInstall(ServerPlayer *player) const;
-    virtual void onUninstall(ServerPlayer *player) const;
-
-private:
-    TriggerSkill *da_yuan;
-};
-
-class Mocao: public DefensiveHorse{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Mocao(Card::Suit suit, int number);
-
-    virtual void onInstall(ServerPlayer *player) const;
-    virtual void onUninstall(ServerPlayer *player) const;
-
-private:
-    TriggerSkill *zhua_h;
-};
-
-class Watkemo: public OffensiveHorse{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Watkemo(Card::Suit suit, int number);
-
-    virtual void onInstall(ServerPlayer *player) const;
-    virtual void onUninstall(ServerPlayer *player) const;
-
-private:
-    TriggerSkill *zi_xing;
-};
-
 
 #endif // STANDARDEQUIPS_H

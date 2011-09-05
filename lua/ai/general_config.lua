@@ -76,7 +76,7 @@ sgs.ai_use_priority = {
 --skill cards
 		XinzhanCard = 9.2,
         TianyiCard = 10,
-		JieyinCard = 4,
+		JieyinCard = 4.2,
         HuangtianCard = 10,
         XianzhenCard = 9.2,
         XianzhenSlashCard = 2.6,
@@ -89,7 +89,7 @@ sgs.ai_use_priority = {
 		JujianCard = 5.6,
 --
 
-        Collateral=5.8,
+        
         Peach = 4.1,
 
         Dismantlement=4.5,
@@ -104,15 +104,40 @@ sgs.ai_use_priority = {
         
         Duel=2.9,
         IronChain = 2.8,
+		
+		Collateral=2.75,
 
         Analeptic = 2.7,
 
+		OffensiveHorse = 2.69,
+		Halberd=2.685,
+		KylinBow=2.68,
+		Blade = 2.675,
+		GudingBlade=2.67,
+		DoubleSword =2.665,
+		Spear = 2.66,
+		Fan=2.655,
+		IceSword=2.65,
+		QinggangSword=2.645,
+		Axe=2.64,
+		MoonSpear=2.635,
+		Crossbow = 2.63,
+		
+		
         FireSlash = 2.6,
         ThunderSlash = 2.5,
         Slash = 2.4,
 
         FireAttack=2,
         AmazingGrace=1.0,
+		
+		
+		SilverLion=0.9,
+		EightDiagram=0.8,
+		RenwangShield=0.7,
+		Vine=0.6,
+		
+		DefensiveHorse = 0,
 
 
         --god_salvation
@@ -129,33 +154,55 @@ sgs.ai_use_priority = {
 -- this table stores the chaofeng value for some generals
 -- all other generals' chaofeng value should be 0
 sgs.ai_chaofeng = {
-        huatuo = 5,
-
-        sunshangxiang = 4,
+        huatuo = 6,
+		sunshangxiang = 6,
+        
+		erzhang = 5,
+		
         huangyueying = 4,
         diaochan = 4,
         zhangjiao = 4,
         lusu = 4,
-
+        zhangliao = 4,
+      	xuhuang = 4,
+      
+		yuanshu = 3,
         zhangfei = 3,
         taishici = 3,
         xuchu = 3,
-
-        zhangliao = 2,
-        xuhuang = 2,
+        zhouyu = 3,
+        huanggai = 3,
+        xunyu = 3,
+ 
         ganning = 2,
+        daqiao = 2,
+        dianwei = 2,
 
         lubu = 1,
         huangzhong = 1,
         machao = 1,
+        shuangxiong = 1,
+        yuanshao = 1,
 
-        simayi = -1,
-        caopi = -2,
-        xiahoudun = -2,
-        xunyu = -2,
-        guojia = -3,
+        luxun = -1,
+        
+        pangtong = -1,
+        
+        simayi = -2,
+        liubei = -2,
+        weiyan = -2,
+		
+		xiahoudun = -3,
+        caopi = -3,
+        fazheng = -3,
+        
+        zhoutai = -4,
+        guojia = -4,
+		masu = -4,
 
-        shencaocao = -4,
-        shenguanyu = -4,
+		caiwenji = -5,
+		
+        shencaocao = -6,
+        shenguanyu = -6,
 }
 
