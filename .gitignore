@@ -9,4 +9,4 @@ config.ini
 swig/sanguosha_wrap.cxx
 records/*
 users.db
-doc/*.html
+7zr.exe
