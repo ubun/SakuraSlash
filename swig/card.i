@@ -96,12 +96,12 @@ private:
 
 class OffensiveHorse: public Horse{
 public:
-    OffensiveHorse(Card::Suit suit, int number, int correct = -1);
+    OffensiveHorse(Card::Suit suit, int number);
     virtual QString getSubtype() const;
 };
 
 class DefensiveHorse: public Horse{
 public:
-    DefensiveHorse(Card::Suit suit, int number, int correct = +1);
+    DefensiveHorse(Card::Suit suit, int number);
     virtual QString getSubtype() const;
 };

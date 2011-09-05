@@ -1,0 +1,1 @@
+swig -c++ -lua F:\Documents\sgs\SakuraSlash\Moligaloo-Sakuraslash\swig\sanguosha.i
