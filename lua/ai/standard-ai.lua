@@ -1,4 +1,3 @@
-
 -- jianxiong
 sgs.ai_skill_invoke.jianxiong = function(self, data)
         return not sgs.Shit_HasShit(data:toCard())
@@ -14,7 +13,7 @@ end
 
 sgs.ai_skill_choice.jijiang = function(self , choices)
 	if self.player:hasSkill("yongsi") or self.player:hasSkill("jijiang") then
-		if self:getSlashNmuber(self.player) <= 0 then return "ignore" end
+		if self:getSlashNumber(self.player) <= 0 then return "ignore" end
 	end
     if self:isFriend(self.room:getLord()) then return "accept" end
     return "ignore"
@@ -22,7 +21,7 @@ end
 
 sgs.ai_skill_choice.hujia = function(self , choices)
 	if self.player:hasSkill("yongsi") or self.player:hasSkill("hujia") then
-		if self:getJinkNmuber(self.player) <= 0 then return "ignore" end
+		if self:getJinkNumber(self.player) <= 0 then return "ignore" end
 	end
     if self:isFriend(self.room:getLord()) then return "accept" end
     return "ignore"
@@ -63,7 +62,8 @@ sgs.ai_skill_use["@@tuxi"] = function(self, prompt)
 	if first_index and not second_index then
 		local others = self.room:getOtherPlayers(self.player)
 		for _, other in sgs.qlist(others) do
-			if self:isFair(other) and (self.enemies[first_index]:objectName()) ~= (other:objectName()) and not other:isKongcheng() then 
+			if (not self:isFriend(other) or (self:hasSkills(sgs.need_kongcheng, other) and other:getHandcardNum() == 1)) and 
+				self.enemies[first_index]:objectName() ~= other:objectName() and not other:isKongcheng() then 
 				return ("@TuxiCard=.->%s+%s"):format(self.enemies[first_index]:objectName(), other:objectName())
 			end
 		end
@@ -291,7 +291,7 @@ function ganning_ai:activate_dummy(use)
 	
 	local black_card
 	for _, card in sgs.qlist(cards) do
-		if card:isRed() then			
+		if card:isBlack() then			
 			black_card = card
 			break
 		end
@@ -406,7 +406,7 @@ function daqiao_ai:activate_dummy(use)
 
 	local cards = self.player:getCards("he")
 	for _, card in sgs.qlist(cards) do
-		if (card:getSuit() == sgs.Card_Diamond) and not (card:inherits("TrickCard")) then
+		if card:getSuit() == sgs.Card_Diamond then
 			local number = card:getNumberString()
 			local card_id = card:getEffectiveId()
 			local card_str = ("indulgence:guose[diamond:%s]=%d"):format(number, card_id)
@@ -472,7 +472,7 @@ liubei_ai:setOnceSkill("rende")
 
 function liubei_ai:activate(use)
 	
-    if self.player:getHandcardNum() >= 2 or ((not self.rendesecond_used) and self.rende_used) then
+    if not self.rende_used or self.rende_used <= 1 then
 		local cards = self.player:getHandcards()
 		for _, friend in ipairs(self.friends_noself) do
 			if friend:getHp() == 1 then
@@ -480,10 +480,8 @@ function liubei_ai:activate(use)
 					if hcard:inherits("Analeptic") or hcard:inherits("Peach") then 
 						use.card = sgs.Card_Parse("@RendeCard=" .. hcard:getId())
 						use.to:append(friend)
-						if self.rende_used 
-							then self.rendesecond_used=true 
-						else
-							self.rende_used=true
+						if self.rende_used then self.rende_used = self.rende_used+1
+						else self.rende_used=1
 						end
 						return
 					end
@@ -494,10 +492,8 @@ function liubei_ai:activate(use)
 					if hcard:inherits("Slash") then 
 						use.card = sgs.Card_Parse("@RendeCard=" .. hcard:getId())
 						use.to:append(friend)
-						if self.rende_used 
-							then self.rendesecond_used=true 
-						else
-							self.rende_used=true
+						if self.rende_used then self.rende_used = self.rende_used+1
+						else self.rende_used=1
 						end
 						return
 					end
@@ -507,10 +503,8 @@ function liubei_ai:activate(use)
 					if hcard:isRed() and not (hcard:inherits("ExNihilo") or hcard:inherits("Peach")) then 
 						use.card = sgs.Card_Parse("@RendeCard=" .. hcard:getId())
 						use.to:append(friend)
-						if self.rende_used 
-							then self.rendesecond_used=true 
-						else
-							self.rende_used=true
+						if self.rende_used then self.rende_used = self.rende_used+1
+						else self.rende_used=1
 						end
 						return
 					end
@@ -520,10 +514,8 @@ function liubei_ai:activate(use)
 					if hcard:getTypeId() == sgs.Card_Trick then 
 						use.card = sgs.Card_Parse("@RendeCard=" .. hcard:getId())
 						use.to:append(friend)
-						if self.rende_used 
-							then self.rendesecond_used=true 
-						else
-							self.rende_used=true
+						if self.rende_used then self.rende_used = self.rende_used+1
+						else self.rende_used=1
 						end
 						return
 					end
@@ -533,10 +525,8 @@ function liubei_ai:activate(use)
 					if hcard:getTypeId() == sgs.Card_Diamond then 
 						use.card = sgs.Card_Parse("@RendeCard=" .. hcard:getId())
 						use.to:append(friend)
-						if self.rende_used 
-							then self.rendesecond_used=true 
-						else
-							self.rende_used=true
+						if self.rende_used then self.rende_used = self.rende_used+1
+						else self.rende_used=1
 						end
 						return
 					end
@@ -546,10 +536,8 @@ function liubei_ai:activate(use)
 					if hcard:getTypeId() == sgs.Card_Spade then 
 						use.card = sgs.Card_Parse("@RendeCard=" .. hcard:getId())
 						use.to:append(friend)
-						if self.rende_used 
-							then self.rendesecond_used=true 
-						else
-							self.rende_used=true
+						if self.rende_used then self.rende_used = self.rende_used+1
+						else self.rende_used=1
 						end
 						return
 					end
@@ -559,10 +547,8 @@ function liubei_ai:activate(use)
 					if hcard:inherits("EquipCard") then 
 						use.card = sgs.Card_Parse("@RendeCard=" .. hcard:getId())
 						use.to:append(friend)
-						if self.rende_used 
-							then self.rendesecond_used=true 
-						else
-							self.rende_used=true
+						if self.rende_used then self.rende_used = self.rende_used+1
+						else self.rende_used=1
 						end
 						return
 					end
@@ -572,7 +558,7 @@ function liubei_ai:activate(use)
 		end
 	end
 	
-	if (not use:isValid()) and (self.player:getHandcardNum()>self.player:getHp()) then 
+	if (not use:isValid()) and (self.player:getHandcardNum()>=self.player:getHp()) then 
 		for _, friend in ipairs(self.friends_noself) do
 			if (friend:getHandcardNum()<2) or (friend:getHandcardNum()<friend:getHp()+1) or self.player:isWounded() then
 				local card_id = self:getCardRandomly(self.player, "h")
@@ -673,7 +659,7 @@ sgs.ai_skill_invoke["luoyi"]=function(self,data)
             for _,enemy in ipairs(self.enemies) do
                 if self.player:canSlash(enemy, true) and
                 self:slashIsEffective(card, enemy) and
-                ( (not enemy:getArmor()) or (enemy:getArmor():objectName()=="floriation") or (enemy:getDefensiveHorse():objectName()=="mocao") ) and
+                ( (not enemy:getArmor()) or (enemy:getArmor():objectName()=="renwang_shield") or (enemy:getArmor():objectName()=="vine") ) and
                 enemy:getHandcardNum()< 2 then							
                     if not self.player:containsTrick("indulgence") then
 						self:speak("luoyi")

@@ -1,3 +1,4 @@
+
 sgs.ai_skill_invoke.ice_sword=function(self, data)
 	if self.player:hasFlag("drank") then return false end
 	local effect = data:toSlashEffect() 
@@ -60,11 +61,11 @@ qixi_skill.getTurnUseCard=function(self,inclusive)
 	local has_weapon=false
 	
 	for _,card in ipairs(cards)  do
-	    if card:inherits("Weapon") and card:isBlack() then has_weapon=true end
+	    if card:inherits("Weapon") and card:isRed() then has_weapon=true end
 	end
 	
 	for _,card in ipairs(cards)  do
-		if card:isRed()  and ((self:getUseValue(card)<sgs.ai_use_value["Dismantlement"]) or inclusive) then
+		if card:isBlack()  and ((self:getUseValue(card)<sgs.ai_use_value["Dismantlement"]) or inclusive) then
 		    local shouldUse=true
 		    
 		    if card:inherits("Armor") then
@@ -361,7 +362,7 @@ guose_skill.getTurnUseCard=function(self,inclusive)
 	end
 	
 	for _,acard in ipairs(cards)  do
-		if (acard:getSuit() == sgs.Card_Diamond) and not (acard:inherits("TrickCard")) and  ((self:getUseValue(acard)<sgs.ai_use_value["Indulgence"]) or inclusive) then
+		if (acard:getSuit() == sgs.Card_Diamond) and ((self:getUseValue(acard)<sgs.ai_use_value["Indulgence"]) or inclusive) then
 		    local shouldUse=true
 		    
 		    if acard:inherits("Armor") then
