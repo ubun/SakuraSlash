@@ -1,3 +1,10 @@
+caocao 108 8 65 10
+zhangliao 90 10 69 15
+simayi 98 10 107 15
+xiahoudun 129 5 111 6
+guojia 104 8 64 12
+xuchu 79 6 60 15
+zhenji 8 7 54 12
 
 liubei 73 8 56 12
 guanyu 68 6 58 8
