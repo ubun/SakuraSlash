@@ -9,3 +9,7 @@ config.ini
 swig/sanguosha_wrap.cxx
 records/*
 users.db
+doc/*.html
+swig/*.bat
+.DS_Store
+liblua5.1.dylib

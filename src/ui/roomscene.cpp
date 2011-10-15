@@ -9,6 +9,7 @@
 #include "button.h"
 #include "cardcontainer.h"
 #include "recorder.h"
+#include "indicatoritem.h"
 
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
@@ -60,10 +61,14 @@
 static QPointF DiscardedPos(-6, -2);
 static QPointF DrawPilePos(-102, -2);
 
+RoomScene *RoomSceneInstance;
+
 RoomScene::RoomScene(QMainWindow *main_window)
     :focused(NULL), special_card(NULL), viewing_discards(false),
     main_window(main_window), skill_dock(NULL)
 {
+    RoomSceneInstance = this;
+
     int player_count = Sanguosha->getPlayerCount(ServerInfo.GameMode);
 
     bool circular = Config.value("CircularView", false).toBool();
@@ -1092,10 +1097,13 @@ void RoomScene::moveCard(const CardMoveStructForClient &move){
         }else if(dest_place == Player::Hand)
             type = "$MoveCard";
 
-        QString from_general = src->getGeneralName();
-        QStringList tos;
-        tos << dest->getGeneralName();
-        log_box->appendLog(type, from_general, tos, card_str);
+        if(!type.isNull()){
+            QString from_general = src->objectName();
+            QStringList tos;
+            tos << dest->objectName();
+            log_box->appendLog(type, from_general, tos, card_str);
+        }
+
     }else if(src){
         // src throw card
         if(dest_place == Player::DrawPile){
@@ -1209,10 +1217,7 @@ void RoomScene::addSkillButton(const Skill *skill, bool from_left){
         switch(trigger_skill->getFrequency()){
         case Skill::Frequent:{
                 QCheckBox *checkbox = new QCheckBox();
-
                 checkbox->setObjectName(skill->objectName());
-                checkbox->setChecked(false);
-                connect(checkbox, SIGNAL(stateChanged(int)), ClientInstance, SLOT(updateFrequentFlags(int)));
                 checkbox->setChecked(true);
 
                 button = checkbox;
@@ -1235,10 +1240,10 @@ void RoomScene::addSkillButton(const Skill *skill, bool from_left){
         }
     }else if(skill->inherits("FilterSkill")){
         const FilterSkill *filter = qobject_cast<const FilterSkill *>(skill);
-        if(filter && dashboard->getFilter() == NULL){
-            dashboard->setFilter(filter);
-            button = new QPushButton();
-        }
+        if(filter && dashboard->getFilter() == NULL)
+            dashboard->setFilter(filter);        
+        button = new QPushButton();
+
     }else if(skill->inherits("ViewAsSkill")){
         button = new QPushButton();
         button2skill.insert(button, qobject_cast<const ViewAsSkill *>(skill));
@@ -1492,6 +1497,12 @@ void RoomScene::useSelectedCard(){
             QMessageBox::warning(main_window, tr("Warning"),
                                  tr("The OK button should be disabled when client is in executing dialog"));
             return;
+        }
+
+    case Client::AskForSkillInvoke:{
+            prompt_box->disappear();
+            ClientInstance->invokeSkill(true);
+            break;
         }
 
     case Client::AskForPlayerChoose:{
@@ -1845,6 +1856,26 @@ void RoomScene::updateStatus(Client::Status status){
             break;
         }
 
+    case Client::AskForSkillInvoke:{
+            QString skill_name = ClientInstance->getSkillNameToInvoke();
+            foreach(QAbstractButton *button, skill_buttons){
+                if(button->objectName() == skill_name){
+                    QCheckBox *check_box = qobject_cast<QCheckBox *>(button);
+                    if(check_box->isChecked()){
+                        ClientInstance->invokeSkill(true);
+                        return;
+                    }
+                }
+            }
+
+            prompt_box->appear();
+            ok_button->setEnabled(true);
+            cancel_button->setEnabled(true);
+            discard_button->setEnabled(false);
+
+            break;
+        }
+
     case Client::AskForPlayerChoose:{
             prompt_box->appear();
 
@@ -2072,6 +2103,12 @@ void RoomScene::doCancelButton(){
 
     case Client::ExecDialog:{
             ClientInstance->ask_dialog->reject();
+            break;
+        }
+
+    case Client::AskForSkillInvoke:{
+            ClientInstance->invokeSkill(false);
+            prompt_box->disappear();
             break;
         }
 
@@ -2642,11 +2679,7 @@ void RoomScene::doGongxin(const QList<int> &card_ids, bool enable_heart){
 void RoomScene::createStateItem(){
     bool circular = Config.value("CircularView", false).toBool();
 
-    QPixmap state;
-    if(circular)
-        state=QPixmap("image/system/state2.png");
-    else
-        state=QPixmap("image/system/state.png");
+    QPixmap state("image/system/state.png");
 
     QGraphicsItem *state_item = addPixmap(state);//QPixmap("image/system/state.png"));
     state_item->setPos(-110, -90);
@@ -2685,7 +2718,7 @@ void RoomScene::createStateItem(){
     text_item->setDefaultTextColor(Qt::white);
 
     if(circular)
-        state_item->setPos(367, -338);
+        state_item->setPos(367, -320);
 
     if(ServerInfo.EnableAI){
         QRectF state_rect = state_item->boundingRect();
@@ -3012,6 +3045,10 @@ void RoomScene::showSkillInvocation(const QString &who, const QString &skill_nam
 }
 
 void RoomScene::removeLightBox(){
+    foreach(CardItem *item, discarded_queue){
+        item->show();
+    }
+
     QPropertyAnimation *animation = qobject_cast<QPropertyAnimation *>(sender());
     QGraphicsTextItem *line = qobject_cast<QGraphicsTextItem *>(animation->targetObject());
 
@@ -3066,6 +3103,11 @@ void RoomScene::doAppearingAnimation(const QString &name, const QStringList &arg
 }
 
 void RoomScene::doLightboxAnimation(const QString &name, const QStringList &args){
+    // hide discarded card
+    foreach(CardItem *item, discarded_queue){
+        item->hide();
+    }
+
     QString word = args.first();
     word = Sanguosha->translate(word);
 
@@ -3087,7 +3129,9 @@ void RoomScene::doLightboxAnimation(const QString &name, const QStringList &args
     appear->setStartValue(0.0);
     appear->setKeyValueAt(0.8, 1.0);
     appear->setEndValue(1.0);
-    appear->setDuration(2000);
+
+    int duration = args.value(1, "2000").toInt();
+    appear->setDuration(duration);
 
     appear->start();
 
@@ -3109,6 +3153,43 @@ void RoomScene::doHuashen(const QString &name, const QStringList &args){
     Self->tag["Huashens"] = huashen_list;
 }
 
+void RoomScene::showIndicator(const QString &from, const QString &to){
+    if(Config.value("NoIndicator", false).toBool())
+        return;
+
+    QGraphicsObject *obj1 = getAnimationObject(from);
+    QGraphicsObject *obj2 = getAnimationObject(to);
+
+    if(obj1 == NULL || obj2 == NULL || obj1 == obj2)
+        return;
+
+    if(obj1 == avatar)
+        obj1 = dashboard;
+
+    if(obj2 == avatar)
+        obj2 = dashboard;
+
+    QPointF start = obj1->sceneBoundingRect().center();
+    QPointF finish = obj2->sceneBoundingRect().center();
+
+    IndicatorItem *indicator = new IndicatorItem(start,
+                                                 finish,
+                                                 ClientInstance->getPlayer(from));
+
+    qreal x = qMin(start.x(), finish.x());
+    qreal y = qMin(start.y(), finish.y());
+    indicator->setPos(x, y);
+    indicator->setZValue(9.0);
+
+    addItem(indicator);
+
+    indicator->doAnimation();
+}
+
+void RoomScene::doIndicate(const QString &name, const QStringList &args){
+    showIndicator(args.first(), args.last());
+}
+
 void RoomScene::doAnimation(const QString &name, const QStringList &args){
     static QMap<QString, AnimationFunc> map;
     if(map.isEmpty()){
@@ -3121,8 +3202,8 @@ void RoomScene::doAnimation(const QString &name, const QStringList &args){
         map["typhoon"] = &RoomScene::doAppearingAnimation;
 
         map["lightbox"] = &RoomScene::doLightboxAnimation;
-
         map["huashen"] = &RoomScene::doHuashen;
+        map["indicate"] = &RoomScene::doIndicate;
     }
 
     AnimationFunc func = map.value(name, NULL);
@@ -3475,10 +3556,4 @@ void RoomScene::finishArrange(){
     ClientInstance->request("arrange " + names.join("+"));
 }
 
-void RoomScene::startAssign(){
 
-}
-
-void RoomScene::finishAssign(){
-
-}

@@ -3,6 +3,7 @@
 #include "engine.h"
 #include "clientplayer.h"
 #include "client.h"
+#include "roomscene.h"
 
 #include <QPalette>
 
@@ -23,7 +24,7 @@ void ClientLogBox::appendLog(
     QString from;
     if(!from_general.isEmpty()){
         from = ClientInstance->getPlayerName(from_general);
-        from = bold(from);
+        from = bold(from, Qt::green);
     }
 
     QString to;
@@ -34,7 +35,7 @@ void ClientLogBox::appendLog(
         to = to_list.join(",");
         arg = Sanguosha->translate(arg);
 
-        to = bold(to);
+        to = bold(to, Qt::red);
     }
 
     QString log;
@@ -55,7 +56,14 @@ void ClientLogBox::appendLog(
     }
 
     if(!card_str.isEmpty()){
+        // do Indicator animation
+        foreach(QString to, tos){
+            RoomSceneInstance->showIndicator(from_general, to);
+        }
+
         const Card *card = Card::Parse(card_str);
+        if(card == NULL)
+            return;
         QString card_name = card->getLogName();
 
         if(card->isVirtualCard()){
@@ -92,6 +100,8 @@ void ClientLogBox::appendLog(
         if(!to.isEmpty())
             log.append(tr(", target is %to"));
 
+
+
     }else
         log = Sanguosha->translate(type);
 
@@ -99,12 +109,12 @@ void ClientLogBox::appendLog(
     log.replace("%to", to);
 
     if(!arg2.isEmpty()){
-        arg2 = bold(Sanguosha->translate(arg2));
+        arg2 = bold(Sanguosha->translate(arg2), Qt::yellow);
         log.replace("%arg2", arg2);
     }
 
     if(!arg.isEmpty()){
-        arg = bold(Sanguosha->translate(arg));
+        arg = bold(Sanguosha->translate(arg), Qt::yellow);
         log.replace("%arg", arg);
     }
 
@@ -113,9 +123,9 @@ void ClientLogBox::appendLog(
     append(log);
 }
 
-QString ClientLogBox::bold(const QString &str) const{
+QString ClientLogBox::bold(const QString &str, QColor color) const{
     return QString("<font color='%1'><b>%2</b></font>")
-            .arg(Config.TextEditColor.name()).arg(str);
+            .arg(color.name()).arg(str);
 }
 
 void ClientLogBox::appendLog(const QString &log_str){

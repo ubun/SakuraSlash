@@ -124,6 +124,7 @@ public:
     RoomScene(QMainWindow *main_window);
     void changeTextEditBackground();
     void adjustItems();
+    void showIndicator(const QString &from, const QString &to);
 
     static void FillPlayerNames(QComboBox *combobox, bool add_none);
 
@@ -253,6 +254,7 @@ private:
     void doAppearingAnimation(const QString &name, const QStringList &args);
     void doLightboxAnimation(const QString &name, const QStringList &args);
     void doHuashen(const QString &name, const QStringList &args);
+    void doIndicate(const QString &name, const QStringList &args);
 
 private slots:
     void updateSkillButtons();
@@ -311,7 +313,6 @@ private slots:
     void doGongxin(const QList<int> &card_ids, bool enable_heart);
 
     void startAssign();
-    void finishAssign();
 
     // 3v3 mode & 1v1 mode
     void fillGenerals(const QStringList &names);
@@ -328,5 +329,7 @@ private slots:
 signals:
     void restart();
 };
+
+extern RoomScene *RoomSceneInstance;
 
 #endif // ROOMSCENE_H

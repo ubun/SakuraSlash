@@ -36,14 +36,18 @@ class General : public QObject
 {
 public:
     explicit General(Package *package, const char *name, const char *kingdom, int max_hp = 4, bool male = true, bool hidden = false);
+    enum Gender {Male, Female, Neuter};
 
     // property getters/setters
     int getMaxHp() const;
     QString getKingdom() const;
     bool isMale() const;
     bool isFemale() const;
+	bool isNeuter() const;
     bool isLord() const;
     bool isHidden() const;
+	Gender getGender() const;
+    void setGender(Gender gender);
 
     void addSkill(Skill* skill);
 	void addSkill(const char *skill_name);
@@ -67,6 +71,7 @@ public:
 
     void setScreenName(const char *screen_name);
     QString screenName() const;
+	General::Gender getGender() const;
 
     // property setters/getters
     int getHp() const;
@@ -76,9 +81,7 @@ public:
     int getLostHp() const;
     bool isWounded() const;
 
-    int getMaxCards() const;    
-    int getXueyi() const;
-    void setXueyi(int xueyi, bool superimpose = true);
+    int getMaxCards() const;
 
     QString getKingdom() const;
     void setKingdom(const char *kingdom);
@@ -129,7 +132,8 @@ public:
     void acquireSkill(const char *skill_name);
     void loseSkill(const char *skill_name);
     bool hasSkill(const char *skill_name) const;
-	virtual bool hasLordSkill(const char *skill_name) const = 0;
+	bool hasLordSkill(const char *skill_name) const;
+	bool hasInnateSkill(const char *skill_name) const;
 
     void setEquip(const EquipCard *card);
     void removeEquip(const EquipCard *equip);
@@ -182,6 +186,7 @@ public:
 	void jilei(const char *type);
     bool isJilei(const Card *card) const;
 	QList<const Skill *> getVisibleSkillList() const;
+	QList<const Player *> getSiblings() const;
 };
 
 %extend Player{
@@ -619,8 +624,6 @@ public:
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const = 0;
 };
 
-
-
 class QThread: public QObject{
 };
 
@@ -644,11 +647,8 @@ public:
     bool trigger(TriggerEvent event, ServerPlayer *target);
 
     void addPlayerSkills(ServerPlayer *player, bool invoke_game_start = false);
-    void removePlayerSkills(ServerPlayer *player);
-
     void addTriggerSkill(const TriggerSkill *skill);
-    void removeTriggerSkill(const TriggerSkill *skill);
-    void removeTriggerSkill(const QString &skill_name);
+
     void delay(unsigned long msecs = 1000);
     void end();
 };
@@ -740,7 +740,7 @@ public:
     bool askForNullification(const TrickCard *trick, ServerPlayer *from, ServerPlayer *to, bool positive);
     bool isCanceled(const CardEffectStruct &effect);
     int askForCardChosen(ServerPlayer *player, ServerPlayer *who, const char *flags, const char *reason);
-    const Card *askForCard(ServerPlayer *player, const char *pattern, const char *prompt, bool throw_it = true);
+    const Card *askForCard(ServerPlayer *player, const char *pattern, const char *prompt, const QVariant &data);
     bool askForUseCard(ServerPlayer *player, const char *pattern, const char *prompt);
     int askForAG(ServerPlayer *player, const QList<int> &card_ids, bool refusable, const char *reason);
     const Card *askForCardShow(ServerPlayer *player, ServerPlayer *requestor, const char *reason);
