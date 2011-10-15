@@ -925,8 +925,18 @@ public:
         DamageStar damage = data.value<DamageStar>();
         ServerPlayer *killer = damage ? damage->from : NULL;
 
-        if(killer && killer->hasSkill("lianpo"))
+        if(killer && killer->hasSkill("lianpo")){
             killer->addMark("lianpo");
+
+            LogMessage log;
+            log.type = "#LianpoRecord";
+            log.from = killer;
+            log.to << player;
+
+            Room *room = player->getRoom();
+            log.arg = room->getCurrent()->getGeneralName();
+            room->sendLog(log);
+        }
 
         return false;
     }
@@ -1085,19 +1095,20 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return PhaseChangeSkill::triggerable(target)
-                && target->getPhase() == Player::NotActive
-                && target->getMark("lianpo") > 0;
+        return target->getPhase() == Player::NotActive;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *shensimayi) const{
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        Room *room = player->getRoom();
+        ServerPlayer *shensimayi = room->findPlayerBySkillName("lianpo");
+        if(shensimayi == NULL || shensimayi->getMark("lianpo") <= 0)
+            return false;
+
         int n = shensimayi->getMark("lianpo");
         shensimayi->setMark("lianpo", 0);
 
         if(!shensimayi->askForSkillInvoke("lianpo"))
             return false;
-
-        Room *room = shensimayi->getRoom();
 
         LogMessage log;
         log.type = "#LianpoCanInvoke";
@@ -1201,7 +1212,7 @@ public:
         Card *new_card = NULL;
 
         Card::Suit suit = card->getSuit();
-        int number = card->getNumber();
+        int number = cards.length() > 1 ? 0 : card->getNumber();
         switch(card->getSuit()){
         case Card::Spade:{
                 new_card = new Nullification(suit, number);

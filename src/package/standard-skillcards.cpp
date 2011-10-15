@@ -23,10 +23,17 @@ RendeCard::RendeCard(){
 }
 
 void RendeCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    if(targets.isEmpty())
-        return;
+    ServerPlayer *target = NULL;
+    if(targets.isEmpty()){
+        foreach(ServerPlayer *player, room->getAlivePlayers()){
+            if(player != source){
+                target = player;
+                break;
+            }
+        }
+    }else
+        target = targets.first();
 
-    ServerPlayer *target = targets.first();
     room->moveCardTo(this, target, Player::Hand, false);
 
     int old_value = source->getMark("rende");
@@ -120,8 +127,9 @@ void FanjianCard::onEffect(const CardEffectStruct &effect) const{
     log.arg = Card::Suit2String(suit);
     room->sendLog(log);
 
-    room->showCard(zhouyu, card_id);
     room->getThread()->delay();
+    target->obtainCard(card);
+    room->showCard(target, card_id);
 
     if(card->getSuit() != suit){
         DamageStruct damage;
@@ -130,10 +138,6 @@ void FanjianCard::onEffect(const CardEffectStruct &effect) const{
         damage.to = target;
 
         room->damage(damage);
-    }
-
-    if(target->isAlive()){
-        target->obtainCard(card);
     }
 }
 
@@ -217,6 +221,7 @@ void QingnangCard::onEffect(const CardEffectStruct &effect) const{
 
 GuicaiCard::GuicaiCard(){
     target_fixed = true;
+    will_throw = false;
 }
 
 void GuicaiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
@@ -260,15 +265,11 @@ bool JijiangCard::targetFilter(const QList<const Player *> &targets, const Playe
 void JijiangCard::use(Room *room, ServerPlayer *liubei, const QList<ServerPlayer *> &targets) const{
     QList<ServerPlayer *> lieges = room->getLieges("shu", liubei);
     const Card *slash = NULL;
+
+    QVariant tohelp = QVariant::fromValue((PlayerStar)liubei);
     foreach(ServerPlayer *liege, lieges){
-        QString result = room->askForChoice(liege, "jijiang", "accept+ignore");
-        if(result == "ignore")
-            continue;
-
-        slash = room->askForCard(liege, "slash", "@jijiang-slash");
+        slash = room->askForCard(liege, "slash", "@jijiang-slash:" + liubei->objectName(), tohelp);
         if(slash){
-            liubei->invoke("increaseSlashCount");
-
             CardUseStruct card_use;
             card_use.card = slash;
             card_use.from = liubei;

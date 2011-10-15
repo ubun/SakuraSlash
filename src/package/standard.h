@@ -11,8 +11,14 @@ class StandardPackage:public Package{
 
 public:
     StandardPackage();
-    void addCards();
     void addGenerals();
+};
+
+class TestPackage: public Package{
+    Q_OBJECT
+
+public:
+    TestPackage();
 };
 
 class BasicCard:public Card{
@@ -80,7 +86,7 @@ class GlobalEffect:public TrickCard{
 public:
     Q_INVOKABLE GlobalEffect(Card::Suit suit, int number):TrickCard(suit, number, false){ target_fixed = true;}
     virtual QString getSubtype() const;
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+    virtual void onUse(Room *room, const CardUseStruct &card_use) const;
 };
 
 class GodSalvation:public GlobalEffect{
@@ -108,7 +114,7 @@ public:
     AOE(Suit suit, int number):TrickCard(suit, number, true){ target_fixed = true;}
     virtual QString getSubtype() const;
     virtual bool isAvailable(const Player *player) const;
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+    virtual void onUse(Room *room, const CardUseStruct &card_use) const;
 };
 
 class SavageAssault:public AOE{
@@ -154,7 +160,6 @@ class ExNihilo: public SingleTargetTrick{
 
 public:
     Q_INVOKABLE ExNihilo(Card::Suit suit, int number);
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
@@ -205,7 +210,6 @@ public:
     Disaster(Card::Suit suit, int number);
 
     virtual bool isAvailable(const Player *player) const;
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
 class Lightning: public Disaster{

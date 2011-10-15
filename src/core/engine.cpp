@@ -35,13 +35,21 @@ extern "C" {
     Package *NewThicket();
 //    Package *NewFire();
 //    Package *NewMountain();
+    Package *NewStandardCard();
+    Package *NewStandardExCard();
     Package *NewManeuvering();
 //    Package *NewGod();
 //    Package *NewYitian();
-//    Package *NewNostalgia();
+    Package *NewYitianCard();
+    Package *NewNostalgia();
     Package *NewJoy();
+    Package *NewDisaster();
+    Package *NewJoyEquip();
 //    Package *NewSP();
-//    Package *NewYJCM();
+    Package *NewSPCard();
+//    Package *NewYJCM();//
+    Package *NewWisdom();
+    Package *NewTest();
 
 //    Scenario *NewGuanduScenario();
 //    Scenario *NewFanchengScenario();
@@ -61,24 +69,27 @@ Engine::Engine()
     Sanguosha = this;
 
     addPackage(NewStandard());
-//    addPackage(NewWind());
+    //addPackage(NewWind());
+    //addPackage(NewFire());
     addPackage(NewThicket());
-//    addPackage(NewFire());
-//    addPackage(NewMountain());
-    addPackage(NewManeuvering());
-//    addPackage(NewGod());
-//    addPackage(NewYitian());
-//    addPackage(NewNostalgia());
-    addPackage(NewJoy());
-//    addPackage(NewSP());
-//    addPackage(NewYJCM());
+    //addPackage(NewMountain());
+    //addPackage(NewGod());
+    //addPackage(NewSP());
+    //addPackage(NewYJCM());
+    //addPackage(NewYitian());
+    //addPackage(NewWisdom());
+    addPackage(NewTest());
 
-    {
-        Package *test_package = new Package("test");
-        (new General(test_package, "uzumaki", "god", 5, true, true));
-        (new General(test_package, "haruno", "god", 5, false, true));
-        addPackage(test_package);
-    }
+    addPackage(NewStandardCard());
+    addPackage(NewStandardExCard());
+    addPackage(NewManeuvering());
+    addPackage(NewSPCard());
+    addPackage(NewYitianCard());
+    addPackage(NewNostalgia());
+    addPackage(NewJoy());
+    addPackage(NewDisaster());
+    addPackage(NewJoyEquip());
+
 
 //    addScenario(NewGuanduScenario());
 //    addScenario(NewFanchengScenario());

@@ -53,12 +53,9 @@ public:
             return false;
 
         room->playSkillEffect(objectName());
+        QVariant tohelp = QVariant::fromValue((PlayerStar)caocao);
         foreach(ServerPlayer *liege, lieges){
-            QString result = room->askForChoice(liege, objectName(), "accept+ignore");
-            if(result == "ignore")
-                continue;
-
-            const Card *jink = room->askForCard(liege, "jink", "@hujia-jink:" + caocao->objectName());
+            const Card *jink = room->askForCard(liege, "jink", "@hujia-jink:" + caocao->objectName(), tohelp);
             if(jink){
                 room->provide(jink);
                 return true;
@@ -275,7 +272,7 @@ public:
         QString prompt = prompt_list.join(":");
 
         player->tag["Judge"] = data;
-        const Card *card = room->askForCard(player, "@guicai", prompt, false);
+        const Card *card = room->askForCard(player, "@guicai", prompt, data);
 
         if(card){
             // the only difference for Guicai & Guidao
@@ -502,8 +499,10 @@ public:
             return false;
 
         room->playSkillEffect(objectName());
+
+        QVariant tohelp = QVariant::fromValue((PlayerStar)liubei);
         foreach(ServerPlayer *liege, lieges){
-            const Card *slash = room->askForCard(liege, "slash", "@jijiang-slash:" + liubei->objectName());
+            const Card *slash = room->askForCard(liege, "slash", "@jijiang-slash:" + liubei->objectName(), tohelp);
             if(slash){
                 room->provide(slash);
                 return true;
@@ -646,26 +645,6 @@ public:
 
             int n = qMin(5, room->alivePlayerCount());
             room->doGuanxing(zhuge, room->getNCards(n, false), false);
-        }
-
-        return false;
-    }
-};
-
-class SuperGuanxing: public Guanxing{
-public:
-    SuperGuanxing():Guanxing(){
-        setObjectName("super_guanxing");
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *zhuge) const{
-        if(zhuge->getPhase() == Player::Start &&
-           zhuge->askForSkillInvoke(objectName()))
-        {
-            Room *room = zhuge->getRoom();
-            room->playSkillEffect("guanxing");
-
-            room->doGuanxing(zhuge, room->getNCards(5, false), false);
         }
 
         return false;
@@ -1047,7 +1026,7 @@ public:
 class Chujia: public GameStartSkill{
 public:
     Chujia():GameStartSkill("chujia"){
-
+        frequency = Limited;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
@@ -1233,17 +1212,6 @@ public:
         peach->addSubcard(first->getId());
         peach->setSkillName(objectName());
         return peach;
-    }
-};
-
-class Zhiba: public Zhiheng{
-public:
-    Zhiba(){
-        setObjectName("zhiba");
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->usedTimes("ZhihengCard") < (player->getLostHp() + 1);
     }
 };
 
@@ -3128,3 +3096,13 @@ void StandardPackage::addGenerals(){
 
     patterns[".At"] = new AttackPattern;
 }
+
+TestPackage::TestPackage()
+    :Package("test")
+{
+    // for test only
+    new General(this, "sujiang", "god", 5, true, true);
+    new General(this, "sujiangf", "god", 5, false, true);
+}
+
+ADD_PACKAGE(Test)

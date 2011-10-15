@@ -70,25 +70,27 @@ void EquipCard::onUse(Room *room, const CardUseStruct &card_use) const{
         Card::onUse(room, card_use);
 }
 
-void EquipCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
+void EquipCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
     const EquipCard *equipped = NULL;
+    ServerPlayer *target = targets.value(0, source);
+    
     switch(location()){
-    case WeaponLocation: equipped = source->getWeapon(); break;
-    case ArmorLocation: equipped = source->getArmor(); break;
-    case DefensiveHorseLocation: equipped = source->getDefensiveHorse(); break;
-    case OffensiveHorseLocation: equipped = source->getOffensiveHorse(); break;
+    case WeaponLocation: equipped = target->getWeapon(); break;
+    case ArmorLocation: equipped = target->getArmor(); break;
+    case DefensiveHorseLocation: equipped = target->getDefensiveHorse(); break;
+    case OffensiveHorseLocation: equipped = target->getOffensiveHorse(); break;
     }
 
     if(equipped)
         room->throwCard(equipped);
 
     LogMessage log;
-    log.from = source;
+    log.from = target;
     log.type = "$Install";
     log.card_str = QString::number(getEffectiveId());
     room->sendLog(log);
 
-    room->moveCardTo(this, source, Player::Equip, true);
+    room->moveCardTo(this, target, Player::Equip, true);
 }
 
 void EquipCard::onInstall(ServerPlayer *player) const{
@@ -99,19 +101,17 @@ void EquipCard::onInstall(ServerPlayer *player) const{
 }
 
 void EquipCard::onUninstall(ServerPlayer *player) const{
-    Room *room = player->getRoom();
 
-    if(skill)
-        room->getThread()->removeTriggerSkill(skill);
 }
 
 QString GlobalEffect::getSubtype() const{
     return "global_effect";
 }
 
-void GlobalEffect::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    QList<ServerPlayer *> all_players = room->getAllPlayers();
-    TrickCard::use(room, source, all_players);
+void GlobalEffect::onUse(Room *room, const CardUseStruct &card_use) const{
+    CardUseStruct use = card_use;
+    use.to = room->getAllPlayers();
+    TrickCard::onUse(room, use);
 }
 
 QString AOE::getSubtype() const{
@@ -119,11 +119,8 @@ QString AOE::getSubtype() const{
 }
 
 bool AOE::isAvailable(const Player *player) const{
-    QList<const Player *> players = player->parent()->findChildren<const Player *>();
+    QList<const Player *> players = player->getSiblings();
     foreach(const Player *p, players){
-        if(p == player)
-            continue;
-
         if(p->isDead())
             continue;
 
@@ -136,9 +133,9 @@ bool AOE::isAvailable(const Player *player) const{
     return false;
 }
 
-void AOE::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    QList<ServerPlayer *> targets;
-    QList<ServerPlayer *> other_players = room->getOtherPlayers(source);
+void AOE::onUse(Room *room, const CardUseStruct &card_use) const{
+    ServerPlayer *source = card_use.from;
+    QList<ServerPlayer *> targets, other_players = room->getOtherPlayers(source);
     foreach(ServerPlayer *player, other_players){
         const ProhibitSkill *skill = room->isProhibited(source, player, this);
         if(skill){
@@ -154,7 +151,9 @@ void AOE::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) c
             targets << player;
     }
 
-    TrickCard::use(room, source, targets);
+    CardUseStruct use = card_use;
+    use.to = targets;
+    TrickCard::onUse(room, use);
 }
 
 QString SingleTargetTrick::getSubtype() const{
@@ -171,12 +170,8 @@ DelayedTrick::DelayedTrick(Suit suit, int number, bool movable)
 }
 
 void DelayedTrick::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    if(target_fixed)
-        room->moveCardTo(this, source, Player::Judging, true);
-    else{
-        ServerPlayer *target = targets.first();
-        room->moveCardTo(this, target, Player::Judging, true);
-    }
+    ServerPlayer *target = targets.value(0, source);
+    room->moveCardTo(this, target, Player::Judging, true);
 }
 
 QString DelayedTrick::getSubtype() const{
@@ -401,14 +396,13 @@ class PAPattern: public CardPattern{
 public:
     virtual bool match(const Player *player, const Card *card) const{
         return ! player->hasEquip(card) &&
-                (card->objectName() == "peach" || card->objectName() == "analeptic");
+                (card->inherits("Peach") || card->inherits("Analeptic"));
     }
 };
 
 StandardPackage::StandardPackage()
     :Package("standard")
 {
-    addCards();
     addGenerals();
 
     patterns["."] = new HandcardPattern;

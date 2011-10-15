@@ -277,6 +277,17 @@ public:
     }
 };
 
+class EnyuanPattern: public CardPattern{
+public:
+    virtual bool match(const Player *player, const Card *card) const{
+        return !player->hasEquip(card) && card->getSuit() == Card::Heart;
+    }
+
+    virtual bool willThrow() const{
+        return false;
+    }
+};
+
 class Enyuan: public TriggerSkill{
 public:
     Enyuan():TriggerSkill("enyuan"){
@@ -309,7 +320,7 @@ public:
             if(source && source != player){
                 room->playSkillEffect(objectName(), qrand() % 2 + 3);
 
-                const Card *card = room->askForCard(source, ".H", "@enyuan", false);
+                const Card *card = room->askForCard(source, ".enyuan", "@enyuan");
                 if(card){
                     room->showCard(source, card->getEffectiveId());
                     player->obtainCard(card);
@@ -421,7 +432,7 @@ public:
             Room *room = lingtong->getRoom();
 
             QString choice = room->askForChoice(lingtong, objectName(), "slash+damage+nothing");
-            room->playSkillEffect(objectName());
+
 
             if(choice == "slash"){
                 QList<ServerPlayer *> targets;
@@ -441,6 +452,8 @@ public:
                 card_use.to << target;
                 room->useCard(card_use, false);
             }else if(choice == "damage"){
+                room->playSkillEffect(objectName());
+
                 QList<ServerPlayer *> players = room->getOtherPlayers(lingtong), targets;
                 foreach(ServerPlayer *p, players){
                     if(lingtong->distanceTo(p) <= 1)
@@ -573,7 +586,7 @@ public:
     Xianzhen():TriggerSkill("xianzhen"){
         view_as_skill = new XianzhenViewAsSkill;
 
-        events << PhaseChange << SlashEffect << SlashHit << SlashMissed;
+        events << PhaseChange << CardUsed << CardFinished;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *gaoshun, QVariant &data) const{
@@ -584,12 +597,13 @@ public:
                 Room *room = gaoshun->getRoom();
                 room->setFixedDistance(gaoshun, target, -1);
                 gaoshun->tag.remove("XianzhenTarget");
+                target->removeMark("qinggang");
             }
         }else{
-            SlashEffectStruct effect = data.value<SlashEffectStruct>();
+            CardUseStruct use = data.value<CardUseStruct>();
 
-            if(effect.to == target){
-                if(event == SlashEffect)
+            if(target && use.to.contains(target)){
+                if(event == CardUsed)
                     target->addMark("qinggang");
                 else
                     target->removeMark("qinggang");
@@ -916,6 +930,8 @@ YJCMPackage::YJCMPackage():Package("YJCM"){
     General *fazheng = new General(this, "fazheng", "shu", 3);
     fazheng->addSkill(new Enyuan);
     fazheng->addSkill(new Xuanhuo);
+
+    patterns.insert(".enyuan", new EnyuanPattern);
 
     General *lingtong = new General(this, "lingtong", "wu");
     lingtong->addSkill(new Xuanfeng);

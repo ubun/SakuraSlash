@@ -16,7 +16,7 @@ public:
         if(player->getPhase() != Player::NotActive)
            return false;
 
-        if(player->askForSkillInvoke("yitian"))
+        if(player->askForSkillInvoke("yitian_sword"))
             player->getRoom()->askForUseCard(player, "slash", "yitian-slash");
 
         return false;
@@ -196,8 +196,10 @@ public:
         QString choice = room->askForChoice(shencc, objectName(), "modify+obtain");
 
         if(choice == "modify"){
-            ServerPlayer *to_modify = room->askForPlayerChosen(shencc, room->getOtherPlayers(shencc), objectName());
-            QString kingdom = room->askForKingdom(shencc);
+            PlayerStar to_modify = room->askForPlayerChosen(shencc, room->getOtherPlayers(shencc), objectName());
+            room->setTag("Guixin2Modify", QVariant::fromValue(to_modify));
+            QString kingdom = room->askForChoice(shencc, "guixin2", "wei+shu+wu+qun");
+            room->removeTag("Guixin2Modify");
             QString old_kingdom = to_modify->getKingdom();
             room->setPlayerProperty(to_modify, "kingdom", kingdom);
 
@@ -250,16 +252,26 @@ JuejiCard::JuejiCard(){
 }
 
 bool JuejiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.length() < 2 && to_select != Self;
+    return targets.isEmpty() && !to_select->isKongcheng();
 }
 
 void JuejiCard::onEffect(const CardEffectStruct &effect) const{
-    effect.to->gainMark("@jueji");
+    bool success = effect.from->pindian(effect.to, "jueji", this);
+
+    PlayerStar to = effect.to;
+    QVariant data = QVariant::fromValue(to);
+
+    while(success && !effect.to->isKongcheng()){
+        if(effect.from->isKongcheng() || !effect.from->askForSkillInvoke("jueji", data))
+            break;
+
+        success = effect.from->pindian(effect.to, "jueji");
+    }
 }
 
-class JuejiViewAsSkill: public ViewAsSkill{
+class JuejiViewAsSkill: public OneCardViewAsSkill{
 public:
-    JuejiViewAsSkill():ViewAsSkill("jueji"){
+    JuejiViewAsSkill():OneCardViewAsSkill("jueji"){
 
     }
 
@@ -267,66 +279,50 @@ public:
         return ! player->hasUsed("JuejiCard");
     }
 
-    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
-        if(selected.isEmpty())
-            return true;
-        else if(selected.length() == 1){
-            const Card *first = selected.first()->getFilteredCard();
-            return first->sameColorWith(to_select->getFilteredCard());
-        }
-
-        return false;
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return !to_select->isEquipped();
     }
 
-    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
-        if(cards.length() == 2){
-            JuejiCard *card = new JuejiCard;
-            card->addSubcards(cards);
-            return card;
-        }else
-            return NULL;
+    virtual const Card *viewAs(CardItem *card_item) const{
+        JuejiCard *card = new JuejiCard;
+        card->addSubcard(card_item->getCard());
+        return card;
     }
 };
 
-class Jueji: public DrawCardsSkill{
+class Jueji: public PhaseChangeSkill{
 public:
-    Jueji():DrawCardsSkill("jueji"){
+    Jueji():PhaseChangeSkill("jueji"){
         view_as_skill = new JuejiViewAsSkill;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return target->getMark("@jueji") > 0;
+    virtual int getPriority() const{
+        return 3;
     }
 
-    virtual int getDrawNum(ServerPlayer *player, int n) const{
-        Room *room = player->getRoom();
-        player->loseMark("@jueji");
-
-        // find zhanghe
-        ServerPlayer *zhanghe = room->findPlayerBySkillName(objectName());
-        if(zhanghe){
-            zhanghe->drawCards(1);
-        }
-
-        return n - 1;
+    virtual bool onPhaseChange(ServerPlayer *target) const{
+        if(target->getPhase() == Player::Play){
+            Room *room = target->getRoom();
+            return room->askForUseCard(target, "@@jueji", "@jueji-pindian");
+        }else
+            return false;
     }
 };
 
-class JuejiClear: public PhaseChangeSkill{
+class JuejiGet: public TriggerSkill{
 public:
-    JuejiClear():PhaseChangeSkill("#jueji-clear"){
-
+    JuejiGet():TriggerSkill("#jueji-get"){
+        events << Pindian;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *zhanghe) const{
-        if(zhanghe->getPhase() == Player::Start){
-            Room *room = zhanghe->getRoom();
-            QList<ServerPlayer *> players = room->getOtherPlayers(zhanghe);
-            foreach(ServerPlayer *player, players){
-                if(player->getMark("@jueji") > 0){
-                    player->loseMark("@jueji");
-                }
-            }
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        PindianStar pindian = data.value<PindianStar>();
+        if(pindian->reason == "jueji" && pindian->isSuccess()){
+            player->obtainCard(pindian->to_card);
         }
 
         return false;
@@ -338,46 +334,70 @@ public:
     LukangWeiyan():PhaseChangeSkill("lukang_weiyan"){
     }
 
-    virtual QString getDefaultChoice(ServerPlayer *player) const{
-        if(player->getHandcardNum() > player->getMaxCards()){
-            return "choice2";
-        }else{
-            return "choice1";
-        }
+    virtual int getPriority() const{
+        return 4; // very high priority
     }
 
     virtual bool onPhaseChange(ServerPlayer *target) const{
-        if(target->getPhase() == Player::Start){
-            Room *room = target->getRoom();
-            QString choice = room->askForChoice(target, objectName(), "normal+choice1+choice2");
+        switch(target->getPhase()){
+        case Player::Draw: {
+                if(target->askForSkillInvoke("lukang_weiyan", "draw2play")){
+                    target->getRoom()->setPlayerProperty(target, "phase", "play");
+                }
 
-            if(choice == "normal")
-                return false;
-
-            LogMessage log;
-            log.from = target;
-
-            QList<Player::Phase> &phases = target->getPhases();
-            if(choice == "choice1"){
-                // discard phase is before draw phase
-                // that is: discard -> draw -> play
-                phases.removeOne(Player::Discard);
-                int index = phases.indexOf(Player::Draw);
-                phases.insert(index, Player::Discard);
-
-                log.type = "#WeiyanChoice1";
-            }else{
-                // drawing phase is after discard phase
-                // that is: play -> discard -> draw
-                phases.removeOne(Player::Draw);
-                int index = phases.indexOf(Player::Discard);
-                phases.insert(index+1, Player::Draw);
-
-                log.type = "#WeiyanChoice2";
+                break;
             }
 
-            room->sendLog(log);
+        case Player::Play:{
+                if(target->askForSkillInvoke("lukang_weiyan", "play2draw")){
+                    target->getRoom()->setPlayerProperty(target, "phase", "draw");
+                }
+
+                break;
+            }
+
+        default:
+            return false;
         }
+
+        return false;
+    }
+};
+
+class Kegou: public PhaseChangeSkill{
+public:
+    Kegou():PhaseChangeSkill("kegou"){
+        frequency = Wake;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return PhaseChangeSkill::triggerable(target)
+                && target->getPhase() == Player::Start
+                && target->getMark("kegou") == 0
+                && target->getKingdom() == "wu"
+                && !target->isLord();
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *lukang) const{
+        foreach(const Player *player, lukang->getSiblings()){
+            if(player->isAlive() && player->getKingdom() == "wu"
+               && !player->isLord() && player != lukang){
+                return false;
+            }
+        }
+
+        lukang->setMark("kegou", 1);
+
+
+        Room *room = lukang->getRoom();
+
+        LogMessage log;
+        log.type = "#KegouWake";
+        log.from = lukang;
+        room->sendLog(log);
+
+        room->loseMaxHp(lukang);
+        room->acquireSkill(lukang, "lianying");
 
         return false;
     }
@@ -1237,7 +1257,7 @@ public:
         }
     }
 };
-
+/*
 XunzhiCard::XunzhiCard(){
     target_fixed = true;
 }
@@ -1298,7 +1318,7 @@ public:
         return false;
     }
 };
-
+*/
 class Dongcha: public PhaseChangeSkill{
 public:
     Dongcha():PhaseChangeSkill("dongcha"){
@@ -1800,12 +1820,19 @@ public:
     }
 };
 
+YitianCardPackage::YitianCardPackage()
+    :Package("yitian_cards")
+{
+    (new YitianSword)->setParent(this);
+
+    type = CardPack;
+}
+
+ADD_PACKAGE(YitianCard)
+
 YitianPackage::YitianPackage()
     :Package("yitian")
 {
-
-    (new YitianSword)->setParent(this);
-
     // generals
     General *shencc = new General(this, "shencc", "god", 3);
     shencc->addSkill(new Guixin2);
@@ -1816,15 +1843,15 @@ YitianPackage::YitianPackage()
     caochong->addSkill(new Conghui);
     caochong->addSkill(new Zaoyao);
 
-    General *zhangjunyi = new General(this, "zhangjunyi", "wei");
+    General *zhangjunyi = new General(this, "zhangjunyi", "qun");
     zhangjunyi->addSkill(new Jueji);
-    zhangjunyi->addSkill(new JuejiClear);
+    zhangjunyi->addSkill(new JuejiGet);
 
-    related_skills.insertMulti("jueji", "#jueji-clear");
+    related_skills.insertMulti("jueji", "#jueji-get");
 
     General *lukang = new General(this, "lukang", "wu", 3);
-    lukang->addSkill("qianxun");
     lukang->addSkill(new LukangWeiyan);
+    lukang->addSkill(new Kegou);
 
     General *jinxuandi = new General(this, "jinxuandi", "god");
     jinxuandi->addSkill(new Wuling);
@@ -1871,7 +1898,7 @@ YitianPackage::YitianPackage()
 
     General *jiangboyue = new General(this, "jiangboyue", "shu");
     jiangboyue->addSkill(new Lexue);
-    jiangboyue->addSkill(new Xunzhi);
+   //jiangboyue->addSkill(new Xunzhi);
 
     General *jiawenhe = new General(this, "jiawenhe", "qun");
     jiawenhe->addSkill(new Dongcha);
@@ -1906,7 +1933,7 @@ YitianPackage::YitianPackage()
     addMetaObject<LianliSlashCard>();
     addMetaObject<GuihanCard>();
     addMetaObject<LexueCard>();
-    addMetaObject<XunzhiCard>();
+    //addMetaObject<XunzhiCard>();
     addMetaObject<YisheAskCard>();
     addMetaObject<YisheCard>();
     addMetaObject<TaichenCard>();
