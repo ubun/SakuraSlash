@@ -23,7 +23,6 @@ class Player : public QObject
     Q_PROPERTY(int hp READ getHp WRITE setHp)
     Q_PROPERTY(int maxhp READ getMaxHP WRITE setMaxHP)
     Q_PROPERTY(QString kingdom READ getKingdom WRITE setKingdom)
-    Q_PROPERTY(int xueyi READ getXueyi WRITE setXueyi)
     Q_PROPERTY(bool wounded READ isWounded STORED false)
     Q_PROPERTY(QString role READ getRole WRITE setRole)
     Q_PROPERTY(QString general READ getGeneralName WRITE setGeneralName)
@@ -38,6 +37,7 @@ class Player : public QObject
     Q_PROPERTY(bool chained READ isChained WRITE setChained)
     Q_PROPERTY(bool owner READ isOwner WRITE setOwner)
     Q_PROPERTY(int atk READ getAttackRange)
+    Q_PROPERTY(General::Gender gender READ getGender)
 
     Q_PROPERTY(bool kongcheng READ isKongcheng)
     Q_PROPERTY(bool nude READ isNude)
@@ -65,13 +65,12 @@ public:
     void setMaxHP(int max_hp);
     int getLostHp() const;
     bool isWounded() const;
+    General::Gender getGender() const;
 
     bool isOwner() const;
     void setOwner(bool owner);
 
     int getMaxCards() const;
-    int getXueyi() const;
-    void setXueyi(int xueyi, bool superimpose = true);
 
     QString getKingdom() const;
     void setKingdom(const QString &kingdom);
@@ -127,7 +126,9 @@ public:
     void loseSkill(const QString &skill_name);
     void loseAllSkills();
     bool hasSkill(const QString &skill_name) const;
-    virtual bool hasLordSkill(const QString &skill_name) const = 0;
+    bool hasInnateSkill(const QString &skill_name) const;
+    bool hasLordSkill(const QString &skill_name) const;
+    virtual QString getGameMode() const = 0;
 
     void setEquip(const EquipCard *card);
     void removeEquip(const EquipCard *equip);
@@ -194,6 +195,8 @@ public:
     bool isCaoCao() const;
     void copyFrom(Player* p);
 
+    QList<const Player *> getSiblings() const;
+
     QVariantMap tag;
 
 protected:
@@ -207,7 +210,7 @@ private:
     QString screen_name;
     bool owner;
     const General *general, *general2;
-    int hp, max_hp, xueyi;
+    int hp, max_hp;
     QString kingdom;
     QString role;
     QString state;

@@ -7,7 +7,7 @@
 
 Player::Player(QObject *parent)
     :QObject(parent), owner(false), general(NULL), general2(NULL),
-    hp(-1), max_hp(-1), xueyi(0), state("online"), seat(0), alive(true),
+    hp(-1), max_hp(-1), state("online"), seat(0), alive(true),
     phase(NotActive),
     weapon(NULL), armor(NULL), defensive_horse(NULL), offensive_horse(NULL),
     face_up(true), chained(false)
@@ -68,6 +68,13 @@ bool Player::isWounded() const{
         return true;
     else
         return hp < max_hp;
+}
+
+General::Gender Player::getGender() const{
+    if(general)
+        return general->getGender();
+    else
+        return General::Neuter;
 }
 
 int Player::getSeat() const{
@@ -256,13 +263,39 @@ bool Player::isLord() const{
 }
 
 bool Player::hasSkill(const QString &skill_name) const{
+    return hasInnateSkill(skill_name)
+            || acquired_skills.contains(skill_name);
+}
+
+bool Player::hasInnateSkill(const QString &skill_name) const{
     if(general && general->hasSkill(skill_name))
         return true;
 
     if(general2 && general2->hasSkill(skill_name))
         return true;
 
-    return acquired_skills.contains(skill_name);
+    return false;
+}
+
+bool Player::hasLordSkill(const QString &skill_name) const{
+    if(acquired_skills.contains(skill_name))
+        return true;
+
+    QString mode = getGameMode();
+    if(mode == "06_3v3" || mode == "02_1v1" || mode == "02p")
+        return false;
+
+    if(isLord())
+        return hasInnateSkill(skill_name);
+
+    if(hasSkill("weidi")){
+        foreach(const Player *player, getSiblings()){
+            if(player->isLord())
+                return player->hasLordSkill(skill_name);
+        }
+    }
+
+    return false;
 }
 
 void Player::acquireSkill(const QString &skill_name){
@@ -421,11 +454,20 @@ int Player::getMaxCards() const{
 
     int juejing = hasSkill("juejing") ? 2 : 0;
 
-    return qMax(hp,0) + xueyi + extra +juejing;
-}
+    int xueyi = 0;
+    if(hasLordSkill("xueyi")){
+        QList<const Player *> players = getSiblings();
+        foreach(const Player *player, players){
+            if(player->isAlive() && player->getKingdom() == "qun")
+                xueyi += 2;
+        }
+    }
 
-int Player::getXueyi() const{
-    return xueyi;
+    int shenwei = 0;
+    if(hasSkill("shenwei"))
+        shenwei = 2;
+
+    return qMax(hp,0) + extra + juejing + xueyi + shenwei;
 }
 
 QString Player::getKingdom() const{
@@ -448,14 +490,6 @@ QString Player::getKingdomIcon() const{
 
 QString Player::getKingdomFrame() const{
     return QString("image/kingdom/frame/%1.png").arg(kingdom);
-}
-
-void Player::setXueyi(int xueyi, bool superimpose){
-    if(superimpose)
-        this->xueyi += xueyi;
-    else{
-        this->xueyi = xueyi;
-    }
 }
 
 bool Player::isKongcheng() const{
@@ -709,7 +743,6 @@ void Player::copyFrom(Player* p)
 
     b->hp               = a->hp;
     b->max_hp           = a->max_hp;
-    b->xueyi            = a->xueyi;
     b->kingdom          = a->kingdom;
     b->role             = a->role;
     b->seat             = a->seat;
@@ -728,5 +761,14 @@ void Player::copyFrom(Player* p)
     b->jilei_set        = QSet<Card::CardType> (a->jilei_set);
 
     b->tag              = QVariantMap(a->tag);
+}
 
+QList<const Player *> Player::getSiblings() const{
+    QList<const Player *> siblings;
+    if(parent()){
+        siblings = parent()->findChildren<const Player *>();
+        siblings.removeOne(this);
+    }
+
+    return siblings;
 }

@@ -44,12 +44,14 @@ public:
     QString getVersionName() const;
     QStringList getExtensions() const;
     QStringList getKingdoms() const;
+    QColor getKingdomColor(const QString &kingdom) const;
     QString getSetupString() const;
 
     QMap<QString, QString> getAvailableModes() const;
     QString getModeName(const QString &mode) const;
     int getPlayerCount(const QString &mode) const;
     void getRoles(const QString &mode, char *roles) const;
+    QStringList getRoleList(const QString &mode) const;
     int getRoleIndex() const;
 
     const CardPattern *getPattern(const QString &name) const;

@@ -5,6 +5,7 @@
 #include "room.h"
 #include "carditem.h"
 #include "lua-wrapper.h"
+#include <QFile>
 
 const Card::Suit Card::AllSuits[4] = {
     Card::Spade,
@@ -92,13 +93,17 @@ void Card::setNumber(int number){
     this->number = number;
 }
 
-QString Card::getNumberString() const{
+QString Card::Number2String(int number){
     if(number == 10)
         return "10";
     else{
         static const char *number_string = "-A23456789-JQK";
         return QString(number_string[number]);
     }
+}
+
+QString Card::getNumberString() const{
+    return Number2String(number);
 }
 
 Card::Suit Card::getSuit() const{
@@ -149,7 +154,11 @@ bool Card::CompareByType(const Card *a, const Card *b){
 }
 
 QString Card::getPixmapPath() const{
-    return QString("image/card/%1.jpg").arg(objectName());
+    QString path = QString("image/card/%1.jpg").arg(objectName());
+    if(QFile::exists(path))
+        return path;
+    else
+        return "image/card/unknown.jpg";
 }
 
 QString Card::getIconPath() const{
@@ -194,7 +203,7 @@ QString Card::getLogName() const{
     QString number_string;
 
     if(suit != Card::NoSuit)
-        suit_char = QString("<img src='image/system/suit/%1.png' width='15' height='15' />").arg(getSuitString());
+        suit_char = QString("<img src='image/system/log/%1.png' />").arg(getSuitString());
     else
         suit_char = tr("NoSuit");
 
@@ -257,7 +266,7 @@ bool Card::isVirtualCard() const{
 const Card *Card::Parse(const QString &str){
     if(str.startsWith(QChar('@'))){
         // skill card
-        static QRegExp pattern("@(\\w+)=([^:]+)(:.+)?");
+        QRegExp pattern("@(\\w+)=([^:]+)(:.+)?");
         if(!pattern.exactMatch(str))
             return NULL;
 
@@ -300,7 +309,7 @@ const Card *Card::Parse(const QString &str){
         LuaSkillCard *new_card =  LuaSkillCard::Parse(str);
         return new_card;
     }if(str.contains(QChar('='))){
-        static QRegExp pattern("(\\w+):(\\w*)\\[(\\w+):(.+)\\]=(.+)");
+        QRegExp pattern("(\\w+):(\\w*)\\[(\\w+):(.+)\\]=(.+)");
         if(!pattern.exactMatch(str))
             return NULL;
 
