@@ -80,9 +80,11 @@ public:
     // 3v3 methods
     void addToSelected(const QString &general);
     QStringList getSelected() const;
+    QString findReasonable(const QStringList &generals);
+    void clearSelected();
 
     int getGeneralMaxHP() const;
-    virtual bool hasLordSkill(const QString &skill_name) const;
+    virtual QString getGameMode() const;
 
     QString getIp() const;
     void introduceTo(ServerPlayer *player);

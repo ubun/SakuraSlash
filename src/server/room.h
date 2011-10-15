@@ -14,7 +14,7 @@ struct LogMessage;
 #include "serverplayer.h"
 #include "roomthread.h"
 
-class Room : public QObject{
+class Room : public QThread{
     Q_OBJECT
 
 public:
@@ -88,6 +88,7 @@ public:
     ServerPlayer *findPlayer(const QString &general_name, bool include_dead = false) const;
     ServerPlayer *findPlayerBySkillName(const QString &skill_name, bool include_dead = false) const;
     void installEquip(ServerPlayer *player, const QString &equip_name);
+    void resetAI(ServerPlayer *player);
     void transfigure(ServerPlayer *player, const QString &new_general, bool full_state, bool invoke_start = true);
     void swapSeat(ServerPlayer *a, ServerPlayer *b);
     lua_State *getLuaState() const;
@@ -137,14 +138,15 @@ public:
     bool askForNullification(const TrickCard *trick, ServerPlayer *from, ServerPlayer *to, bool positive);
     bool isCanceled(const CardEffectStruct &effect);
     int askForCardChosen(ServerPlayer *player, ServerPlayer *who, const QString &flags, const QString &reason);
-    const Card *askForCard(ServerPlayer *player, const QString &pattern, const QString &prompt, bool throw_it = true);
+    const Card *askForCard(ServerPlayer *player, const QString &pattern, const QString &prompt, const QVariant &data = QVariant());
     bool askForUseCard(ServerPlayer *player, const QString &pattern, const QString &prompt);
     int askForAG(ServerPlayer *player, const QList<int> &card_ids, bool refusable, const QString &reason);
     const Card *askForCardShow(ServerPlayer *player, ServerPlayer *requestor, const QString &reason);
     bool askForYiji(ServerPlayer *guojia, QList<int> &cards);
     const Card *askForPindian(ServerPlayer *player, ServerPlayer *from, ServerPlayer *to, const QString &reason);
     ServerPlayer *askForPlayerChosen(ServerPlayer *player, const QList<ServerPlayer *> &targets, const QString &reason);
-    QString askForGeneral(ServerPlayer *player, const QStringList &generals);
+    QString askForGeneral(ServerPlayer *player, const QStringList &generals, QString default_choice = QString());
+    void askForGeneralAsync(ServerPlayer *player);
     const Card *askForSinglePeach(ServerPlayer *player, ServerPlayer *dying);
 
     void speakCommand(ServerPlayer *player, const QString &arg);
@@ -161,7 +163,7 @@ public:
     void startTest(const QString &to_test);
 
 protected:
-    virtual void timerEvent(QTimerEvent *);
+    virtual void run();
 
 private:
     QString mode;
@@ -173,8 +175,6 @@ private:
     QList<int> pile1, pile2;
     QList<int> table_cards;
     QList<int> *draw_pile, *discard_pile;
-    int left_seconds;
-    int chosen_generals;
     bool game_started;
     bool game_finished;
     int signup_count;
@@ -202,6 +202,8 @@ private:
 
     static QString generatePlayerName();
     void prepareForStart();
+    void assignGeneralsForPlayers(const QList<ServerPlayer *> &to_assign);
+    void chooseGenerals();
     AI *cloneAI(ServerPlayer *player);
     void broadcast(const QString &message, ServerPlayer *except = NULL);
     void initCallbacks();

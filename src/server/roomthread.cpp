@@ -119,31 +119,11 @@ void RoomThread::addPlayerSkills(ServerPlayer *player, bool invoke_game_start){
     QVariant void_data;
 
     foreach(const TriggerSkill *skill, player->getTriggerSkills()){
-        if(skill->isLordSkill()){
-            if(!player->isLord() || room->mode == "06_3v3")
-                continue;
-        }
-
         addTriggerSkill(skill);
 
         if(invoke_game_start && skill->getTriggerEvents().contains(GameStart))
             skill->trigger(GameStart, player, void_data);
     }
-}
-
-void RoomThread::removePlayerSkills(ServerPlayer *player){
-    foreach(const TriggerSkill *skill, player->getTriggerSkills()){
-        if(skill->isLordSkill()){
-            if(!player->isLord() || room->mode == "06_3v3")
-                continue;
-        }
-
-        removeTriggerSkill(skill);
-    }
-}
-
-int RoomThread::getRefCount(const TriggerSkill *skill) const{
-    return refcount.value(skill, 0);
 }
 
 void RoomThread::constructTriggerTable(const GameRule *rule){
@@ -339,39 +319,24 @@ bool RoomThread::trigger(TriggerEvent event, ServerPlayer *target){
 }
 
 void RoomThread::addTriggerSkill(const TriggerSkill *skill){
-    int count = refcount.value(skill, 0);
-    if(count != 0){
-        refcount[skill] ++;
+    if(skillSet.contains(skill))
         return;
-    }else
-        refcount[skill] = 1;
+
+    skillSet << skill;
 
     QList<TriggerEvent> events = skill->getTriggerEvents();
     foreach(TriggerEvent event, events){
-        skill_table[event] << skill;
-        qStableSort(skill_table[event].begin(),
-                    skill_table[event].end(),
-                    CompareByPriority);
+        QList<const TriggerSkill *> &table = skill_table[event];
+
+        table << skill;
+        qStableSort(table.begin(), table.end(), CompareByPriority);
     }
-}
 
-void RoomThread::removeTriggerSkill(const QString &skill_name){
-    const TriggerSkill *skill = Sanguosha->getTriggerSkill(skill_name);
-    if(skill)
-        removeTriggerSkill(skill);
-}
-
-void RoomThread::removeTriggerSkill(const TriggerSkill *skill){
-    int count = refcount.value(skill, 0);
-    if(count > 1){
-        refcount[skill] --;
-        return;
-    }else
-        refcount.remove(skill);
-
-    QList<TriggerEvent> events = skill->getTriggerEvents();
-    foreach(TriggerEvent event, events){
-        skill_table[event].removeOne(skill);
+    if(skill->isVisible()){
+        foreach(const Skill *skill, Sanguosha->getRelatedSkills(skill->objectName())){
+            const TriggerSkill *trigger_skill = qobject_cast<const TriggerSkill *>(skill);
+            addTriggerSkill(trigger_skill);
+        }
     }
 }
 

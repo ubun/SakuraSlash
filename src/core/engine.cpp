@@ -385,6 +385,7 @@ QColor Engine::getKingdomColor(const QString &kingdom) const{
         color_map["shao"] = QColor(0x00, 0xFF, 0x00);
         color_map["zhen"] = QColor(0x8A, 0x80, 0x7A);
         color_map["hei"] = QColor(0x00, 0x00, 0x00);
+        color_map["za"] = QColor(0x0A, 0x0A, 0x0B);
         color_map["god"] = QColor(0x96, 0x94, 0x3D);
     }
 

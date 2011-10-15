@@ -60,6 +60,8 @@ void GameRule::onPhaseChange(ServerPlayer *player) const{
         }
 
     case Player::Play: {
+            player->clearHistory();
+
             while(player->isAlive()){
                 CardUseStruct card_use;
                 room->activate(player, card_use);
@@ -112,7 +114,6 @@ void GameRule::onPhaseChange(ServerPlayer *player) const{
             }
 
             player->clearFlags();
-            player->clearHistory();
 
             return;
         }
@@ -351,8 +352,6 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
                         chain_damage.chain = true;
 
                         room->damage(chain_damage);
-
-                        break;
                     }
                 }
             }
@@ -624,11 +623,10 @@ bool BossMode::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
 
     switch(event)
     {
-    case Death:{
+
+    case GameOverJudge:{
             const static QString evil = "lord+renegade";
             const static QString justice = "rebel+loyalist";
-
-            player->bury();
 
             QStringList alive_roles = room->aliveRoles(player);
             if(!alive_roles.contains("rebel") && !alive_roles.contains("loyalist")){
@@ -641,39 +639,19 @@ bool BossMode::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             if(damage)
                 killer = damage->from;
 
-            switch(player->getRoleEnum()){
-            case Player::Lord:{
-                    QString winner;
-                    if(!alive_roles.contains("renegade"))
+            if(player->isLord()){
+                QString winner;
+                if(!alive_roles.contains("renegade"))
+                    winner = justice;
+                else{
+                    if(killer == NULL || evil.contains(killer->getRole()))
                         winner = justice;
-                    else{
-                        if(killer == NULL || evil.contains(killer->getRole()))
-                            winner = justice;
-                        else
-                            winner = evil;
-                    }
-
-                    room->gameOver(winner);
-                    return true;
+                    else
+                        winner = evil;
                 }
 
-            case Player::Loyalist:{
-                    if(killer && killer->isLord()){
-                        killer->throwAllEquips();
-                        killer->throwAllHandCards();
-                    }
-
-                    break;
-                }
-
-            case Player::Rebel:{
-                    if(killer)
-                        killer->drawCards(3);
-                    break;
-                }
-
-            default:
-                break;
+                room->gameOver(winner);
+                return true;
             }
 
             break;
@@ -822,41 +800,3 @@ bool HulaoPassMode::trigger(TriggerEvent event, ServerPlayer *player, QVariant &
     return GameRule::trigger(event, player, data);
 }
 
-HulaoPassThread::HulaoPassThread(Room *room)
-    :room(room)
-{
-}
-
-void HulaoPassThread::run(){
-    // initialize the random seed for this thread
-    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
-
-    ServerPlayer *lord = room->getLord();
-    room->setPlayerProperty(lord, "general", "shenlvbu1");
-
-    const Package *stdpack = Sanguosha->findChild<const Package *>("standard");
-    const Package *windpack = Sanguosha->findChild<const Package *>("wind");
-
-    QList<const General *> generals = stdpack->findChildren<const General *>();
-    generals << windpack->findChildren<const General *>();
-
-    QStringList names;
-    foreach(const General *general, generals){
-        names << general->objectName();
-    }
-
-    names.removeOne("wuxingzhuge");
-    names.removeOne("zhibasunquan");
-
-    foreach(ServerPlayer *player, room->findChildren<ServerPlayer *>()){
-        if(player == lord)
-            continue;
-
-        qShuffle(names);
-        QStringList choices = names.mid(0, 3);
-        QString name = room->askForGeneral(player, choices);
-
-        room->setPlayerProperty(player, "general", name);
-        names.removeOne(name);
-    }
-}

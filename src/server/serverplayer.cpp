@@ -208,6 +208,28 @@ QStringList ServerPlayer::getSelected() const{
     return selected;
 }
 
+#include "banpairdialog.h"
+
+QString ServerPlayer::findReasonable(const QStringList &generals){
+    if(Config.Enable2ndGeneral){
+        foreach(QString name, generals){
+            if(getGeneral()){
+                if(!BanPair::isBanned(getGeneralName(), name))
+                    return name;
+            }else{
+                if(!BanPair::isBanned(name))
+                    return name;
+            }
+        }
+    }
+
+    return generals.first();
+}
+
+void ServerPlayer::clearSelected(){
+    selected.clear();
+}
+
 void ServerPlayer::castMessage(const QString &message){
     if(socket){
         socket->send(message);
@@ -600,13 +622,8 @@ int ServerPlayer::getGeneralMaxHP() const{
     return max_hp;
 }
 
-bool ServerPlayer::hasLordSkill(const QString &skill_name) const{
-    if(room->getMode() == "06_3v3" || room->getMode() == "02_1v1")
-        return false;
-    else if(acquired_skills.contains(skill_name))
-        return true;
-    else
-        return isLord() && hasSkill(skill_name);
+QString ServerPlayer::getGameMode() const{
+    return room->getMode();
 }
 
 QString ServerPlayer::getIp() const{
@@ -640,8 +657,6 @@ void ServerPlayer::marshal(ServerPlayer *player) const{
 
     if(isAlive()){
         player->sendProperty("seat", this);
-        if(getXueyi() > 0)
-            player->sendProperty("xueyi", this);
         if(getPhase() != Player::NotActive)
             player->sendProperty("phase", this);
     }else{
