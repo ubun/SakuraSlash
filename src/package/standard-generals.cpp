@@ -1465,7 +1465,7 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return target->getPhase() == Player::NotActive;
+        return target->hasSkill(objectName()) && target->getPhase() == Player::NotActive;
     }
 
     virtual bool trigger(TriggerEvent, ServerPlayer *conan, QVariant &data) const{
@@ -1497,36 +1497,35 @@ public:
 class Fuyuan: public TriggerSkill{
 public:
     Fuyuan():TriggerSkill("fuyuan$"){
-        events << CardLost << PhaseChange;
+        events << PhaseChange;
     }
+
     virtual bool triggerable(const ServerPlayer *target) const{
         return target->hasLordSkill("fuyuan");
     }
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        if(player->getPhase() != Player::Discard)
-            return false;
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
-        if(event == CardLost){
-            CardMoveStar move = data.value<CardMoveStar>();
-            if(move->to_place == Player::DiscardedPile){
-                player->addMark("aptx");
-                if(player->getMark("aptx") == 2){
-                    if(player->askForSkillInvoke(objectName())){
-                        room->acquireSkill(player, "zhenxiang");
-                        if(player->isLord())
-                            room->acquireSkill(player, "wuwei");
-                    }
-                }
-            }
-        }else if(event == PhaseChange && player->getMark("aptx") != 0){
-            player->setMark("aptx", 0);
-            player->loseSkill("zhenxiang");
-            player->loseSkill("wuwei");
+        if(player->getPhase() == Player::Discard){
+            room->detachSkillFromPlayer(player, "zhenxiang");
+            room->detachSkillFromPlayer(player, "wuwei");
 
             LogMessage log;
             log.type = "$Fuyuanrb";
             log.from = player;
             room->sendLog(log);
+
+            QVariant num = player->getHandcardNum();
+            player->tag["FC_S"] = num;
+            return false;
+        }
+        if(player->getPhase() == Player::Finish){
+            int num = player->tag.value("FC_S").toInt();
+            if(num - player->getHandcardNum() >= 2 && player->askForSkillInvoke(objectName(), data)){
+                room->acquireSkill(player, "zhenxiang");
+                if(player->isLord())
+                    room->acquireSkill(player, "wuwei");
+            }
         }
         return false;
     }

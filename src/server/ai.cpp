@@ -206,7 +206,7 @@ QString TrustAI::askForKingdom(){
     QString role;
     switch(self->getRoleEnum()){
     case Player::Lord:
-    case Player::Rebel: role = "wei"; break;
+    case Player::Rebel: role = "zhen"; break;
     case Player::Loyalist:
     case Player::Renegade:
         role = room->getLord()->getKingdom(); break;
