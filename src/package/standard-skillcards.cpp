@@ -355,10 +355,10 @@ void JiaojinCard::use(Room *room, ServerPlayer *heiji, const QList<ServerPlayer 
     QString pattern = QString(".%1").arg(suit_str.at(0).toUpper());
     QString prompt = QString("@jiaojinask:%1::%2").arg(heiji->getGeneralName()).arg(suit_str);
     if(!room->askForCard(target, pattern, prompt)){
-        room->askForDiscard(target, "jiaojin", qMin(3, target->getCardCount(true)), false, true);
-        /*if(target->getEquips().length()!=0)
-            target->throwAllEquips();
-        else target->throwAllHandCards();*/
+        if(target->getCardCount(true) <= 3)
+            target->throwAllCards();
+        else
+            room->askForDiscard(target, "jiaojin", 3, false, true);
     }
 }
 

@@ -1295,8 +1295,7 @@ public:
         }
         else if(event == CardEffected && kudou->getPhase() == Player::NotActive){
             CardEffectStruct effect = data.value<CardEffectStruct>();
-            if(effect.from!=kudou && effect.card->inherits("TrickCard")
-                && !effect.card->inherits("DelayedTrick")
+            if(effect.from != kudou && effect.card->isNDTrick()
                 && !effect.card->inherits("AmazingGrace")
                 && room->askForSkillInvoke(kudou, objectName(), data)){
                 room->showAllCards(effect.from, effect.to);
@@ -1317,7 +1316,7 @@ public:
 
     virtual void onDamaged(ServerPlayer *kudou, const DamageStruct &damage) const{
         Room *room = kudou->getRoom();
-        if(room->getCurrent()!=kudou && damage.from && room->askForSkillInvoke(kudou, objectName())){
+        if(room->getCurrent() != kudou && damage.from && room->askForSkillInvoke(kudou, objectName())){
             QList<ServerPlayer *> players = room->getOtherPlayers(kudou);
             const Card *slash = NULL;
             foreach(ServerPlayer *player, players){
@@ -1337,53 +1336,47 @@ public:
     }
 };
 
-class Rexue:public TriggerSkill{
+class Rexue:public MasochismSkill{
 public:
-    Rexue():TriggerSkill("rexue"){
-        events << Damaged << AskForPeaches;
+    Rexue():MasochismSkill("rexue"){
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return target->hasSkill(objectName()) || !target->getPile("rexue").isEmpty();
-    }
-
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        Room *room = player->getRoom();
-        ServerPlayer *hatto = room->findPlayerBySkillName(objectName());
-        if(event == AskForPeaches){
-            DyingStruct dying_data = data.value<DyingStruct>();
-            repeat:
-            if(!dying_data.who->getPile("rexue").isEmpty() && dying_data.who->askForSkillInvoke(objectName(), data)){
-                int peach = dying_data.who->getPile("rexue").first();
-                room->throwCard(peach);
-                RecoverStruct recover;
-                recover.card = Sanguosha->getCard(peach);
-                recover.who = hatto;
-                room->recover(dying_data.who, recover);
-
-                if(dying_data.who->getHp() < 1)
-                    goto repeat;
-                return false;
-            }
-        }
-        else if(event == Damaged && player == hatto){
-            DamageStruct damage = data.value<DamageStruct>();
-            /*QList<ServerPlayer *> Hurts = room->getOtherPlayers(hatto);
-            foreach(ServerPlayer *p, Hurts)
-                if(!p->isWounded())
-                    Hurts.removeOne(p);
-            if (Hurts.length()<1 || !hatto->askForSkillInvoke(objectName()))
-                return false;
-                */
-            if (!hatto->askForSkillInvoke(objectName()))
-                return false;
+    virtual void onDamaged(ServerPlayer *hatto, const DamageStruct &damage) const{
+        Room *room = hatto->getRoom();
+        if(hatto->askForSkillInvoke(objectName())){
             int x = damage.damage, i;
             for(i=0; i<x; i++){
                 ServerPlayer *target = room->askForPlayerChosen(hatto, room->getOtherPlayers(hatto), "rexue");
-                if(!target) return false;
-                int card_id = room->getNCards(1).first();
+                int card_id = room->drawCard();
                 target->addToPile("rexue", card_id);
+                room->acquireSkill(target, "rexue_effect", false);
             }
+        }
+    }
+};
+
+class RexueEffect:public TriggerSkill{
+public:
+    RexueEffect():TriggerSkill("rexue_effect"){
+        events << Dying;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        DyingStruct dying_data = data.value<DyingStruct>();
+        if(player == dying_data.who &&
+           !dying_data.who->getPile("rexue").isEmpty() &&
+           dying_data.who->askForSkillInvoke("rexue_get", data)){
+            int peach = player->getPile("rexue").first();
+            room->throwCard(peach);
+            RecoverStruct recover;
+            recover.card = Sanguosha->getCard(peach);
+            ServerPlayer *hatto = room->findPlayerBySkillName("rexue");
+            if(hatto)
+                recover.who = hatto;
+
+            room->recover(player, recover);
+            return false;
         }
         return false;
     }
@@ -1454,9 +1447,12 @@ public:
 
         for(int i = damage.damage; i>0; i--){
             ServerPlayer *target = room->askForPlayerChosen(mori, room->getAlivePlayers(), objectName());
-            if(!target)
-                target = mori;
-            target->drawCards(2);
+            if(target == mori)
+                target->drawCards(2);
+            else{
+                if(!target->isNude())
+                    room->askForDiscard(target, objectName(), 1, false, true);
+            }
         }
     }
 };
@@ -1467,10 +1463,13 @@ public:
         events << CardLost;
         frequency = Frequent;
     }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->getPhase() == Player::NotActive;
+    }
+
     virtual bool trigger(TriggerEvent, ServerPlayer *conan, QVariant &data) const{
         Room *room = conan->getRoom();
-        if(room->getCurrent()==conan)
-            return false;
         CardMoveStar move = data.value<CardMoveStar>();
         if(move->from_place == Player::Hand && room->askForSkillInvoke(conan, objectName())){
             //room->playSkillEffect(objectName());
@@ -1514,14 +1513,13 @@ public:
                 if(player->getMark("aptx") == 2){
                     if(player->askForSkillInvoke(objectName())){
                         room->acquireSkill(player, "zhenxiang");
-                        room->acquireSkill(player, "wuwei");
+                        if(player->isLord())
+                            room->acquireSkill(player, "wuwei");
                     }
                 }
             }
         }else if(event == PhaseChange && player->getMark("aptx") != 0){
             player->setMark("aptx", 0);
-            room->detachSkillFromPlayer(player, "zhenxiang");
-            room->detachSkillFromPlayer(player, "wuwei");
             player->loseSkill("zhenxiang");
             player->loseSkill("wuwei");
 
@@ -1550,7 +1548,7 @@ public:
         Room *room = player->getRoom();
         ServerPlayer *ai = room->findPlayerBySkillName(objectName());
 
-        if(ai->isWounded() && ai->faceUp() && ai->askForSkillInvoke(objectName())){
+        if(ai && ai->isWounded() && ai->faceUp() && ai->askForSkillInvoke(objectName())){
             ai->turnOver();
 
             PlayerStar zhenggong = room->getTag("Pantao").value<PlayerStar>();
@@ -1633,18 +1631,18 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent event, ServerPlayer *ayumi, QVariant &data) const{
-            DamageStruct damage = data.value<DamageStruct>();
-            if(damage.card->inherits("TrickCard")){
-                LogMessage log;
-                log.type = "#TianzhenPrevent";
-                log.from = ayumi;
-                log.to << damage.to;
-                log.arg = objectName();
-                log.arg2 = QString::number(damage.damage);
-                ayumi->getRoom()->sendLog(log);
-                return true;
-            }
+    virtual bool trigger(TriggerEvent , ServerPlayer *ayumi, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        if(damage.card->inherits("TrickCard")){
+            LogMessage log;
+            log.type = "#TianzhenPrevent";
+            log.from = ayumi;
+            log.to << damage.to;
+            log.arg = objectName();
+            log.arg2 = QString::number(damage.damage);
+            ayumi->getRoom()->sendLog(log);
+            return true;
+        }
         return false;
     }
 };
@@ -1657,7 +1655,7 @@ public:
     virtual bool isEnabledAtPlay(const Player *yoshida) const{
         QList<const Player*> players = yoshida->parent()->findChildren<const Player *>();
         foreach(const Player *player, players){
-            if(!player->isAlive() || yoshida->getHp() > player->getHp())
+            if(yoshida->getHp() > player->getHp())
                return false;
         }
         return true;
@@ -1694,13 +1692,12 @@ public:
             ayumi->addMark("cry");
         }else if(ayumi->getPhase() == Player::Discard){
             if(ayumi->getMark("cry") == 1)
-                //ayumi->getRoom()->playSkillEffect(objectName());
+                //room->playSkillEffect(objectName());
                 return true;
         }else if(ayumi->getPhase() == Player::Finish){
-            if(ayumi->getMark("cry") == 3 && ayumi->isAlive())
-            {
+            if(ayumi->getMark("cry") == 3 && ayumi->isAlive()){
                 room->setPlayerProperty(ayumi, "maxhp", ayumi->getMaxHP()+1);
-                room->playSkillEffect(objectName());
+                //room->playSkillEffect(objectName());
                 room->setPlayerProperty(ayumi, "hp", ayumi->getMaxHP());
 
                 LogMessage log;
@@ -1714,28 +1711,9 @@ public:
     }
 };
 
-class Du0ren: public TriggerSkill{
+class DuorenViewAsSkill:public OneCardViewAsSkill{
 public:
-    Du0ren():TriggerSkill("#duoren"){
-        events << CardResponsed;
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *mouriran, QVariant &data) const{
-        CardStar card_star = data.value<CardStar>();
-        if(!card_star->inherits("Jink"))
-            return false;
-
-        Room *room = mouriran->getRoom();
-        ServerPlayer *source = room->getCurrent();
-        if(source->getWeapon() && room->askForSkillInvoke(mouriran, "duoren"))
-            mouriran->obtainCard(source->getWeapon());
-        return false;
-    }
-};
-
-class Duoren:public OneCardViewAsSkill{
-public:
-    Duoren():OneCardViewAsSkill("duoren"){
+    DuorenViewAsSkill():OneCardViewAsSkill("duoren"){
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{
@@ -1759,6 +1737,26 @@ public:
     }
 };
 
+class Duoren: public TriggerSkill{
+public:
+    Duoren():TriggerSkill("duoren"){
+        events << CardResponsed;
+        view_as_skill = new DuorenViewAsSkill;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *mouriran, QVariant &data) const{
+        CardStar card_star = data.value<CardStar>();
+        if(!card_star->inherits("Jink"))
+            return false;
+
+        Room *room = mouriran->getRoom();
+        ServerPlayer *source = room->getCurrent();
+        if(source->getWeapon() && room->askForSkillInvoke(mouriran, "duoren"))
+            mouriran->obtainCard(source->getWeapon());
+        return false;
+    }
+};
+
 class Shouhou: public PhaseChangeSkill{
 public:
     Shouhou():PhaseChangeSkill("shouhou"){
@@ -1767,11 +1765,11 @@ public:
     virtual bool onPhaseChange(ServerPlayer *mouri) const{
         Room *room = mouri->getRoom();
         if(mouri->getPhase() == Player::Start){
-            QList<ServerPlayer *> Hurts = room->getAlivePlayers();
-            foreach(ServerPlayer *player, Hurts)
-                if(!player->isWounded())
-                    Hurts.removeOne(player);
-            if(Hurts.length() > 0 && mouri->askForSkillInvoke(objectName())){
+            QList<ServerPlayer *> Hurts;
+            foreach(ServerPlayer *player, room->getAlivePlayers())
+                if(player->isWounded())
+                    Hurts << player;
+            if(!Hurts.isEmpty() && mouri->askForSkillInvoke(objectName())){
                 ServerPlayer *target = room->askForPlayerChosen(mouri, Hurts, "shouhou");
                 if(target){
                     RecoverStruct recover;
@@ -1895,14 +1893,18 @@ public:
         Room *room = kyo->getRoom();
         if(damage.card && damage.card->inherits("Slash")){
             QList<ServerPlayer *>players = room->getAlivePlayers();
-            foreach(ServerPlayer *player, players){
+
+            QMutableListIterator<ServerPlayer *> itor(players);
+            while(itor.hasNext()){
+                itor.next();
                 if(damage.card->getSkillName() != "shenyong_slash")
-                    player->setMark("shenyong", 8);
-                if(!damage.to->inMyAttackRange(player) || damage.to == player
-                   || (damage.card->getSkillName() == "shenyong_slash" && player->getMark("shenyong") == 4))
-                    players.removeOne(player);
+                    itor.value()->setMark("shenyong", 8);
+                if(!damage.to->inMyAttackRange(itor.value()) || damage.to == itor.value()
+                   || (damage.card->getSkillName() == "shenyong_slash" && itor.value()->getMark("shenyong") == 4))
+                    itor.remove();
             }
-            if(players.length() < 1 || !kyo->askForSkillInvoke(objectName(),data))
+
+            if(players.isEmpty() || !kyo->askForSkillInvoke(objectName(),data))
                 return false;
             ServerPlayer *target = room->askForPlayerChosen(kyo, players, objectName());
             if(target){
@@ -2009,8 +2011,7 @@ public:
             sharon->loseMark("yaiba");
 
             QStringList genlist = Sanguosha->getLimitedGeneralNames();
-            QList<ServerPlayer *> players = room->getAllPlayers();
-            foreach(ServerPlayer *player, players){
+            foreach(ServerPlayer *player, room->getAllPlayers()){
                 genlist.removeOne(player->getGeneralName());
             }
 
@@ -2691,10 +2692,10 @@ public:
             return false;
 
         Room *room = player->getRoom();
-        QList<ServerPlayer *> targets = room->getAllPlayers();
-        foreach(ServerPlayer *p, targets){
-            if(!p->hasEquip()){
-                targets.removeOne(p);
+        QList<ServerPlayer *> targets;
+        foreach(ServerPlayer *tmp, room->getAllPlayers()){
+            if(tmp->hasEquip()){
+                targets << tmp;
             }
         }
         if(targets.length()!=0 && room->askForSkillInvoke(player,objectName())){
@@ -2984,7 +2985,6 @@ void StandardPackage::addGenerals(){
     General *mouriran, *touyamakazuha, *kyougokumakoto;
     mouriran = new General(this, "mouriran", "woo", 3, false);
     mouriran->addSkill(new Duoren);
-    mouriran->addSkill(new Du0ren);
     mouriran->addSkill(new Shouhou);
 
     touyamakazuha = new General(this, "touyamakazuha", "woo", 3, false);
@@ -3068,18 +3068,7 @@ void StandardPackage::addGenerals(){
     aoyamagoushou->addSkill(new Long);
 
     // for skill cards
-/*    addMetaObject<ZhihengCard>();
-    addMetaObject<RendeCard>();
-    addMetaObject<TuxiCard>();
-    addMetaObject<JieyinCard>();
-    addMetaObject<KurouCard>();
-    addMetaObject<LijianCard>();
-    addMetaObject<FanjianCard>();
-    addMetaObject<QingnangCard>();
-    addMetaObject<LiuliCard>();
-    addMetaObject<JijiangCard>();
-//    addMetaObject<HuanzhuangCard>();
-*/    addMetaObject<CheatCard>();
+    addMetaObject<CheatCard>();
 
     addMetaObject<ZhenxiangCard>();
     addMetaObject<JiaojinCard>();
@@ -3094,6 +3083,7 @@ void StandardPackage::addGenerals(){
     addMetaObject<YuandingCard>();
     addMetaObject<JingshenCard>();
 
+    skills << new RexueEffect;
     patterns[".At"] = new AttackPattern;
 }
 
@@ -3101,8 +3091,8 @@ TestPackage::TestPackage()
     :Package("test")
 {
     // for test only
-    new General(this, "sujiang", "god", 5, true, true);
-    new General(this, "sujiangf", "god", 5, false, true);
+    new General(this, "uzumaki", "god", 5, true, true);
+    new General(this, "haruno", "god", 5, false, true);
 }
 
 ADD_PACKAGE(Test)

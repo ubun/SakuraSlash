@@ -203,7 +203,7 @@ QWidget *ServerDialog::createAdvancedTab(){
     layout->addWidget(free_choose_checkbox);
     layout->addWidget(free_assign_checkbox);
     layout->addLayout(HLay(new QLabel(tr("Upperlimit for general")), maxchoice_spinbox));
-    layout->addLayout(HLay(second_general_checkbox, banpair_button));
+    //layout->addLayout(HLay(second_general_checkbox, banpair_button));
     layout->addLayout(HLay(new QLabel(tr("Max HP scheme")), max_hp_scheme_combobox));
     layout->addWidget(scene_checkbox);		//changjing
     layout->addWidget(announce_ip_checkbox);
