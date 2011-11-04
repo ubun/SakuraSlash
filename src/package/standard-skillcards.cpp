@@ -517,19 +517,19 @@ bool MaixiongCard::targetFilter(const QList<const Player *> &targets, const Play
     if(!targets.isEmpty())
         return false;
 
-    if(to_select == Self || to_select->getFlags() == "daoh")
+    if(to_select == Self || to_select->getMark("daoh") != 0)
         return false;
 
     return true;
 }
 
 void MaixiongCard::use(Room *room, ServerPlayer *vodka, const QList<ServerPlayer *> &targets) const{
-    if(targets.isEmpty() || targets.first()->getFlags() == "daoh")
+    if(targets.isEmpty())
         return;
 
     ServerPlayer *target = targets.first();
     room->moveCardTo(this, target, Player::Hand, false);
-    target->setFlags("daoh");
+    room->setPlayerMark(target, "daoh", 1);
 
     int old_value = vodka->getMark("maixiong");
     int new_value = old_value + subcards.length();
