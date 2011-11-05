@@ -22,9 +22,9 @@
 #include <QDateTime>
 
 Room::Room(QObject *parent, const QString &mode)
-    :QThread(parent), mode(mode), owner(NULL), current(NULL), reply_player(NULL), pile1(Sanguosha->getRandomCards()),
+    :QThread(parent), mode(mode), current(NULL), reply_player(NULL), pile1(Sanguosha->getRandomCards()),
     draw_pile(&pile1), discard_pile(&pile2),
-    game_started(false), game_finished(false), signup_count(0),
+    game_started(false), game_finished(false),
     L(NULL), thread(NULL), thread_3v3(NULL), sem(new QSemaphore), provided(NULL), _virtual(false)
 {
     player_count = Sanguosha->getPlayerCount(mode);
@@ -52,6 +52,7 @@ void Room::initCallbacks(){
     callbacks["replyGongxinCommand"] = &Room::commonCommand;
     callbacks["assignRolesCommand"] = &Room::commonCommand;
 
+    callbacks["toggleReadyCommand"] = &Room::toggleReadyCommand;
     callbacks["addRobotCommand"] = &Room::addRobotCommand;
     callbacks["fillRobotsCommand"] = &Room::fillRobotsCommand;
     callbacks["chooseCommand"] = &Room::chooseCommand;
@@ -854,9 +855,8 @@ ServerPlayer *Room::addSocket(ClientSocket *socket){
     return player;
 }
 
-bool Room::isFull() const
-{
-    return signup_count == player_count;
+bool Room::isFull() const{
+    return players.length() == player_count;
 }
 
 bool Room::isFinished() const{
@@ -1116,29 +1116,32 @@ void Room::prepareForStart(){
                 player->setRole("rebel");
             broadcastProperty(player, "role");
         }
-    }else if(Config.value("FreeAssign", false).toBool() && owner->getState() == "online"){
-        owner->invoke("askForAssign");
-        getResult("assignRolesCommand", owner);
+    }else if(Config.value("FreeAssign", false).toBool()){
+        ServerPlayer *owner = getOwner();
+        if(owner && owner->getState() == "online"){
+            owner->invoke("askForAssign");
+            getResult("assignRolesCommand", owner);
 
-        if(result.isEmpty() || result == ".")
-            assignRoles();
-        else{
-            QStringList assignments = result.split("+");
-            for(int i=0; i<assignments.length(); i++){
-                QString assignment = assignments.at(i);
-                QStringList texts = assignment.split(":");
-                QString name = texts.value(0);
-                QString role = texts.value(1);
+            if(result.isEmpty() || result == ".")
+                assignRoles();
+            else{
+                QStringList assignments = result.split("+");
+                for(int i=0; i<assignments.length(); i++){
+                    QString assignment = assignments.at(i);
+                    QStringList texts = assignment.split(":");
+                    QString name = texts.value(0);
+                    QString role = texts.value(1);
 
-                ServerPlayer *player = findChild<ServerPlayer *>(name);
-                setPlayerProperty(player, "role", role);
+                    ServerPlayer *player = findChild<ServerPlayer *>(name);
+                    setPlayerProperty(player, "role", role);
 
-                players.swap(i, players.indexOf(player));
+                    players.swap(i, players.indexOf(player));
+                }
             }
-        }
-    }else{
+        }else
+            assignRoles();
+    }else
         assignRoles();
-    }
 
     adjustSeats();
 }
@@ -1167,7 +1170,7 @@ void Room::reportDisconnection(){
         players.removeOne(player);
     }else if(player->getRole().isEmpty()){
         // second case
-        if(signup_count < player_count){
+        if(players.length() < player_count){
             player->setParent(NULL);
             players.removeOne(player);
 
@@ -1178,7 +1181,6 @@ void Room::reportDisconnection(){
             }
 
             broadcastInvoke("removePlayer", player->objectName());
-            signup_count --;
         }
     }else{
         if(!game_started){
@@ -1216,11 +1218,9 @@ void Room::reportDisconnection(){
         }
     }
 
-    if(player == owner){
-        owner = NULL;
+    if(player->isOwner()){
         foreach(ServerPlayer *p, players){
             if(p->getState() == "online"){
-                owner = p;
                 p->setOwner(true);
                 broadcastProperty(p, "owner");
                 break;
@@ -1288,7 +1288,7 @@ void Room::processRequest(const QString &request){
 }
 
 void Room::addRobotCommand(ServerPlayer *player, const QString &){
-    if(player && player != owner)
+    if(player && !player->isOwner())
         return;
 
     if(isFull())
@@ -1316,9 +1316,42 @@ void Room::addRobotCommand(ServerPlayer *player, const QString &){
 }
 
 void Room::fillRobotsCommand(ServerPlayer *player, const QString &){
-    int left = player_count - signup_count, i;
-    for(i=0; i<left; i++){
+    int left = player_count - players.length();
+    for(int i=0; i<left; i++){
         addRobotCommand(player, QString());
+    }
+}
+
+ServerPlayer *Room::getOwner() const{
+    foreach(ServerPlayer *player, players){
+        if(player->isOwner())
+            return player;
+    }
+
+    return NULL;
+}
+
+void Room::toggleReadyCommand(ServerPlayer *player, const QString &){
+    if(game_started)
+        return;
+
+    setPlayerProperty(player, "ready", ! player->isReady());
+
+    if(player->isReady() && isFull()){
+        bool allReady = true;
+        foreach(ServerPlayer *player, players){
+            if(!player->isReady()){
+                allReady = false;
+                break;
+            }
+        }
+
+        if(allReady){
+            foreach(ServerPlayer *player, players)
+                setPlayerProperty(player, "ready", false);
+
+            start();
+        }
     }
 }
 
@@ -1333,8 +1366,8 @@ void Room::signup(ServerPlayer *player, const QString &screen_name, const QStrin
     if(!is_robot){
         player->sendProperty("objectName");
 
+        ServerPlayer *owner = getOwner();
         if(owner == NULL){
-            owner = player;
             player->setOwner(true);
             broadcastProperty(player, "owner");
         }
@@ -1353,12 +1386,8 @@ void Room::signup(ServerPlayer *player, const QString &screen_name, const QStrin
             if(p != player)
                 p->introduceTo(player);
         }
-    }
-
-    signup_count ++;
-
-    if(isFull())
-        start();
+    }else
+        toggleReadyCommand(player, QString());
 }
 
 void Room::assignGeneralsForPlayers(const QList<ServerPlayer *> &to_assign){
@@ -1830,8 +1859,6 @@ void Room::marshal(ServerPlayer *player){
         if(p != player)
             p->introduceTo(player);
     }
-
-
 
     QStringList player_circle;
     foreach(ServerPlayer *player, players)
