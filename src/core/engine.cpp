@@ -45,16 +45,11 @@ extern "C" {
     Package *NewJoy();
     Package *NewDisaster();
     Package *NewJoyEquip();
-//    Package *NewSP();
-    Package *NewSPCard();
 //    Package *NewYJCM();//
     Package *NewWisdom();
     Package *NewTest();
 
-//    Scenario *NewGuanduScenario();
-//    Scenario *NewFanchengScenario();
 //    Scenario *NewCoupleScenario();
-//    Scenario *NewHongyanScenario();
     Scenario *NewZombieScenario();
     Scenario *NewLegendScenario();
     Scenario *NewImpasseScenario();
@@ -74,7 +69,6 @@ Engine::Engine()
     addPackage(NewThicket());
     //addPackage(NewMountain());
     //addPackage(NewGod());
-    //addPackage(NewSP());
     //addPackage(NewYJCM());
     //addPackage(NewYitian());
     //addPackage(NewWisdom());
@@ -83,18 +77,13 @@ Engine::Engine()
     addPackage(NewStandardCard());
     addPackage(NewStandardExCard());
     addPackage(NewManeuvering());
-    addPackage(NewSPCard());
     addPackage(NewYitianCard());
     addPackage(NewNostalgia());
     addPackage(NewJoy());
     addPackage(NewDisaster());
     addPackage(NewJoyEquip());
 
-
-//    addScenario(NewGuanduScenario());
-//    addScenario(NewFanchengScenario());
 //    addScenario(NewCoupleScenario());
-//    addScenario(NewHongyanScenario());
     addScenario(NewZombieScenario());
     addScenario(NewLegendScenario());
     addScenario(NewImpasseScenario());
