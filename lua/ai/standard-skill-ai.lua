@@ -1,3 +1,28 @@
+sgs.ai_skill_playerchosen.zero_card_as_slash = function(self, targets)
+	local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+	local targetlist=sgs.QList2Table(targets)
+	self:sort(targetlist, "defense")
+	for _, target in ipairs(targetlist) do
+		if self:isEnemy(target) and not self:slashProhibit(slash ,target) and self:slashIsEffective(slash,target) then
+			return target
+		end
+	end
+	for i=#targetlist, 1, -1 do
+		if not self:slashProhibit(slash, targetlist[i]) then
+			return targetlist[i]
+		end
+	end
+	return targets:first()
+end
+
+sgs.ai_skill_playerchosen.damage = function(self, targets)
+	local targetlist=sgs.QList2Table(targets)
+	self:sort(targetlist,"hp")
+	for _, target in ipairs(targetlist) do
+		if self:isEnemy(target) then return target end
+	end
+	return targetlist[#targetlist]
+end
 
 sgs.ai_skill_invoke.ice_sword=function(self, data)
 	if self.player:hasFlag("drank") then return false end
@@ -16,6 +41,14 @@ sgs.ai_skill_invoke.ice_sword=function(self, data)
 	return false
 end
 
+sgs.ai_skill_cardchosen.ice_sword = function(self, who)
+	local hcards = who:getCards("h")
+	hcards = sgs.QList2Table(hcards)
+	for _, peach in ipairs(hcards) do
+		if peach:inherits("Peach") or peach:inherits("Analeptic") then return peach end
+	end
+end
+
 local spear_skill={}
 spear_skill.name="spear"
 table.insert(sgs.ai_skills,spear_skill)
@@ -25,7 +58,7 @@ spear_skill.getTurnUseCard=function(self,inclusive)
     
     if #cards<(self.player:getHp()+1) then return nil end
     if #cards<2 then return nil end
-    if self:getSlash() then return nil end
+    if self:getCard("Slash") then return nil end
     
     self:sortByUseValue(cards,true)
     
@@ -35,9 +68,8 @@ spear_skill.getTurnUseCard=function(self,inclusive)
 	local suit2 = cards[2]:getSuitString()
 	local card_id2 = cards[2]:getEffectiveId()
 	
-	local suit=sgs.Card_NoSuit
-	if cards[1]:isBlack() and cards[2]:isBlack() then suit=sgs.Card_Club
-	elseif cards[1]:isBlack()==cards[2]:isBlack() then suit=sgs.Card_Diamond end
+	local suit="no_suit"
+	if cards[1]:isBlack() == cards[2]:isBlack() then suit = suit1 end
 	
 	local card_str = ("slash:spear[%s:%s]=%d+%d"):format(suit, 0, card_id1, card_id2)
 	
@@ -65,18 +97,18 @@ qixi_skill.getTurnUseCard=function(self,inclusive)
 	end
 	
 	for _,card in ipairs(cards)  do
-		if card:isBlack()  and ((self:getUseValue(card)<sgs.ai_use_value["Dismantlement"]) or inclusive) then
+		if card:isBlack()  and ((self:getUseValue(card)<sgs.ai_use_value["Dismantlement"]) or inclusive or self:getOverflow()>0) then
 		    local shouldUse=true
 		    
 		    if card:inherits("Armor") then
                 if not self.player:getArmor() then shouldUse=false 
-                elseif self:hasEquip(card) then shouldUse=false
+                elseif self:hasEquip(card) and not (card:inherits("SilverLion") and self.player:isWounded()) then shouldUse=false
                 end
             end
             
             if card:inherits("Weapon") then
                 if not self.player:getWeapon() then shouldUse=false
-                elseif self:hasEquip(card) and not has_weapon then shouldUse=false
+                elseif self:hasEquip(card) and not has_weapon and not card:inherits("YitianSword") then shouldUse=false
                 end
             end
 		    
@@ -145,7 +177,7 @@ longdan_skill.getTurnUseCard=function(self)
 	self:sortByUseValue(cards,true)
 	
 	for _,card in ipairs(cards)  do
-		if card:inherits("Jink") then--and (self:getUseValue(card)<sgs.ai_use_value["Slash"]) then
+		if card:inherits("Jink") then
 			jink_card = card
 			break
 		end
@@ -174,7 +206,6 @@ fanjian_skill.getTurnUseCard=function(self)
 		local cards = self.player:getHandcards()
 		
 		for _, card in sgs.qlist(cards) do
-		--	if card:getSuit() == sgs.Card_Diamond or card:inherits("Peach") or card:inherits("Analeptic") then		
 			if card:getSuit() == sgs.Card_Diamond and self.player:getHandcardNum() == 1 then
 				return nil
 			elseif card:inherits("Peach") or card:inherits("Analeptic") then
@@ -194,14 +225,13 @@ end
 sgs.ai_skill_use_func["FanjianCard"]=function(card,use,self)
 	self:sort(self.enemies, "hp")
 			
-			for _, enemy in ipairs(self.enemies) do								
-				if (not enemy:hasSkill("qingnang")) or (enemy:getHp() == 1 and enemy:getHandcardNum() == 0 and not enemy:getEquips()) then
-					use.card = card
-					if use.to then use.to:append(enemy) end
-					
-					return
-				end
-			end
+	for _, enemy in ipairs(self.enemies) do								
+		if (not enemy:hasSkill("qingnang")) or (enemy:getHp() == 1 and enemy:getHandcardNum() == 0 and not enemy:getEquips()) then
+			use.card = card
+			if use.to then use.to:append(enemy) end
+			return
+		end
+	end
 end
 
 local jieyin_skill={}
@@ -209,17 +239,25 @@ jieyin_skill.name="jieyin"
 table.insert(sgs.ai_skills,jieyin_skill)
 jieyin_skill.getTurnUseCard=function(self)
         if self.player:getHandcardNum()<2 then return nil end
-        if self.player:usedTimes("JieyinCard")>0 then return nil end
+        if self.player:hasUsed("JieyinCard") then return nil end
 		
 		local cards = self.player:getHandcards()
 		cards=sgs.QList2Table(cards)
 		
+		local first, second
 		self:sortByUseValue(cards,true)
+		for _, card in ipairs(cards) do
+			if card:getTypeId() ~= sgs.Card_Equip then
+				if not first then first  = cards[1]:getEffectiveId()
+				else second = cards[2]:getEffectiveId()
+				end
+			end
+			if second then break end
+		end
 		
-		local first  = cards[1]:getEffectiveId()
-		local second = cards[2]:getEffectiveId()
-
+		if not second then return end
 		local card_str = ("@JieyinCard=%d+%d"):format(first, second)
+		assert(card_str)
 		return sgs.Card_Parse(card_str)
 end
 
