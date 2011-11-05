@@ -2606,12 +2606,13 @@ function SmartAI:askForCard(pattern, prompt, data)
 		elseif not self:isFriend(who) then return "."
 		end
 		return self:getCardId("Jink") or "."
-	elseif parsedPrompt[1] == "@jijiang-slash" then
-		local who = data:toPlayer()
-		if self.player:hasSkill("jijiang") and who:hasSkill("jijiang") then return "."
-		elseif not self:isFriend(who) then return "."
+	elseif parsedPrompt[1] == "@wuwei-slash" then
+		local damage = data:toDamage()
+		if self:isEnemy(damage.from) and self:getCardsNum("Slash") ~= 0 then
+			return self:getCardId("Slash")
+		else
+			return "."
 		end
-		return self:getCardId("Slash") or "."
 	end
 
 	if parsedPrompt[1] == "double-sword-card" then 

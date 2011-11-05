@@ -87,13 +87,10 @@ public:
 
     virtual void onDamaged(ServerPlayer *kudou, const DamageStruct &damage) const{
         Room *room = kudou->getRoom();
-        if(room->getCurrent() != kudou && damage.from && room->askForSkillInvoke(kudou, objectName())){
-            QList<ServerPlayer *> players = room->getOtherPlayers(kudou);
-            foreach(ServerPlayer *player, players){
-                QString result = room->askForChoice(player, objectName(), "accept+ignore");
-                if(result == "ignore")
-                    continue;
-                const Card *slash = room->askForCard(player, "slash", "@wuwei-slash");
+        QVariant data = QVariant::fromValue(damage);
+        if(room->getCurrent() != kudou && damage.from && room->askForSkillInvoke(kudou, objectName(), data)){
+            foreach(ServerPlayer *player, room->getOtherPlayers(kudou)){
+                const Card *slash = room->askForCard(player, "slash", "@wuwei-slash", data);
                 if(slash){
                     CardUseStruct card_use;
                     card_use.card = slash;
@@ -364,8 +361,6 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        if(!target->getRoom()->findPlayerBySkillName(objectName()))
-            return false;
         return !target->hasSkill(objectName());
     }
 
@@ -437,19 +432,20 @@ ShiyanCard::ShiyanCard(){
 
 void ShiyanCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
     const Card *card = Sanguosha->getCard(this->getSubcards().first());
-    Card::Suit suit = card->getSuit();
-    JudgeStruct judge;
-//      judge.pattern = QRegExp("(.*):(spade|club):(.*)");
-//      judge.good = true;
-      judge.reason = objectName();
-      judge.who = source;
-
-    room->judge(judge);
-    source->obtainCard(judge.card);
 
     LogMessage log;
     log.from = source;
     log.card_str = card->getEffectIdString();
+    log.type = "$Shiyan";
+    room->sendLog(log);
+
+    Card::Suit suit = card->getSuit();
+    JudgeStruct judge;
+    judge.reason = objectName();
+    judge.who = source;
+
+    room->judge(judge);
+    source->obtainCard(judge.card);
 
     if(judge.card->getSuit()==suit){
         log.type = "$Shiyansuc";
@@ -605,7 +601,8 @@ public:
 
         Room *room = mouriran->getRoom();
         ServerPlayer *source = room->getCurrent();
-        if(source->getWeapon() && room->askForSkillInvoke(mouriran, "duoren"))
+        QVariant tgt = QVariant::fromValue(source);
+        if(source->getWeapon() && room->askForSkillInvoke(mouriran, "duoren", tgt))
             mouriran->obtainCard(source->getWeapon());
         return false;
     }
@@ -619,12 +616,12 @@ public:
     virtual bool onPhaseChange(ServerPlayer *mouri) const{
         Room *room = mouri->getRoom();
         if(mouri->getPhase() == Player::Start){
-            QList<ServerPlayer *> Hurts;
+            QList<ServerPlayer *> hurts;
             foreach(ServerPlayer *player, room->getAlivePlayers())
                 if(player->isWounded())
-                    Hurts << player;
-            if(!Hurts.isEmpty() && mouri->askForSkillInvoke(objectName())){
-                ServerPlayer *target = room->askForPlayerChosen(mouri, Hurts, "shouhou");
+                    hurts << player;
+            if(!hurts.isEmpty() && mouri->askForSkillInvoke(objectName())){
+                ServerPlayer *target = room->askForPlayerChosen(mouri, hurts, "shouhou");
                 if(target){
                     RecoverStruct recover;
                     recover.card = NULL;
@@ -881,14 +878,14 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return TriggerSkill::triggerable(target) && target->getMark("yaiba") > 0;
+        return TriggerSkill::triggerable(target) && target->getMark("@yaiba") > 0;
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *sharon, QVariant &) const{
         Room *room = sharon->getRoom();
         if(sharon->getHp() <= 0 && sharon->askForSkillInvoke(objectName())){
             room->broadcastInvoke("animate", "lightbox:$yirong");
-            sharon->loseMark("yaiba");
+            sharon->loseMark("@yaiba");
 
             QStringList genlist = Sanguosha->getLimitedGeneralNames();
             foreach(ServerPlayer *player, room->getAllPlayers()){
@@ -1121,7 +1118,7 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return TriggerSkill::triggerable(target) && target->getMark("fake") > 0;
+        return TriggerSkill::triggerable(target) && target->getMark("@fake") > 0;
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *kaitou, QVariant &data) const{
@@ -1141,7 +1138,7 @@ public:
 
             if(judge.isGood()){
                 room->broadcastInvoke("animate", "lightbox:$tishen");
-                kaitou->loseMark("fake");
+                kaitou->loseMark("@fake");
                 room->setPlayerProperty(kaitou, "hp", 3);
                 return true;
             }
@@ -1884,6 +1881,16 @@ public:
     }
 };
 
+CheatCard::CheatCard(){
+    target_fixed = true;
+    will_throw = false;
+}
+
+void CheatCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    if(Config.FreeChoose)
+        room->obtainCard(source, subcards.first());
+}
+
 void StandardPackage::addGenerals(){
     General *kudoushinichi, *hattoriheiji, *mourikogorou;
 
@@ -1935,8 +1942,8 @@ void StandardPackage::addGenerals(){
 
     sharon = new General(this, "sharon", "yi", 3, false);
     sharon->addSkill(new Yirong);
-    sharon->addSkill(new MarkAssignSkill("yaiba", 1));
-    related_skills.insertMulti("yirong", "#yaiba");
+    sharon->addSkill(new MarkAssignSkill("@yaiba", 1));
+    related_skills.insertMulti("yirong", "#@yaiba");
     sharon->addSkill(new Wuyu);
 
     General *megurejyuuzou, /*shiratorininzaburou,*/ *matsumotokiyonaka, *otagiritoshirou;
@@ -1959,8 +1966,8 @@ void StandardPackage::addGenerals(){
     General *kurobakaitou, *nakamoriaoko;
     kurobakaitou = new General(this, "kurobakaitou", "guai");
     kurobakaitou->addSkill(new Tishen);
-    kurobakaitou->addSkill(new MarkAssignSkill("fake", 1));
-    related_skills.insertMulti("tishen", "#fake");
+    kurobakaitou->addSkill(new MarkAssignSkill("@fake", 1));
+    related_skills.insertMulti("tishen", "#@fake");
     //kurobakaitou->addSkill(new MarkAssignSkill("magic", 1));
     kurobakaitou->addSkill(new Moshu);
 
@@ -2022,6 +2029,8 @@ void StandardPackage::addGenerals(){
 
     skills << new RexueEffect;
     patterns[".At"] = new AttackPattern;
+
+    addMetaObject<CheatCard>();
 }
 
 TestPackage::TestPackage()

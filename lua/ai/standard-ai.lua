@@ -1,3 +1,140 @@
+-- wuwei
+sgs.ai_skill_invoke["wuwei"] = function(self, data)
+	local damage = data:toDamage()
+	return self:isEnemy(damage.from)
+end
+
+-- rexue
+sgs.ai_skill_invoke["rexue"] = function(self, data)
+	return #self.friends_noself > 0
+end
+sgs.ai_skill_playerchosen["rexue"] = function(self, targets)
+	self:sort(self.friends_noself, "hp")
+	return self.friends_noself[1]
+end
+sgs.ai_skill_invoke["rexue_get"] = function(self, data)
+	local n = self:getCardsNum("Slash") + self:getCardsNum("Analpetic")
+	return n < 1
+end
+
+-- jiaojin
+local jiaojin_skill={}
+jiaojin_skill.name = "jiaojin"
+table.insert(sgs.ai_skills, jiaojin_skill)
+jiaojin_skill.getTurnUseCard=function(self)
+	if self.player:getHandcardNum() > 0 and not self.player:hasUsed("JiaojinCard") then
+		local hcard = self.player:getRandomHandCard()
+		return sgs.Card_Parse("@JiaojinCard=" .. hcard:getId())
+	end
+end
+sgs.ai_skill_use_func["JiaojinCard"] = function(card, use, self)
+	local target
+	for _, enemy in ipairs(self.enemies) do
+		if enemy:getCards("he"):length() > 2 then
+			target = enemy
+			break
+		end
+	end
+	if not target then target = self.Enemies[1] end
+	if use.to then use.to:append(target) end
+	use.card = card
+	return
+end
+
+-- chenshui
+sgs.ai_skill_invoke["chenshui"] = function(self, data)
+	return self.player:getHandcardNum() > 3 or self.player:getHp() > 2
+end
+sgs.ai_skill_playerchosen["chenshuiprotect"] = function(self, targets)
+	self:sort(self.friends_noself, "hp")
+	return self.friends_noself[1]
+end
+
+-- jingxing
+sgs.ai_skill_invoke["jingxing"] = true
+sgs.ai_skill_playerchosen["jingxing"] = function(self, targets)
+	return self.player
+end
+
+-- mazui
+local mazui_skill={}
+mazui_skill.name = "mazui"
+table.insert(sgs.ai_skills, mazui_skill)
+mazui_skill.getTurnUseCard=function(self)
+	if not self.player:hasUsed("MazuiCard") then
+		return sgs.Card_Parse("@MazuiCard=.")
+	end
+end
+sgs.ai_skill_use_func["MazuiCard"] = function(card, use, self)
+	self:sort(self.enemies, "handcard")
+	if use.to then use.to:append(self.enemies[1]) end
+	use.card = card
+	return
+end
+
+-- fuyuan
+sgs.ai_skill_invoke["fuyuan"] = true
+
+-- pantao
+sgs.ai_skill_invoke["pantao"] = function(self, data)
+	return self.player:getHandcardNum() >= self.player:getHp() and self.player:getHandcardNum() > 1
+end
+
+-- shiyan
+local shiyan_skill={}
+shiyan_skill.name = "shiyan"
+table.insert(sgs.ai_skills, shiyan_skill)
+shiyan_skill.getTurnUseCard=function(self)
+	if self.player:hasUsed("ShiyanCard") or self.player:isKongcheng() then return end
+	local hcard = self.player:getRandomHandCard()
+	return sgs.Card_Parse("@ShiyanCard=" .. hcard:getId())
+end
+sgs.ai_skill_use_func["ShiyanCard"] = function(card, use, self)
+	use.card = card
+end
+
+-- lanman
+local lanman_skill={}
+lanman_skill.name = "lanman"
+table.insert(sgs.ai_skills, lanman_skill)
+lanman_skill.getTurnUseCard=function(self,inclusive)
+	if self.player:getHandcardNum() >= 4 then return end
+    local cards = self.player:getHandcards()
+    cards=sgs.QList2Table(cards)
+	for _,card in ipairs(cards)  do
+		if card:getSuit() == sgs.Card_Diamond or inclusive then
+		    local suit = card:getSuitString()
+			local number = card:getNumberString()
+			local card_id = card:getEffectiveId()
+			local card_str = ("ex_nihilo:lanman[%s:%s]=%d"):format(suit, number, card_id)
+			local exnihilo = sgs.Card_Parse(card_str)
+			assert(exnihilo)
+			return exnihilo
+		end
+	end
+end
+
+-- duoren
+sgs.ai_skill_invoke["duoren"] = function(self, data)
+	return self:isEnemy(data:toPlayer())
+end
+
+-- shouhou
+sgs.ai_skill_invoke["shouhou"] = function(self, data)
+	self:sort(self.friends, "hp")
+	return self.friends[1]:isWounded() and self.player:getHandcardNum() >= 3
+end
+sgs.ai_skill_playerchosen["shouhou"] = function(self, targets)
+	self:sort(self.friends, "hp")
+	for _, friend in ipairs(self.friends) do
+		if friend:isWounded() then
+			return friend
+		end
+	end
+end
+
+
+-- $$$$$$$$$$$$$###############
 -- jianxiong
 sgs.ai_skill_invoke.jianxiong = function(self, data)
 		return not sgs.Shit_HasShit(data:toCard())
