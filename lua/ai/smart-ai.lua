@@ -3033,8 +3033,8 @@ end
 sgs.lose_equip_skill = "xiaoji|xuanfeng"
 sgs.need_kongcheng = "lianying|kongcheng"
 sgs.masochism_skill = "fankui|quhu|yiji|ganglie|enyuan|fangzhu"
-sgs.wizard_skill = "guicai|guidao|tiandu"
-sgs.wizard_harm_skill = "guicai|guidao"
+sgs.wizard_skill = "shouqiu|guidao|tiandu"
+sgs.wizard_harm_skill = "shouqiu|guidao"
 
 function SmartAI:hasSkills(skill_names, player)
 	player = player or self.player

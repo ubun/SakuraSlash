@@ -1506,13 +1506,16 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         if(player->getPhase() == Player::Discard){
-            room->detachSkillFromPlayer(player, "zhenxiang");
-            room->detachSkillFromPlayer(player, "wuwei");
+            if(player->getMark("aptx") > 0){
+                room->detachSkillFromPlayer(player, "zhenxiang");
+                room->detachSkillFromPlayer(player, "wuwei");
 
-            LogMessage log;
-            log.type = "$Fuyuanrb";
-            log.from = player;
-            room->sendLog(log);
+                LogMessage log;
+                log.type = "$Fuyuanrb";
+                log.from = player;
+                room->sendLog(log);
+                player->setMark("aptx", 0);
+            }
 
             QVariant num = player->getHandcardNum();
             player->tag["FC_S"] = num;
@@ -1521,6 +1524,7 @@ public:
         if(player->getPhase() == Player::Finish){
             int num = player->tag.value("FC_S").toInt();
             if(num - player->getHandcardNum() >= 2 && player->askForSkillInvoke(objectName(), data)){
+                player->setMark("aptx", 1);
                 room->acquireSkill(player, "zhenxiang");
                 if(player->isLord())
                     room->acquireSkill(player, "wuwei");
@@ -2373,7 +2377,7 @@ public:
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->getMark("anshamark");
+        return player->getMark("@ansha") > 0;
     }
 
     virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
@@ -2407,20 +2411,22 @@ public:
         frequency = Limited;
     }
     virtual bool triggerable(const ServerPlayer *target) const{
-        return target->getMark("ansha") > 0;
+        return target->getMark("anshamark") > 0;
     }
     virtual bool onPhaseChange(ServerPlayer *player) const{
         Room *room = player->getRoom();
         if(player->getPhase() == Player::Finish){
-            player->loseMark("ansha");
+            room->setPlayerMark(player, "anshamark", 0);
             ServerPlayer *gin = room->findPlayerBySkillName(objectName());
-            DamageStruct damage;
-            damage.from = gin;
-            damage.to = player;
-            damage.damage = 3;
-            room->setEmotion(gin, "good");
-            room->loseMaxHp(gin);
-            room->damage(damage);
+            if(gin){
+                DamageStruct damage;
+                damage.from = gin;
+                damage.to = player;
+                damage.damage = 3;
+                room->setEmotion(gin, "good");
+                room->loseMaxHp(gin);
+                room->damage(damage);
+            }
         }
         return false;
     }
@@ -2933,8 +2939,8 @@ void StandardPackage::addGenerals(){
     General *gin, *vodka, *akaishuichi;
     gin = new General(this, "gin$", "hei");
     gin->addSkill(new Ansha);
-    gin->addSkill(new MarkAssignSkill("anshamark", 1));
-    related_skills.insertMulti("ansha", "#anshamark");
+    gin->addSkill(new MarkAssignSkill("@ansha", 1));
+    related_skills.insertMulti("ansha", "#@ansha");
     gin->addSkill(new Juelu);
     gin->addSkill(new Heiyi);
 

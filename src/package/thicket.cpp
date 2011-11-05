@@ -877,11 +877,11 @@ public:
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         CardUseStruct use = data.value<CardUseStruct>();
-        //if(use.card->subcardsLength() > 0)
-        //    return false;
-        int frog = qrand() % 10;
+        if(use.card->getNumber() < 1)
+            return false;
+        int frog = qrand() % 4;
         Room *room = player->getRoom();
-        if(frog > 2 && frog < 6){
+        if(frog == 0){
             if(use.card->subcardsLength() > 0)
                 room->throwCard(use.card);
             else
@@ -899,45 +899,14 @@ public:
     }
 };
 
-class Zhizhuo: public TriggerSkill{
-public:
-    Zhizhuo():TriggerSkill("#zhizhuov"){
-        //view_as_skill = new ZhizhuoViewAsSkill;
-        events << CardUsed << TurnStart;
-    }
-
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        if(!player->isAlive())
-            return false;
-        if(event == TurnStart){
-            Self->tag["store"] = -1;
-            return false;
-        }
-        CardUseStruct card = data.value<CardUseStruct>();
-        //if(card.card->getSkillName() == "zhizhuo")
-        //    return false;
-        if(card.card->subcardsLength() > 0)
-            return false;
-        if(card.card->isNDTrick() || card.card->inherits("BasicCard"))
-            Self->tag["store"] = card.card->getId();
-
-        //player->setFlags(card.card->objectName());
-        return false;
-    }
-};
-
 class ZhizhuoViewAsSkill: public OneCardViewAsSkill{
 public:
     ZhizhuoViewAsSkill():OneCardViewAsSkill("zhizhuo"){
     }
     virtual bool isEnabledAtPlay(const Player *player) const{
-    //    return ! Self->hasFlag("zhizhuo");
-        return Self->tag["store"].toInt() > -1;
+        return player->tag["store"].toInt() > -1;
     }
     virtual bool viewFilter(const CardItem *to_select) const{
-        //CardStar card = Self->tag.value("store").value<CardStar>();
-        //if(to_select->getCard()->getSuit() != card->getSuit())
-        //    return false;
         if(to_select->isEquipped())
             return false;
         if(to_select->getCard()->getSuit() != Sanguosha->getCard(Self->tag["store"].toInt())->getSuit())
@@ -946,12 +915,34 @@ public:
     }
     virtual const Card *viewAs(CardItem *card_item) const{
         const Card *card = card_item->getCard();
-        //Card *new_card = Sanguosha->cloneCard(Self->tag.value("store").value<CardStar>()->objectName(), card_item->getCard()->getSuit(), card_item->getCard()->getNumber());
         Card *new_card = Sanguosha->cloneCard(Sanguosha->getCard(Self->tag["store"].toInt())->objectName(), card->getSuit(), card->getNumber());
         new_card->addSubcard(card);
         new_card->setSkillName("zhizhuo");
-        Self->setFlags("zhizhuo");
         return new_card;
+    }
+};
+
+class Zhizhuo: public TriggerSkill{
+public:
+    Zhizhuo():TriggerSkill("zhizhuo"){
+        view_as_skill = new ZhizhuoViewAsSkill;
+        events << CardUsed << TurnStart;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        if(!player)
+            return false;
+        if(event == TurnStart){
+            Self->tag["store"] = -1;
+            return false;
+        }
+        CardUseStruct card = data.value<CardUseStruct>();
+        if(card.card->subcardsLength() > 0 || card.card->getNumber() < 1)
+            return false;
+        if(card.card->isNDTrick() || card.card->inherits("BasicCard"))
+            Self->tag["store"] = card.card->getId();
+
+        return false;
     }
 };
 
@@ -961,7 +952,6 @@ ThicketPackage::ThicketPackage()
     General *hondoueisuke = new General(this, "hondoueisuke", "za");
     hondoueisuke->addSkill(new Mihu);
     hondoueisuke->addSkill(new Zhizhuo);
-    hondoueisuke->addSkill(new ZhizhuoViewAsSkill);
 }
 
 ADD_PACKAGE(Thicket)

@@ -502,10 +502,10 @@ AnshaCard::AnshaCard(){
 
 void AnshaCard::use(Room *room, ServerPlayer *gin, const QList<ServerPlayer *> &) const{
     ServerPlayer *target = room->askForPlayerChosen(gin, room->getOtherPlayers(gin), "ansha");
-    if(target){
-        target->setMark("ansha",1);
+    if(target && gin->getMark("@ansha") > 0){
+        target->getRoom()->setPlayerMark(target, "anshamark", 1);
         room->throwCard(this);
-        gin->loseMark("anshamark");
+        gin->loseMark("@ansha");
     }
 }
 
