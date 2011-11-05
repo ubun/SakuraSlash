@@ -2003,7 +2003,7 @@ void StandardPackage::addGenerals(){
     yamamuramisae->addSkill(new Biaoche);
     yamamuramisae->addSkill(new Jingshen);
 
-    aoyamagoushou = new General(this, "aoyamagoushou", "za");
+    aoyamagoushou = new General(this, "aoyamagoushou", "god");
     aoyamagoushou->addSkill(new Long);
 
     // for skill cards
