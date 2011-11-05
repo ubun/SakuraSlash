@@ -45,8 +45,8 @@ SOURCES += src/main.cpp \
 	src/package/nostalgia.cpp \
 	src/package/sp-package.cpp \
 	src/package/standard-cards.cpp \
-	src/package/standard-generals.cpp \
-	src/package/standard-skillcards.cpp \
+	src/package/standard-generals-a.cpp \
+	src/package/standard-generals-b.cpp \
 	src/package/standard.cpp \
 	src/package/thicket.cpp \
 	src/package/wind.cpp \
@@ -124,7 +124,8 @@ HEADERS += src/client/aux-skills.h \
 	src/package/package.h \
 	src/package/sp-package.h \
 	src/package/standard-equips.h \
-	src/package/standard-skillcards.h \
+	src/package/standard-generals-a.h \
+	src/package/standard-generals-b.h \
 	src/package/standard.h \
 	src/package/thicket.h \
 	src/package/wind.h \
