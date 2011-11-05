@@ -33,6 +33,7 @@ Client::Client(QObject *parent, const QString &filename)
     callbacks["roomEnd"] = &Client::roomEnd;
     callbacks["roomCreated"] = &Client::roomCreated;
     callbacks["roomError"] = &Client::roomError;
+    callbacks["hallEntered"] = &Client::hallEntered;
 
     callbacks["setup"] = &Client::setup;
     callbacks["addPlayer"] = &Client::addPlayer;
@@ -188,6 +189,7 @@ void Client::setup(const QString &setup_str){
 
     if(ServerInfo.parse(setup_str)){
         emit server_connected();
+        request("toggleReady .");
     }else{
         QMessageBox::warning(NULL, tr("Warning"), tr("Setup string can not be parsed: %1").arg(setup_str));
     }
@@ -619,6 +621,17 @@ void Client::askForCardOrUseCard(const QString &request_str){
     else
         refusable = true;
 
+    if(card_pattern.startsWith(QChar('@'))){
+        QString skill_name = card_pattern;
+        skill_name.remove(QChar('@'));
+        const Skill *skill = Sanguosha->getSkill(skill_name);
+        if(skill){
+            QString text = prompt_doc->toHtml();
+            text.append(tr("<br/><br/> <b>Notice</b>: %1<br/>").arg(skill->getDescription()));
+            prompt_doc->setHtml(text);
+        }
+    }
+
     setStatus(Responsing);
 }
 
@@ -640,6 +653,7 @@ void Client::askForSkillInvoke(const QString &invoke_str){
         data = texts.last();
     }else
         skill_name = invoke_str;
+    skill_to_invoke = skill_name;
 
     QString text;
     if(data.isNull())
@@ -1055,6 +1069,8 @@ void Client::warn(const QString &reason){
         msg = tr("Your password is wrong");
     else if(reason == "INVALID_FORMAT")
         msg = tr("Invalid signup string");
+    else if(reason == "LEVEL_LIMITATION")
+        msg = tr("Your level is not enough");
     else
         msg = tr("Unknown warning: %1").arg(reason);
 

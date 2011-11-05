@@ -1318,12 +1318,11 @@ public:
         Room *room = kudou->getRoom();
         if(room->getCurrent() != kudou && damage.from && room->askForSkillInvoke(kudou, objectName())){
             QList<ServerPlayer *> players = room->getOtherPlayers(kudou);
-            const Card *slash = NULL;
             foreach(ServerPlayer *player, players){
                 QString result = room->askForChoice(player, objectName(), "accept+ignore");
                 if(result == "ignore")
                     continue;
-                slash = room->askForCard(player, "slash", "@wuwei-slash");
+                const Card *slash = room->askForCard(player, "slash", "@wuwei-slash");
                 if(slash){
                     CardUseStruct card_use;
                     card_use.card = slash;
@@ -1632,7 +1631,7 @@ public:
 
     virtual bool trigger(TriggerEvent , ServerPlayer *ayumi, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
-        if(damage.card->inherits("TrickCard")){
+        if(damage.card && damage.card->inherits("TrickCard")){
             LogMessage log;
             log.type = "#TianzhenPrevent";
             log.from = ayumi;
@@ -1652,12 +1651,7 @@ public:
     }
 
     virtual bool isEnabledAtPlay(const Player *yoshida) const{
-        QList<const Player*> players = yoshida->parent()->findChildren<const Player *>();
-        foreach(const Player *player, players){
-            if(yoshida->getHp() > player->getHp())
-               return false;
-        }
-        return true;
+        return yoshida->getHandcardNum() < 4;
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{

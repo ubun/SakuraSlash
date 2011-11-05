@@ -177,8 +177,7 @@ void MainWindow::checkVersion(const QString &server_version){
         connect(client, SIGNAL(server_connected()), SLOT(enterRoom()));
 
         if(qApp->arguments().contains("-hall")){
-            HallDialog *dialog = new HallDialog(this);
-            dialog->show();
+            HallDialog *dialog = HallDialog::GetInstance(this);
             connect(client, SIGNAL(server_connected()), dialog, SLOT(accept()));
         }
 
@@ -813,4 +812,11 @@ void MainWindow::on_actionReplay_file_convert_triggered()
                 tosave_file.write(data);
         }
     }
+}
+
+void MainWindow::on_actionSend_lowlevel_command_triggered()
+{
+    QString command = QInputDialog::getText(this, tr("Send low level command"), tr("Please input the raw low level command"));
+    if(!command.isEmpty())
+        ClientInstance->request(command);
 }

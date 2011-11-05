@@ -355,11 +355,11 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const{
 }
 
 QString Engine::getVersion() const{
-    return "20110806";
+    return "0.7";
 }
 
 QString Engine::getVersionName() const{
-    return tr("MagpieBridge");
+    return tr("Bachelor");
 }
 
 QStringList Engine::getExtensions() const{
@@ -380,7 +380,8 @@ QStringList Engine::getExtensions() const{
 QStringList Engine::getKingdoms() const{
     static QStringList kingdoms;
     if(kingdoms.isEmpty())
-        kingdoms << "zhen" << "shao" << "woo" << "yi" << "jing" << "guai" << "hei" << "te" << "za" << "god";
+        kingdoms << "zhen" << "shao" << "woo" << "yi" << "jing"
+                << "guai" << "hei" << "te" << "za" << "god";
 
     return kingdoms;
 }
@@ -388,14 +389,14 @@ QStringList Engine::getKingdoms() const{
 QColor Engine::getKingdomColor(const QString &kingdom) const{
     static QMap<QString, QColor> color_map;
     if(color_map.isEmpty()){
-        color_map["guai"] = QColor(0x00, 0x00, 0xFF);
+        color_map["guai"] = QColor(0x03, 0x01, 0xEE);
         color_map["jing"] = QColor(0x54, 0x79, 0x98);
         color_map["woo"] = QColor(0xD0, 0x79, 0x6C);
         color_map["yi"] = QColor(0xFF, 0x34, 0xB3);
         color_map["te"] = QColor(0xFF, 0x00, 0x00);
         color_map["shao"] = QColor(0x00, 0xFF, 0x00);
         color_map["zhen"] = QColor(0x8A, 0x80, 0x7A);
-        color_map["hei"] = QColor(0x00, 0x00, 0x00);
+        color_map["hei"] = QColor(0x04, 0x02, 0x05);
         color_map["za"] = QColor(0x0A, 0x0A, 0x0B);
         color_map["god"] = QColor(0x96, 0x94, 0x3D);
     }
