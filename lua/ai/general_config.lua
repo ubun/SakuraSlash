@@ -100,6 +100,8 @@ sgs.ai_use_priority = {
 		MediumYeyanCard = 6,
 		SmallYeyanCard = 2.3,
 		JilveCard = 0.4,
+		
+		BaiyiCard = 1.5,
 --
 
 

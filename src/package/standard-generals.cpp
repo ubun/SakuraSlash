@@ -771,7 +771,7 @@ public:
                 itor.remove();
         }
 
-        if(players.isEmpty() || !kyo->askForSkillInvoke(objectName(),data))
+        if(players.isEmpty() || !kyo->askForSkillInvoke(objectName(), QVariant::fromValue(players)))
             return false;
         ServerPlayer *target = room->askForPlayerChosen(kyo, players, objectName());
         if(target){
@@ -1017,7 +1017,7 @@ public:
     virtual bool onPhaseChange(ServerPlayer *matsumoto) const{
         if(matsumoto->getPhase() == Player::Draw && matsumoto->isWounded()){
             Room *room = matsumoto->getRoom();
-            if(room->askForChoice(matsumoto,objectName(),"me+him")=="me")
+            if(room->askForChoice(matsumoto, objectName(), "me+him") == "me")
                 room->drawCards(matsumoto,matsumoto->getLostHp());
             else {
                 ServerPlayer *target = room->askForPlayerChosen(matsumoto,room->getAlivePlayers(),objectName());
@@ -1030,6 +1030,7 @@ public:
 };
 
 DiaobingCard::DiaobingCard(){
+    once = true;
 }
 
 bool DiaobingCard::targetFilter(const QList<const Player *> &targets, const Player *to_select) const{
@@ -1039,36 +1040,18 @@ bool DiaobingCard::targetFilter(const QList<const Player *> &targets, const Play
 void DiaobingCard::use(Room *room, ServerPlayer *matsu, const QList<ServerPlayer *> &targets) const{
     QList<ServerPlayer *> lieges = room->getLieges("jing", matsu);
     const Card *slash = NULL;
+    QVariant lord = QVariant::fromValue(matsu);
     foreach(ServerPlayer *liege, lieges){
-        QString result = room->askForChoice(liege, "diaobing", "accept+ignore");
-        if(result == "ignore")
-            continue;
-        slash = room->askForCard(liege, ".At", "@diaobing-slash");
-        if(slash){
-            if(slash->inherits("Slash") && matsu->getSlashCount() > 0)
-                continue;
+        slash = room->askForCard(liege, ".At", "@diaobing-slash", lord);
+        if(slash && (!targets.first()->isKongcheng() || !slash->inherits("FireAttack"))){
             CardUseStruct card_use;
             card_use.card = slash;
-            card_use.from = matsu;
+            card_use.from = liege;
             card_use.to << targets.first();
             room->useCard(card_use);
         }
     }
 }
-
-class Diaobing: public ZeroCardViewAsSkill{
-public:
-    Diaobing():ZeroCardViewAsSkill("diaobing$"){
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->hasLordSkill("diaobing");
-    }
-
-    virtual const Card *viewAs() const{
-        return new DiaobingCard;
-    }
-};
 
 class AttackPattern: public CardPattern{
 public:
@@ -1076,6 +1059,20 @@ public:
         return card->inherits("Slash") ||
                 card->inherits("FireAttack") ||
                 card->inherits("Duel");
+    }
+};
+
+class Diaobing: public ZeroCardViewAsSkill{
+public:
+    Diaobing():ZeroCardViewAsSkill("diaobing$"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->hasLordSkill("diaobing") && !player->hasUsed("DiaobingCard");
+    }
+
+    virtual const Card *viewAs() const{
+        return new DiaobingCard;
     }
 };
 
@@ -1151,22 +1148,18 @@ public:
 class Moshu: public TriggerSkill{
 public:
     Moshu():TriggerSkill("moshu"){
-        events << PhaseChange << GameStart;
+        events << PhaseChange;
     }
     virtual bool triggerable(const ServerPlayer *target) const{
         return true;
     }
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &) const{
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &) const{
         Room *room = player->getRoom();
         ServerPlayer *kaitou = room->findPlayerBySkillName(objectName());
         if(!kaitou)
             return false;
-        if(event == GameStart)
-            kaitou->setMark("magic",1);
-        if(player->getPhase() == Player::Draw && kaitou->getMark("magic")>0){
-            if(player==kaitou)
-                return false;
-            QString choice = room->askForChoice(kaitou,objectName(),"zero+one+two");
+        if(player != kaitou && player->getPhase() == Player::Draw && kaitou->getMark("magic") == 0){
+            QString choice = room->askForChoice(kaitou, objectName(), "zero+one+two");
             const Card *card;
 
             LogMessage log;
@@ -1178,7 +1171,7 @@ public:
                 return false;
             else if(choice=="one"){
                 kaitou->drawCards(1);
-                card = room->askForCard(kaitou,".","moshu-only");
+                card = room->askForCard(kaitou, ".!", "moshu-only");
                 if(!card)
                     card = kaitou->getHandcards().first();
                 room->moveCardTo(card, NULL, Player::DrawPile, true);
@@ -1187,11 +1180,11 @@ public:
             }
             else{
                 kaitou->drawCards(2);
-                card = room->askForCard(kaitou,".","moshu-first");
+                card = room->askForCard(kaitou, ".!", "moshu-first");
                 if(!card)
                     card = kaitou->getHandcards().first();
                 room->moveCardTo(card, NULL, Player::DrawPile, true);
-                card = room->askForCard(kaitou,".","moshu-second");
+                card = room->askForCard(kaitou, ".!", "moshu-second");
                 if(!card)
                     card = kaitou->getHandcards().first();
                 room->moveCardTo(card, NULL, Player::DrawPile, true);
@@ -1199,10 +1192,10 @@ public:
                 log.arg = QString::number(2);
             }
             room->sendLog(log);
-            kaitou->setMark("magic",0);
+            kaitou->setMark("magic", 1);
          }
         else if(player==kaitou && player->getPhase() == Player::Start){
-            kaitou->setMark("magic",1);
+            kaitou->setMark("magic", 0);
         }
         return false;
     }
@@ -1394,7 +1387,7 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
         if(damage.card && damage.card->inherits("Slash") && damage.to->isAlive()){
             Room *room = gin->getRoom();
-            if(room->askForSkillInvoke(gin, objectName())){
+            if(room->askForSkillInvoke(gin, objectName(), data)){
                 const Card *card = room->askForCard(gin, "slash", "juelu-slash");
                 if(card){
                     // if player is drank, unset his flag
@@ -1421,7 +1414,7 @@ public:
         Room *room = player->getRoom();
         ServerPlayer *gin = room->getLord();
         if(gin->hasLordSkill(objectName())){
-            if(player != gin && player->askForSkillInvoke(objectName())){
+            if(player != gin && player->askForSkillInvoke(objectName(), QVariant::fromValue(gin))){
                 gin->gainMark("@heiyi");
                 return true;
             }
@@ -1508,8 +1501,8 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         if(player->getPhase() == Player::Finish && player->askForSkillInvoke(objectName(), data)){
-            foreach(ServerPlayer *other , room->getOtherPlayers(player)){
-                const Card *card = room->askForCard(other, ".", "@dashou-get:" + player->objectName(), false);
+            foreach(ServerPlayer *other, room->getOtherPlayers(player)){
+                const Card *card = room->askForCard(other, ".", "@dashou-get:" + player->objectName(), QVariant::fromValue(player));
                 if(card){
                     player->obtainCard(card);
                     player->addMark("dashou");
@@ -1670,7 +1663,7 @@ public:
         Room *room = player->getRoom();
         ServerPlayer *cancer = room->findPlayerBySkillName(objectName());
 
-        if(cancer && cancer->askForSkillInvoke(objectName())){
+        if(cancer && cancer->askForSkillInvoke(objectName(), QVariant::fromValue(dying_data.who))){
             const Card *recovcd = room->askForCard(cancer, ".S", objectName());
             if(!recovcd)
                 return false;
