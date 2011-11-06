@@ -545,7 +545,7 @@ public:
                 //room->playSkillEffect(objectName());
                 return true;
         }else if(ayumi->getPhase() == Player::Finish){
-            if(ayumi->getMark("cry") == 3 && ayumi->isAlive()){
+            if(ayumi->getMark("cry") == 2 && ayumi->isAlive()){
                 room->setPlayerProperty(ayumi, "maxhp", ayumi->getMaxHP()+1);
                 //room->playSkillEffect(objectName());
                 room->setPlayerProperty(ayumi, "hp", ayumi->getMaxHP());
@@ -1363,11 +1363,19 @@ public:
             room->setPlayerMark(player, "anshamark", 0);
             ServerPlayer *gin = room->findPlayerBySkillName(objectName());
             if(gin){
+                LogMessage log;
+                log.type = "#Ansha";
+                log.from = gin;
+                log.to << player;
+                log.arg = objectName();
+                room->sendLog(log);
+
                 DamageStruct damage;
                 damage.from = gin;
                 damage.to = player;
                 damage.damage = 3;
                 room->setEmotion(gin, "good");
+                room->setEmotion(player, "bad");
                 room->loseMaxHp(gin);
                 room->damage(damage);
             }
@@ -1414,7 +1422,7 @@ public:
         ServerPlayer *gin = room->getLord();
         if(gin->hasLordSkill(objectName())){
             if(player != gin && player->askForSkillInvoke(objectName())){
-                gin->addMark("@heiyi");
+                gin->gainMark("@heiyi");
                 return true;
             }
             else if(player == gin){
@@ -1519,50 +1527,22 @@ class Jushen:public TriggerSkill{
 public:
     Jushen():TriggerSkill("jushen"){
         frequency = Compulsory;
-        events << CardUsed << SlashProceed;
+        events << SlashProceed;
     }
 
-    virtual bool trigger(TriggerEvent event, ServerPlayer *akai, QVariant &data) const{
+    virtual bool trigger(TriggerEvent , ServerPlayer *akai, QVariant &data) const{
         Room *room = akai->getRoom();
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+
         LogMessage log;
         log.arg = objectName();
-        if(event == SlashProceed){
-            SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        log.type = "#Jushenslash";
+        log.from = effect.from;
+        log.to << effect.to;
+        room->sendLog(log);
 
-            log.type = "#Jushenslash";
-            log.from = effect.from;
-            log.to << effect.to;
-            room->sendLog(log);
-
-            effect.from->getRoom()->slashResult(effect, NULL);
-            return true;
-        }
-        CardStar card = NULL;
-        if(event == CardUsed){
-            CardUseStruct use = data.value<CardUseStruct>();
-            card = use.card;
-            if(use.to.length() == 0 || !akai->inMyAttackRange(use.to.first()))
-                return false;
-
-            if(card->inherits("Duel") || card->inherits("FireAttack")){
-                DamageStruct damage;
-                damage.from = akai;
-                damage.to = use.to.first();
-                if(card->inherits("FireAttack"))
-                    damage.nature = DamageStruct::Fire;
-                room->setEmotion(akai, "good");
-
-                log.type = "#Jushenattack";
-                log.from = damage.from;
-                log.to << damage.to;
-                room->sendLog(log);
-
-                room->damage(damage);
-                room->throwCard(use.card->getId());
-                return true;
-            }
-        }
-        return false;
+        effect.from->getRoom()->slashResult(effect, NULL);
+        return true;
     }
 };
 
