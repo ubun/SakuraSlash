@@ -875,7 +875,9 @@ public:
         events << CardUsed;
     }
 
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        if(player->getPhase() != Player::Play)
+            return false;
         CardUseStruct use = data.value<CardUseStruct>();
         if(use.card->getNumber() < 1)
             return false;
@@ -926,14 +928,15 @@ class Zhizhuo: public TriggerSkill{
 public:
     Zhizhuo():TriggerSkill("zhizhuo"){
         view_as_skill = new ZhizhuoViewAsSkill;
-        events << CardUsed << TurnStart;
+        events << CardUsed << PhaseChange;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         if(!player)
             return false;
-        if(event == TurnStart){
-            Self->tag["store"] = -1;
+        if(event == PhaseChange){
+            if(player->getPhase() == Player::Start)
+                Self->tag["store"] = -1;
             return false;
         }
         CardUseStruct card = data.value<CardUseStruct>();

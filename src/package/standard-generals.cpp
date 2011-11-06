@@ -269,7 +269,7 @@ public:
     virtual bool trigger(TriggerEvent, ServerPlayer *conan, QVariant &data) const{
         Room *room = conan->getRoom();
         CardMoveStar move = data.value<CardMoveStar>();
-        if(move->from_place == Player::Hand && room->askForSkillInvoke(conan, objectName())){
+        if(move->from_place == Player::Hand && conan && room->askForSkillInvoke(conan, objectName())){
             //room->playSkillEffect(objectName());
              conan->drawCards(1);
         }
@@ -770,8 +770,7 @@ public:
             if(!damage.to->inMyAttackRange(itor.value()) || itor.value()->hasFlag("shenyong"))
                 itor.remove();
         }
-
-        if(players.isEmpty() || !kyo->askForSkillInvoke(objectName(), QVariant::fromValue(players)))
+        if(players.isEmpty() || !room->askForSkillInvoke(kyo, objectName(), data))
             return false;
         ServerPlayer *target = room->askForPlayerChosen(kyo, players, objectName());
         if(target){
@@ -1040,9 +1039,8 @@ bool DiaobingCard::targetFilter(const QList<const Player *> &targets, const Play
 void DiaobingCard::use(Room *room, ServerPlayer *matsu, const QList<ServerPlayer *> &targets) const{
     QList<ServerPlayer *> lieges = room->getLieges("jing", matsu);
     const Card *slash = NULL;
-    QVariant lord = QVariant::fromValue(matsu);
     foreach(ServerPlayer *liege, lieges){
-        slash = room->askForCard(liege, ".At", "@diaobing-slash", lord);
+        slash = room->askForCard(liege, ".At", "@diaobing-slash", QVariant::fromValue(matsu));
         if(slash && (!targets.first()->isKongcheng() || !slash->inherits("FireAttack"))){
             CardUseStruct card_use;
             card_use.card = slash;
@@ -1414,7 +1412,7 @@ public:
         Room *room = player->getRoom();
         ServerPlayer *gin = room->getLord();
         if(gin->hasLordSkill(objectName())){
-            if(player != gin && player->askForSkillInvoke(objectName(), QVariant::fromValue(gin))){
+            if(player != gin && room->askForSkillInvoke(player, "heiyi", QVariant::fromValue(gin))){
                 gin->gainMark("@heiyi");
                 return true;
             }
@@ -1556,12 +1554,13 @@ public:
         Room *room = shuichi->getRoom();
 
         DamageStar damage = data.value<DamageStar>();
-        if(damage && damage->from && damage->to == shuichi && damage->from != shuichi)
+        if(damage && damage->from && damage->to == shuichi && damage->from != shuichi) //not zisha
             target = damage->from;
         else
             target = room->askForPlayerChosen(shuichi, room->getAlivePlayers(), objectName());
         targets << target;
-        targets << room->askForPlayerChosen(shuichi, room->getOtherPlayers(target), objectName());
+        if(!room->getOtherPlayers(target).isEmpty())
+            targets << room->askForPlayerChosen(shuichi, room->getOtherPlayers(target), objectName());
 
         foreach(target, targets){
             target->gainMark("@aka",1);
@@ -1658,12 +1657,12 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         DyingStruct dying_data = data.value<DyingStruct>();
 
-        if(player != dying_data.who || dying_data.who->getKingdom() != "shao")
+        if(dying_data.who->getKingdom() != "shao")
             return false;
         Room *room = player->getRoom();
         ServerPlayer *cancer = room->findPlayerBySkillName(objectName());
 
-        if(cancer && cancer->askForSkillInvoke(objectName(), QVariant::fromValue(dying_data.who))){
+        if(cancer && room->askForSkillInvoke(cancer, objectName(), QVariant::fromValue(dying_data.who))){
             const Card *recovcd = room->askForCard(cancer, ".S", objectName());
             if(!recovcd)
                 return false;

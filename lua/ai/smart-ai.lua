@@ -2613,6 +2613,24 @@ function SmartAI:askForCard(pattern, prompt, data)
 		else
 			return "."
 		end
+	elseif parsedPrompt[1] == "@diaobing-slash" then
+		local target = data:toPlayer()
+		if self:isFriend(target) then
+			local cards = self.player:getHandcards()
+			cards = sgs.QList2Table(cards)
+			for _, fcard in ipairs(cards) do
+				if fcard:inherits("Slash") or fcard:inherits("FireAttack") or fcard:inherits("Duel") then
+					return fcard:getEffectiveId()
+				end
+			end
+		end
+		return "."
+	elseif string.sub(parsedPrompt[1], 1, 7) == "@dashou" then
+		local player = data:toPlayer()
+		if self:isFriend(player) and not self.player:isKongcheng() then
+			return self.player:getRandomHandCard()
+		end
+		return "."
 	end
 
 	if parsedPrompt[1] == "double-sword-card" then 

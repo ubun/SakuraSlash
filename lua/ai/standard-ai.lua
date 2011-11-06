@@ -160,17 +160,22 @@ end
 
 -- shenyong
 sgs.ai_skill_invoke["shenyong"] = function(self, data)
-	for _, enemy in ipairs(data) do
-		if self:isEnemy(enemy) then return true end
+	local damage = data:toDamage()
+	local players = sgs.QList2Table(self.room:getOtherPlayers(damage.to))
+	for _, player in ipairs(players) do
+		if self:isEnemy(player) and damage.to:canSlash(player) and not player:hasFlag("shenyong") then
+			return true
+		end
 	end
 	return false
 end
 sgs.ai_skill_playerchosen["shenyong"] = function(self, targets)
-	self:sort(targets, "hp")
-	for _, player in ipairs(targets) do
-		return self:isEnemy(player)
+	for _, player in sgs.qlist(targets) do
+		if self:isEnemy(player) then
+			return player
+		end
 	end
-	return targets[1]
+	return players[1]
 end
 
 -- shentou
@@ -199,9 +204,8 @@ baiyi_skill.name = "baiyi"
 table.insert(sgs.ai_skills, baiyi_skill)
 baiyi_skill.getTurnUseCard=function(self)
 	if not self.player:hasUsed("BaiyiCard") then
-		if self:getEquipNumber(self.player) == 1 then
-			local equips = self.player:getCards("e")
-			local equip = equips[1]
+		if self.player:getEquips():length() == 1 then
+			local equip = self.player:getEquips():first()
 			return sgs.Card_Parse("@BaiyiCard=" .. equip:getEffectiveId())
 		end
 		return nil
@@ -236,17 +240,6 @@ sgs.ai_skill_use_func["DiaobingCard"] = function(card, use, self)
 	if use.to then use.to:append(self.enemies[1]) end
 	use.card = card
 	return
-end
-sgs.ai_skill_invoke[".At"]=function(self, prompt, data)
-	if self:isEnemy(data:toPlayer()) then return "." end
-	local cards = self.player:getHandcards()
-	cards = sgs.QList2Table(cards)
-	for _, fcard in ipairs(cards) do
-		if fcard:inherits("Slash") or fcard:inherits("FireAttack") or fcard:inherits("Duel") then
-			return fcard
-		end
-	end
-	return "."
 end
 
 -- moshu
@@ -293,12 +286,15 @@ end
 
 -- dashou
 sgs.ai_skill_invoke["dashou"] = true
-sgs.ai_skill_invoke["@dashou-get"]=function(self,prompt,data)
-	local player = data:toPlayer()
-	if self:isFriend(player) and not self.player:isKongcheng() then
-		return self.player:getRandomHandCard()
+
+-- xunzhi
+sgs.ai_skill_playerchosen["xunzhi"] = function(self, targets)
+	for _, player in sgs.qlist(targets) do
+		if self:isEnemy(player) then
+			return player
+		end
 	end
-	return "."
+	return
 end
 
 -- baomu
@@ -306,6 +302,8 @@ sgs.ai_skill_invoke["baomu"] = function(self, data)
 	local who = data:toPlayer()
 	return self:isFriend(who)
 end
+
+
 
 -- $$$$$$$$$$$$$###############
 -- jianxiong
