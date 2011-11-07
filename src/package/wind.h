@@ -4,21 +4,25 @@
 #include "package.h"
 #include "card.h"
 
-#include <QGroupBox>
-#include <QAbstractButton>
-#include <QButtonGroup>
-#include <QDialog>
-
-
-class GuidaoCard: public SkillCard{
+class FatingCard: public SkillCard{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE GuidaoCard();
+    Q_INVOKABLE FatingCard();
 
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
+class TuanzhangCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE TuanzhangCard();
+
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+};
+/*
 class LeijiCard: public SkillCard{
     Q_OBJECT
 
@@ -27,16 +31,6 @@ public:
 
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual void onEffect(const CardEffectStruct &effect) const;
-};
-
-class HuangtianCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE HuangtianCard();
-
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
 
 class ShensuCard: public SkillCard{
@@ -92,7 +86,7 @@ private:
     QButtonGroup *group;
     QHash<QString, const Card *> map;
 };
-
+*/
 class WindPackage: public Package{
     Q_OBJECT
 

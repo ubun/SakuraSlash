@@ -1366,6 +1366,7 @@ public:
                 damage.to = player;
                 damage.damage = 3;
                 room->setEmotion(gin, "good");
+                room->broadcastInvoke("animate", "lightbox:$ansha");
                 room->setEmotion(player, "bad");
                 room->loseMaxHp(gin);
                 room->damage(damage);
@@ -1716,14 +1717,14 @@ public:
         events << PhaseChange;
     }
 
-    virtual bool trigger(TriggerEvent event, ServerPlayer *sumiko, QVariant &data) const{
+    virtual bool trigger(TriggerEvent , ServerPlayer *sumiko, QVariant &data) const{
         if(sumiko->getPhase() == Player::Discard)
            sumiko->setMark("qiniao", sumiko->getHandcardNum());
         if(sumiko->getPhase() == Player::Finish){
            if(sumiko->getMark("qiniao") - sumiko->getHandcardNum() < 2 && sumiko->askForSkillInvoke(objectName())){
                Room *room = sumiko->getRoom();
-               ServerPlayer *target = room->askForPlayerChosen(sumiko,room->getAlivePlayers(),objectName());
-               target->gainMark("@bird",1);
+               ServerPlayer *target = room->askForPlayerChosen(sumiko, room->getAlivePlayers(), objectName());
+               target->gainMark("@bird");
            }
         }
         return false;

@@ -175,7 +175,6 @@ sgs.ai_skill_playerchosen["shenyong"] = function(self, targets)
 			return player
 		end
 	end
-	return players[1]
 end
 
 -- shentou
@@ -302,6 +301,20 @@ sgs.ai_skill_invoke["baomu"] = function(self, data)
 	local who = data:toPlayer()
 	return self:isFriend(who)
 end
+
+-- qiniao
+sgs.ai_skill_invoke["qiniao"] = true
+sgs.ai_skill_playerchosen["qiniao"] = function(self, targets)
+	for _, player in sgs.qlist(targets) do
+		if self:isFriend(player) and (player:containsTrick("indulgence") or player:containsTrick("supply_shortage")) then
+			return player
+		end
+	end
+	return self.friends[1]
+end
+
+-- long
+sgs.ai_skill_invoke["long"] = true
 
 
 

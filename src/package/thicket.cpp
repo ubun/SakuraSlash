@@ -879,7 +879,7 @@ public:
         if(player->getPhase() != Player::Play)
             return false;
         CardUseStruct use = data.value<CardUseStruct>();
-        if(use.card->getNumber() < 1)
+        if(use.card->getSkillName() != "zhizhuo")
             return false;
         int frog = qrand() % 4;
         Room *room = player->getRoom();

@@ -31,7 +31,7 @@ Engine *Sanguosha = NULL;
 
 extern "C" {
     Package *NewStandard();
-//    Package *NewWind();
+    Package *NewWind();
     Package *NewThicket();
 //    Package *NewFire();
 //    Package *NewMountain();
@@ -64,7 +64,7 @@ Engine::Engine()
     Sanguosha = this;
 
     addPackage(NewStandard());
-    //addPackage(NewWind());
+    addPackage(NewWind());
     //addPackage(NewFire());
     addPackage(NewThicket());
     //addPackage(NewMountain());
