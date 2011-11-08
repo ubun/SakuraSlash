@@ -2626,7 +2626,7 @@ function SmartAI:askForCard(pattern, prompt, data)
 			end
 		end
 		return "."
-	elseif string.sub(parsedPrompt[1], 1, 7) == "@dashou" then
+	elseif parsedPrompt[1] == "@dashou-get" then
 		local player = data:toPlayer()
 		if self:isFriend(player) and not self.player:isKongcheng() then
 			return self.player:getRandomHandCard()

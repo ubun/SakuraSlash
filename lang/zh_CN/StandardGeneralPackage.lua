@@ -3,7 +3,6 @@
 return {
 	["standard"] = "标准版",
 
-	["DefaultDesigner"] = "Ailue",
 	["designer:otagiritoshirou"] = "Ailue、尉迟泱",
 	["designer:kobayashisumiko"] = "Ailue、尉迟泱",
 
@@ -178,7 +177,7 @@ return {
 
 	["akaishuichi"] = "赤井秀一",
 	["jushen"] = "狙神",
-	[":jushen"] = "锁定技，你的【杀】不可闪避",
+	[":jushen"] = "锁定技，装备攻击范围大于2的武器时，你的【杀】不可闪避",
 	["#Jushenslash"] = "%from 的锁定技【%arg】生效，目标不可闪避",
 	["xunzhi"] = "殉职",
 	[":xunzhi"] = "锁定技，当你死亡时，令包括杀死你的角色在内的一共两名角色获得以下技能直到游戏结束：摸牌阶段，少摸一张牌",

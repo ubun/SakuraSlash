@@ -377,6 +377,324 @@ public:
     }
 };
 
+HuachiCard::HuachiCard(){
+
+}
+
+bool HuachiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(!targets.isEmpty())
+        return false;
+    return to_select->getGeneral()->isMale();
+}
+
+void HuachiCard::onEffect(const CardEffectStruct &effect) const{
+    DummyCard *cards = effect.from->wholeHandCards();
+    Room *room = effect.from->getRoom();
+    if(cards){
+        room->moveCardTo(cards, effect.to, Player::Hand, false);
+        delete cards;
+        effect.to->gainMark("@flower");
+        effect.from->tag["Kyo"] = QVariant::fromValue(effect.to);
+    }
+}
+
+class HuachiViewAsSkill: public ZeroCardViewAsSkill{
+public:
+    HuachiViewAsSkill():ZeroCardViewAsSkill("huachi"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const{
+        return pattern == "@@huachi";
+    }
+
+    virtual const Card *viewAs() const{
+        return new HuachiCard;
+    }
+};
+
+class Huachi: public PhaseChangeSkill{
+public:
+    Huachi():PhaseChangeSkill("huachi"){
+        view_as_skill = new HuachiViewAsSkill;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->hasSkill(objectName()) || target->getMark("@flower") > 0;
+    }
+
+    virtual int getPriority() const{
+        return 2;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *sonoko) const{
+        Room *room = sonoko->getRoom();
+        if(sonoko->getMark("@flower") > 0){
+            if(sonoko->getPhase() == Player::NotActive){
+                sonoko->loseAllMarks("@flower");
+            }
+            return false;
+        }
+        if(sonoko->getPhase() == Player::Discard && sonoko->getHandcardNum() >= 3)
+            room->askForUseCard(sonoko, "@@huachi", "@huachi");
+        return false;
+    }
+};
+
+class Huhua: public TriggerSkill{
+public:
+    Huhua():TriggerSkill("huhua"){
+        events << Predamaged;
+    }
+
+    virtual int getPriority() const{
+        return 2;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        ServerPlayer *kyo = player->tag.value("Kyo", NULL).value<ServerPlayer *>();
+        if(!kyo || kyo->getMark("@flower") == 0)
+            return false;
+        DamageStruct damage = data.value<DamageStruct>();
+        Room *room = player->getRoom();
+        damage.to = kyo;
+
+        LogMessage log;
+        log.type = "#Huhua";
+        log.from = player;
+        log.to << kyo;
+        log.arg = QString::number(damage.damage);
+        if(damage.nature == DamageStruct::Normal)
+            log.arg2 = "normal_nature";
+        else if(damage.nature == DamageStruct::Fire)
+            log.arg2 = "fire_nature";
+        else
+            log.arg2 = "thunder_nature",
+        room->sendLog(log);
+
+        room->damage(damage);
+        return true;
+    }
+};
+
+class Ouxiang: public PhaseChangeSkill{
+public:
+    Ouxiang():PhaseChangeSkill("ouxiang"){
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *youko) const{
+        if(youko->tag.value("Grandma", false).toBool() || youko->getPhase() != Player::Start)
+            return false;
+        Room *room = youko->getRoom();
+        if(youko->askForSkillInvoke(objectName())){
+            youko->drawCards(5);
+            youko->getNextAlive()->play();
+            room->setCurrent(youko->getNextAlive());
+        }
+        return false;
+    }
+};
+
+class Qingchun: public PhaseChangeSkill{
+public:
+    Qingchun():PhaseChangeSkill("qingchun"){
+        frequency = Wake;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->getPhase() == Player::Finish
+                && target->hasSkill("qingchun")
+                && target->isAlive()
+                && !target->tag.value("Grandma", false).toBool();
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *youko) const{
+        youko->gainMark("@qingchun");
+        if(youko->getMark("@qingchun") >= 5){
+            LogMessage log;
+            log.type = "#Qingchun";
+            log.from = youko;
+            log.arg = QString::number(youko->getMark("@qingchun"));
+            youko->getRoom()->sendLog(log);
+
+            youko->tag["Grandma"] = true;
+        }
+        return false;
+    }
+};
+
+
+class YunchouClear: public PhaseChangeSkill{
+public:
+    YunchouClear():PhaseChangeSkill("#yunchou_clear"){
+
+    }
+
+    virtual int getPriority() const{
+        return 2;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *target) const{
+        if(target->getPhase() == Player::Start){
+            Room *room = target->getRoom();
+            QList<ServerPlayer *> players = room->getAllPlayers();
+            foreach(ServerPlayer *player, players){
+                if(player->tag.value("Yunchou", "").toString() != "")
+                    player->tag["Yunchou"] = "";
+            }
+        }
+        return false;
+    }
+};
+
+YunchouCard::YunchouCard(){
+    once = true;
+    will_throw = false;
+}
+
+void YunchouCard::onEffect(const CardEffectStruct &effect) const{
+    QString choice = Sanguosha->getCard(this->getSubcards().first())->getType();
+    effect.to->tag["Yunchou"] = choice;
+
+    LogMessage log;
+    log.type = "#Yunchou";
+    log.from = effect.from;
+    log.to << effect.to;
+    log.arg = choice;
+    log.arg2 = "yunchou";
+    effect.to->obtainCard(this);
+    effect.from->getRoom()->sendLog(log);
+}
+
+class Yunchou: public OneCardViewAsSkill{
+public:
+    Yunchou():OneCardViewAsSkill("yunchou"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return ! player->hasUsed("YunchouCard");
+    }
+
+    virtual bool viewFilter(const CardItem *) const{
+        return true;
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        YunchouCard *card = new YunchouCard;
+        card->addSubcard(card_item->getCard()->getId());
+
+        return card;
+    }
+};
+
+class YunchouEffect: public TriggerSkill{
+public:
+    YunchouEffect():TriggerSkill("#yunchou_eft"){
+        events << CardUsed;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->tag.value("Yunchou", "").toString() != "";
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        CardUseStruct use = data.value<CardUseStruct>();
+        QString type = player->tag.value("Yunchou", "").toString();
+        if(use.card->getType() == type){
+            LogMessage log;
+            log.type = "#YunchouEffect";
+            log.from = player;
+            log.arg2 = "yunchou";
+            player->getRoom()->sendLog(log);
+
+            player->getRoom()->throwCard(use.card->getId());
+            return true;
+        }
+        return false;
+    }
+};
+
+class Weiwo: public TriggerSkill{
+public:
+    Weiwo():TriggerSkill("weiwo"){
+        events << CardLost;
+        frequency = Frequent;
+    }
+
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return TriggerSkill::triggerable(target) && target->getPhase() == Player::NotActive;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        CardMoveStar move = data.value<CardMoveStar>();
+        Room *room = player->getRoom();
+        if((move->from_place == Player::Hand)
+            && move->to != player
+            && player->askForSkillInvoke(objectName(), data)){
+            JudgeStruct judge;
+            judge.reason = objectName();
+            judge.who = player;
+            room->judge(judge);
+            if(judge.card->getType() == Sanguosha->getCard(move->card_id)->getType())
+                player->obtainCard(judge.card);
+        }
+        return false;
+    }
+};
+
+class LingjiaPattern: public CardPattern{
+public:
+    virtual bool match(const Player *player, const Card *card) const{
+        return player->getMark("lingjia") == card->getNumber();
+    }
+};
+
+class Lingjia: public TriggerSkill{
+public:
+    Lingjia():TriggerSkill("lingjia$"){
+        events << CardUsed;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->getRoom()->getLord()->hasLordSkill(objectName());
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *heizou = room->getLord();
+        if(!heizou->hasLordSkill(objectName()))
+            return false;
+        CardUseStruct use = data.value<CardUseStruct>();
+        if(use.card->inherits("Peach") && (use.to.isEmpty() || use.to.first()->getHp() > 0)){
+            QList<ServerPlayer *> zhenjing;
+            foreach(ServerPlayer *tmp, room->getOtherPlayers(heizou)){
+                if(tmp == use.from || (!use.to.isEmpty() && use.to.contains(tmp)))
+                    continue;
+                if(tmp->getKingdom() == "zhen" || tmp->getKingdom() == "jing")
+                    zhenjing << tmp;
+            }
+            QString prompt = QString("@lingjia:%1::%2").arg(use.from->getGeneralName()).arg(use.card->getNumberString());
+            if(zhenjing.isEmpty())
+                return false;
+            room->setPlayerMark(heizou, "lingjia", use.card->getNumber());
+            if(room->askForCard(heizou, ".Lj", prompt)){
+                ServerPlayer *target = room->askForPlayerChosen(heizou, zhenjing, objectName());
+                target->obtainCard(use.card);
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
 WindPackage::WindPackage()
     :Package("wind")
 {
@@ -409,9 +727,24 @@ WindPackage::WindPackage()
     okidasouji->addSkill(new ZhenwuEffect);
     related_skills.insertMulti("zhenwu", "#zhenwu_eft");
 
-    suzukisonoko = new General(this, "suzukisonoko", "yi");
-    okinoyouko = new General(this, "okinoyouko", "yi");
-    hattoriheizou = new General(this, "hattoriheizou", "jing");
+    suzukisonoko = new General(this, "suzukisonoko", "yi", 3, false);
+    suzukisonoko->addSkill(new Huachi);
+    suzukisonoko->addSkill(new Huhua);
+
+    okinoyouko = new General(this, "okinoyouko", "yi", 3, false);
+    okinoyouko->addSkill(new Ouxiang);
+    okinoyouko->addSkill(new Qingchun);
+
+    hattoriheizou = new General(this, "hattoriheizou$", "jing", 3);
+    hattoriheizou->addSkill(new Yunchou);
+    hattoriheizou->addSkill(new YunchouEffect);
+    related_skills.insertMulti("yunchou", "#yunchou_eft");
+    hattoriheizou->addSkill(new YunchouClear);
+    related_skills.insertMulti("yunchou", "#yunchou_clear");
+    hattoriheizou->addSkill(new Weiwo);
+    hattoriheizou->addSkill(new Lingjia);
+    patterns[".Lj"] = new LingjiaPattern;
+
     touyamaginshirou = new General(this, "touyamaginshirou", "jing");
     nakamoriginzou = new General(this, "nakamoriginzou", "guai");
     vermouth = new General(this, "vermouth", "hei");
@@ -421,6 +754,8 @@ WindPackage::WindPackage()
 
     addMetaObject<FatingCard>();
     addMetaObject<TuanzhangCard>();
+    addMetaObject<HuachiCard>();
+    addMetaObject<YunchouCard>();
 }
 
 ADD_PACKAGE(Wind)

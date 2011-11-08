@@ -1169,7 +1169,7 @@ public:
                 return false;
             else if(choice=="one"){
                 kaitou->drawCards(1);
-                card = room->askForCard(kaitou, ".!", "moshu-only");
+                card = room->askForCard(kaitou, ".", "moshu-only");
                 if(!card)
                     card = kaitou->getHandcards().first();
                 room->moveCardTo(card, NULL, Player::DrawPile, true);
@@ -1178,11 +1178,11 @@ public:
             }
             else{
                 kaitou->drawCards(2);
-                card = room->askForCard(kaitou, ".!", "moshu-first");
+                card = room->askForCard(kaitou, ".", "moshu-first");
                 if(!card)
-                    card = kaitou->getHandcards().first();
+                    card = kaitou->getHandcards().last();
                 room->moveCardTo(card, NULL, Player::DrawPile, true);
-                card = room->askForCard(kaitou, ".!", "moshu-second");
+                card = room->askForCard(kaitou, ".", "moshu-second");
                 if(!card)
                     card = kaitou->getHandcards().first();
                 room->moveCardTo(card, NULL, Player::DrawPile, true);
@@ -1524,6 +1524,9 @@ public:
 
     virtual bool trigger(TriggerEvent , ServerPlayer *akai, QVariant &data) const{
         Room *room = akai->getRoom();
+        const Weapon *weapon = akai->getWeapon();
+        if(weapon->getRange() < 3)
+            return false;
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
         LogMessage log;

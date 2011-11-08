@@ -277,8 +277,8 @@ end
 
 -- heiyi
 sgs.ai_skill_invoke["heiyi"] = function(self, data)
-	if self.player:getHandcardNum() > 3 then
-		return self:isFriend(data:toPlayer())
+	if self.player:getHandcardNum() > 3 and self:isFriend(data:toPlayer()) then
+		return true
 	end
 	return false
 end

@@ -40,12 +40,23 @@ sgs.ai_use_value =
 		ShenfenCard = 8,
 		GreatYeyanCard = 8,
 		MediumYeyanCard = 5.6,
+		
+		ZhenxiangCard = 8.3,
+		JiaojinCard = 9.2,
+		MazuiCard = 8.5,
+		ShiyanCard = 8.7,
+		BaiyiCard = 4.3,
+		DiaobingCard = 9,
+		RenxingCard = 7.7,
+		AnshaCard = 10,
+		MaixiongCard = 8.5,
+		YuandingCard = 4.4,
+		JingshenCard = 2.6,
 --normal cards
 		ExNihilo=10,
 
 		Snatch=9,
 		Collateral=8.8,
-
 
 		Indulgence=8,
 		SupplyShortage=7,
@@ -66,7 +77,6 @@ sgs.ai_use_value =
 		ArcheryAttack=3.8,
 		SavageAssault=3.9,
 		Duel=3.7,
-
 
 		AmazingGrace=3,
 
@@ -101,10 +111,19 @@ sgs.ai_use_priority = {
 		SmallYeyanCard = 2.3,
 		JilveCard = 0.4,
 		
+		ZhenxiangCard = 9.3,
+		JiaojinCard = 9,
+		MazuiCard = 3,
+		ShiyanCard = 8.5,
 		BaiyiCard = 1.5,
+		DiaobingCard = 7.1,
+		RenxingCard = 4.7,
+		AnshaCard = 2.1,
+		MaixiongCard = 5.8,
+		YuandingCard = 6,
+		JingshenCard = 1.7,
+		
 --
-
-
 		Peach = 4.1,
 
 		Dismantlement=4.4,
@@ -138,14 +157,12 @@ sgs.ai_use_priority = {
 		MoonSpear=2.635,
 		Crossbow = 2.63,
 
-
 		FireSlash = 2.6,
 		ThunderSlash = 2.5,
 		Slash = 2.4,
 
 		FireAttack=2,
 		AmazingGrace=1.0,
-
 
 		SilverLion=0.9,
 		EightDiagram=0.8,
@@ -154,7 +171,6 @@ sgs.ai_use_priority = {
 		GaleShell=0.9,
 
 		DefensiveHorse = 0,
-
 
 		--god_salvation
 		--deluge
@@ -170,63 +186,35 @@ sgs.ai_use_priority = {
 -- this table stores the chaofeng value for some generals
 -- all other generals' chaofeng value should be 0
 sgs.ai_chaofeng = {
-		huatuo = 6,
-		sunshangxiang = 6,
-		wisjiangwan = 6,
-
-		erzhang = 5,
-		wisshuijing = 5,
-
-		huangyueying = 4,
-		diaochan = 4,
-		zhangjiao = 4,
-		lusu = 4,
-		zhangliao = 4,
-	  	xuhuang = 4,
-
-		yuanshu = 3,
-		zhangfei = 3,
-		taishici = 3,
-		xuchu = 3,
-		zhouyu = 3,
-		huanggai = 3,
-		xunyu = 3,
-		wishuaxiong = 3,
-
-		ganning = 2,
-		daqiao = 2,
-		dianwei = 2,
-		wisjiangwei = 2,
-
-		lubu = 1,
-		huangzhong = 1,
-		machao = 1,
-		shuangxiong = 1,
-		yuanshao = 1,
-		wissunce = 1,
-
-		wisxuyou = 0,
-
-		luxun = -1,
-		pangtong = -1,
-		wiszhangzhao = -1,
-
-		simayi = -2,
-		liubei = -2,
-		weiyan = -2,
-
-		xiahoudun = -3,
-		caopi = -3,
-		fazheng = -3,
-		wistianfeng = -3,
-
-		zhoutai = -4,
-		guojia = -4,
-		masu = -4,
-
-		caiwenji = -5,
-
-		shencaocao = -6,
-		shenguanyu = -6,
+		kudoushinichi = -2,
+		hattoriheiji = -2,
+		mourikogorou = -1,
+		edogawaconan = 2,
+		haibaraai = 3,
+		yoshidaayumi = 5,
+		mouriran = 4,
+		touyamakazuha = 1,
+		kyougokumakoto = 5,
+		kaitoukid = 6,
+		sharon = 2,
+		megurejyuuzou = 6,
+		matsumotokiyonaka = 5,
+		otagiritoshirou = 3,
+		kurobakaitou = 6,
+		nakamoriaoko = 4,
+		gin = 5,
+		vodka = 2,
+		akaishuichi = -4,
+		agasahiroshi = 1,
+		kobayashisumiko = 3,
+		yamamuramisae = 2,
+		aoyamagoushou = 4,
+		
+	-- wind
+		kisakieri = 3,
+		kujoureiko = 3,
+		kojimagenta = 2,
+		heiji = 4,
+		okidasouji = 1,
 }
 

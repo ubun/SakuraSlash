@@ -22,17 +22,27 @@ public:
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
-/*
-class LeijiCard: public SkillCard{
+
+class HuachiCard: public SkillCard{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE LeijiCard();
+    Q_INVOKABLE HuachiCard();
 
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
+class YunchouCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE YunchouCard();
+
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
+/*
 class ShensuCard: public SkillCard{
     Q_OBJECT
 

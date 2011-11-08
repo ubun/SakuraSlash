@@ -7,11 +7,8 @@ sgs.dynamic_value = {
 		FireAttack = true,
 		SavageAssault = true,
 		
-		QiangxiCard = true,
-		FanjianCard = true,
-		LijianCard = true,
-		LuanwuCard = true,
-		ShenfenCard = true,
+		DiaobingCard = true,
+		AnshaCard = true,
 	},
 	control_usecard = 
 	{
@@ -26,13 +23,13 @@ sgs.dynamic_value = {
 		
 		GaleShell = true,
 		
-		TianyiCard = true,
-		XianzhenCard = true,
-		DimengCard = true,
-		JixiCard = true,
-		GanluCard = true,
-		QuhuCard = true,
-		ShenfenCard = true,
+		ZhenxiangCard = true,
+		JiaojinCard = true,
+		MazuiCard = true,
+		BaiyiCard = true,
+		RenxingCard = true,
+		YuandingCard = true,
+		JingshenCard = true,
 	},
 	lucky_chance = 
 	{
@@ -45,11 +42,11 @@ sgs.dynamic_value = {
 		IronChain = true,
 		Exnihilo = true,
 		
-		RendeCard = true,
-		JieyinCard = true,
-		QingnangCard = true,
-		JujianCard = true,
-		ZhihengCard = true,
+		MaixiongCard = true,
+		ShiyanCard = true,
+		ZhenxiangCard = true,
+		RenxingCard = true,
+		MazuiCard = true,
 	},
 }
 
