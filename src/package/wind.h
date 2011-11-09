@@ -63,51 +63,30 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-/*
-class TianxiangCard: public SkillCard{
+class ShuangyuCard: public SkillCard{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE TianxiangCard();
+    Q_INVOKABLE ShuangyuCard();
 
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
-class GuhuoCard: public SkillCard{
+class ZhiyuCard: public SkillCard{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE GuhuoCard();
-    bool guhuo(ServerPlayer *yuji) const;
+    Q_INVOKABLE ZhiyuCard();
 
-    virtual bool targetFixed() const;
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
 
-    virtual const Card *validate(const CardUseStruct *card_use) const;
-    virtual const Card *validateInResposing(ServerPlayer *user, bool *continuable) const;
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+    virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class GuhuoDialog: public QDialog{
-    Q_OBJECT
-
-public:
-    static GuhuoDialog *GetInstance();
-
-public slots:
-    void popup();
-    void selectCard(QAbstractButton *button);
-
-private:
-    GuhuoDialog();
-
-    QGroupBox *createLeft();
-    QGroupBox *createRight();
-    QAbstractButton *createButton(const Card *card);
-    QButtonGroup *group;
-    QHash<QString, const Card *> map;
-};
-*/
 class WindPackage: public Package{
     Q_OBJECT
 

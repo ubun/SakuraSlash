@@ -885,13 +885,12 @@ public:
                 targets << room->getCurrent();
             if(!targets.isEmpty()){
                 ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName());
-                const Card *card2 = room->askForCardChosen(player, target, "he", objectName());
-                player->obtainCard(card2);
-                if(card->getSuit() != card2->getSuit())
+                int card2_id = room->askForCardChosen(player, target, "he", objectName());
+                room->obtainCard(player, card2_id);
+                if(card->getSuit() != Sanguosha->getCard(card2_id)->getSuit())
                     room->askForDiscard(player, objectName(), 1, false, true);
             }
         }
-        return false;
     }
 };
 

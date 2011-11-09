@@ -109,10 +109,6 @@ return {
 	["ranglu"] = "让路",
 	[":ranglu"] = "主公技，你可以将“取证”的机会交给其他侦势力角色",
 
-	["shiratorininzaburou"] = "白鸟任三郎",
-	["guilin"] = "归林",
-	[":guilin"] = "任意角色判定阶段判定前，你可以和其交换判定区的所有牌",
-
 	["matsumotokiyonaka"] = "松本清长",
 	["shangchi"] = "伤饬",
 	[":shangchi"] = "摸牌阶段，若你已受伤，可以额外摸X张牌，或者让另一名角色摸X-1张牌，X为你失去的体力",
@@ -192,6 +188,7 @@ return {
 	["#SuyuanChange"] = "%from 发动了技能【%arg】，将本次伤害来源更改为 %to",
 	["baomu"] = "保姆",
 	[":baomu"] = "主公技，在少势力角色濒死时，你可以弃一张黑桃手牌，为其回复1点体力",
+	["@baomu"] = "你可以弃掉一张黑桃牌，为 %src 回复一点体力",
 
 	["kobayashisumiko"] = "小林澄子",
 	["yuanding"] = "园丁",

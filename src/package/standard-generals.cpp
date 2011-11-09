@@ -1639,7 +1639,7 @@ public:
         ServerPlayer *cancer = room->findPlayerBySkillName(objectName());
 
         if(cancer && room->askForSkillInvoke(cancer, objectName(), QVariant::fromValue(dying_data.who))){
-            const Card *recovcd = room->askForCard(cancer, ".S", objectName());
+            const Card *recovcd = room->askForCard(cancer, ".S", "@baomu:" + dying_data.who->objectName());
             if(!recovcd)
                 return false;
             RecoverStruct recover;
