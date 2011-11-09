@@ -938,6 +938,29 @@ public:
     }
 };
 
+class Kuai: public TriggerSkill{
+public:
+    Kuai():TriggerSkill("kuai$"){
+        events << Damage;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->getKingdom() == "hei";
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *ver = room->getLord();
+        if(!ver || !ver->hasLordSkill(objectName()))
+            return false;
+        if(ver->askForSkillInvoke(objectName())){
+            DamageStruct damage = data.value<DamageStruct>();
+            ver->drawCards(damage.damage);
+        }
+        return false;
+    }
+};
+
 WindPackage::WindPackage()
     :Package("wind")
 {
@@ -998,6 +1021,7 @@ WindPackage::WindPackage()
 
     vermouth = new General(this, "vermouth$", "hei", 4, false);
     vermouth->addSkill(new Weixiao);
+    vermouth->addSkill(new Kuai);
 
     jodie = new General(this, "jodie", "te");
     araidetomoaki = new General(this, "araidetomoaki", "za");

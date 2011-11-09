@@ -978,35 +978,6 @@ public:
     }
 };
 
-/*
-class Guilin: public TriggerSkill{
-public:
-    Guilin():TriggerSkill("guilin"){
-        events << PhaseChange;
-    }
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return !target->hasSkill("guilin");
-    }
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &) const{
-        if(event == PhaseChange && player->getPhase() == Player::Judge && player->getJudgingArea().length()!=0){
-            Room *room = player->getRoom();
-            ServerPlayer *three = room->findPlayerBySkillName(objectName());
-            if(!three->askForSkillInvoke(objectName()))
-                return false;
-  //          CardEffectStruct effect = data.value<CardEffectStruct>();
-            QList<const Card *> three_cards = three->getJudgingArea();
-            QList<const Card *> cards = player->getJudgingArea();
-            foreach(const Card *card, cards){
-               room->moveCardTo(card, three, Player::Judging);
-            }
-            foreach(const Card *card, three_cards){
-               room->moveCardTo(card, player, Player::Judging);
-            }
-         }
-        return false;
-    }
-};
-*/
 class Shangchi: public PhaseChangeSkill{
 public:
     Shangchi():PhaseChangeSkill("shangchi"){
@@ -1923,16 +1894,13 @@ void StandardPackage::addGenerals(){
     related_skills.insertMulti("yirong", "#@yaiba");
     sharon->addSkill(new Wuyu);
 
-    General *megurejyuuzou, /*shiratorininzaburou,*/ *matsumotokiyonaka, *otagiritoshirou;
+    General *megurejyuuzou, *matsumotokiyonaka, *otagiritoshirou;
     megurejyuuzou = new General(this, "megurejyuuzou", "jing");
     megurejyuuzou->addSkill(new Quzheng);
     megurejyuuzou->addSkill(new QuzhengSkip);
     related_skills.insertMulti("quzheng", "#quzheng_skip");
     megurejyuuzou->addSkill(new Skill("ranglu$"));
-/*
-    shiratorininzaburou = new General(this, "shiratorininzaburou", "jing");
-    shiratorininzaburou->addSkill(new Guilin);
-*/
+
     matsumotokiyonaka = new General(this, "matsumotokiyonaka$", "jing");
     matsumotokiyonaka->addSkill(new Shangchi);
     matsumotokiyonaka->addSkill(new Diaobing);

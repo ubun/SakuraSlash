@@ -866,7 +866,34 @@ public:
         return false;
     }
 };
+
 //conan
+class Guilin: public MasochismSkill{
+public:
+    Guilin():MasochismSkill("guilin"){
+    }
+
+    virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
+        Room *room = player->getRoom();
+        const Card *card = damage.card;
+        if(room->obtainable(card, player) && room->askForSkillInvoke(player, objectName())){
+            player->obtainCard(card);
+            QList<ServerPlayer *> targets;
+            if(damage.from)
+                targets << damage.from;
+            if(room->getCurrent())
+                targets << room->getCurrent();
+            if(!targets.isEmpty()){
+                ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName());
+                const Card *card2 = room->askForCardChosen(player, target, "he", objectName());
+                player->obtainCard(card2);
+                if(card->getSuit() != card2->getSuit())
+                    room->askForDiscard(player, objectName(), 1, false, true);
+            }
+        }
+        return false;
+    }
+};
 
 class Mihu: public TriggerSkill{
 public:
@@ -952,6 +979,9 @@ public:
 ThicketPackage::ThicketPackage()
     :Package("thicket")
 {
+    General *shiratorininzaburou = new General(this, "shiratorininzaburou", "jing");
+    shiratorininzaburou->addSkill(new Guilin);
+
     General *hondoueisuke = new General(this, "hondoueisuke", "za");
     hondoueisuke->addSkill(new Mihu);
     hondoueisuke->addSkill(new Zhizhuo);
