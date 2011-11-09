@@ -212,5 +212,30 @@ return {
 
 	["uzumaki"] = "漩涡鸣人",
 	["haruno"] = "春野樱",
+
+-- last words
+	["~haibaraai"] = "工藤……为我报仇……",
+	["~yoshidaayumi"] = "有没有搞错，连小朋友都打……555……",
+	["~kurobakaitou"] = "可恶，竟然输在这里……",
+	["~akaishuichi"] = "银色子弹，只要一发就够了……",
+	["~mourikogorou"] = "啊……哦……",
+	["~edogawaconan"] = "兰……我是新……",
+	["~touyamakazuha"] = "平次……我喜欢你……",
+	["~mouriran"] = "新一，你在哪里啊……新一……",
+	["~kaitoukid"] = "我死了……嘻嘻，开玩笑的啦",
+	["~otagiritoshirou"] = "我是谁？",
+	["~nakamoriaoko"] = "快斗，你就是……基德吧……",
+	["~gin"] = "下次一定杀了你！",
+	["~kyougokumakoto"] = "我居然会输？",
+	["~megurejyuuzou"] = "小绿，等我……",
+	["~matsumotokiyonaka"] = "赌上东京警视厅的尊严！",
+	["~aoyamagoushou"] = "我是作者，开玩笑，我怎么可能死？",
+	["~sharon"] = "纵然容貌千变，终难逃一劫",
+	["~vodka"] = "大哥，我誓死追随您！",
+	["~agasahiroshi"] = "哀酱，我……",
+	["~kobayashisumiko"] = "怎么会这样！",
+	["~kudoushinichi"] = "不……",
+	["~yamamuramisae"] = "老而不死是为贼",
+	["~hattoriheiji"] = "没想到，真的没想到……",
 }
 

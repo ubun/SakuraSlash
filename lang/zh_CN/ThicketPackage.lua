@@ -15,4 +15,7 @@ return {
 	[":mihu"] = "锁定技，出牌阶段，你每发动一次“执着”，（在生效之前）有25%的几率发动失败",
 	["#Mihu_cup"] = "%from 的锁定技【%arg】被触发，结算被终止",
 
+-- last words
+	["~shiratorininzaburou"] = "生亦何欢，死亦何苦……",
+	["~hondoueisuke"] = "姐姐……不要扔下我……",
 }

@@ -991,7 +991,7 @@ bool ShuangyuCard::targetsFeasible(const QList<const Player *> &targets, const P
 
 void ShuangyuCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
     QString myrole = source->getRole();
-    QStringList lucky_players, cup_players;
+    QList<ServerPlayer *> lucky_players, cup_players;
     foreach(ServerPlayer *player, targets){
         QString result = room->askForChoice(player, "shuangyu", "lord+loyalist+rebel+renegade");
         if(result == myrole)
