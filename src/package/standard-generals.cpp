@@ -1225,12 +1225,15 @@ public:
         events << Pindian;
         frequency = Compulsory;
     }
+
     virtual int getPriority() const{
         return -1;
     }
+
     virtual bool triggerable(const ServerPlayer *target) const{
         return true;
     }
+
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         ServerPlayer *aoko = room->findPlayerBySkillName(objectName());
@@ -1597,9 +1600,15 @@ public:
     Suyuan():TriggerSkill("suyuan"){
         events << Predamage;
     }
+
     virtual bool triggerable(const ServerPlayer *target) const{
         return true;
     }
+
+    virtual int getPriority() const{
+        return 3;
+    }
+
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
         Room *room = player->getRoom();
@@ -1612,7 +1621,6 @@ public:
             log.type = "#SuyuanChange";
             log.from = agasa;
             log.to << damage.from;
-            log.arg = objectName();
             room->sendLog(log);
             data = QVariant::fromValue(damage);
         }

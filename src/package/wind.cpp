@@ -718,12 +718,21 @@ public:
         ServerPlayer *toyama = room->findPlayerBySkillName(objectName());
         if(!toyama || toyama->isNude())
             return false;
+        int peach = 0, equip = 0;
+        foreach(const Card *tmp, toyama->getHandcards()){
+            if(tmp->inherits("Peach"))
+                peach ++;
+            if(tmp->inherits("EquipCard"))
+                equip ++;
+        }
         DamageStruct damage = data.value<DamageStruct>();
-        QString choice;
-        if(!toyama->inMyAttackRange(damage.to))
+        QString choice = "cancel";
+        if(!toyama->inMyAttackRange(damage.to) && peach > 0){
             choice = room->askForChoice(toyama, objectName(), "friend+cancel");
-        else
+        }
+        else if(peach > 0 || equip > 0){
             choice = room->askForChoice(toyama, objectName(), "friend+enemy+cancel");
+        }
         if(choice == "cancel")
             return false;
         if(choice == "friend"){
@@ -756,10 +765,10 @@ WeijiaoCard::WeijiaoCard(){
 }
 
 bool WeijiaoCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    if(targets.isEmpty() || to_select->isKongcheng()){
+    if(targets.length() >= 2)
         return false;
-    }
-    return true;
+
+    return !to_select->isKongcheng();
 }
 
 bool WeijiaoCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
@@ -770,7 +779,7 @@ void WeijiaoCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer
     ServerPlayer *from = targets.at(0);
     ServerPlayer *to = targets.at(1);
 
-    bool success = from->pindian(to, "weijiao", room->askForCardShow(source, from, "@weijiao-ask:" + to->objectName()));
+    bool success = from->pindian(to, "weijiao", room->askForCardShow(from, source, "@weijiao-ask:" + to->objectName()));
     DamageStruct damage;
     damage.card = NULL;
     if(success){
@@ -798,7 +807,7 @@ public:
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return  pattern == "@@weijiao";
+        return pattern == "@@weijiao";
     }
 };
 
@@ -846,7 +855,7 @@ public:
         if(!nakamori)
             return false;
         PindianStar pindian = data.value<PindianStar>();
-        if(pindian->reason == "shiyi" && nakamori->askForSkillInvoke(objectName())){
+        if(pindian->reason == "weijiao" && nakamori->askForSkillInvoke(objectName())){
             nakamori->skip(Player::Draw);
             nakamori->obtainCard(pindian->from_card);
             nakamori->obtainCard(pindian->to_card);
@@ -971,6 +980,8 @@ public:
         Room *room = jodie->getRoom();
         if(jodie->isWounded() && room->askForSkillInvoke(jodie, objectName()))
             return n + 1;
+        else
+            return n;
     }
 };
 
@@ -979,9 +990,8 @@ ShuangyuCard::ShuangyuCard(){
 }
 
 bool ShuangyuCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    if(targets.isEmpty()){
+    if(targets.length() >= 2)
         return false;
-    }
     return true;
 }
 
@@ -1050,6 +1060,7 @@ public:
     virtual bool isProhibited(const Player *from, const Player *to, const Card *card) const{
         if(to->getPhase() == Player::NotActive && !from->inMyAttackRange(to))
             return card->inherits("TrickCard");
+        return false;
     }
 };
 
@@ -1188,7 +1199,7 @@ public:
 
 class Dushu: public TriggerSkill{
 public:
-    Dushu():TriggerSkill("dushu$"){
+    Dushu():TriggerSkill("dushu"){
         events << Dying;
     }
 
@@ -1203,8 +1214,20 @@ public:
         ServerPlayer *tomy = room->findPlayerBySkillName(objectName());
         if(tomy && tomy->inMyAttackRange(git)){
             const Card *poison = room->askForCard(tomy, "peach", "@dushu:" + git->objectName(), QVariant::fromValue(git));
-            if(poison)
-                room->killPlayer(git);
+            if(poison){
+                LogMessage log;
+                log.type = "#Dushu";
+                log.from = tomy;
+                log.arg = objectName();
+                log.to << git;
+                room->sendLog(log);
+
+                DamageStruct damage;
+                damage.from = tomy;
+                damage.to = git;
+                room->killPlayer(git, &damage);
+                return true;
+            }
         }
         return false;
     }
@@ -1279,7 +1302,7 @@ WindPackage::WindPackage()
     related_skills.insertMulti("shuangyu", "#@two");
     jodie->addSkill(new Juanxiu);
 
-    araidetomoaki = new General(this, "araidetomoaki", "za");
+    araidetomoaki = new General(this, "araidetomoaki", "za", 3);
     araidetomoaki->addSkill(new Qingdi);
     araidetomoaki->addSkill(new Zhiyu);
 
