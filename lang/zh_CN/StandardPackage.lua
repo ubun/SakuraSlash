@@ -141,6 +141,7 @@ local t = {
 	["zhaohuan:no"] = "召唤巴黎华击团", 
 		
 	
+	["$Dismantlement"] = "%from 被拆掉了 %card",
 }
 
 local ohorses = {"xiangjing", "wanzi"}
