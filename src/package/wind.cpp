@@ -5,6 +5,7 @@
 #include "carditem.h"
 #include "engine.h"
 #include "ai.h"
+#include "maneuvering.h"
 
 class Bianhu: public TriggerSkill{
 public:
@@ -489,11 +490,10 @@ public:
     virtual bool onPhaseChange(ServerPlayer *youko) const{
         if(youko->tag.value("Grandma", false).toBool() || youko->getPhase() != Player::Start)
             return false;
-        Room *room = youko->getRoom();
+        //Room *room = youko->getRoom();
         if(youko->askForSkillInvoke(objectName())){
-            youko->drawCards(5);
-            youko->getNextAlive()->play();
-            room->setCurrent(youko->getNextAlive());
+            youko->drawCards(youko->getHp());
+            youko->skip();
         }
         return false;
     }
@@ -519,6 +519,7 @@ public:
             log.type = "#Qingchun";
             log.from = youko;
             log.arg = QString::number(youko->getMark("@qingchun"));
+            log.arg2 = objectName();
             youko->getRoom()->sendLog(log);
 
             youko->tag["Grandma"] = true;
@@ -695,6 +696,248 @@ public:
     }
 };
 
+class EquipPattern: public CardPattern{
+public:
+    virtual bool match(const Player *player, const Card *card) const{
+        return card->inherits("EquipCard");
+    }
+};
+
+class Yinsi: public TriggerSkill{
+public:
+    Yinsi():TriggerSkill("yinsi"){
+        events << DamageComplete;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->getRoom()->findPlayerBySkillName(objectName());
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *toyama = room->findPlayerBySkillName(objectName());
+        if(!toyama || toyama->isNude())
+            return false;
+        DamageStruct damage = data.value<DamageStruct>();
+        QString choice;
+        if(!toyama->inMyAttackRange(damage.to))
+            choice = room->askForChoice(toyama, objectName(), "friend+cancel");
+        else
+            choice = room->askForChoice(toyama, objectName(), "friend+enemy+cancel");
+        if(choice == "cancel")
+            return false;
+        if(choice == "friend"){
+            const Card *peach = room->askForCard(toyama, "peach", "@yinsi-friend:" + damage.to->objectName(), data);
+            if(peach){
+                CardUseStruct use;
+                use.card = peach;
+                use.from = toyama;
+                use.to << damage.to;
+                room->useCard(use);
+            }
+        }
+        else{
+            const Card *equip = room->askForCard(toyama, ".Ep", "@yinsi-enemy:" + damage.to->objectName(), data);
+            if(equip){
+                FireSlash *slash = new Slash(equip->getSuit(), equip->getNumber());
+                slash->setSkillName(objectName());
+                CardUseStruct use;
+                use.card = slash;
+                use.from = toyama;
+                use.to << damage.to;
+                room->useCard(use);
+            }
+        }
+        return false;
+    }
+};
+
+WeijiaoCard::WeijiaoCard(){
+}
+
+bool WeijiaoCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(targets.isEmpty() || to_select->isKongcheng()){
+        return false;
+    }
+    return true;
+}
+
+bool WeijiaoCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+    return targets.length() == 2;
+}
+
+void WeijiaoCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    ServerPlayer *from = targets.at(0);
+    ServerPlayer *to = targets.at(1);
+
+    bool success = from->pindian(to, "weijiao", room->askForCardShow(source, from, "@weijiao-ask:" + to->objectName()));
+    DamageStruct damage;
+    damage.card = NULL;
+    if(success){
+        damage.from = from;
+        damage.to = to;
+    }
+    else{
+        damage.from = to;
+        damage.to = from;
+    }
+    room->damage(damage);
+}
+
+class WeijiaoViewAsSkill: public ZeroCardViewAsSkill{
+public:
+    WeijiaoViewAsSkill():ZeroCardViewAsSkill("weijiao"){
+    }
+
+    virtual const Card *viewAs() const{
+        return new WeijiaoCard;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return  pattern == "@@weijiao";
+    }
+};
+
+class Weijiao:public PhaseChangeSkill{
+public:
+    Weijiao():PhaseChangeSkill("weijiao"){
+        view_as_skill = new WeijiaoViewAsSkill;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        if(player->getPhase() == Player::Judge){
+            Room *room = player->getRoom();
+            int count = 0;
+            foreach(ServerPlayer *player, room->getAlivePlayers()){
+                if(!player->isKongcheng()){
+                    count ++;
+                }
+                if(count == 2)
+                    break;
+            }
+            if(count == 2 && room->askForUseCard(player, "@@weijiao", "@weijiao-card"))
+                return true;
+        }
+        return false;
+    }
+};
+
+class Shiyi: public TriggerSkill{
+public:
+    Shiyi():TriggerSkill("shiyi"){
+        events << Pindian;
+    }
+
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *nakamori = room->findPlayerBySkillName(objectName());
+        if(!nakamori)
+            return false;
+        PindianStar pindian = data.value<PindianStar>();
+        if(pindian->reason == "shiyi" && nakamori->askForSkillInvoke(objectName())){
+            nakamori->skip(Player::Draw);
+            nakamori->obtainCard(pindian->from_card);
+            nakamori->obtainCard(pindian->to_card);
+        }
+        return false;
+    }
+};
+
+WeixiaoCard::WeixiaoCard(){
+    once = true;
+}
+
+bool WeixiaoCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(!targets.isEmpty())
+        return false;
+
+    return to_select->getGeneral()->isMale();
+}
+
+void WeixiaoCard::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.from->getRoom();
+    LogMessage log;
+    log.from = effect.to;
+    log.to << effect.from;
+    log.type = "#Weixiao";
+    room->sendLog(log);
+
+    effect.to->gainMark("@smile");
+}
+
+class WeixiaoViewAsSkill: public OneCardViewAsSkill{
+public:
+    WeixiaoViewAsSkill():OneCardViewAsSkill("weixiao"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return ! player->hasUsed("WeixiaoCard");
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return true;
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        WeixiaoCard *card = new WeixiaoCard;
+        card->addSubcard(card_item->getCard()->getId());
+
+        return card;
+    }
+};
+
+class Weixiao: public TriggerSkill{
+public:
+    Weixiao():TriggerSkill("weixiao"){
+        events << Predamage << PhaseChange;
+        view_as_skill = new WeixiaoViewAsSkill;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->getMark("@smile") > 0;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        if(event = PhaseChange){
+            if(player->getPhase() == Player::Finish)
+                player->loseAllMarks("@smile");
+        }
+        else{
+            DamageStruct damage = data.value<DamageStruct>();
+            if(!damage.card)
+                return false;
+
+            if(damage.card->inherits("Slash") || damage.card->inherits("Duel")){
+                LogMessage log;
+                log.type = "#WeixiaoBuff";
+                log.from = damage.from;
+                log.to << damage.to;
+                log.arg = QString::number(damage.damage);
+                log.arg2 = QString::number(damage.damage + 1);
+                room->sendLog(log);
+
+                damage.damage ++;
+                data = QVariant::fromValue(damage);
+            }
+        }
+        return false;
+    }
+};
+
 WindPackage::WindPackage()
     :Package("wind")
 {
@@ -746,8 +989,16 @@ WindPackage::WindPackage()
     patterns[".Lj"] = new LingjiaPattern;
 
     touyamaginshirou = new General(this, "touyamaginshirou", "jing");
+    touyamaginshirou->addSkill(new Yinsi);
+    patterns[".Ep"] = new EquipPattern;
+
     nakamoriginzou = new General(this, "nakamoriginzou", "guai");
-    vermouth = new General(this, "vermouth", "hei");
+    nakamoriginzou->addSkill(new Weijiao);
+    nakamoriginzou->addSkill(new Shiyi);
+
+    vermouth = new General(this, "vermouth$", "hei", 4, false);
+    vermouth->addSkill(new Weixiao);
+
     jodie = new General(this, "jodie", "te");
     araidetomoaki = new General(this, "araidetomoaki", "za");
     tomesan = new General(this, "tomesan", "za");
@@ -756,6 +1007,8 @@ WindPackage::WindPackage()
     addMetaObject<TuanzhangCard>();
     addMetaObject<HuachiCard>();
     addMetaObject<YunchouCard>();
+    addMetaObject<WeijiaoCard>();
+    addMetaObject<WeixiaoCard>();
 }
 
 ADD_PACKAGE(Wind)

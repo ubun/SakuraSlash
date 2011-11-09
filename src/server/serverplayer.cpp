@@ -518,6 +518,14 @@ void ServerPlayer::skip(Player::Phase phase){
     room->sendLog(log);
 }
 
+void ServerPlayer::skip(){
+    phases.clear();
+
+    LogMessage log;
+    log.type = "#SkipAllPhase";
+    log.from = this;
+    room->sendLog(log);
+}
 
 void ServerPlayer::gainMark(const QString &mark, int n){
     int value = getMark(mark) + n;

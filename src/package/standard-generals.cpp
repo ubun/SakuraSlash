@@ -1525,19 +1525,20 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *akai, QVariant &data) const{
         Room *room = akai->getRoom();
         const Weapon *weapon = akai->getWeapon();
-        if(weapon->getRange() < 3)
-            return false;
-        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        if(weapon && weapon->getRange() > 2){
+            SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
-        LogMessage log;
-        log.arg = objectName();
-        log.type = "#Jushenslash";
-        log.from = effect.from;
-        log.to << effect.to;
-        room->sendLog(log);
+            LogMessage log;
+            log.arg = objectName();
+            log.type = "#Jushenslash";
+            log.from = effect.from;
+            log.to << effect.to;
+            room->sendLog(log);
 
-        effect.from->getRoom()->slashResult(effect, NULL);
-        return true;
+            effect.from->getRoom()->slashResult(effect, NULL);
+            return true;
+        }
+        return false;
     }
 };
 
