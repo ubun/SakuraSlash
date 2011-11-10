@@ -36,7 +36,15 @@ public:
     static bool HasShit(const Card *card);
 };
 
+class Stink: public BasicCard{
+    Q_OBJECT
 
+public:
+    Q_INVOKABLE Stink(Card::Suit suit, int number);
+    virtual QString getSubtype() const;
+    virtual QString getEffectPath(bool is_male) const;
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
 
 // five disasters:
 

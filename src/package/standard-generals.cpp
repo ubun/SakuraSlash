@@ -547,7 +547,7 @@ public:
         }else if(ayumi->getPhase() == Player::Finish){
             if(ayumi->getMark("cry") == 2 && ayumi->isAlive()){
                 room->setPlayerProperty(ayumi, "maxhp", ayumi->getMaxHP()+1);
-                //room->playSkillEffect(objectName());
+                room->broadcastInvoke("animate", "lightbox:$dontcry");
                 room->setPlayerProperty(ayumi, "hp", ayumi->getMaxHP());
 
                 LogMessage log;
@@ -981,17 +981,18 @@ public:
 class Shangchi: public PhaseChangeSkill{
 public:
     Shangchi():PhaseChangeSkill("shangchi"){
+        frequency = Frequent;
         default_choice = "me";
     }
 
     virtual bool onPhaseChange(ServerPlayer *matsumoto) const{
-        if(matsumoto->getPhase() == Player::Draw && matsumoto->isWounded()){
+        if(matsumoto->getPhase() == Player::Draw && matsumoto->isWounded() && matsumoto->askForSkillInvoke(objectName())){
             Room *room = matsumoto->getRoom();
             if(room->askForChoice(matsumoto, objectName(), "me+him") == "me")
-                room->drawCards(matsumoto,matsumoto->getLostHp());
+                room->drawCards(matsumoto, matsumoto->getLostHp());
             else {
-                ServerPlayer *target = room->askForPlayerChosen(matsumoto,room->getAlivePlayers(),objectName());
-                target->drawCards(matsumoto->getLostHp()-1);
+                ServerPlayer *target = room->askForPlayerChosen(matsumoto, room->getOtherPlayers(matsumoto), objectName());
+                target->drawCards(matsumoto->getHp());
             }
         }
 

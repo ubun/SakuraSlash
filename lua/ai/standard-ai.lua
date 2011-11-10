@@ -222,7 +222,14 @@ sgs.ai_skill_invoke["tishen"] = true
 
 -- shangchi
 sgs.ai_skill_choice["shangchi"] = function(self, choices)
-	return "me"
+	if self.player:getHp() > self.player:getLostHp() and #self.friends_noself > 0 then
+		return "him"
+	else
+		return "me"
+	end
+end
+sgs.ai_skill_playerchosen["shangchi"] = function(self, targets)
+	return self.friends_noself[1]
 end
 
 -- diaobing

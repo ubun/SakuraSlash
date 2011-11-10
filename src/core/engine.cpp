@@ -63,8 +63,8 @@ Engine::Engine()
     Sanguosha = this;
 
     addPackage(NewStandard());
-    addPackage(NewWind());
-    addPackage(NewThicket());
+    //addPackage(NewWind());
+    //addPackage(NewThicket());
     //addPackage(NewFire());
     //addPackage(NewMountain());
     //addPackage(NewGod());
@@ -81,7 +81,7 @@ Engine::Engine()
     addPackage(NewDisaster());
     addPackage(NewJoyEquip());
 
-    addScenario(NewCoupleScenario());
+    //addScenario(NewCoupleScenario());
     addScenario(NewZombieScenario());
     addScenario(NewLegendScenario());
     addScenario(NewImpasseScenario());

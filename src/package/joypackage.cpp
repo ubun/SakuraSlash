@@ -66,6 +66,29 @@ bool Shit::HasShit(const Card *card){
         return card->objectName() == "shit";
 }
 
+Stink::Stink(Suit suit, int number):BasicCard(suit, number){
+    setObjectName("stink");
+    target_fixed = true;
+}
+
+QString Stink::getSubtype() const{
+    return "disgusting_card";
+}
+
+QString Stink::getEffectPath(bool is_male) const{
+    return "audio/card/common/stink.ogg";
+}
+
+void Stink::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    room->throwCard(this);
+    ServerPlayer *nextfriend = targets.isEmpty() ? source->getNextAlive() : targets.first();
+    room->setEmotion(nextfriend, "bad");
+    if(!room->askForCard(nextfriend, "jink", "haochou", true)){
+        room->swapSeat(nextfriend, nextfriend->getNextAlive());
+    }
+    else room->setEmotion(nextfriend, "good");
+}
+
 // -----------  Deluge -----------------
 
 Deluge::Deluge(Card::Suit suit, int number)
@@ -368,7 +391,8 @@ JoyPackage::JoyPackage()
     cards << new Shit(Card::Club, 1)
             << new Shit(Card::Heart, 8)
             << new Shit(Card::Diamond, 13)
-            << new Shit(Card::Spade, 10);
+            << new Shit(Card::Spade, 10)
+            << new Stink(Card::Diamond, 1);
 
     foreach(Card *card, cards)
         card->setParent(this);

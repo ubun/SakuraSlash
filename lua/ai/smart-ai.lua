@@ -1144,6 +1144,10 @@ function SmartAI:useBasicCard(card, use,no_distance)
 				
 			use.card = card
 		end
+	elseif card:inherits("Stink") then
+		local next_player = self.player:getNextAlive()
+		if self:isFriend(next_player) then return end
+		use.card = card
 	end
 end
 
