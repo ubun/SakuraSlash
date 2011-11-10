@@ -347,8 +347,8 @@ ZombieScenario::ZombieScenario()
     zombie->addSkill(new Ganran);
     zombie->addSkill(new Zaibian);
 
-    zombie->addSkill("paoxiao");
-    zombie->addSkill("wansha");
+    zombie->addSkill(new Skill("paoxiao"));
+    zombie->addSkill(new Skill("wansha"));
 
     addMetaObject<PeachingCard>();
     addMetaObject<GanranEquip>();
