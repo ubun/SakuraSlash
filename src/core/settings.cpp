@@ -67,7 +67,7 @@ void Settings::init(){
 #endif
 
     if(UserName == "Admin" || UserName == "Administrator")
-        UserName = tr("Sanguosha-fans");
+        UserName = tr("ConanSlash-fans");
     ServerName = value("ServerName", tr("%1's server").arg(UserName)).toString();
 
     HostAddress = value("HostAddress", "127.0.0.1").toString();
@@ -92,7 +92,7 @@ void Settings::init(){
 
     if(!contains("1v1/Banlist")){
         QStringList banlist;
-        banlist << "kudoushinichi" << "vodka";
+        banlist << "mourikogorou" << "touyamakazuha" << "gin" << "akaishuichi";
         setValue("1v1/Banlist", banlist);
     }
 }

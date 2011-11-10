@@ -1498,8 +1498,8 @@
     <message>
         <location filename="src/dialog/mainwindow.ui" line="14"/>
         <location filename="src/dialog/mainwindow.cpp" line="138"/>
-        <source>Sanguosha</source>
-        <translation>三国杀</translation>
+        <source>ConanSlash</source>
+        <translation>柯南杀</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.ui" line="28"/>
@@ -2457,8 +2457,8 @@
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="305"/>
-        <source>Sanguosha</source>
-        <translation>三国杀</translation>
+        <source>ConanSlash</source>
+        <translation>柯南杀</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="1025"/>
@@ -3201,9 +3201,9 @@
     </message>
     <message>
         <location filename="src/core/settings.cpp" line="70"/>
-        <source>Sanguosha-fans</source>
+        <source>ConanSlash-fans</source>
         <oldsource>Sanguosha-lover</oldsource>
-        <translation>三国杀fans</translation>
+        <translation>柯南杀fans</translation>
     </message>
     <message>
         <location filename="src/core/settings.cpp" line="71"/>

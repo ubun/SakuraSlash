@@ -306,6 +306,7 @@ class Nijian: public TriggerSkill{
 public:
     Nijian():TriggerSkill("nijian"){
         events << Predamaged;
+        frequency = Frequent;
     }
 
     virtual bool trigger(TriggerEvent, ServerPlayer *heiji, QVariant &data) const{
@@ -320,9 +321,8 @@ public:
         QString pattern = QString(".%1").arg(suit_str.at(0).toUpper());
         QString prompt = QString("@nijian:%1::%2").arg(damage.from->getGeneralName()).arg(suit_str);
         if(room->askForCard(heiji, pattern, prompt)){
-            DamageStruct damage2 = damage;
-            damage2.to = damage.from;
-            room->damage(damage2);
+            damage.to = damage.from;
+            room->damage(damage);
             return true;
         }
         return false;
@@ -490,7 +490,6 @@ public:
     virtual bool onPhaseChange(ServerPlayer *youko) const{
         if(youko->tag.value("Grandma", false).toBool() || youko->getPhase() != Player::Start)
             return false;
-        //Room *room = youko->getRoom();
         if(youko->askForSkillInvoke(objectName())){
             youko->drawCards(youko->getHp());
             youko->skip();
@@ -727,11 +726,12 @@ public:
         }
         DamageStruct damage = data.value<DamageStruct>();
         QString choice = "cancel";
-        if(!toyama->inMyAttackRange(damage.to) && peach > 0){
-            choice = room->askForChoice(toyama, objectName(), "friend+cancel");
-        }
-        else if(peach > 0 || equip > 0){
+        toyama->tag["YinsTarget"] = QVariant::fromValue(damage.to);
+        if(peach > 0 && (toyama->inMyAttackRange(damage.to) || equip > 0)){
             choice = room->askForChoice(toyama, objectName(), "friend+enemy+cancel");
+        }
+        else if(peach > 0){
+            choice = room->askForChoice(toyama, objectName(), "friend+cancel");
         }
         if(choice == "cancel")
             return false;

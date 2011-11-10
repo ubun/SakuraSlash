@@ -1,3 +1,21 @@
+-- ouxiang
+sgs.ai_skill_invoke["ouxiang"] = function(self, data)
+	return self.player:getHandcardNum() < 10
+end
+
+-- yinsi
+sgs.ai_skill_choice["yinsi"] = function(self, choices)
+	local target = self.room:getTag("YinsTarget"):toPlayer()
+	if not target then return "cancel" end
+	if self:isEnemy(target) and self.player:inMyAttackRange(target) then
+		return "enemy"
+	elseif self:isFriend(target) then
+		return "friend"
+	else
+		return "cancel"
+	end
+end
+
 
 -- liegong, same with tieji
 sgs.ai_skill_invoke.liegong = sgs.ai_skill_invoke.tieji

@@ -2632,6 +2632,18 @@ function SmartAI:askForCard(pattern, prompt, data)
 			return self.player:getRandomHandCard()
 		end
 		return "."
+	elseif parsedPrompt[1] == "@dushu" then
+		local player = data:toPlayer()
+		if self:isEnemy(player) then
+			local cards = self.player:getHandcards()
+			cards = sgs.QList2Table(cards)
+			for _, fcard in ipairs(cards) do
+				if fcard:inherits("Peach") then
+					return fcard:getEffectiveId()
+				end
+			end
+		end
+		return "."
 	end
 
 	if parsedPrompt[1] == "double-sword-card" then 
@@ -3024,11 +3036,11 @@ function SmartAI:hasSameEquip(card, player)
 	return false
 end
 
-sgs.lose_equip_skill = "xiaoji|xuanfeng"
+sgs.lose_equip_skill = "wuyu|qingdi"
 sgs.need_kongcheng = "lianying|kongcheng"
-sgs.masochism_skill = "fankui|quhu|yiji|ganglie|enyuan|fangzhu"
-sgs.wizard_skill = "shouqiu|guidao|tiandu"
-sgs.wizard_harm_skill = "shouqiu|guidao"
+sgs.masochism_skill = "wuwei|rexue|jingxing"
+sgs.wizard_skill = "shouqiu|fating|tiandu"
+sgs.wizard_harm_skill = "shouqiu|fating"
 
 function SmartAI:hasSkills(skill_names, player)
 	player = player or self.player
@@ -3333,9 +3345,9 @@ function SmartAI:cardProhibit(card, to)
 end
 -- load other ai scripts
 dofile "lua/ai/standard-ai.lua"
--- dofile "lua/ai/wind-ai.lua"
+dofile "lua/ai/wind-ai.lua"
+dofile "lua/ai/thicket-ai.lua"
 -- dofile "lua/ai/fire-ai.lua"
--- dofile "lua/ai/thicket-ai.lua"
 -- dofile "lua/ai/mountain-ai.lua"
 dofile "lua/ai/god-ai.lua"
 -- dofile "lua/ai/yitian-ai.lua"

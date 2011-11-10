@@ -296,6 +296,19 @@ sgs.ai_skill_playerchosen["xunzhi"] = function(self, targets)
 	return
 end
 
+-- gaizao
+sgs.ai_skill_invoke["gaizao"] = true
+sgs.ai_skill_playerchosen["gaizao"] = function(self, targets)
+	for _, player in sgs.qlist(targets) do
+		if self:isEnemy(player) and not self:hasSkills(sgs.lose_equip_skill, player) then
+			return player
+		elseif self:isFriend(player) and self:hasSkills(sgs.lose_equip_skill, player) then
+			return player
+		end
+	end
+	return targets[1]
+end
+
 -- baomu
 sgs.ai_skill_invoke["baomu"] = function(self, data)
 	local who = data:toPlayer()

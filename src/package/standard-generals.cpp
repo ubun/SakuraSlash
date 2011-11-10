@@ -1579,13 +1579,15 @@ public:
 
         Room *room = player->getRoom();
         QList<ServerPlayer *> targets;
-        foreach(ServerPlayer *tmp, room->getAllPlayers()){
+        if(player->hasEquip())
+            targets << player;
+        foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
             if(tmp->hasEquip()){
                 targets << tmp;
             }
         }
-        if(targets.length()!=0 && room->askForSkillInvoke(player,objectName())){
-            ServerPlayer *target = room->askForPlayerChosen(player,targets,objectName());
+        if(!targets.isEmpty() && room->askForSkillInvoke(player, objectName())){
+            ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName());
             int card_id = room->askForCardChosen(player, target, "e", objectName());
             room->throwCard(card_id);
             player->drawCards(1);

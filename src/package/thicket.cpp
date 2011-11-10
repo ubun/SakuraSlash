@@ -881,7 +881,7 @@ public:
             QList<ServerPlayer *> targets;
             if(damage.from)
                 targets << damage.from;
-            if(room->getCurrent())
+            if(room->getCurrent() && room->getCurrent() != damage.from)
                 targets << room->getCurrent();
             if(!targets.isEmpty()){
                 ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName());

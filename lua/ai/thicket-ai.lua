@@ -1,3 +1,8 @@
+-- guilin
+sgs.ai_skill_invoke["guilin"] = true
+
+
+
 -- zaiqi
 sgs.ai_skill_invoke["zaiqi"] = function(self, data)
 	return self.player:getLostHp() >= 2
@@ -73,38 +78,6 @@ sgs.ai_skill_use["@@fangzhu"] = function(self, prompt)
 	else
 		return "."
 	end
-end
-
-local xuhuang_ai = SmartAI:newSubclass "xuhuang"
-
-function xuhuang_ai:activate_dummy(use)
-	-- find black basic or equip card
-	local cards = self.player:getCards("he")
-	local to_use
-	for _, card in sgs.qlist(cards) do		
-		if card:isBlack() and (card:inherits("BasicCard") or card:inherits("EquipCard")) then
-			to_use = card
-			break
-		end
-	end
-
-	if to_use then
-		local suit = to_use:getSuitString()
-		local number = to_use:getNumberString()
-		local card_id = to_use:getEffectiveId()
-		local card_name = "supply_shortage"
-		local skill_name = "duanliang"
-		local card_str = ("%s:%s[%s:%s]=%d"):format(card_name, skill_name, suit, number, card_id)
-
-		card = sgs.Card_Parse(card_str)
-
-		self:useCardSupplyShortage(card, use)
-		if use:isValid() then
-			return
-		end
-	end
-
-	super.activate(self, use)
 end
 
 sgs.ai_skill_invoke.songwei = function(self, data)
