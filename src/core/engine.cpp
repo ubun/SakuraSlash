@@ -48,7 +48,7 @@ extern "C" {
     Package *NewWisdom();
     Package *NewTest();
 
-//    Scenario *NewCoupleScenario();
+    Scenario *NewCoupleScenario();
     Scenario *NewZombieScenario();
     Scenario *NewLegendScenario();
     Scenario *NewImpasseScenario();
@@ -81,7 +81,7 @@ Engine::Engine()
     addPackage(NewDisaster());
     addPackage(NewJoyEquip());
 
-//    addScenario(NewCoupleScenario());
+    addScenario(NewCoupleScenario());
     addScenario(NewZombieScenario());
     addScenario(NewLegendScenario());
     addScenario(NewImpasseScenario());
