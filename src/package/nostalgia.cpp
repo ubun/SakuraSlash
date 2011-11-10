@@ -42,13 +42,55 @@ public:
     }
 };
 
+class YitianSwordSkill : public WeaponSkill{
+public:
+    YitianSwordSkill():WeaponSkill("yitian_sword"){
+        events << DamageComplete;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &) const{
+        if(player->getPhase() != Player::NotActive)
+           return false;
+
+        if(player->askForSkillInvoke("yitian_sword"))
+            player->getRoom()->askForUseCard(player, "slash", "@askforslash");
+
+        return false;
+    }
+};
+
+YitianSword::YitianSword(Suit suit, int number)
+    :Weapon(suit, number, 2)
+{
+    setObjectName("yitian_sword");
+    skill = new YitianSwordSkill;
+}
+
+void YitianSword::onMove(const CardMoveStruct &move) const{
+    if(move.from_place == Player::Equip && move.from->isAlive()){
+        Room *room = move.from->getRoom();
+
+        bool invoke = move.from->askForSkillInvoke("yitian-lost");
+        if(!invoke)
+            return;
+
+        ServerPlayer *target = room->askForPlayerChosen(move.from, room->getAllPlayers(), "yitian-lost");
+        DamageStruct damage;
+        damage.from = move.from;
+        damage.to = target;
+        damage.card = this;
+
+        room->damage(damage);
+    }
+}
+
 NostalgiaPackage::NostalgiaPackage()
     :Package("nostalgia")
 {
     type = CardPack;
 
-    Card *moon_spear = new MoonSpear;
-    moon_spear->setParent(this);
+    (new MoonSpear)->setParent(this);
+    (new YitianSword)->setParent(this);
 }
 
 ADD_PACKAGE(Nostalgia);
