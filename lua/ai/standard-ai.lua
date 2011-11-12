@@ -304,16 +304,21 @@ sgs.ai_skill_playerchosen["xunzhi"] = function(self, targets)
 end
 
 -- gaizao
-sgs.ai_skill_invoke["gaizao"] = true
-sgs.ai_skill_playerchosen["gaizao"] = function(self, targets)
-	for _, player in sgs.qlist(targets) do
-		if self:isEnemy(player) and not self:hasSkills(sgs.lose_equip_skill, player) then
-			return player
-		elseif self:isFriend(player) and self:hasSkills(sgs.lose_equip_skill, player) then
-			return player
+sgs.ai_skill_use["@@gaizao"] = function(self, prompt)
+	for _, player in sgs.qlist(self.room:getAllPlayers()) do
+		if not player:getCards("e"):isEmpty() then
+			if self:isEnemy(player) and	not self:hasSkills(sgs.lose_equip_skill, player) then
+				return "@GaizaoCard=.->" .. player:objectName()
+			elseif self:isFriend(player) and self:hasSkills(sgs.lose_equip_skill, player) then
+				return "@GaizaoCard=.->" .. player:objectName()
+			end
 		end
 	end
-	return targets[1]
+	if not self.player:getCards("e"):isEmpty() then
+		return "@GaizaoCard=.->" .. self.player:objectName()
+	else
+		return "."
+	end
 end
 
 -- baomu

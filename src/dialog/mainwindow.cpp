@@ -214,7 +214,7 @@ void MainWindow::on_actionReplay_triggered()
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("Select a reply file"),
                                                     location,
-                                                    tr("Pure text replay file (*.txt);; Image replay file (*.png)"));
+                                                    tr("Image replay file (*.png);; Pure text replay file (*.txt)"));
 
     if(filename.isEmpty())
         return;
@@ -785,7 +785,7 @@ void MainWindow::on_actionReplay_file_convert_triggered()
     QString filename = QFileDialog::getOpenFileName(
             this, tr("Please select a replay file"),
             Config.value("LastReplayDir").toString(),
-            tr("Pure text replay file (*.txt);; Image replay file (*.png)"));
+            tr("Image replay file (*.png);; Pure text replay file (*.txt)"));
 
     if(filename.isEmpty())
         return;

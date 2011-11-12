@@ -36,7 +36,7 @@ void ZhenxiangCard::onEffect(const CardEffectStruct &effect) const{
 
 class ZhenxiangViewAsSkill: public ZeroCardViewAsSkill{
 public:
-    ZhenxiangViewAsSkill():ZeroCardViewAsSkill("zhenxiangV"){
+    ZhenxiangViewAsSkill():ZeroCardViewAsSkill("zhenxiang"){
     }
     virtual bool isEnabledAtPlay(const Player *player) const{
         return !player->hasUsed("ZhenxiangCard");
@@ -1569,16 +1569,58 @@ public:
     }
 };
 
+GaizaoCard::GaizaoCard(){
+}
+
+bool GaizaoCard::targetFilter(const QList<const Player *> &targets, const Player *to_select) const{
+    return targets.isEmpty() && to_select->hasEquip();
+}
+
+void GaizaoCard::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.from->getRoom();
+
+    room->throwCard(room->askForCardChosen(effect.from, effect.to, "e", "gaizao"));
+    effect.from->drawCards(1);
+    effect.to->drawCards(1);
+}
+
+class GaizaoViewAsSkill: public ZeroCardViewAsSkill{
+public:
+    GaizaoViewAsSkill():ZeroCardViewAsSkill("gaizao"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "@@gaizao";
+    }
+
+    virtual const Card *viewAs() const{
+        return new GaizaoCard;
+    }
+};
+
 class Gaizao:public TriggerSkill{
 public:
     Gaizao():TriggerSkill("gaizao"){
         events << PhaseChange;
+        view_as_skill = new GaizaoViewAsSkill;
     }
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        if(player->getPhase() != Player::Draw)
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *hakasi, QVariant &data) const{
+        if(hakasi->getPhase() != Player::Draw)
             return false;
 
-        Room *room = player->getRoom();
+        Room *room = hakasi->getRoom();
+        foreach(ServerPlayer *tmp, room->getAllPlayers()){
+            if(tmp->hasEquip()){
+                room->askForUseCard(hakasi, "@@gaizao", "@gaizao");
+                break;
+            }
+        }
+        /*
         QList<ServerPlayer *> targets;
         if(player->hasEquip())
             targets << player;
@@ -1589,11 +1631,8 @@ public:
         }
         if(!targets.isEmpty() && room->askForSkillInvoke(player, objectName())){
             ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName());
-            int card_id = room->askForCardChosen(player, target, "e", objectName());
-            room->throwCard(card_id);
-            player->drawCards(1);
-            target->drawCards(1);
-        }
+
+        }*/
         return false;
     }
 };
@@ -1996,6 +2035,7 @@ void StandardPackage::addGenerals(){
     addMetaObject<RenxingCard>();
     addMetaObject<AnshaCard>();
     addMetaObject<MaixiongCard>();
+    addMetaObject<GaizaoCard>();
     addMetaObject<YuandingCard>();
     addMetaObject<JingshenCard>();
 
