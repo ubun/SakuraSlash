@@ -117,6 +117,10 @@ QList<ServerPlayer *> Room::getOtherPlayers(ServerPlayer *except) const{
     return other_players;
 }
 
+QList<ServerPlayer *> Room::getPlayers() const{
+    return players ;
+}
+
 QList<ServerPlayer *> Room::getAllPlayers() const{
     if(current == NULL)
         return alive_players;
@@ -1976,6 +1980,8 @@ void Room::startGame(){
         game_rule = new BossMode(this);
     else if(mode == "04_1v3")
         game_rule = new HulaoPassMode(this);
+    else if(mode == "08raw")
+        game_rule = new RunawayMode(this);
     else if(Config.EnableScene)	//changjing
         game_rule = new SceneRule(this);	//changjing
     else

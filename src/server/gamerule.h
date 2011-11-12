@@ -42,4 +42,14 @@ private:
     mutable jmp_buf env;
 };
 
+class RunawayMode : public GameRule{
+    Q_OBJECT
+
+public:
+    RunawayMode(QObject *parent);
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const;
+};
+
+
 #endif // GAMERULE_H

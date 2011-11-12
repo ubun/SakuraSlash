@@ -101,7 +101,8 @@ Engine::Engine()
     modes["08p"] = tr("8 players");
     modes["08pd"] = tr("8 players (2 renegades)");
     //modes["08boss"] = tr("8 players (boss mode)");
-    //modes["08same"] = tr("8 players (same mode)");
+    modes["08same"] = tr("8 players (same mode)");
+    modes["08raw"] = tr("8 players (runaway mode)");
     modes["09p"] = tr("9 players");
     modes["10p"] = tr("10 players");
 
@@ -110,6 +111,7 @@ Engine::Engine()
     //addPackage(challenge_mode_set);
 
     translations.insert("bossmode", tr("Boss mode"));
+    translations.insert("runaway", tr("Runaway mode"));
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 

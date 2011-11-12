@@ -1248,6 +1248,11 @@
         <translation>8 人局 (同将模式)</translation>
     </message>
     <message>
+        <location filename="src/core/engine.cpp" line="124"/>
+        <source>8 players (runaway mode)</source>
+        <translation>8 人局 (跑路模式)</translation>
+    </message>
+    <message>
         <location filename="src/core/engine.cpp" line="118"/>
         <source>9 players</source>
         <translation>9 人局</translation>
@@ -1263,6 +1268,11 @@
         <translation>魔王模式</translation>
     </message>
     <message>
+        <location filename="src/core/engine.cpp" line="133"/>
+        <source>Runaway mode</source>
+        <translation>跑路模式</translation>
+    </message>
+    <message>
         <location filename="src/core/engine.cpp" line="132"/>
         <source>Lua script error</source>
         <translation>Lua 脚本错误</translation>
@@ -1274,8 +1284,8 @@
     </message>
     <message>
         <location filename="src/core/engine.cpp" line="362"/>
-        <source>MiddleAutumn</source>
-        <translation>中秋版</translation>
+        <source>Bachelor</source>
+        <translation>光棍版</translation>
     </message>
     <message>
         <location filename="src/core/engine.cpp" line="439"/>

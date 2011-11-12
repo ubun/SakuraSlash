@@ -28,6 +28,7 @@ ScenarioOverview::ScenarioOverview(QWidget *parent)
     setLayout(layout);
 
     QStringList names = Sanguosha->getScenarioNames();
+    names << "runaway";
     //names << "bossmode" << "hulaopass";
     foreach(QString name, names){
         QString text = Sanguosha->translate(name);
