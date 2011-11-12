@@ -10,10 +10,19 @@ sgs.ai_skill_invoke["rexue"] = function(self, data)
 end
 sgs.ai_skill_playerchosen["rexue"] = function(self, targets)
 	self:sort(self.friends_noself, "hp")
-	return self.friends_noself[1]
+	for _, friend in ipairs(self.friends_noself) do
+		if friend:getPile("rexue"):isEmpty() then
+			return friend
+		end
+	end
+	if self:isFriend(self.room:getLord()) then
+		return self.room:getLord()
+	else
+		return self.friends_noself[1]
+	end
 end
 sgs.ai_skill_invoke["rexue_get"] = function(self, data)
-	local n = self:getCardsNum("Slash") + self:getCardsNum("Analpetic")
+	local n = self:getCardsNum("Peach") + self:getCardsNum("Analpetic")
 	return n < 1
 end
 
@@ -222,7 +231,7 @@ sgs.ai_skill_invoke["tishen"] = true
 
 -- shangchi
 sgs.ai_skill_choice["shangchi"] = function(self, choices)
-	if self.player:getHp() > self.player:getLostHp() and #self.friends_noself > 0 then
+	if self.player:getHp() - 1 > self.player:getLostHp() and #self.friends_noself > 0 then
 		return "him"
 	else
 		return "me"

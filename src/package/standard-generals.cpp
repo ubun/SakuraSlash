@@ -992,7 +992,7 @@ public:
                 room->drawCards(matsumoto, matsumoto->getLostHp());
             else {
                 ServerPlayer *target = room->askForPlayerChosen(matsumoto, room->getOtherPlayers(matsumoto), objectName());
-                target->drawCards(matsumoto->getHp());
+                target->drawCards(matsumoto->getHp() - 1);
             }
         }
 

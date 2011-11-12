@@ -112,7 +112,7 @@ return {
 
 	["matsumotokiyonaka"] = "松本清长",
 	["shangchi"] = "伤饬",
-	[":shangchi"] = "摸牌阶段，若你已受伤，可以额外摸X张牌，或者让另一名角色摸Y张牌，X为你失去的体力，Y为你当前的体力",
+	[":shangchi"] = "摸牌阶段，若你已受伤，可以额外摸X张牌，或者让另一名角色摸Y-1张牌，X为你失去的体力，Y为你当前的体力",
 	["shangchi:me"] = "自己摸牌",
 	["shangchi:him"] = "其他人摸牌",
 	["diaobing"] = "调兵",

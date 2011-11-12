@@ -92,7 +92,7 @@ void Settings::init(){
 
     if(!contains("1v1/Banlist")){
         QStringList banlist;
-        banlist << "mourikogorou" << "touyamakazuha" << "gin" << "akaishuichi";
+        banlist << "hattoriheiji" << "mourikogorou" << "touyamakazuha" << "gin" << "akaishuichi";
         setValue("1v1/Banlist", banlist);
     }
 }
