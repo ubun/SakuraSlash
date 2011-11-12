@@ -62,7 +62,7 @@ sgs.ai_skill_use_func["TaichenCard"]=function(card,use,self)
 	end
 	
 	if not card_str then
-		if weapon and self.player:getOffensiveHorse() then
+		if weapon and self.player:getOffensiveCar() then
 			card_str = "@TaichenCard=" .. weapon:objectName():getId() 
 		else
 			if self:isFriend(target) and self.player:getHp() > 2 then card_str = "@TaichenCard=." end

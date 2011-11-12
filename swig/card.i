@@ -31,8 +31,8 @@ public:
     enum Location {
         WeaponLocation,
         ArmorLocation,
-        DefensiveHorseLocation,
-        OffensiveHorseLocation,
+        DefensiveCarLocation,
+        OffensiveCarLocation,
     };
 
     EquipCard(Suit suit, int number):Card(suit, number, true), skill(NULL){}
@@ -79,9 +79,9 @@ public:
     virtual QString label() const;
 };
 
-class Horse:public EquipCard{
+class Car:public EquipCard{
 public:
-    Horse(Suit suit, int number, int correct);
+    Car(Suit suit, int number, int correct);
     virtual QString getEffectPath(bool is_male) const;
 
     virtual Location location() const;
@@ -94,14 +94,14 @@ private:
     int correct;
 };
 
-class OffensiveHorse: public Horse{
+class OffensiveCar: public Car{
 public:
-    OffensiveHorse(Card::Suit suit, int number, int correct = -1);
+    OffensiveCar(Card::Suit suit, int number, int correct = -1);
     virtual QString getSubtype() const;
 };
 
-class DefensiveHorse: public Horse{
+class DefensiveCar: public Car{
 public:
-    DefensiveHorse(Card::Suit suit, int number, int correct = +1);
+    DefensiveCar(Card::Suit suit, int number, int correct = +1);
     virtual QString getSubtype() const;
 };

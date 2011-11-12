@@ -2256,13 +2256,13 @@
     </message>
     <message>
         <location filename="src/dialog/playercarddialog.cpp" line="155"/>
-        <source>(+1 horse)</source>
-        <translation>(+1 马)</translation>
+        <source>(+1 car)</source>
+        <translation>(+1 车)</translation>
     </message>
     <message>
         <location filename="src/dialog/playercarddialog.cpp" line="165"/>
-        <source>(-1 horse)</source>
-        <translation>(-1 马)</translation>
+        <source>(-1 car)</source>
+        <translation>(-1 车)</translation>
     </message>
     <message>
         <location filename="src/dialog/playercarddialog.cpp" line="174"/>

@@ -88,7 +88,7 @@ public:
     virtual void takeEffect(ServerPlayer *target) const;
 };
 
-class Monkey: public OffensiveHorse{
+class Monkey: public OffensiveCar{
     Q_OBJECT
 
 public:

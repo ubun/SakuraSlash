@@ -750,7 +750,7 @@ void RoomScene::keyReleaseEvent(QKeyEvent *event){
 
     case Qt::Key_E: dashboard->selectCard("equip"); break;
     case Qt::Key_W: dashboard->selectCard("weapon"); break;
-    case Qt::Key_H: dashboard->selectCard("horse"); break;
+    case Qt::Key_H: dashboard->selectCard("car"); break;
 
     case Qt::Key_T: dashboard->selectCard("trick"); break;
     case Qt::Key_A: dashboard->selectCard("aoe"); break;

@@ -228,8 +228,8 @@ pkg.basic_equip_choice=sgs.newStrategy{
 		if self.player:getHp()>=self.player:getHandcardNum() then
 			if (move.card:inherits("Armor") and self.player:getArmor())  or
 				(move.card:inherits("Weapon") and self.player:getWeapon()) or
-				(move.card:inherits("DefensiveHorse") and self.player:getDefensiveHorse())  or
-				(move.card:inherits("OffensiveHorse") and self.player:getOffensiveHorse())  then
+				(move.card:inherits("DefensiveCar") and self.player:getDefensiveCar())  or
+				(move.card:inherits("OffensiveCar") and self.player:getOffensiveCar())  then
 					return 0
 			elseif move.card:inherits("Armor") then return 3 
 			elseif move.card:inherits("Weapon") then

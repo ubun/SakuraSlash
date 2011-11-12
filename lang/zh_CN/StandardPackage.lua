@@ -13,8 +13,8 @@ local t = {
 	["delayed_trick"] = "延时锦囊", 
 	["weapon"] = "武器", 
 	["armor"] = "防具", 
-	["defensive_horse"] = "防御马", 
-	["offensive_horse"] = "进攻马", 
+	["defensive_car"] = "防御车", 
+	["offensive_car"] = "进攻车", 
 	["slash"] = "杀", 
 	["jink"] = "闪", 
 	["peach"] = "桃", 
@@ -28,7 +28,7 @@ local t = {
 	["kylin_bow"] = "麒麟弓", 
 	["eight_diagram"] = "八卦阵", 
 	["renwang_shield"] = "仁王盾", 
-	["horse"] = "马",
+	["car"] = "车",
 	["ice_sword"] = "寒冰剑", 
 	["jueying"] = "绝影", 
 	["dilu"] = "的卢", 
@@ -59,9 +59,9 @@ local t = {
 	["@axe"] = "你可再弃两张牌（包括装备）使此杀强制命中", 
 	["double_sword:yes"] = "您可以让对方选择自弃一牌或让您摸一张牌", 
 	["ice_sword:yes"] = "您可以弃掉其两张牌", 
-	["kylin_bow:yes"] = "弃置对方的一匹马", 
-	["kylin_bow:dhorse"] = "防御马(+1马)", 
-	["kylin_bow:ohorse"] = "进攻马(-1马)", 
+	["kylin_bow:yes"] = "弃置对方的一辆车", 
+	["kylin_bow:dcar"] = "防御车(+1车)", 
+	["kylin_bow:ocar"] = "进攻车(-1车)", 
 	["#Slash"] = "%from 对 %to 使用了【杀】", 
 	["#Jink"] = "%from 使用了【闪】", 
 	["#AxeSkill"] = "%from 使用了贯石斧的技能，弃掉了2张牌以对 %to 强制命中", 
@@ -127,26 +127,26 @@ local t = {
 	[":halberd"] = "【方天画戟】攻击范围：４\
 武器特效：当你使用的【杀】是你的最后一张手牌时，你可以为这张【杀】指定至多三名目标角色，然后按行动顺序依次结算之", 
 	[":kylin_bow"] = "攻击范围：５\
-武器特效：你使用【杀】对目标角色造成伤害时，你可以将其装备区里的一匹马弃置", 
+武器特效：你使用【杀】对目标角色造成伤害时，你可以将其装备区里的一辆车弃置", 
 	[":eight_diagram"] = "防具效果：每当你需要使用（或打出）一张【闪】时，你可以进行一次判定：若结果为红色，则视为你使用（或打出）了一张【闪】；若为黑色，则你仍可从手牌里使用（或打出）。\
 ★由八卦使用或打出的【闪】，并非从你的手牌中使用或打出", 
 	[":renwang_shield"] = "防具效果：锁定技，黑色的【杀】对你无效", 
-	[":-1 horse"] = "你计算与其他角色的距离时，始终-1。（你可以理解为一种进攻上的优势）不同名称的-1马，其效果是相同的", 
-	[":+1 horse"] = "其他角色计算与你的距离时，始终+1。（你可以理解为一种防御上的优势）不同名称的+1马，其效果是相同的", 
+	[":-1 car"] = "你计算与其他角色的距离时，始终-1。（你可以理解为一种进攻上的优势）不同名称的-1车，其效果是相同的", 
+	[":+1 car"] = "其他角色计算与你的距离时，始终+1。（你可以理解为一种防御上的优势）不同名称的+1车，其效果是相同的", 
 	
 	["$Dismantlement"] = "%from 被拆掉了 %card",
 	["#AcquireSkill"] = "%from 获得了技能 【%arg】", 
 }
 
-local ohorses = {"chitu", "dayuan", "zixing"}
-local dhorses = {"zhuahuangfeidian", "dilu", "jueying", "hualiu"}
+local ocars = {"chitu", "dayuan", "zixing"}
+local dcars = {"zhuahuangfeidian", "dilu", "jueying", "hualiu"}
 
-for _, horse in ipairs(ohorses) do
-	t[":" .. horse] = t[":-1 horse"]
+for _, car in ipairs(ocars) do
+	t[":" .. car] = t[":-1 car"]
 end
 
-for _, horse in ipairs(dhorses) do
-	t[":" .. horse] = t[":+1 horse"]
+for _, car in ipairs(dcars) do
+	t[":" .. car] = t[":+1 car"]
 end
 
 return t

@@ -429,7 +429,7 @@ ManeuveringPackage::ManeuveringPackage()
             << new Jink(Card::Diamond, 11)
             << new FireAttack(Card::Diamond, 12);
 
-    DefensiveHorse *hualiu = new DefensiveHorse(Card::Diamond, 13);
+    DefensiveCar *hualiu = new DefensiveCar(Card::Diamond, 13);
     hualiu->setObjectName("hualiu");
 
     cards << hualiu;

@@ -189,7 +189,7 @@ void Earthquake::takeEffect(ServerPlayer *target) const{
     QList<ServerPlayer *> players = room->getAllPlayers();
     foreach(ServerPlayer *player, players){
         if(target->distanceTo(player) <= 1 ||
-           (player->getDefensiveHorse() && target->distanceTo(player) <= 2)){
+           (player->getDefensiveCar() && target->distanceTo(player) <= 2)){
             if(player->getEquips().isEmpty()){
                 room->setEmotion(player, "good");
             }else{
@@ -221,7 +221,7 @@ void Volcano::takeEffect(ServerPlayer *target) const{
     QList<ServerPlayer *> players = room->getAllPlayers();
 
     foreach(ServerPlayer *player, players){
-        int point = player->getDefensiveHorse() && target != player ?
+        int point = player->getDefensiveCar() && target != player ?
                     3 - target->distanceTo(player) :
                     2 - target->distanceTo(player);
         if(point >= 1){
@@ -291,10 +291,10 @@ public:
             QList<ServerPlayer *> players = room->getOtherPlayers(player);
 
             foreach(ServerPlayer *p, players){
-                if(p->getOffensiveHorse() == parent() &&
+                if(p->getOffensiveCar() == parent() &&
                    p->askForSkillInvoke("grab_peach", data))
                 {
-                    room->throwCard(p->getOffensiveHorse());
+                    room->throwCard(p->getOffensiveCar());
                     room->playCardEffect(objectName(), p->getGeneral()->isMale());
                     p->obtainCard(use.card);
 
@@ -308,7 +308,7 @@ public:
 };
 
 Monkey::Monkey(Card::Suit suit, int number)
-    :OffensiveHorse(suit, number)
+    :OffensiveCar(suit, number)
 {
     setObjectName("monkey");
 

@@ -10,7 +10,7 @@
 class EquipCard;
 class Weapon;
 class Armor;
-class Horse;
+class Car;
 class DelayedTrick;
 class DistanceSkill;
 class TriggerSkill;
@@ -152,8 +152,8 @@ public:
 
     const Weapon *getWeapon() const;
     const Armor *getArmor() const;
-    const Horse *getDefensiveHorse() const;
-    const Horse *getOffensiveHorse() const;
+    const Car *getDefensiveCar() const;
+    const Car *getOffensiveCar() const;
     QList<const Card *> getEquips() const;
     const EquipCard *getEquip(int index) const;
 
@@ -225,7 +225,7 @@ private:
     Phase phase;
     const Weapon *weapon;
     const Armor *armor;
-    const Horse *defensive_horse, *offensive_horse;
+    const Car *defensive_car, *offensive_car;
     bool face_up;
     bool chained;
     QList<const Card *> judging_area;

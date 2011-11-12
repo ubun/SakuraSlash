@@ -81,8 +81,8 @@ end
 sgs.ai_get_cardType=function(card)
 	if card:inherits("Weapon") then return 1 end
 	if card:inherits("Armor") then return 2 end 
-	if card:inherits("OffensiveHorse")then return 3 end 
-	if card:inherits("DefensiveHorse") then return 4 end 
+	if card:inherits("OffensiveCar")then return 3 end 
+	if card:inherits("DefensiveCar") then return 4 end 
 end
 
 sgs.ai_skill_use["@@shensu2"]=function(self,prompt)

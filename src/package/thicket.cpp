@@ -34,8 +34,8 @@ public:
 
             caopi->obtainCard(player->getWeapon());
             caopi->obtainCard(player->getArmor());
-            caopi->obtainCard(player->getDefensiveHorse());
-            caopi->obtainCard(player->getOffensiveHorse());
+            caopi->obtainCard(player->getDefensiveCar());
+            caopi->obtainCard(player->getOffensiveCar());
 
             DummyCard *all_cards = player->wholeHandCards();
             if(all_cards){

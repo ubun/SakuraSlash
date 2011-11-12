@@ -399,29 +399,29 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
-        QStringList horses;
-        if(effect.to->getDefensiveHorse())
-            horses << "dhorse";
-        if(effect.to->getOffensiveHorse())
-            horses << "ohorse";
+        QStringList cars;
+        if(effect.to->getDefensiveCar())
+            cars << "dcar";
+        if(effect.to->getOffensiveCar())
+            cars << "ocar";
 
-        if(horses.isEmpty())
+        if(cars.isEmpty())
             return false;
 
         Room *room = player->getRoom();
         if(!player->askForSkillInvoke(objectName(), data))
             return false;
 
-        QString horse_type;
-        if(horses.length() == 2)
-            horse_type = room->askForChoice(player, objectName(), horses.join("+"));
+        QString car_type;
+        if(cars.length() == 2)
+            car_type = room->askForChoice(player, objectName(), cars.join("+"));
         else
-            horse_type = horses.first();
+            car_type = cars.first();
 
-        if(horse_type == "dhorse")
-            room->throwCard(effect.to->getDefensiveHorse());
-        else if(horse_type == "ohorse")
-            room->throwCard(effect.to->getOffensiveHorse());
+        if(car_type == "dcar")
+            room->throwCard(effect.to->getDefensiveCar());
+        else if(car_type == "ocar")
+            room->throwCard(effect.to->getOffensiveCar());
 
         return false;
     }
@@ -954,18 +954,18 @@ RenwangShield::RenwangShield(Suit suit, int number)
     skill = new RenwangShieldSkill;
 }
 
-class HorseSkill: public DistanceSkill{
+class CarSkill: public DistanceSkill{
 public:
-    HorseSkill():DistanceSkill("horse"){
+    CarSkill():DistanceSkill("car"){
 
     }
 
     virtual int getCorrect(const Player *from, const Player *to) const{
         int correct = 0;
-        if(from->getOffensiveHorse())
-            correct += from->getOffensiveHorse()->getCorrect();
-        if(to->getDefensiveHorse())
-            correct += to->getDefensiveHorse()->getCorrect();
+        if(from->getOffensiveCar())
+            correct += from->getOffensiveCar()->getCorrect();
+        if(to->getDefensiveCar())
+            correct += to->getDefensiveCar()->getCorrect();
 
         return correct;
     }
@@ -1055,24 +1055,24 @@ StandardCardPackage::StandardCardPackage()
     skills << EightDiagramSkill::GetInstance();
 
     {
-        QList<Card *> horses;
-        horses << new DefensiveHorse(Card::Spade, 5)
-                << new DefensiveHorse(Card::Club, 5)
-                << new DefensiveHorse(Card::Heart, 13)
-                << new OffensiveHorse(Card::Heart, 5)
-                << new OffensiveHorse(Card::Spade, 13)
-                << new OffensiveHorse(Card::Diamond, 13);
+        QList<Card *> cars;
+        cars << new DefensiveCar(Card::Spade, 5)
+                << new DefensiveCar(Card::Club, 5)
+                << new DefensiveCar(Card::Heart, 13)
+                << new OffensiveCar(Card::Heart, 5)
+                << new OffensiveCar(Card::Spade, 13)
+                << new OffensiveCar(Card::Diamond, 13);
 
-        horses.at(0)->setObjectName("jueying");
-        horses.at(1)->setObjectName("dilu");
-        horses.at(2)->setObjectName("zhuahuangfeidian");
-        horses.at(3)->setObjectName("chitu");
-        horses.at(4)->setObjectName("dayuan");
-        horses.at(5)->setObjectName("zixing");
+        cars.at(0)->setObjectName("jueying");
+        cars.at(1)->setObjectName("dilu");
+        cars.at(2)->setObjectName("zhuahuangfeidian");
+        cars.at(3)->setObjectName("chitu");
+        cars.at(4)->setObjectName("dayuan");
+        cars.at(5)->setObjectName("zixing");
 
-        cards << horses;
+        cards << cars;
 
-        skills << new HorseSkill;
+        skills << new CarSkill;
     }
 
     cards << new AmazingGrace(Card::Heart, 3)

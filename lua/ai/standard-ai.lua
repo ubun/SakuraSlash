@@ -483,7 +483,7 @@ sgs.ai_skill_use["@@liuli"] = function(self, prompt)
 			cards=sgs.QList2Table(cards)
 			for _,card in ipairs(cards) do
 				if (self.player:getWeapon() and card:getId() == self.player:getWeapon():getId()) and self.player:distanceTo(enemy)>1 then local bullshit
-				elseif card:inherits("OffensiveHorse") and self.player:getAttackRange()==self.player:distanceTo(enemy)
+				elseif card:inherits("OffensiveCar") and self.player:getAttackRange()==self.player:distanceTo(enemy)
 					and self.player:distanceTo(enemy)>1 then
 					local bullshit
 				else

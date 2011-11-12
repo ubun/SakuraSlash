@@ -1184,8 +1184,8 @@ public:
         if(tomi && tomi->isAlive() && room->askForSkillInvoke(tomi, objectName(), data)){
             tomi->obtainCard(player->getWeapon());
             tomi->obtainCard(player->getArmor());
-            tomi->obtainCard(player->getDefensiveHorse());
-            tomi->obtainCard(player->getOffensiveHorse());
+            tomi->obtainCard(player->getDefensiveCar());
+            tomi->obtainCard(player->getOffensiveCar());
 
             DummyCard *all_cards = player->wholeHandCards();
             if(all_cards){

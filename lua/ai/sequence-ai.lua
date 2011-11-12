@@ -14,8 +14,8 @@ pkg.basic_equip_sequence=sgs.newStrategy{
 	match=function(self,move)
 		return (move.card:inherits("Armor") and self.player:getArmor())  or
 				(move.card:inherits("Weapon") and self.player:getWeapon()) or
-				(move.card:inherits("DefensiveHorse") and self.player:getDefensiveHorse())  or
-				(move.card:inherits("OffensiveHorse") and self.player:getOffensiveHorse())
+				(move.card:inherits("DefensiveCar") and self.player:getDefensiveCar())  or
+				(move.card:inherits("OffensiveCar") and self.player:getOffensiveCar())
 	end,
 	value=-2,
 	override={pkg.basic_sequence},

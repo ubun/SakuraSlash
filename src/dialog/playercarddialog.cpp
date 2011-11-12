@@ -150,22 +150,22 @@ QWidget *PlayerCardDialog::createEquipArea(){
         layout->addWidget(button);
     }
 
-    const Horse *horse = player->getDefensiveHorse();
-    if(horse){
-        QCommandLinkButton *button = new QCommandLinkButton(horse->getFullName() + tr("(+1 horse)"));
-        button->setIcon(horse->getSuitIcon());
+    const Car *car = player->getDefensiveCar();
+    if(car){
+        QCommandLinkButton *button = new QCommandLinkButton(car->getFullName() + tr("(+1 car)"));
+        button->setIcon(car->getSuitIcon());
 
-        mapper.insert(button, horse->getId());
+        mapper.insert(button, car->getId());
         connect(button, SIGNAL(clicked()), this, SLOT(emitId()));
         layout->addWidget(button);
     }
 
-    horse = player->getOffensiveHorse();
-    if(horse){
-        QCommandLinkButton *button = new QCommandLinkButton(horse->getFullName() + tr("(-1 horse)"));
-        button->setIcon(horse->getSuitIcon());
+    car = player->getOffensiveCar();
+    if(car){
+        QCommandLinkButton *button = new QCommandLinkButton(car->getFullName() + tr("(-1 car)"));
+        button->setIcon(car->getSuitIcon());
 
-        mapper.insert(button, horse->getId());
+        mapper.insert(button, car->getId());
         connect(button, SIGNAL(clicked()), this, SLOT(emitId()));
         layout->addWidget(button);
     }

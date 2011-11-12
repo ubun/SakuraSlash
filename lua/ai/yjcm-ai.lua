@@ -476,7 +476,7 @@ end
 		-- local ecards = self.player:getCards("e")
 		-- ecards = sgs.QList2Table(ecards)
 		-- for _, ecard in ipairs(ecards) do
-			-- if not (ecard:inherits("Armor") and card:inherits("DefensiveHorse")) then
+			-- if not (ecard:inherits("Armor") and card:inherits("DefensiveCar")) then
 				-- card = ecard
 				-- break
 			-- end

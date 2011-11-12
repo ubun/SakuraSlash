@@ -143,7 +143,7 @@ sgs.ai_use_priority = {
 
 		Analeptic = 2.7,
 
-		OffensiveHorse = 2.69,
+		OffensiveCar = 2.69,
 		Halberd=2.685,
 		KylinBow=2.68,
 		Blade = 2.675,
@@ -170,7 +170,7 @@ sgs.ai_use_priority = {
 		Vine=0.6,
 		GaleShell=0.9,
 
-		DefensiveHorse = 0,
+		DefensiveCar = 0,
 
 		--god_salvation
 		--deluge

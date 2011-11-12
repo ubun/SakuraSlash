@@ -558,8 +558,8 @@ sgs.ai_skill_use_func["ZhihengCard"] = function(card, use, self)
         for _,card in ipairs(cards) do
             if card:inherits("EquipCard") then
                 if card:inherits("Weapon") or
-                (card:inherits("DefensiveHorse") and self.player:getDefensiveHorse()) or
-                card:inherits("OffensiveHorse") or
+                (card:inherits("DefensiveCar") and self.player:getDefensiveCar()) or
+                card:inherits("OffensiveCar") or
                 (card:inherits("Armor") and self.player:getArmor()) or
                  card:inherits("AmazingGrace") or
                  card:inherits("Lightning") then
@@ -578,7 +578,7 @@ sgs.ai_skill_use_func["ZhihengCard"] = function(card, use, self)
 				
 		local equips=self.player:getEquips()
 		for _,equip in sgs.qlist(equips) do
-			if equip:inherits("OffensiveHorse") and self.player:getWeapon() then
+			if equip:inherits("OffensiveCar") and self.player:getWeapon() then
 				table.insert(unpreferedCards, equip:getId())
 				break
 			end
@@ -640,8 +640,8 @@ lijian_skill.getTurnUseCard=function(self)
 		elseif not self.player:getEquips():isEmpty() then
 			local player=self.player
 			if player:getWeapon() then card_id=player:getWeapon():getId()
-			elseif player:getOffensiveHorse() then card_id=player:getOffensiveHorse():getId()
-			elseif player:getDefensiveHorse() then card_id=player:getDefensiveHorse():getId()
+			elseif player:getOffensiveCar() then card_id=player:getOffensiveCar():getId()
+			elseif player:getDefensiveCar() then card_id=player:getDefensiveCar():getId()
 			elseif player:getArmor() and player:getHandcardNum()<=1 then card_id=player:getArmor():getId()
 			end
 		end

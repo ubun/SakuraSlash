@@ -77,8 +77,8 @@ void EquipCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *
     switch(location()){
     case WeaponLocation: equipped = target->getWeapon(); break;
     case ArmorLocation: equipped = target->getArmor(); break;
-    case DefensiveHorseLocation: equipped = target->getDefensiveHorse(); break;
-    case OffensiveHorseLocation: equipped = target->getOffensiveHorse(); break;
+    case DefensiveCarLocation: equipped = target->getDefensiveCar(); break;
+    case OffensiveCarLocation: equipped = target->getOffensiveCar(); break;
     }
 
     if(equipped)
@@ -288,28 +288,28 @@ QString Armor::label() const{
     return getName();
 }
 
-Horse::Horse(Suit suit, int number, int correct)
+Car::Car(Suit suit, int number, int correct)
     :EquipCard(suit, number), correct(correct)
 {
 }
 
-int Horse::getCorrect() const{
+int Car::getCorrect() const{
     return correct;
 }
 
-QString Horse::getEffectPath(bool) const{
-    return "audio/card/common/horse.ogg";
+QString Car::getEffectPath(bool) const{
+    return "audio/card/common/car.ogg";
 }
 
-void Horse::onInstall(ServerPlayer *) const{
-
-}
-
-void Horse::onUninstall(ServerPlayer *) const{
+void Car::onInstall(ServerPlayer *) const{
 
 }
 
-QString Horse::label() const{
+void Car::onUninstall(ServerPlayer *) const{
+
+}
+
+QString Car::label() const{
     QString format;
 
     if(correct > 0)
@@ -320,31 +320,31 @@ QString Horse::label() const{
     return format.arg(getName()).arg(correct);
 }
 
-OffensiveHorse::OffensiveHorse(Card::Suit suit, int number, int correct)
-    :Horse(suit, number, correct)
+OffensiveCar::OffensiveCar(Card::Suit suit, int number, int correct)
+    :Car(suit, number, correct)
 {
 
 }
 
-QString OffensiveHorse::getSubtype() const{
-    return "offensive_horse";
+QString OffensiveCar::getSubtype() const{
+    return "offensive_car";
 }
 
-DefensiveHorse::DefensiveHorse(Card::Suit suit, int number, int correct)
-    :Horse(suit, number, correct)
+DefensiveCar::DefensiveCar(Card::Suit suit, int number, int correct)
+    :Car(suit, number, correct)
 {
 
 }
 
-QString DefensiveHorse::getSubtype() const{
-    return "defensive_horse";
+QString DefensiveCar::getSubtype() const{
+    return "defensive_car";
 }
 
-EquipCard::Location Horse::location() const{
+EquipCard::Location Car::location() const{
     if(correct > 0)
-        return DefensiveHorseLocation;
+        return DefensiveCarLocation;
     else
-        return OffensiveHorseLocation;
+        return OffensiveCarLocation;
 }
 
 class HandcardPattern: public CardPattern{
