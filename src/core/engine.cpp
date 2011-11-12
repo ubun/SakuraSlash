@@ -80,6 +80,7 @@ Engine::Engine()
     addPackage(NewJoy());
     addPackage(NewDisaster());
     addPackage(NewJoyEquip());
+    addPackage(NewSecrets());
 
     //addScenario(NewCoupleScenario());
     addScenario(NewZombieScenario());
