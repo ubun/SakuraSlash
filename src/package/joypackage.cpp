@@ -475,6 +475,7 @@ JoyEquipPackage::JoyEquipPackage()
     (new Monkey(Card::Diamond, 5))->setParent(this);
     (new GaleShell(Card::Heart, 1))->setParent(this);
     (new YxSword)->setParent(this);
+    (new Sacrifice(Card::Diamond, 4))->setParent(this);
 
     type = CardPack;
 }

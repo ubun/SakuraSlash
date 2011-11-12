@@ -19,5 +19,5 @@ return {
 	["jingxian"] = "惊险",
 	["woaini"] = "我爱你",
 
-	["$SecretCard"] = "%from 使用了秘笈牌 %card",
+	["$SecretCard"] = "%card 是一张秘笈牌，%from 将会获得一个技能",
 }
