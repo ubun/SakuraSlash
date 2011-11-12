@@ -46,6 +46,7 @@ public:
         Basic,
         Trick,
         Equip,
+        Secrets,
     };
 
     // constructor

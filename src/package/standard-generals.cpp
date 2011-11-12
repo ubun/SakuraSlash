@@ -1667,7 +1667,7 @@ YuandingCard::YuandingCard(){
 }
 
 bool YuandingCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty() && !to_select->isKongcheng();
+    return targets.isEmpty() && !to_select->isKongcheng() && !to_select->hasFlag("gardener");
 }
 
 void YuandingCard::onEffect(const CardEffectStruct &effect) const{
@@ -1677,12 +1677,13 @@ void YuandingCard::onEffect(const CardEffectStruct &effect) const{
     if(cart){
         effect.from->obtainCard(cart);
         effect.to->obtainCard(effect.card);
+        room->setPlayerFlag(effect.to, "gardener");
     }
 }
 
-class Yuanding:public OneCardViewAsSkill{
+class YuandingViewAsSkill:public OneCardViewAsSkill{
 public:
-    Yuanding():OneCardViewAsSkill("yuanding"){
+    YuandingViewAsSkill():OneCardViewAsSkill("yuanding"){
 
     }
 
@@ -1697,13 +1698,28 @@ public:
     }
 };
 
-class Qiniao: public TriggerSkill{
+class Yuanding: public PhaseChangeSkill{
 public:
-    Qiniao():TriggerSkill("qiniao"){
-        events << PhaseChange;
+    Yuanding():PhaseChangeSkill("yuanding"){
+        view_as_skill = new YuandingViewAsSkill;
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *sumiko, QVariant &data) const{
+    virtual bool onPhaseChange(ServerPlayer *sumiko) const{
+        if(sumiko->getPhase() == Player::NotActive){
+            foreach(ServerPlayer *tmp, sumiko->getRoom()->getAllPlayers())
+                if(tmp->hasFlag("gardener"))
+                    sumiko->getRoom()->setPlayerFlag(tmp, "-gardener");
+        }
+        return false;
+    }
+};
+
+class Qiniao: public PhaseChangeSkill{
+public:
+    Qiniao():PhaseChangeSkill("qiniao"){
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *sumiko) const{
         if(sumiko->getPhase() == Player::Discard)
            sumiko->setMark("qiniao", sumiko->getHandcardNum());
         if(sumiko->getPhase() == Player::Finish){

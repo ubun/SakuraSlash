@@ -441,6 +441,34 @@ YxSword::YxSword(Suit suit, int number)
     skill = new YxSwordSkill;
 }
 
+Sacrifice::Sacrifice(Suit suit, int number)
+    :SingleTargetTrick(suit, number, false) {
+    setObjectName("sacrifice");
+}
+
+bool Sacrifice::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(!targets.isEmpty())
+        return false;
+
+    if(!to_select->isWounded())
+        return false;
+
+    return true;
+}
+
+void Sacrifice::onEffect(const CardEffectStruct &effect) const{
+    if(!effect.to->isWounded())
+        return;
+
+    Room *room = effect.to->getRoom();
+    room->loseHp(effect.from);
+
+    RecoverStruct recover;
+    recover.card = this;
+    recover.who = effect.from;
+    room->recover(effect.to, recover, true);
+}
+
 JoyEquipPackage::JoyEquipPackage()
     :Package("joy_equip")
 {

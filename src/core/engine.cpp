@@ -44,7 +44,7 @@ extern "C" {
     Package *NewJoy();
     Package *NewDisaster();
     Package *NewJoyEquip();
-//    Package *NewYJCM();//
+    Package *NewSecrets();
     Package *NewWisdom();
     Package *NewTest();
 
@@ -68,7 +68,6 @@ Engine::Engine()
     //addPackage(NewFire());
     //addPackage(NewMountain());
     //addPackage(NewGod());
-    //addPackage(NewYJCM());
     //addPackage(NewYitian());
     //addPackage(NewWisdom());
     addPackage(NewTest());
@@ -80,6 +79,7 @@ Engine::Engine()
     addPackage(NewJoy());
     addPackage(NewDisaster());
     addPackage(NewJoyEquip());
+    addPackage(NewSecrets());
 
     //addScenario(NewCoupleScenario());
     addScenario(NewZombieScenario());
