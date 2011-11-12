@@ -405,41 +405,6 @@ sgs.ai_skill_invoke.hujia = function(self, data)
 	return true
 end
 
--- tuxi
-sgs.ai_skill_use["@@tuxi"] = function(self, prompt)
-	self:sort(self.enemies, "handcard")
-
-	local first_index, second_index
-	for i=1, #self.enemies-1 do
-		if self:hasSkills(sgs.need_kongcheng, self.enemies[i]) and self.enemies[i]:getHandcardNum() == 1 then
-		elseif not self.enemies[i]:isKongcheng() then
-			if not first_index then
-				first_index = i
-			else
-				second_index = i
-			end
-		end
-		if second_index then break end
-	end
-
-	if first_index and not second_index then
-		local others = self.room:getOtherPlayers(self.player)
-		for _, other in sgs.qlist(others) do
-			if (not self:isFriend(other) or (self:hasSkills(sgs.need_kongcheng, other) and other:getHandcardNum() == 1)) and
-				self.enemies[first_index]:objectName() ~= other:objectName() and not other:isKongcheng() then
-				return ("@TuxiCard=.->%s+%s"):format(self.enemies[first_index]:objectName(), other:objectName())
-			end
-		end
-	end
-
-	if not second_index then return "." end
-
-	self:log(self.enemies[first_index]:getGeneralName() .. "+" .. self.enemies[second_index]:getGeneralName())
-	local first = self.enemies[first_index]:objectName()
-	local second = self.enemies[second_index]:objectName()
-	return ("@TuxiCard=.->%s+%s"):format(first, second)
-end
-
 -- yiji (frequent)
 sgs.ai_skill_invoke.tiandu = sgs.ai_skill_invoke.jianxiong
 

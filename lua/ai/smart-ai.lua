@@ -3053,7 +3053,7 @@ end
 
 sgs.lose_equip_skill = "wuyu|qingdi"
 sgs.need_kongcheng = "lianying|kongcheng"
-sgs.masochism_skill = "wuwei|rexue|jingxing"
+sgs.masochism_skill = "wuwei|rexue|jingxing|quhu"
 sgs.wizard_skill = "shouqiu|fating|tiandu"
 sgs.wizard_harm_skill = "shouqiu|fating"
 
@@ -3362,12 +3362,12 @@ end
 dofile "lua/ai/standard-ai.lua"
 dofile "lua/ai/wind-ai.lua"
 dofile "lua/ai/thicket-ai.lua"
--- dofile "lua/ai/fire-ai.lua"
--- dofile "lua/ai/mountain-ai.lua"
+dofile "lua/ai/fire-ai.lua"
+dofile "lua/ai/mountain-ai.lua"
 dofile "lua/ai/god-ai.lua"
 -- dofile "lua/ai/yitian-ai.lua"
--- dofile "lua/ai/nostalgia-ai.lua"
--- dofile "lua/ai/yjcm-ai.lua"
+dofile "lua/ai/nostalgia-ai.lua"
+dofile "lua/ai/secrets-ai.lua"
 -- dofile "lua/ai/sp-ai.lua"
 dofile "lua/ai/joy-ai.lua"
 
@@ -3379,10 +3379,9 @@ dofile "lua/ai/chat-ai.lua"
 dofile "lua/ai/value_config.lua"
 
 dofile "lua/ai/standard-skill-ai.lua"
--- dofile "lua/ai/thicket-skill-ai.lua"
--- dofile "lua/ai/fire-skill-ai.lua"
--- dofile "lua/ai/yjcm-skill-ai.lua"
-
+dofile "lua/ai/thicket-skill-ai.lua"
+dofile "lua/ai/fire-skill-ai.lua"
+dofile "lua/ai/yjcm-skill-ai.lua"
 -- dofile "lua/ai/hulaoguan-ai.lua"
 
 dofile "lua/ai/guanxing-ai.lua"

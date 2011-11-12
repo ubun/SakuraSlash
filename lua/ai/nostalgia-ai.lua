@@ -1,3 +1,24 @@
+-- yitian-sword
+
+-- hit enemy when yitian sword was lost
+sgs.ai_skill_invoke["yitian-lost"] = function(self, data)
+	if next(self.enemies) then
+		return true
+	else
+		return false
+	end
+end
+
+sgs.ai_skill_playerchosen["yitian_lost"] = sgs.ai_skill_playerchosen.damage
+
+sgs.ai_skill_invoke["yitian_sword"] = function(self, targets)
+	local slash=self:getCard("Slash")
+	if not slash then return false end
+	dummy_use={isDummy=true}
+	self:useBasicCard(slash,dummy_use)
+	if dummy_use.card then return true else return false end
+end
+
 -- danlao
 sgs.ai_skill_invoke.danlao = function(self, data)
 	local effect = data:toCardEffect()
