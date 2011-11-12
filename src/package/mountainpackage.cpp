@@ -8,7 +8,7 @@
 #include "generaloverview.h"
 #include "clientplayer.h"
 #include "client.h"
-
+/*
 #include <QCommandLinkButton>
 
 QiaobianCard::QiaobianCard(){
@@ -1108,10 +1108,10 @@ public:
             Huashen::AcquireGenerals(zuoci, n);
     }
 };
-
+*/
 MountainPackage::MountainPackage()
     :Package("mountain")
-{
+{/*
     General *zhanghe = new General(this, "zhanghe", "wei");
     zhanghe->addSkill(new Qiaobian);
 
@@ -1175,7 +1175,7 @@ MountainPackage::MountainPackage()
 
     skills << new ZhibaPindian << new Jixi;
 
-    patterns[".basic"] = new BasicPattern;
+    patterns[".basic"] = new BasicPattern;*/
 }
 
 ADD_PACKAGE(Mountain);

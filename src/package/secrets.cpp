@@ -18,8 +18,8 @@ QStringList Tipslist(int index){
     tipsmap[9] << "yi" << "guose" << "guai" << "paoxiao" << "lijian";
     tipsmap[8] << "te" << "huoji" << "zhen" << "tiandu" << "mingce";
     tipsmap[7] << "yi" << "longdan" << "hei" << "weimu" << "fanjian";
-    tipsmap[6] << "shao" << "qingguo" << "zhen" << "yingzi" << "tuxi";
-    tipsmap[5] << "zhen" << "jijiu" << "yi" << "qicai" << "xuanhuo";
+    tipsmap[6] << "zhen" << "jijiu" << "yi" << "qicai" << "xuanhuo";
+    tipsmap[5] << "shao" << "qingguo" << "zhen" << "yingzi" << "tuxi";
     tipsmap[4] << "jing" << "yiyong" << "shao" << "jushou" << "guanxing";
     tipsmap[3] << "jing" << "lianhuan" << "woo" << "jiang" << "xinzhan";
     tipsmap[2] << "guai" << "duanliang" << "woo" << "mashu" << "tiaoxin";
@@ -1010,7 +1010,7 @@ SecretsPackage::SecretsPackage()
             << new Yingzi << new Biyue << new Qianxun
             << new Mashu << new Feiying << new Kongcheng
             << new Keji << new Tiandu << new Jiang
-            << new Jushou << new Weimu << new Skill("paoxiao") << new Skill("qicai")
+            << new Jushou << new Weimu << new Skill("qicai")
             ;
     skills
             << new Tuxi << new Guanxing << new Ganlu
@@ -1018,9 +1018,17 @@ SecretsPackage::SecretsPackage()
             << new Tiaoxin << new Leiji << new Xuanhuo
             << new Mingce << new Xinzhan << new Kuanggu << new Beige
             ;
-/*
-    addMetaObject<RollingpinCard>();
-    addMetaObject<WookonCard>();*/
+
+    addMetaObject<TuxiCard>();
+    addMetaObject<GanluCard>();
+    addMetaObject<FanjianCard>();
+    addMetaObject<LijianCard>();
+    addMetaObject<QuhuCard>();
+    addMetaObject<TiaoxinCard>();
+    addMetaObject<LeijiCard>();
+    addMetaObject<XuanhuoCard>();
+    addMetaObject<MingceCard>();
+    addMetaObject<XinzhanCard>();
 }
 
 ADD_PACKAGE(Secrets);

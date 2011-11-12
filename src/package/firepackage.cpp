@@ -6,7 +6,7 @@
 #include "carditem.h"
 #include "engine.h"
 #include "maneuvering.h"
-
+/*
 QuhuCard::QuhuCard(){
     once = true;
     mute = true;
@@ -532,10 +532,10 @@ public:
         return false;
     }
 };
-
+*/
 FirePackage::FirePackage()
     :Package("fire")
-{
+{/*
     General *xunyu, *dianwei, *wolong, *pangtong, *taishici, *yuanshao, *shuangxiong, *pangde;
 
     xunyu = new General(this, "xunyu", "wei", 3);
@@ -574,7 +574,7 @@ FirePackage::FirePackage()
     addMetaObject<QuhuCard>();
     addMetaObject<JiemingCard>();
     addMetaObject<QiangxiCard>();
-    addMetaObject<TianyiCard>();
+    addMetaObject<TianyiCard>();*/
 }
 
 ADD_PACKAGE(Fire);

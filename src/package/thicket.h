@@ -10,7 +10,7 @@ class ThicketPackage: public Package{
 public:
     ThicketPackage();
 };
-
+/*
 class YinghunCard: public SkillCard{
     Q_OBJECT
 
@@ -58,5 +58,5 @@ public:
     Q_INVOKABLE FangzhuCard();
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
-
+*/
 #endif // THICKET_H

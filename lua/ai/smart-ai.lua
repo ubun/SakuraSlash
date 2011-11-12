@@ -762,6 +762,10 @@ function SmartAI:askForYiji(cards)
 					if card:isRed() then return friend, card_id end 
 				end
 				
+				if friend:hasSkill("qingguo") then 
+					if card:isBlack() then return friend, card_id end 
+				end
+				
 				if friend:hasSkill("jijiu") then 
 					if card:isRed() then return friend, card_id end 
 				end
@@ -924,6 +928,8 @@ local function getSkillViewCard(card, class_name, player, card_place)
 				return ("jink:longdan[%s:%s]=%d"):format(suit, number, card_id)
 			elseif player:hasSkill("duoren") and card:isRed() then
 				return ("jink:duoren[%s:%s]=%d"):format(suit, number, card_id)
+			elseif player:hasSkill("qingguo") and card:isBlack() then
+				return ("jink:qingguo[%s:%s]=%d"):format(suit, number, card_id)
 			end
 		end
 	elseif class_name == "Peach" then
@@ -1859,6 +1865,8 @@ function SmartAI:getTurnUse()
             self:useEquipCard(card, dummy_use)
         elseif type == sgs.Card_Skill then
             self:useSkillCard(card, dummy_use)
+		else
+			dummy_use.card = card
         end
 
         if dummy_use.card then
@@ -1907,10 +1915,11 @@ function SmartAI:activate(use)
 				self:useTrickCard(card, use)
 			elseif type == sgs.Card_Skill then
 				self:useSkillCard(card, use)
-			else
+			elseif type == sgs.Card_Equip then
 				self:useEquipCard(card, use)
+			else
+				use.card = card
 			end
-			
 			if use:isValid() then
 				self.toUse = nil
 				return
@@ -2052,8 +2061,10 @@ function SmartAI:getDynamicUsePriority(card)
 		self:useBasicCard(card, dummy_use)
 	elseif type == sgs.Card_Equip then
 		self:useEquipCard(card, dummy_use)
-	else
+	elseif type == sgs.Card_Skill then
 		self:useSkillCard(card, dummy_use)
+	else
+		dummy_use.card = card
 	end
 	
 	local good_null, bad_null = 0, 0
@@ -3205,7 +3216,7 @@ function SmartAI:getAoeValueTo(card, to , from)
 					value = value + 20
 				end
 			end
-			if to:hasSkill("duoren") or self:isEquip("EightDiagram", to) then
+			if to:hasSkill("duoren") or to:hasSkill("qingguo") or self:isEquip("EightDiagram", to) then
 				value = value + 10
 			end	
 		end	
@@ -3372,7 +3383,6 @@ dofile "lua/ai/standard-skill-ai.lua"
 -- dofile "lua/ai/fire-skill-ai.lua"
 -- dofile "lua/ai/yjcm-skill-ai.lua"
 
--- dofile "lua/ai/fancheng-ai.lua"
 -- dofile "lua/ai/hulaoguan-ai.lua"
 
 dofile "lua/ai/guanxing-ai.lua"

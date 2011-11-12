@@ -7,7 +7,7 @@
 #include "clientplayer.h"
 #include "client.h"
 #include "engine.h"
-
+/*
 class Xingshang: public TriggerSkill{
 public:
     Xingshang():TriggerSkill("xingshang"){
@@ -866,7 +866,7 @@ public:
         return false;
     }
 };
-
+*/
 //conan
 class Guilin: public MasochismSkill{
 public:
