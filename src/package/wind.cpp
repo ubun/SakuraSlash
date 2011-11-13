@@ -11,10 +11,15 @@ class Bianhu: public TriggerSkill{
 public:
     Bianhu():TriggerSkill("bianhu"){
         events << CardUsed;
+        frequency = Frequent;
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const{
+    virtual bool triggerable(const ServerPlayer *target) const{
         return true;
+    }
+
+    virtual int getPriority() const{
+        return 2;
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
@@ -27,7 +32,7 @@ public:
             QString suit_str = use.card->getSuitString();
             QString pattern = QString(".%1").arg(suit_str.at(0).toUpper());
             QString prompt = QString("@bianhu:%1::%2").arg(use.from->getGeneralName()).arg(suit_str);
-            if(room->askForCard(eri, pattern, prompt)){
+            if(eri->askForSkillInvoke(objectName(), data) && room->askForCard(eri, pattern, prompt)){
                 ServerPlayer *target = room->askForPlayerChosen(eri, room->getAllPlayers(), objectName());
                 use.to.clear();
                 use.to << target;

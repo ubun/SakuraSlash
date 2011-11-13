@@ -1,3 +1,18 @@
+-- bianhu
+sgs.ai_skill_invoke["bianhu"] = function(self, data)
+	local use = data:toCardUse()
+	if self:isEnemy(use.from) and use.card:inherits("ExNihilo") then
+		return true
+	end
+--	if self:isFriend(use.to) and use.card:inherits("Dismantlement") then
+--		return true
+--	end
+	return false
+end
+sgs.ai_skill_playerchosen["bianhu"] = function(self, targets)
+	return self.player
+end
+
 -- fenju
 sgs.ai_skill_invoke["fenju"] = function(self, data)
 	return #self.friends_noself > 0
