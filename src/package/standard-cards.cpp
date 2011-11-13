@@ -953,6 +953,10 @@ public:
         return card->isBlack();
     }
 
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "slash";
+    }
+
     virtual const Card *viewAs(CardItem *card_item) const{
         const Card *card = card_item->getCard();
         Card *slash = new Slash(card->getSuit(), card->getNumber());
