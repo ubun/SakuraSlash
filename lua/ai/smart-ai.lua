@@ -1198,6 +1198,11 @@ function SmartAI:aoeIsEffective(card, to)
 		end
 	end
 
+	-- Aumy
+	if self.player:hasSkill("tianzhen") or to:hasSkill("tianzhen") then
+		return false
+	end
+
 	return true
 end
 
@@ -1368,7 +1373,7 @@ function SmartAI:useCardSnatch(snatch, use)
 end
 
 function SmartAI:useCardFireAttack(fire_attack, use)
-	if self.player:hasSkill("wuyan") then return end
+	if self.player:hasSkill("wuyan") or self.player:hasSkill("tianzhen") then return end
 	local lack = {
 		spade = true,
 		club = true,
@@ -1440,7 +1445,7 @@ local function factorial(n)
 end
 
 function SmartAI:useCardDuel(duel, use)
-	if self.player:hasSkill("wuyan") then return end
+	if self.player:hasSkill("wuyan") or self.player:hasSkill("tianzhen") then return end
 	self:sort(self.enemies,"handcard")
 	local enemies = self:exclude(self.enemies, duel)
 	for _, enemy in ipairs(enemies) do
@@ -1487,6 +1492,19 @@ function SmartAI:useCardSupplyShortage(card, use)
 			use.card = card
              if use.to then use.to:append(enemy) end
 
+			return
+		end
+	end
+end
+
+function SmartAI:useCardEmigration(card, use)
+	table.sort(self.friends, hp_subtract_handcard)
+
+	local friends = self:exclude(self.friends, card)
+	for _, friend in ipairs(friends) do
+		if not friend:containsTrick("emigration") and not friend:hasSkill("keji") then			
+			use.card = card
+			if use.to then use.to:append(friend) end
 			return
 		end
 	end
@@ -1681,7 +1699,7 @@ end
 function SmartAI:useTrickCard(card, use)
 	if self.player:hasSkill("chengxiang") and self.player:getHandcardNum() < 8 and card:getNumber() < 7 then return end
 	if card:inherits("AOE") then
-		if self.player:hasSkill("wuyan") then return end
+		if self.player:hasSkill("wuyan") or self.player:hasSkill("tianzhen") then return end
 		local good, bad = 0, 0
 		for _, friend in ipairs(self.friends_noself) do
 			if self:aoeIsEffective(card, friend) then
@@ -2521,7 +2539,7 @@ function SmartAI:askForCardChosen(who, flags, reason)
 			end
 			
 			if who:getWeapon() then
-			    if not (who:hasSkill("xiaoji") and (who:getHandcardNum() >= who:getHp())) then
+			    if not (who:hasSkill("wuyu") and (who:getHandcardNum() >= who:getHp())) then
 					for _,friend in ipairs(self.friends) do
 						if (who:distanceTo(friend) <= who:getAttackRange()) and (who:distanceTo(friend) > 1) then 
 							return who:getWeapon():getId()
@@ -2531,7 +2549,7 @@ function SmartAI:askForCardChosen(who, flags, reason)
 			end
 		
 			if who:getOffensiveCar() then
-			    if who:hasSkill("xiaoji") and who:getHandcardNum() >= who:getHp() then
+			    if who:hasSkill("wuyu") and who:getHandcardNum() >= who:getHp() then
 			    else
 				    for _,friend in ipairs(self.friends) do
 					    if who:distanceTo(friend) == who:getAttackRange() and

@@ -272,7 +272,9 @@ public:
     virtual bool trigger(TriggerEvent, ServerPlayer *conan, QVariant &data) const{
         Room *room = conan->getRoom();
         CardMoveStar move = data.value<CardMoveStar>();
-        if(move->from_place == Player::Hand && conan && room->askForSkillInvoke(conan, objectName())){
+        if(conan->isDead())
+            return false;
+        if(move->from_place == Player::Hand && room->askForSkillInvoke(conan, objectName())){
             //room->playSkillEffect(objectName());
              conan->drawCards(1);
         }
