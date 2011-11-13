@@ -205,6 +205,7 @@ shentou_skill.getTurnUseCard=function(self,inclusive)
 		end
 	end
 end
+sgs.ai_skill_invoke["shentou"] = true
 
 -- baiyi
 local baiyi_skill={}

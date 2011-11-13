@@ -1,6 +1,6 @@
 -- translation for StandardPackage
 
-local t = {
+return {
 	["standard_cards"] = "标准卡牌包",
 	["standard_ex_cards"] = "标准EX卡牌包",
 	["attack_card"] = "进攻牌",
@@ -160,4 +160,3 @@ local t = {
 	["$runslow"] = "%from 装备有 %card ，少跑了一步路",
 	["runbycar:kao"] = "踩离合器（^o^）",
 }
-return t

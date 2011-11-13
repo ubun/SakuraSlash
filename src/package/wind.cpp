@@ -56,8 +56,13 @@ public:
         }
         else if(player->getPhase() == Player::Finish){
             int drawnum = player->tag.value("cardnum", 0).toInt() - player->getHandcardNum();
-            if(drawnum > 0 && player->askForSkillInvoke(objectName(), data)){
-                ServerPlayer *target = room->askForPlayerChosen(player, room->getOtherPlayers(player), objectName());
+            QList<ServerPlayer *> players;
+            foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
+                if(tmp->getGeneral()->isMale())
+                    players << tmp;
+            }
+            if(drawnum > 0 && !players.isEmpty() && player->askForSkillInvoke(objectName(), data)){
+                ServerPlayer *target = room->askForPlayerChosen(player, players, objectName());
                 if(target)
                     target->drawCards(drawnum);
             }
@@ -440,7 +445,7 @@ public:
             }
             return false;
         }
-        if(sonoko->getPhase() == Player::Discard && sonoko->getHandcardNum() >= 3)
+        if(sonoko->getPhase() == Player::Discard && sonoko->getHandcardNum() >= 2)
             room->askForUseCard(sonoko, "@@huachi", "@huachi");
         return false;
     }

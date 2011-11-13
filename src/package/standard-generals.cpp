@@ -347,6 +347,8 @@ public:
             return false;
         }
         if(player->getPhase() == Player::Finish){
+            if(room->findPlayer("kudoushinichi"))
+                return false;
             int num = player->tag.value("FC_S").toInt();
             if(num - player->getHandcardNum() >= 2 && player->askForSkillInvoke(objectName(), data)){
                 player->setMark("aptx", 1);
@@ -836,7 +838,7 @@ bool BaiyiCard::targetFilter(const QList<const Player *> &targets, const Player 
 }
 
 void BaiyiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    source->obtainCard(this);
+    room->throwCard(this);
     room->showAllCards(source, targets.first());
 }
 

@@ -1,3 +1,26 @@
+-- fenju
+sgs.ai_skill_invoke["fenju"] = function(self, data)
+	return #self.friends_noself > 0
+end
+sgs.ai_skill_playerchosen["fenju"] = function(self, targets)
+	for _, player in sgs.qlist(targets) do
+		if self:isFriend(player) then
+			return player
+		end
+	end
+end
+
+-- huachi
+sgs.ai_skill_use["@@huachi"] = function(self, prompt)
+	self:sort(self.enemies, "hp")
+	for _, enemy in ipairs(self.enemies) do
+		if enemy:getGeneral():isMale() then
+			return "@HuachiCard=.->" .. enemy:objectName()
+		end
+	end
+	return "."
+end
+
 -- ouxiang
 sgs.ai_skill_invoke["ouxiang"] = function(self, data)
 	return self.player:getHandcardNum() < 10
@@ -16,6 +39,44 @@ sgs.ai_skill_choice["yinsi"] = function(self, choices)
 	end
 end
 
+-- weijiao
+sgs.ai_skill_use["@@weijiao"] = function(self, prompt)
+	self:sort(self.enemies, "handcard")
+
+	local first_index, second_index
+	for i=1, #self.enemies-1 do
+		if self:hasSkills(sgs.need_kongcheng, self.enemies[i]) and self.enemies[i]:getHandcardNum() == 1 then
+		elseif not self.enemies[i]:isKongcheng() then
+			if not first_index then
+				first_index = i
+			else
+				second_index = i
+			end
+		end
+		if second_index then break end
+	end
+
+	if first_index and not second_index then
+		local others = self.room:getOtherPlayers(self.player)
+		for _, other in sgs.qlist(others) do
+			if (not self:isFriend(other) or (self:hasSkills(sgs.need_kongcheng, other) and other:getHandcardNum() == 1)) and
+				self.enemies[first_index]:objectName() ~= other:objectName() and not other:isKongcheng() then
+				return ("@WeijiaoCard=.->%s+%s"):format(self.enemies[first_index]:objectName(), other:objectName())
+			end
+		end
+	end
+	if not second_index then return "." end
+	self:log(self.enemies[first_index]:getGeneralName() .. "+" .. self.enemies[second_index]:getGeneralName())
+	local first = self.enemies[first_index]:objectName()
+	local second = self.enemies[second_index]:objectName()
+	return ("@WeijiaoCard=.->%s+%s"):format(first, second)
+end
+
+-- shiyi
+sgs.ai_skill_invoke["shiyi"] = function(self, data)
+	local r = math.random(0, 1)
+	return r == 0
+end
 
 -- liegong, same with tieji
 sgs.ai_skill_invoke.liegong = sgs.ai_skill_invoke.tieji
