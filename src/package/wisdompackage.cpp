@@ -853,7 +853,7 @@ public:
 
 WisdomPackage::WisdomPackage()
     :Package("wisdom")
-{
+{/*
 
     General *wisxuyou,
             *wisjiangwei, *wisjiangwan,
@@ -898,7 +898,7 @@ WisdomPackage::WisdomPackage()
         skills << new Shien;
         patterns[".K8"] = new EightPattern;
         patterns[".S29"] = new SpatwoninePattern;
-
+*/
         addMetaObject<JuaoCard>();
         addMetaObject<BawangCard>();
         addMetaObject<WeidaiCard>();
