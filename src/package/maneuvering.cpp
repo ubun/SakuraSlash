@@ -429,10 +429,10 @@ ManeuveringPackage::ManeuveringPackage()
             << new Jink(Card::Diamond, 11)
             << new FireAttack(Card::Diamond, 12);
 
-    DefensiveCar *hualiu = new DefensiveCar(Card::Diamond, 13);
-    hualiu->setObjectName("hualiu");
+    DefensiveCar *citroBX = new DefensiveCar(Card::Diamond, 13);
+    citroBX->setObjectName("citroBX");
 
-    cards << hualiu;
+    cards << citroBX;
 
     foreach(Card *card, cards)
         card->setParent(this);

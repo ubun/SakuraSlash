@@ -301,12 +301,12 @@ QString Car::getEffectPath(bool) const{
     return "audio/card/common/car.ogg";
 }
 
-void Car::onInstall(ServerPlayer *) const{
-
+void Car::onInstall(ServerPlayer *my) const{
+    my->getRoom()->attachSkillToPlayer(my, objectName());
 }
 
-void Car::onUninstall(ServerPlayer *) const{
-
+void Car::onUninstall(ServerPlayer *my) const{
+    my->getRoom()->detachSkillFromPlayer(my, objectName());
 }
 
 QString Car::label() const{

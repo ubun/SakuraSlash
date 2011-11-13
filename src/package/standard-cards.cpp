@@ -971,6 +971,29 @@ public:
     }
 };
 
+class Porsche365A:public OneCardViewAsSkill{
+public:
+    Porsche365A():OneCardViewAsSkill("porsche365A"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->getGeneralName() == "gin" && Slash::IsAvailable(player);
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        const Card *card = to_select->getFilteredCard();
+        return card->isBlack();
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        const Card *card = card_item->getCard();
+        Card *slash = new Slash(card->getSuit(), card->getNumber());
+        slash->addSubcard(card->getId());
+        slash->setSkillName(objectName());
+        return slash;
+    }
+};
+
 StandardCardPackage::StandardCardPackage()
     :Package("standard_cards")
 {
@@ -1057,22 +1080,23 @@ StandardCardPackage::StandardCardPackage()
     {
         QList<Card *> cars;
         cars << new DefensiveCar(Card::Spade, 5)
-                << new DefensiveCar(Card::Club, 5)
-                << new DefensiveCar(Card::Heart, 13)
                 << new OffensiveCar(Card::Heart, 5)
+                << new DefensiveCar(Card::Club, 5)
                 << new OffensiveCar(Card::Spade, 13)
+                << new DefensiveCar(Card::Heart, 13)
                 << new OffensiveCar(Card::Diamond, 13);
 
-        cars.at(0)->setObjectName("jueying");
-        cars.at(1)->setObjectName("dilu");
-        cars.at(2)->setObjectName("zhuahuangfeidian");
-        cars.at(3)->setObjectName("chitu");
-        cars.at(4)->setObjectName("dayuan");
-        cars.at(5)->setObjectName("zixing");
+        cars.at(0)->setObjectName("porsche365A");
+        cars.at(1)->setObjectName("chevyCK");
+        cars.at(2)->setObjectName("beetle");
+        cars.at(3)->setObjectName("skateboard");
+        cars.at(4)->setObjectName("mazdaRX7");
+        cars.at(5)->setObjectName("benzCLK");
 
         cards << cars;
 
         skills << new CarSkill;
+        skills << new Porsche365A << new Skill("chevyCK") << new Skill("beetle");
     }
 
     cards << new AmazingGrace(Card::Heart, 3)

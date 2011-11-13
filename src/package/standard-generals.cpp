@@ -172,12 +172,15 @@ void JiaojinCard::use(Room *room, ServerPlayer *heiji, const QList<ServerPlayer 
     QString suit_str = card->getSuitString();
     QString pattern = QString(".%1").arg(suit_str.at(0).toUpper());
     QString prompt = QString("@jiaojinask:%1::%2").arg(heiji->getGeneralName()).arg(suit_str);
-    if(!room->askForCard(target, pattern, prompt)){
+    const Card *toto = room->askForCard(target, pattern, prompt);
+    if(!toto){
         if(target->getCardCount(true) <= 3)
             target->throwAllCards();
         else
             room->askForDiscard(target, "jiaojin", 3, false, true);
     }
+    else
+        target->obtainCard(toto);
 }
 
 class Jiaojin:public OneCardViewAsSkill{
@@ -1520,7 +1523,7 @@ public:
 class Xunzhi: public TriggerSkill{
 public:
     Xunzhi():TriggerSkill("xunzhi"){
-        events << Death;
+        events << Death << Damaged;
         frequency = Compulsory;
     }
 
@@ -1528,7 +1531,18 @@ public:
         return target->hasSkill(objectName());
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *shuichi, QVariant &data) const{
+    virtual bool trigger(TriggerEvent event, ServerPlayer *shuichi, QVariant &data) const{
+        if(event == Damaged){
+            if(!shuichi->hasSkill("chevyCK"))
+                return false;
+            Room *room = shuichi->getRoom();
+            DamageStruct damage = data.value<DamageStruct>();
+            if(room->askForSkillInvoke(shuichi, "chevyCK", data)){
+                DamageStruct damage2 = damage;
+                room->killPlayer(shuichi, &damage2);
+            }
+            return false;
+        }
         QList<ServerPlayer *> targets;
         ServerPlayer *target;
         Room *room = shuichi->getRoom();
@@ -1664,6 +1678,17 @@ public:
             log.from = agasa;
             log.to << damage.from;
             room->sendLog(log);
+            if(agasa->hasSkill("beetle") && room->askForSkillInvoke(agasa, "beetle", data)){
+                damage.to = room->askForPlayerChosen(agasa, room->getOtherPlayers(damage.to), "beetle");
+
+                LogMessage log;
+                log.type = "#BeetleChange";
+                log.from = agasa;
+                log.to << damage.to;
+                room->sendLog(log);
+                room->damage(damage);
+                return true;
+            }
             data = QVariant::fromValue(damage);
         }
         return false;
