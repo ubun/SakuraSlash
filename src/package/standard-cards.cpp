@@ -884,9 +884,6 @@ void Lightning::takeEffect(ServerPlayer *target) const{
     target->getRoom()->damage(damage);
 }
 
-
-// EX cards
-
 class IceSwordSkill: public TriggerSkill{
 public:
     IceSwordSkill():TriggerSkill("ice_sword"){
@@ -923,35 +920,6 @@ IceSword::IceSword(Suit suit, int number)
 {
     setObjectName("ice_sword");
     skill = new IceSwordSkill;
-}
-
-class RenwangShieldSkill: public ArmorSkill{
-public:
-    RenwangShieldSkill():ArmorSkill("renwang_shield"){
-        events << SlashEffected;
-    }
-
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        SlashEffectStruct effect = data.value<SlashEffectStruct>();
-        if(effect.slash->isBlack()){
-            LogMessage log;
-            log.type = "#ArmorNullify";
-            log.from = player;
-            log.arg = objectName();
-            log.arg2 = effect.slash->objectName();
-            player->getRoom()->sendLog(log);
-
-            return true;
-        }else
-            return false;
-    }
-};
-
-RenwangShield::RenwangShield(Suit suit, int number)
-    :Armor(suit, number)
-{
-    setObjectName("renwang_shield");
-    skill = new RenwangShieldSkill;
 }
 
 class CarSkill: public DistanceSkill{
@@ -1064,6 +1032,7 @@ StandardCardPackage::StandardCardPackage()
 
           << new Crossbow(Card::Club)
           << new Crossbow(Card::Diamond)
+          << new IceSword
           << new DoubleSword
           << new QinggangSword
           << new Blade
@@ -1102,7 +1071,6 @@ StandardCardPackage::StandardCardPackage()
     cards << new AmazingGrace(Card::Heart, 3)
           << new AmazingGrace(Card::Heart, 4)
           << new GodSalvation
-          << new SavageAssault(Card::Spade, 7)
           << new SavageAssault(Card::Spade, 13)
           << new SavageAssault(Card::Club, 7)
           << new ArcheryAttack
@@ -1140,20 +1108,4 @@ StandardCardPackage::StandardCardPackage()
     skills << new SpearSkill << new AxeViewAsSkill;
 }
 
-StandardExCardPackage::StandardExCardPackage()
-    :Package("standard_ex_cards")
-{
-    QList<Card *> cards;
-    cards << new IceSword(Card::Spade, 2)
-            << new RenwangShield(Card::Club, 2)
-            << new Lightning(Card::Heart, 12)
-            << new Nullification(Card::Diamond, 12);
-
-    foreach(Card *card, cards)
-        card->setParent(this);
-
-    type = CardPack;
-}
-
 ADD_PACKAGE(StandardCard)
-ADD_PACKAGE(StandardExCard)

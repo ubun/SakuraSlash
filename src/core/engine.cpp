@@ -36,7 +36,6 @@ extern "C" {
 //    Package *NewFire();
 //    Package *NewMountain();
     Package *NewStandardCard();
-    Package *NewStandardExCard();
     Package *NewManeuvering();
 //    Package *NewGod();
 //    Package *NewYitian();
@@ -73,7 +72,6 @@ Engine::Engine()
     addPackage(NewTest());
 
     addPackage(NewStandardCard());
-    addPackage(NewStandardExCard());
     addPackage(NewManeuvering());
     addPackage(NewNostalgia());
     addPackage(NewJoy());

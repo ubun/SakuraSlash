@@ -70,14 +70,7 @@ class IceSword: public Weapon{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE IceSword(Card::Suit suit, int number);
-};
-
-class RenwangShield: public Armor{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE RenwangShield(Card::Suit suit, int number);
+    Q_INVOKABLE IceSword(Card::Suit suit = Spade, int number = 7);
 };
 
 class StandardCardPackage: public Package{
@@ -85,13 +78,6 @@ class StandardCardPackage: public Package{
 
 public:
     StandardCardPackage();
-};
-
-class StandardExCardPackage: public Package{
-    Q_OBJECT
-
-public:
-    StandardExCardPackage();
 };
 
 #endif // STANDARDEQUIPS_H

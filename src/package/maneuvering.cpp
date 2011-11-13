@@ -365,11 +365,174 @@ void SupplyShortage::takeEffect(ServerPlayer *target) const{
     target->skip(Player::Draw);
 }
 
+class RenwangShieldSkill: public ArmorSkill{
+public:
+    RenwangShieldSkill():ArmorSkill("renwang_shield"){
+        events << SlashEffected;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        if(effect.slash->isBlack()){
+            LogMessage log;
+            log.type = "#ArmorNullify";
+            log.from = player;
+            log.arg = objectName();
+            log.arg2 = effect.slash->objectName();
+            player->getRoom()->sendLog(log);
+
+            return true;
+        }else
+            return false;
+    }
+};
+
+RenwangShield::RenwangShield(Suit suit, int number)
+    :Armor(suit, number)
+{
+    setObjectName("renwang_shield");
+    skill = new RenwangShieldSkill;
+}
+
+Emigration::Emigration(Suit suit, int number)
+    :DelayedTrick(suit, number)
+{
+    setObjectName("emigration");
+    target_fixed = false;
+
+    judge.pattern = QRegExp("(.*):(spade|club):(.*)");
+    judge.good = false;
+    judge.reason = objectName();
+}
+
+bool Emigration::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    if(!targets.isEmpty())
+        return false;
+
+    if(to_select->containsTrick(objectName()))
+        return false;
+
+    return true;
+}
+
+void Emigration::takeEffect(ServerPlayer *target) const{
+    target->skip(Player::Discard);
+}
+
+class GaleShellSkill: public ArmorSkill{
+public:
+    GaleShellSkill():ArmorSkill("gale-shell"){
+        events << Predamaged;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        if(damage.nature == DamageStruct::Fire){
+            LogMessage log;
+            log.type = "#GaleShellDamage";
+            log.from = player;
+            log.arg = QString::number(damage.damage);
+            log.arg2 = QString::number(damage.damage + 1);
+            player->getRoom()->sendLog(log);
+
+            damage.damage ++;
+            data = QVariant::fromValue(damage);
+        }
+        return false;
+    }
+};
+
+GaleShell::GaleShell(Suit suit, int number) :Armor(suit, number){
+    setObjectName("gale-shell");
+    skill = new GaleShellSkill;
+
+    target_fixed = false;
+}
+
+bool GaleShell::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && Self->distanceTo(to_select) <= 1;
+}
+
+void GaleShell::onUse(Room *room, const CardUseStruct &card_use) const{
+    Card::onUse(room, card_use);
+}
+
+class YxSwordSkill: public WeaponSkill{
+public:
+    YxSwordSkill():WeaponSkill("yx_sword"){
+        events << Predamage;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        Room *room = player->getRoom();
+        if(damage.card && damage.card->inherits("Slash") && room->askForSkillInvoke(player, objectName(), data)){
+            QList<ServerPlayer *> players = room->getOtherPlayers(player);
+            QMutableListIterator<ServerPlayer *> itor(players);
+
+            while(itor.hasNext()){
+                itor.next();
+                if(!player->inMyAttackRange(itor.value()))
+                    itor.remove();
+            }
+
+            if(players.isEmpty())
+                return false;
+
+            QVariant victim = QVariant::fromValue(damage.to);
+            room->setTag("YxSwordVictim", victim);
+            ServerPlayer *target = room->askForPlayerChosen(player, players, objectName());
+            room->removeTag("YxSwordVictim");
+            damage.from = target;
+            data = QVariant::fromValue(damage);
+            room->moveCardTo(player->getWeapon(), damage.from, Player::Hand);
+        }
+        return damage.to->isDead();
+    }
+};
+
+YxSword::YxSword(Suit suit, int number)
+    :Weapon(suit, number, 3)
+{
+    setObjectName("yx_sword");
+    skill = new YxSwordSkill;
+}
+
+Sacrifice::Sacrifice(Suit suit, int number)
+    :SingleTargetTrick(suit, number, false) {
+    setObjectName("sacrifice");
+}
+
+bool Sacrifice::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(!targets.isEmpty())
+        return false;
+
+    if(!to_select->isWounded())
+        return false;
+
+    return true;
+}
+
+void Sacrifice::onEffect(const CardEffectStruct &effect) const{
+    if(!effect.to->isWounded())
+        return;
+
+    Room *room = effect.to->getRoom();
+    room->loseHp(effect.from);
+
+    RecoverStruct recover;
+    recover.card = this;
+    recover.who = effect.from;
+    room->recover(effect.to, recover, true);
+}
+
 ManeuveringPackage::ManeuveringPackage()
     :Package("maneuvering")
 {
     QList<Card *> cards;
 
+// firstly
     // spade
     cards << new GudingBlade(Card::Spade, 1)
             << new Vine(Card::Spade, 2)
@@ -431,8 +594,71 @@ ManeuveringPackage::ManeuveringPackage()
 
     DefensiveCar *citroBX = new DefensiveCar(Card::Diamond, 13);
     citroBX->setObjectName("citroBX");
-
     cards << citroBX;
+
+// secondly
+    // spade
+    cards << new YxSword(Card::Spade, 1)
+            << new Dismantlement(Card::Spade, 2)
+            << new ThunderSlash(Card::Spade, 3)
+            << new Peach(Card::Spade, 4)
+            //<< new dawujia(Card::Spade, 5) armor
+            << new Slash(Card::Spade, 6)
+            //<< new linglibaofa(Card::Spade, 7) trick
+            //<< new zuolunshouqiang(Card::Spade, 8) weapon
+            << new SavageAssault(Card::Spade, 9)
+            << new Snatch(Card::Spade,10)
+            << new Emigration(Card::Spade, 11)
+            << new ThunderSlash(Card::Spade, 12);
+    OffensiveCar *jaguarE = new OffensiveCar(Card::Spade, 13);
+    jaguarE->setObjectName("jaguarE");
+    cards << jaguarE;
+
+    // club
+    cards << new Jink(Card::Club, 1)
+            << new Emigration(Card::Club, 2)
+            //<< new paoji(Card::Club, 3) trick
+            << new ThunderSlash(Card::Club, 4)
+            //<< new napoliun(Card::Club, 5) armor
+            << new Slash(Card::Club, 6)
+            << new Nullification(Card::Club, 7)
+            //<< new jiedao(Card::Club, 8)
+            << new Duel(Card::Club, 9)
+            << new ThunderSlash(Card::Club, 10)
+            << new RenwangShield(Card::Club, 11)
+            << new ExNihilo(Card::Club, 12)
+            //<< new Moshenqi(Card::Club, 13) armor
+			;
+
+    // heart
+    cards << new Emigration(Card::Heart, 1)
+            //<< new yushi(Card::Heart, 2) trick
+            << new Slash(Card::Heart, 3)
+            << new Collateral(Card::Heart, 4)
+            << new FireSlash(Card::Heart, 5)
+            << new Jink(Card::Heart, 6)
+            << new GaleShell(Card::Heart, 7)
+            << new FireSlash(Card::Heart, 8)
+            << new Snatch(Card::Heart, 9)
+            << new Peach(Card::Heart, 10)
+            << new Jink(Card::Heart, 11)
+            << new Lightning(Card::Heart, 12)
+            << new Nullification(Card::Heart, 13);
+
+    // diamond
+    cards << new ArcheryAttack(Card::Diamond, 1)
+            << new Dismantlement(Card::Diamond, 2)
+            //<< new paoji(Card::Diamond, 3) trick
+            << new FireSlash(Card::Diamond, 4)
+            //<< new monkey(Card::Diamond, 5)
+            //<< new jingbao(Card::Diamond, 6) trick
+            << new Analeptic(Card::Diamond, 7)
+            //<< new shouqiang(Card::Diamond, 8) weapon
+            << new Jink(Card::Diamond, 9)
+            << new FireSlash(Card::Diamond, 10)
+            << new IronChain(Card::Diamond, 11)
+            << new Jink(Card::Diamond, 12)
+            << new Sacrifice(Card::Diamond, 13);
 
     foreach(Card *card, cards)
         card->setParent(this);

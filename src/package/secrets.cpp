@@ -6,7 +6,6 @@
 #include "client.h"
 #include "standard-skillcards.h"
 #include "maneuvering.h"
-#include "joypackage.h"
 
 QStringList Tipslist(int index){
     QMap<int, QStringList> tipsmap;

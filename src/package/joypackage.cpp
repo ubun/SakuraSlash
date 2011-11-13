@@ -328,44 +328,6 @@ QString Monkey::getEffectPath(bool ) const{
     return "audio/card/common/monkey.ogg";
 }
 
-class GaleShellSkill: public ArmorSkill{
-public:
-    GaleShellSkill():ArmorSkill("gale-shell"){
-        events << Predamaged;
-    }
-
-    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
-        DamageStruct damage = data.value<DamageStruct>();
-        if(damage.nature == DamageStruct::Fire){
-            LogMessage log;
-            log.type = "#GaleShellDamage";
-            log.from = player;
-            log.arg = QString::number(damage.damage);
-            log.arg2 = QString::number(damage.damage + 1);
-            player->getRoom()->sendLog(log);
-
-            damage.damage ++;
-            data = QVariant::fromValue(damage);
-        }
-        return false;
-    }
-};
-
-GaleShell::GaleShell(Suit suit, int number) :Armor(suit, number){
-    setObjectName("gale-shell");
-    skill = new GaleShellSkill;
-
-    target_fixed = false;
-}
-
-bool GaleShell::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty() && Self->distanceTo(to_select) <= 1;
-}
-
-void GaleShell::onUse(Room *room, const CardUseStruct &card_use) const{
-    Card::onUse(room, card_use);
-}
-
 DisasterPackage::DisasterPackage()
     :Package("disaster")
 {
@@ -400,82 +362,10 @@ JoyPackage::JoyPackage()
     type = CardPack;
 }
 
-class YxSwordSkill: public WeaponSkill{
-public:
-    YxSwordSkill():WeaponSkill("yx_sword"){
-        events << Predamage;
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        DamageStruct damage = data.value<DamageStruct>();
-        Room *room = player->getRoom();
-        if(damage.card && damage.card->inherits("Slash") && room->askForSkillInvoke(player, objectName(), data)){
-            QList<ServerPlayer *> players = room->getOtherPlayers(player);
-            QMutableListIterator<ServerPlayer *> itor(players);
-
-            while(itor.hasNext()){
-                itor.next();
-                if(!player->inMyAttackRange(itor.value()))
-                    itor.remove();
-            }
-
-            if(players.isEmpty())
-                return false;
-
-            QVariant victim = QVariant::fromValue(damage.to);
-            room->setTag("YxSwordVictim", victim);
-            ServerPlayer *target = room->askForPlayerChosen(player, players, objectName());
-            room->removeTag("YxSwordVictim");
-            damage.from = target;
-            data = QVariant::fromValue(damage);
-            room->moveCardTo(player->getWeapon(), damage.from, Player::Hand);
-        }
-        return damage.to->isDead();
-    }
-};
-
-YxSword::YxSword(Suit suit, int number)
-    :Weapon(suit, number, 3)
-{
-    setObjectName("yx_sword");
-    skill = new YxSwordSkill;
-}
-
-Sacrifice::Sacrifice(Suit suit, int number)
-    :SingleTargetTrick(suit, number, false) {
-    setObjectName("sacrifice");
-}
-
-bool Sacrifice::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    if(!targets.isEmpty())
-        return false;
-
-    if(!to_select->isWounded())
-        return false;
-
-    return true;
-}
-
-void Sacrifice::onEffect(const CardEffectStruct &effect) const{
-    if(!effect.to->isWounded())
-        return;
-
-    Room *room = effect.to->getRoom();
-    room->loseHp(effect.from);
-
-    RecoverStruct recover;
-    recover.card = this;
-    recover.who = effect.from;
-    room->recover(effect.to, recover, true);
-}
-
 JoyEquipPackage::JoyEquipPackage()
     :Package("joy_equip")
 {
     (new Monkey(Card::Diamond, 5))->setParent(this);
-    (new GaleShell(Card::Heart, 1))->setParent(this);
-    (new YxSword)->setParent(this);
-    (new Sacrifice(Card::Diamond, 4))->setParent(this);
 
     type = CardPack;
 }
