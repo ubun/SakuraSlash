@@ -118,11 +118,11 @@ CoupleScenario::CoupleScenario()
 
     map["kudoushinichi"] = "mouriran";
     map["hattoriheiji"] = "touyamakazuha";
-    //map["mourikogorou"] = "kisakieri";
+    map["mourikogorou"] = "kisakieri";
     map["edogawaconan"] = "haibaraai";
-    //map["kyougokumakoto"] = "suzukisonoko";
+    map["kyougokumakoto"] = "suzukisonoko";
     map["kurobakaitou"] = "nakamoriaoko";
-    //map["shiratorininzaburou"] = "kobayashisumiko";
+    map["shiratorininzaburou"] = "kobayashisumiko";
 
     full_map = map;
     full_map["haibaraai"] = "yoshidaayumi";

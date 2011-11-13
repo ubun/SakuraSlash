@@ -1295,6 +1295,8 @@ function SmartAI:useCardDismantlement(dismantlement, use)
 			   not (enemy:getCards("he"):length() == 1 and self:isEquip("GaleShell",enemy)) then                   
 				if enemy:getHandcardNum() == 1 then
 					if enemy:hasSkill("kongcheng") or enemy:hasSkill("lianying") then return end
+				elseif enemy:hasSkill("zhinang") then
+					return
 				end
 				use.card = dismantlement
                 if use.to then 
@@ -1361,7 +1363,9 @@ function SmartAI:useCardSnatch(snatch, use)
 			   not (enemy:getCards("he"):length() == 1 and self:isEquip("GaleShell",enemy)) then                    
 			if enemy:getHandcardNum() == 1 then
 				if enemy:hasSkill("kongcheng") or enemy:hasSkill("lianying") then return end
-			end       
+			elseif enemy:hasSkill("zhinang") then
+				return
+			end
 			use.card = snatch
 			if use.to then 
 				use.to:append(enemy) 
@@ -1490,21 +1494,7 @@ function SmartAI:useCardSupplyShortage(card, use)
 	for _, enemy in ipairs(enemies) do
 		if ((#enemies == 1) or not enemy:hasSkill("tiandu")) and not enemy:containsTrick("supply_shortage") then
 			use.card = card
-             if use.to then use.to:append(enemy) end
-
-			return
-		end
-	end
-end
-
-function SmartAI:useCardEmigration(card, use)
-	table.sort(self.friends, hp_subtract_handcard)
-
-	local friends = self:exclude(self.friends, card)
-	for _, friend in ipairs(friends) do
-		if not friend:containsTrick("emigration") and not friend:hasSkill("keji") then			
-			use.card = card
-			if use.to then use.to:append(friend) end
+			if use.to then use.to:append(enemy) end
 			return
 		end
 	end
@@ -2663,6 +2653,9 @@ function SmartAI:askForCard(pattern, prompt, data)
 		local player = data:toPlayer()
 		if self:isFriend(player) and not self.player:isKongcheng() then
 			return self.player:getRandomHandCard()
+		elseif self:isEnemy(player) and not self.player:isKongcheng() then
+			if self:getCardId("Shit") then return self:getCardId("Shit") end
+			if self:getCardId("Disaster") then return self:getCardId("Disaster") end
 		end
 		return "."
 	elseif parsedPrompt[1] == "@dushu" then
@@ -3373,6 +3366,12 @@ function SmartAI:cardProhibit(card, to)
 		if card:isBlack() and to:hasSkill("weimu") then return true end
 		if card:inherits("Indulgence") or card:inherits("Snatch") and to:hasSkill("qianxun") then return true end
 		if card:inherits("Duel") and to:hasSkill("kongcheng") and to:isKongcheng() then return true end
+		if to:hasSkill("rougu") then
+			if card:inherits("Snatch") or card:inherits("Dismantlement") and
+				to:getHandcardNum() < to:getMaxHP() then return true end
+			if card:inherits("SupplyShortage") or card:inherits("Indulgence") and
+				to:getHandcardNum() > to:getMaxHP() then return true end
+		end
 	end
 	return false
 end

@@ -401,7 +401,7 @@ Emigration::Emigration(Suit suit, int number)
     target_fixed = false;
 
     judge.pattern = QRegExp("(.*):(spade|club):(.*)");
-    judge.good = false;
+    judge.good = true;
     judge.reason = objectName();
 }
 
@@ -527,6 +527,51 @@ void Sacrifice::onEffect(const CardEffectStruct &effect) const{
     room->recover(effect.to, recover, true);
 }
 
+class YitianSwordSkill : public WeaponSkill{
+public:
+    YitianSwordSkill():WeaponSkill("yitian_sword"){
+        events << DamageComplete;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &) const{
+        if(player->getPhase() != Player::NotActive)
+           return false;
+
+        if(player->askForSkillInvoke("yitian_sword"))
+            player->getRoom()->askForUseCard(player, "slash", "@askforslash");
+
+        return false;
+    }
+};
+
+class YitianSword: public Weapon{
+public:
+    YitianSword(Suit suit, int number)
+        :Weapon(suit, number, 2){
+        setObjectName("yitian_sword");
+        skill = new YitianSwordSkill;
+    }
+    virtual void onMove(const CardMoveStruct &move) const;
+};
+
+void YitianSword::onMove(const CardMoveStruct &move) const{
+    if(move.from_place == Player::Equip && move.from->isAlive()){
+        Room *room = move.from->getRoom();
+
+        bool invoke = move.from->askForSkillInvoke("yitian-lost");
+        if(!invoke)
+            return;
+
+        ServerPlayer *target = room->askForPlayerChosen(move.from, room->getAllPlayers(), "yitian-lost");
+        DamageStruct damage;
+        damage.from = move.from;
+        damage.to = target;
+        damage.card = this;
+
+        room->damage(damage);
+    }
+}
+
 ManeuveringPackage::ManeuveringPackage()
     :Package("maneuvering")
 {
@@ -605,7 +650,7 @@ ManeuveringPackage::ManeuveringPackage()
             //<< new dawujia(Card::Spade, 5) armor
             << new Slash(Card::Spade, 6)
             //<< new linglibaofa(Card::Spade, 7) trick
-            //<< new zuolunshouqiang(Card::Spade, 8) weapon
+            << new YitianSword(Card::Spade, 8)
             << new SavageAssault(Card::Spade, 9)
             << new Snatch(Card::Spade,10)
             << new Emigration(Card::Spade, 11)

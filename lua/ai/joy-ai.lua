@@ -31,3 +31,19 @@ function SmartAI:useCardSacrifice(sacrifice, use)
 		end
 	end
 end
+
+-- emigration
+function SmartAI:useCardEmigration(card, use)
+--	table.sort(self.friends, hp_subtract_handcard)
+	self:sort(self.friends, "hp")
+--	local friends = self:exclude(self.friends, card)
+	for _, friend in ipairs(self.friends) do
+		if not friend:containsTrick("emigration") and not friend:hasSkill("keji") then			
+			use.card = card
+			if use.to then
+				use.to:append(friend)
+			end
+			break
+		end
+	end
+end

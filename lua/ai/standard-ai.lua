@@ -340,7 +340,10 @@ end
 sgs.ai_skill_invoke["qiniao"] = true
 sgs.ai_skill_playerchosen["qiniao"] = function(self, targets)
 	for _, player in sgs.qlist(targets) do
-		if self:isFriend(player) and (player:containsTrick("indulgence") or player:containsTrick("supply_shortage")) then
+		if self:isFriend(player) and not player:hasSkill("weijiao") and
+			(player:containsTrick("indulgence") or player:containsTrick("supply_shortage")) then
+			return player
+		elseif self:isEnemy(player) and player:hasSkill("weijiao") then
 			return player
 		end
 	end

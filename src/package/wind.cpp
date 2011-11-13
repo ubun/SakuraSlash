@@ -1236,44 +1236,41 @@ public:
 WindPackage::WindPackage()
     :Package("wind")
 {
-    General *kisakieri, *kujoureiko, *kojimagenta, *heiji, *okidasouji,
-            *suzukisonoko, *okinoyouko, *hattoriheizou, *touyamaginshirou,
-            *nakamoriginzou, *vermouth, *jodie, *araidetomoaki, *tomesan;
 
-    kisakieri = new General(this, "kisakieri", "zhen", 3, false);
+    General *kisakieri = new General(this, "kisakieri", "zhen", 3, false);
     kisakieri->addSkill(new Bianhu);
     kisakieri->addSkill(new Fenju);
-
-    kujoureiko = new General(this, "kujoureiko", "zhen", 3, false);
+/*
+    General *kujoureiko = new General(this, "kujoureiko", "zhen", 3, false);
     kujoureiko->addSkill(new Fating);
     kujoureiko->addSkill(new Rougu);
     kujoureiko->addSkill(new RouguSkip);
     related_skills.insertMulti("rougu", "#rougu-skip");
 
-    kojimagenta = new General(this, "kojimagenta$", "shao", 3);
+    General *kojimagenta = new General(this, "kojimagenta$", "shao", 3);
     kojimagenta->addSkill(new Manyu);
     kojimagenta->addSkill(new Bantu);
     patterns[".unbasic"] = new UnBasicPattern;
     kojimagenta->addSkill(new Tuanzhang);
     skills << new TuanzhangViewAsSkill;
 
-    heiji = new General(this, "heiji", "woo");
+    General *heiji = new General(this, "heiji", "woo");
     heiji->addSkill(new Nijian);
 
-    okidasouji = new General(this, "okidasouji", "woo");
+    General *okidasouji = new General(this, "okidasouji", "woo");
     okidasouji->addSkill(new Zhenwu);
     okidasouji->addSkill(new ZhenwuEffect);
     related_skills.insertMulti("zhenwu", "#zhenwu_eft");
-
-    suzukisonoko = new General(this, "suzukisonoko", "yi", 3, false);
+*/
+    General *suzukisonoko = new General(this, "suzukisonoko", "yi", 3, false);
     suzukisonoko->addSkill(new Huachi);
     suzukisonoko->addSkill(new Huhua);
 
-    okinoyouko = new General(this, "okinoyouko", "yi", 3, false);
+    General *okinoyouko = new General(this, "okinoyouko", "yi", 3, false);
     okinoyouko->addSkill(new Ouxiang);
     okinoyouko->addSkill(new Qingchun);
-
-    hattoriheizou = new General(this, "hattoriheizou$", "jing", 3);
+/*
+    General *hattoriheizou = new General(this, "hattoriheizou$", "jing", 3);
     hattoriheizou->addSkill(new Yunchou);
     hattoriheizou->addSkill(new YunchouEffect);
     related_skills.insertMulti("yunchou", "#yunchou_eft");
@@ -1282,34 +1279,34 @@ WindPackage::WindPackage()
     hattoriheizou->addSkill(new Weiwo);
     hattoriheizou->addSkill(new Lingjia);
     patterns[".Lj"] = new LingjiaPattern;
-
-    touyamaginshirou = new General(this, "touyamaginshirou", "jing");
+*/
+    General *touyamaginshirou = new General(this, "touyamaginshirou", "jing");
     touyamaginshirou->addSkill(new Yinsi);
     patterns[".Ep"] = new EquipPattern;
 
-    nakamoriginzou = new General(this, "nakamoriginzou", "guai");
+    General *nakamoriginzou = new General(this, "nakamoriginzou", "guai");
     nakamoriginzou->addSkill(new Weijiao);
     nakamoriginzou->addSkill(new Shiyi);
-
-    vermouth = new General(this, "vermouth$", "hei", 4, false);
+/*
+    General *vermouth = new General(this, "vermouth$", "hei", 4, false);
     vermouth->addSkill(new Weixiao);
     vermouth->addSkill(new Kuai);
 
-    jodie = new General(this, "jodie", "te", 3, false);
+    General *jodie = new General(this, "jodie", "te", 3, false);
     jodie->addSkill(new Dianwan);
     jodie->addSkill(new Shuangyu);
     jodie->addSkill(new MarkAssignSkill("@two", 1));
     related_skills.insertMulti("shuangyu", "#@two");
     jodie->addSkill(new Juanxiu);
 
-    araidetomoaki = new General(this, "araidetomoaki", "za", 3);
+    General *araidetomoaki = new General(this, "araidetomoaki", "za", 3);
     araidetomoaki->addSkill(new Qingdi);
     araidetomoaki->addSkill(new Zhiyu);
 
-    tomesan = new General(this, "tomesan", "za");
+    General *tomesan = new General(this, "tomesan", "za");
     tomesan->addSkill(new Yanshi);
     tomesan->addSkill(new Dushu);
-
+*/
     addMetaObject<FatingCard>();
     addMetaObject<TuanzhangCard>();
     addMetaObject<HuachiCard>();
