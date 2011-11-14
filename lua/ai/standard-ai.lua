@@ -6,19 +6,30 @@ end
 
 -- rexue
 sgs.ai_skill_invoke["rexue"] = function(self, data)
-	return #self.friends_noself > 0
+	local targets = {}
+	for _, friend in ipairs(self.friends_noself) do
+		if not friend:isNude() then
+			table.insert(targets, friend)
+		end
+	end
+	return #targets > 0
 end
 sgs.ai_skill_playerchosen["rexue"] = function(self, targets)
 	self:sort(self.friends_noself, "hp")
 	for _, friend in ipairs(self.friends_noself) do
-		if friend:getPile("rexue"):isEmpty() then
+		if not friend:isNude() and friend:getPile("rexue"):isEmpty() then
 			return friend
 		end
 	end
-	if self:isFriend(self.room:getLord()) then
-		return self.room:getLord()
+	local lord = self.room:getLord()
+	if not lord:isNude() and self:isFriend(lord) then
+		return lord
 	else
-		return self.friends_noself[1]
+		for _, friend in ipairs(self.friends_noself) do
+			if not friend:isNude() then
+				return friend
+			end
+		end
 	end
 end
 sgs.ai_skill_invoke["rexue_get"] = function(self, data)

@@ -108,16 +108,20 @@ public:
     Rexue():MasochismSkill("rexue"){
     }
 
-    virtual void onDamaged(ServerPlayer *hatto, const DamageStruct &damage) const{
+    virtual void onDamaged(ServerPlayer *hatto, const DamageStruct &) const{
         Room *room = hatto->getRoom();
+        QList<ServerPlayer *> players;
+        foreach(ServerPlayer *tmp, room->getOtherPlayers(hatto)){
+            if(!tmp->isNude())
+                players << tmp;
+        }
+        if(players.isEmpty())
+            return;
         if(hatto->askForSkillInvoke(objectName())){
-            int x = damage.damage, i;
-            for(i=0; i<x; i++){
-                ServerPlayer *target = room->askForPlayerChosen(hatto, room->getOtherPlayers(hatto), "rexue");
-                int card_id = room->drawCard();
-                target->addToPile("rexue", card_id);
-                room->acquireSkill(target, "rexue_effect", false);
-            }
+            ServerPlayer *target = room->askForPlayerChosen(hatto, players, "rexue");
+            int card_id = room->askForCardChosen(hatto, target, "he", objectName());
+            target->addToPile("rexue", card_id);
+            room->acquireSkill(target, "rexue_effect", false);
         }
     }
 };
@@ -174,8 +178,10 @@ void JiaojinCard::use(Room *room, ServerPlayer *heiji, const QList<ServerPlayer 
     QString prompt = QString("@jiaojinask:%1::%2").arg(heiji->getGeneralName()).arg(suit_str);
     const Card *toto = room->askForCard(target, pattern, prompt);
     if(!toto){
-        if(target->getCardCount(true) <= 3)
-            target->throwAllCards();
+        if(target->getCardCount(true) <= 3){
+            target->throwAllEquips();
+            target->throwAllHandCards();
+        }
         else
             room->askForDiscard(target, "jiaojin", 3, false, true);
     }
@@ -890,8 +896,8 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *sharon, QVariant &) const{
         Room *room = sharon->getRoom();
         if(sharon->getHp() <= 0 && sharon->askForSkillInvoke(objectName())){
-            room->broadcastInvoke("animate", "lightbox:$yirong");
             sharon->loseMark("@yaiba");
+            room->broadcastInvoke("animate", "lightbox:$yirong");
 
             QStringList genlist = Sanguosha->getLimitedGeneralNames();
             foreach(ServerPlayer *player, room->getAllPlayers()){
@@ -899,9 +905,10 @@ public:
             }
 
             QString general = room->askForGeneral(sharon, genlist);
-            room->transfigure(sharon, general, false);
+            room->transfigure(sharon, general, false, false);
             //room->acquireSkill(sharon, "yirong", false);
             sharon->getRoom()->setPlayerProperty(sharon, "hp", 3);
+            return true;
         }
         return false;
     }
