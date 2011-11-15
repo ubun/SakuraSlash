@@ -9,7 +9,7 @@ return {
 	["train"] = "火车", 
 	["fox"] = "水狐", 
 	["spider"] = "土蜘蛛", 
-	["ou"] = "鬼王", 
+	["ou"] = "鬼王",
 	["aoisatan"] = "葵叉丹",
 	["tenkai"] = "天海",
 	["rasetsu"] = "白银罗刹",
