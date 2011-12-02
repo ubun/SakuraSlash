@@ -879,9 +879,9 @@ public:
         if(room->obtainable(card, player) && room->askForSkillInvoke(player, objectName())){
             player->obtainCard(card);
             QList<ServerPlayer *> targets;
-            if(damage.from)
+            if(damage.from && !damage.from->isNude())
                 targets << damage.from;
-            if(room->getCurrent() && room->getCurrent() != damage.from)
+            if(room->getCurrent() && !room->getCurrent()->isNude() && room->getCurrent() != damage.from)
                 targets << room->getCurrent();
             if(!targets.isEmpty()){
                 ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName());

@@ -45,7 +45,7 @@ void Settings::init(){
     }
 
     CountDownSeconds = value("CountDownSeconds", 3).toInt();
-    GameMode = value("GameMode", "05p").toString();
+    GameMode = value("GameMode", "08p").toString();
     BanPackages = value("BanPackages").toStringList();
     ContestMode = value("ContestMode", false).toBool();
     FreeChoose = value("FreeChoose", false).toBool();
