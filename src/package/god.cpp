@@ -1115,31 +1115,20 @@ public:
         log.arg = QString::number(n);
         room->sendLog(log);
 
-        room->getThread()->trigger(TurnStart, shensimayi);
+        shensimayi->gainAnExtraTurn();
 
         return false;
     }
 };
 
-class Juejing: public TriggerSkill{
+class Juejing: public DrawCardsSkill{
 public:
-    Juejing():TriggerSkill("juejing"){
-        events << PhaseChange;
+    Juejing():DrawCardsSkill("juejing"){
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &) const{
-        if(player->getPhase() == Player::Draw){
-            QVariant draw_num = 2 + player->getLostHp();
-            player->getRoom()->getThread()->trigger(DrawNCards, player, draw_num);
-            int n = draw_num.toInt();
-            if(n > 0)
-                player->drawCards(n, false);
-
-            return true;
-        }
-
-        return false;
+    virtual int getDrawNum(ServerPlayer *player, int n) const{
+        return n + player->getLostHp();
     }
 };
 
@@ -1290,7 +1279,7 @@ GodPackage::GodPackage()
     shenlubu->addSkill(new Wuqian);
     shenlubu->addSkill(new Shenfen);
 
-    related_skills.insertMulti("kuangbao", "#@wrath");
+    related_skills.insertMulti("kuangbao", "#@wrath-2");
 
     General *shenzhaoyun = new General(this, "shenzhaoyun", "god", 2);
     shenzhaoyun->addSkill(new Juejing);

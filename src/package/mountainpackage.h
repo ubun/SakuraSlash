@@ -4,7 +4,7 @@
 #include "package.h"
 #include "card.h"
 #include "generaloverview.h"
-/*
+
 class QiaobianCard: public SkillCard{
     Q_OBJECT
 
@@ -64,7 +64,7 @@ public:
 public slots:
     void popup();
 };
-*/
+
 class MountainPackage : public Package
 {
     Q_OBJECT

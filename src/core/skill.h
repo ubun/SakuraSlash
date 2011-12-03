@@ -222,6 +222,7 @@ public:
     virtual void onGameStart(ServerPlayer *player) const;
 
 private:
+    QString mark_name;
     int n;
 };
 
