@@ -94,7 +94,7 @@ QWidget *PlayerCardDialog::createAvatar(){
 }
 
 QWidget *PlayerCardDialog::createHandcardButton(){
-    if((Self->hasSkill("dongcha") || Self->hasSkill("zhenxiang")) && player->hasFlag("dongchaee") && !player->isKongcheng()){
+    if(Self->hasSkill("zhenxiang") && player->hasFlag("dongchaee") && !player->isKongcheng()){
         QGroupBox *area = new QGroupBox(tr("Handcard area"));
         QVBoxLayout *layout =  new QVBoxLayout;
         QList<const Card *> cards = player->getCards();

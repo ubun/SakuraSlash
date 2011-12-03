@@ -45,7 +45,18 @@ void Settings::init(){
     }
 
     CountDownSeconds = value("CountDownSeconds", 3).toInt();
-    GameMode = value("GameMode", "08p").toString();
+    GameMode = value("GameMode", "02p").toString();
+
+
+    if(!contains("BanPackages")){
+        QStringList banlist;
+        banlist << "test" << "disaster" << "god" << "yitian_cards"
+                << "sp" << "sp_cards"
+                << "joy" << "joy_equip";
+
+        setValue("BanPackages", banlist);
+    }
+
     BanPackages = value("BanPackages").toStringList();
     ContestMode = value("ContestMode", false).toBool();
     FreeChoose = value("FreeChoose", false).toBool();

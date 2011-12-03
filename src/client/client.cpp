@@ -67,6 +67,8 @@ Client::Client(QObject *parent, const QString &filename)
     callbacks["jilei"] = &Client::jilei;
     callbacks["pile"] = &Client::pile;
 
+    callbacks["updateStateItem"] = &Client::updateStateItem;
+
     callbacks["playSkillEffect"] = &Client::playSkillEffect;
     callbacks["playCardEffect"] = &Client::playCardEffect;
     callbacks["playAudio"] = &Client::playAudio;
@@ -621,9 +623,9 @@ void Client::askForCardOrUseCard(const QString &request_str){
     else
         refusable = true;
 
-    if(card_pattern.startsWith(QChar('@'))){
-        QString skill_name = card_pattern;
-        skill_name.remove(QChar('@'));
+    QRegExp rx("^@@?(\\w+)(-card)?$");
+    if(rx.exactMatch(card_pattern)){
+        QString skill_name = rx.capturedTexts().at(1);
         const Skill *skill = Sanguosha->getSkill(skill_name);
         if(skill){
             QString text = prompt_doc->toHtml();
@@ -1771,4 +1773,9 @@ void Client::selectOrder(){
     request("selectOrder " + order);
 
     setStatus(NotActive);
+}
+
+void Client::updateStateItem(const QString &state_str)
+{
+    emit role_state_changed(state_str);
 }
