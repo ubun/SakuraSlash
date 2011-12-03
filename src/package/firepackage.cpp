@@ -6,7 +6,7 @@
 #include "carditem.h"
 #include "engine.h"
 #include "maneuvering.h"
-
+/*
 QuhuCard::QuhuCard(){
     once = true;
     mute = true;
@@ -532,7 +532,7 @@ public:
         return false;
     }
 };
-
+*/
 FirePackage::FirePackage()
     :Package("fire")
 {/*

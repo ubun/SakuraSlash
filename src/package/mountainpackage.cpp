@@ -8,7 +8,7 @@
 #include "generaloverview.h"
 #include "clientplayer.h"
 #include "client.h"
-
+/*
 #include <QCommandLinkButton>
 
 QiaobianCard::QiaobianCard(){
@@ -1112,7 +1112,7 @@ public:
             Huashen::AcquireGenerals(zuoci, n);
     }
 };
-
+*/
 MountainPackage::MountainPackage()
     :Package("mountain")
 {/*

@@ -1129,21 +1129,60 @@ public:
     }
 };
 
+MoshuCard::MoshuCard(){
+    will_throw = false;
+    target_fixed = true;
+}
+
+void MoshuCard::use(Room *room, ServerPlayer *, const QList<ServerPlayer *> &targets) const{
+    room->moveCardTo(this, NULL, Player::DrawPile, true);
+}
+
+class MoshuViewAsSkill: public ViewAsSkill{
+public:
+    MoshuViewAsSkill():ViewAsSkill("moshu"){
+
+    }
+
+    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *) const{
+        return selected.length() < 2;
+    }
+
+    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
+        if(cards.length() != 2)
+            return NULL;
+
+        MoshuCard *card = new MoshuCard;
+        card->addSubcards(cards);
+        return card;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const{
+        return pattern == "@@moshu!";
+    }
+};
+
 class Moshu: public TriggerSkill{
 public:
     Moshu():TriggerSkill("moshu"){
         events << PhaseChange;
     }
+
     virtual bool triggerable(const ServerPlayer *target) const{
         return true;
     }
+
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &) const{
         Room *room = player->getRoom();
         ServerPlayer *kaitou = room->findPlayerBySkillName(objectName());
-        if(!kaitou)
+        if(!kaitou || player == kaitou)
             return false;
-        if(player != kaitou && player->getPhase() == Player::Draw && kaitou->getMark("magic") == 0){
-            QString choice = room->askForChoice(kaitou, objectName(), "zero+one+two");
+        if(player->getPhase() == Player::Draw && !kaitou->hasFlag("MagicUsed")
+           && kaitou->askForSkillInvoke(objectName())){
             const Card *card;
 
             LogMessage log;
@@ -1151,35 +1190,20 @@ public:
             log.from = kaitou;
             log.arg2 = objectName();
 
-            if(choice=="zero")
-                return false;
-            else if(choice=="one"){
-                kaitou->drawCards(1);
-                card = room->askForCard(kaitou, ".", "moshu-only");
-                if(!card)
-                    card = kaitou->getHandcards().first();
-                room->moveCardTo(card, NULL, Player::DrawPile, true);
-
-                log.arg = QString::number(1);
+            kaitou->drawCards(2);
+            card = room->askForCard(kaitou, "@@moshu!", "@moshu-card");
+            if(!card){
+                room->moveCardTo(kaitou->getHandcards().last(), NULL, Player::DrawPile, true);
+                room->moveCardTo(kaitou->getHandcards().last(), NULL, Player::DrawPile, true);
             }
-            else{
-                kaitou->drawCards(2);
-                card = room->askForCard(kaitou, ".", "moshu-first");
-                if(!card)
-                    card = kaitou->getHandcards().last();
-                room->moveCardTo(card, NULL, Player::DrawPile, true);
-                card = room->askForCard(kaitou, ".", "moshu-second");
-                if(!card)
-                    card = kaitou->getHandcards().first();
-                room->moveCardTo(card, NULL, Player::DrawPile, true);
 
-                log.arg = QString::number(2);
-            }
+            log.arg = QString::number(2);
+
             room->sendLog(log);
-            kaitou->setMark("magic", 1);
-         }
-        else if(player==kaitou && player->getPhase() == Player::Start){
-            kaitou->setMark("magic", 0);
+            room->setPlayerFlag(kaitou, "MagicUsed");
+        }
+        else if(player == kaitou && player->getPhase() == Player::Start){
+            room->setPlayerFlag(kaitou, "-MagicUsed");
         }
         return false;
     }
@@ -2068,6 +2092,7 @@ void StandardPackage::addGenerals(){
     addMetaObject<ShouqiuCard>();
     addMetaObject<BaiyiCard>();
     addMetaObject<DiaobingCard>();
+    addMetaObject<MoshuCard>();
     addMetaObject<RenxingCard>();
     addMetaObject<AnshaCard>();
     addMetaObject<MaixiongCard>();

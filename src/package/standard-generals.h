@@ -71,6 +71,15 @@ public:
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
+class MoshuCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE MoshuCard();
+
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
+
 class RenxingCard: public SkillCard{
     Q_OBJECT
 
