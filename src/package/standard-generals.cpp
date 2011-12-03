@@ -1130,11 +1130,10 @@ public:
 };
 
 MoshuCard::MoshuCard(){
-    will_throw = false;
     target_fixed = true;
 }
 
-void MoshuCard::use(Room *room, ServerPlayer *, const QList<ServerPlayer *> &targets) const{
+void MoshuCard::use(Room *room, ServerPlayer *, const QList<ServerPlayer *> &) const{
     room->moveCardTo(this, NULL, Player::DrawPile, true);
 }
 
@@ -1144,8 +1143,8 @@ public:
 
     }
 
-    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *) const{
-        return selected.length() < 2;
+    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
+        return selected.length() <= 2;
     }
 
     virtual const Card *viewAs(const QList<CardItem *> &cards) const{
@@ -1157,7 +1156,7 @@ public:
         return card;
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const{
+    virtual bool isEnabledAtPlay(const Player *) const{
         return false;
     }
 
@@ -1170,6 +1169,7 @@ class Moshu: public TriggerSkill{
 public:
     Moshu():TriggerSkill("moshu"){
         events << PhaseChange;
+        view_as_skill = new MoshuViewAsSkill;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
@@ -1182,17 +1182,14 @@ public:
         if(!kaitou || player == kaitou)
             return false;
         if(player->getPhase() == Player::Draw && !kaitou->hasFlag("MagicUsed")
-           && kaitou->askForSkillInvoke(objectName())){
-            const Card *card;
-
+           && kaitou->askForSkillInvoke(objectName(), QVariant::fromValue(player))){
             LogMessage log;
             log.type = "#Moshu";
             log.from = kaitou;
             log.arg2 = objectName();
 
             kaitou->drawCards(2);
-            card = room->askForCard(kaitou, "@@moshu!", "@moshu-card");
-            if(!card){
+            if(!room->askForUseCard(kaitou, "@@moshu!", "@moshu-card")){
                 room->moveCardTo(kaitou->getHandcards().last(), NULL, Player::DrawPile, true);
                 room->moveCardTo(kaitou->getHandcards().last(), NULL, Player::DrawPile, true);
             }
@@ -2017,7 +2014,7 @@ void StandardPackage::addGenerals(){
     sharon = new General(this, "sharon", "yi", 3, false);
     sharon->addSkill(new Yirong);
     sharon->addSkill(new MarkAssignSkill("@yaiba", 1));
-    related_skills.insertMulti("yirong", "#@yaiba");
+    related_skills.insertMulti("yirong", "#@yaiba-1");
     sharon->addSkill(new Wuyu);
 
     General *megurejyuuzou, *matsumotokiyonaka, *otagiritoshirou;
@@ -2038,7 +2035,7 @@ void StandardPackage::addGenerals(){
     kurobakaitou = new General(this, "kurobakaitou", "guai");
     kurobakaitou->addSkill(new Tishen);
     kurobakaitou->addSkill(new MarkAssignSkill("@fake", 1));
-    related_skills.insertMulti("tishen", "#@fake");
+    related_skills.insertMulti("tishen", "#@fake-1");
     //kurobakaitou->addSkill(new MarkAssignSkill("magic", 1));
     kurobakaitou->addSkill(new Moshu);
 
@@ -2050,7 +2047,7 @@ void StandardPackage::addGenerals(){
     gin = new General(this, "gin$", "hei");
     gin->addSkill(new Ansha);
     gin->addSkill(new MarkAssignSkill("@ansha", 1));
-    related_skills.insertMulti("ansha", "#@ansha");
+    related_skills.insertMulti("ansha", "#@ansha-1");
     gin->addSkill(new Juelu);
     gin->addSkill(new Heiyi);
 

@@ -735,6 +735,8 @@ public:
                 equip ++;
         }
         DamageStruct damage = data.value<DamageStruct>();
+        if(damage.to->isDead())
+            return false;
         QString choice = "cancel";
         toyama->tag["YinsTarget"] = QVariant::fromValue(damage.to);
         if(peach > 0 && (toyama->inMyAttackRange(damage.to) || equip > 0)){
@@ -1306,7 +1308,7 @@ WindPackage::WindPackage()
     jodie->addSkill(new Dianwan);
     jodie->addSkill(new Shuangyu);
     jodie->addSkill(new MarkAssignSkill("@two", 1));
-    related_skills.insertMulti("shuangyu", "#@two");
+    related_skills.insertMulti("shuangyu", "#@two-1");
     jodie->addSkill(new Juanxiu);
 
     General *araidetomoaki = new General(this, "araidetomoaki", "za", 3);

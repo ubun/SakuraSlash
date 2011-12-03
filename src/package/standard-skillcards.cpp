@@ -15,7 +15,6 @@ void ZhihengCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer
         room->drawCards(source, subcards.length());
 }
 
-
 RendeCard::RendeCard(){
     will_throw = false;
 }

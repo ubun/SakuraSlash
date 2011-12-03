@@ -270,10 +270,12 @@ sgs.ai_skill_use_func["DiaobingCard"] = function(card, use, self)
 end
 
 -- moshu
-sgs.ai_skill_choice["moshu"] = function(self, choices)
-	local player = self.room:getCurrent()
-	if self:isEnemy(player) then return "one" end
-	if self:isFriend(player) then return "zero" end
+sgs.ai_skill_invoke["moshu"] = function(self, data)
+	local player = data:toPlayer()
+	if self:isEnemy(player) then
+		return true
+	end
+	return false
 end
 
 -- renxing
