@@ -1306,7 +1306,7 @@ WindPackage::WindPackage()
     jodie->addSkill(new Dianwan);
     jodie->addSkill(new Shuangyu);
     jodie->addSkill(new MarkAssignSkill("@two", 1));
-    related_skills.insertMulti("shuangyu", "#@two");
+    related_skills.insertMulti("shuangyu", "#@two-1");
     jodie->addSkill(new Juanxiu);
 
     General *araidetomoaki = new General(this, "araidetomoaki", "za", 3);
