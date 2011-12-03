@@ -57,7 +57,7 @@ sgs.ai_skill_use_func["TaichenCard"]=function(card,use,self)
 	local hcards = self.player:getHandcards()
 	for _, hcard in sgs.qlist(hcards) do
 		if hcard:inherits("Weapon") then 
-			if weapon then card_str = "@TaichenCard=" .. hcard:objectName():getId() end
+			if weapon then card_str = "@TaichenCard=" .. hcard:getId() end
 		end
 	end
 	
@@ -90,3 +90,4 @@ sgs.ai_skill_invoke.xiuluo = function(self, data)
 	
 	return false
 end
+sgs.ai_skill_playerchosen.sp_moonspear = sgs.ai_skill_playerchosen.zero_card_as_slash

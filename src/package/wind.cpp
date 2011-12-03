@@ -1250,7 +1250,7 @@ WindPackage::WindPackage()
     General *kisakieri = new General(this, "kisakieri", "zhen", 3, false);
     kisakieri->addSkill(new Bianhu);
     kisakieri->addSkill(new Fenju);
-/*
+
     General *kujoureiko = new General(this, "kujoureiko", "zhen", 3, false);
     kujoureiko->addSkill(new Fating);
     kujoureiko->addSkill(new Rougu);
@@ -1271,7 +1271,7 @@ WindPackage::WindPackage()
     okidasouji->addSkill(new Zhenwu);
     okidasouji->addSkill(new ZhenwuEffect);
     related_skills.insertMulti("zhenwu", "#zhenwu_eft");
-*/
+
     General *suzukisonoko = new General(this, "suzukisonoko", "yi", 3, false);
     suzukisonoko->addSkill(new Huachi);
     suzukisonoko->addSkill(new Huhua);
@@ -1279,7 +1279,7 @@ WindPackage::WindPackage()
     General *okinoyouko = new General(this, "okinoyouko", "yi", 3, false);
     okinoyouko->addSkill(new Ouxiang);
     okinoyouko->addSkill(new Qingchun);
-/*
+
     General *hattoriheizou = new General(this, "hattoriheizou$", "jing", 3);
     hattoriheizou->addSkill(new Yunchou);
     hattoriheizou->addSkill(new YunchouEffect);
@@ -1289,7 +1289,7 @@ WindPackage::WindPackage()
     hattoriheizou->addSkill(new Weiwo);
     hattoriheizou->addSkill(new Lingjia);
     patterns[".Lj"] = new LingjiaPattern;
-*/
+
     General *touyamaginshirou = new General(this, "touyamaginshirou", "jing");
     touyamaginshirou->addSkill(new Yinsi);
     patterns[".Ep"] = new EquipPattern;
@@ -1297,7 +1297,7 @@ WindPackage::WindPackage()
     General *nakamoriginzou = new General(this, "nakamoriginzou", "guai");
     nakamoriginzou->addSkill(new Weijiao);
     nakamoriginzou->addSkill(new Shiyi);
-/*
+
     General *vermouth = new General(this, "vermouth$", "hei", 4, false);
     vermouth->addSkill(new Weixiao);
     vermouth->addSkill(new Kuai);
@@ -1316,7 +1316,7 @@ WindPackage::WindPackage()
     General *tomesan = new General(this, "tomesan", "za");
     tomesan->addSkill(new Yanshi);
     tomesan->addSkill(new Dushu);
-*/
+
     addMetaObject<FatingCard>();
     addMetaObject<TuanzhangCard>();
     addMetaObject<HuachiCard>();

@@ -20,16 +20,8 @@ sgs.ai_skill_use_func["GongxinCard"]=function(card,use,self)
 	if self.player:usedTimes("GongxinCard")>0 then return end
 	self:sort(self.enemies,"handcard")
 
-	for _,enemy in ipairs(self.enemies) do
-		local cards = enemy:getHandcards()
-			for _, acard in sgs.qlist(cards) do
-				if acard:getSuit() == sgs.Card_Heart and not acard:inherits("Shit") then
-					use.card = card
-					if use.to then use.to:append(enemy) end
-					return
-				end
-			end
-	end
+	use.card = card
+	if use.to then use.to:append(self.enemies[#self.enemies]) end
 end
 
 --function shenlubu_ai:useTrickCard(card, use)
@@ -172,8 +164,8 @@ wuqian_skill.getTurnUseCard=function(self)
 
 	if has_enemy and self:getCardsNum("Slash") > 0 then
 		for _, card in sgs.qlist(self.player:getHandcards()) do
-			if card:inherits("Slash") and self:slashIsEffective(card, has_enemy) and
-				(self:getCardsNum("Analeptic") > 0 or has_enemy:getHp() <= 1) then return sgs.Card_Parse(card_str)
+			if card:inherits("Slash") and self:slashIsEffective(card, has_enemy) and self.player:canSlash(has_enemy) and
+				(self:getCardsNum("Analeptic") > 0 or has_enemy:getHp() <= 1) and card:IsAvailable(self.player) then return sgs.Card_Parse(card_str)
 			elseif card:inherits("Duel") then return sgs.Card_Parse(card_str)
 			end
 		end
@@ -277,7 +269,10 @@ yeyan_skill.getTurnUseCard=function(self)
 		end
 	end
 	self.yeyanchained = (chained > 1)
-	if target_num > 2 or (target_num > 1 and self.yeyanchained) or #self.friends_noself == 0 then return sgs.Card_Parse("@SmallYeyanCard=.") end
+	if target_num > 2 or (target_num > 1 and self.yeyanchained) or
+	(#self.enemies + 1 == self.room:alivePlayerCount() and self.room:alivePalyerCount() < sgs.Sanguosha:getPlayerCount(self.room:getMode())) then
+		return sgs.Card_Parse("@SmallYeyanCard=.")
+	end
 end
 
 sgs.ai_skill_use_func["SmallYeyanCard"]=function(card,use,self)
@@ -366,24 +361,19 @@ end
 sgs.ai_skill_invoke.lianpo = true
 
 sgs.ai_skill_invoke.jilve=function(self,data)
-	local struct
 	local n=self.player:getMark("@bear")
 	local use=(n>2 or self:getOverflow()>0)
-	struct=data:toCard()
-	if not struct then
-		struct=data:toCardUse()
-		if struct then
-			if not struct.card then struct=nil elseif struct.card:inherits("ExNihilo") then use=true end
-		end
+	if sgs.lastevent == sgs.AskForRetrial or sgs.lastevent == sgs.StartJudge then
+		local judge = data:toJudge()
+		if not self:needRetrial(judge) then return false end
+		return (use or judge.who == self.player) and self:getRetrialCardId(sgs.QList2Table(self.player:getHandcards()),judge) ~= -1
+	elseif sgs.lastevent == sgs.Damage then
+		return use and self:askForUseCard("@@fangzhu","@fangzhu")~="."
+	else
+		local card = data:toCard()
+		card = card or data:toCardUse().card
+		return use or card:inherits("ExNihilo")
 	end
-	if struct then return use end
-	struct=data:toDamage()
-	if struct then if not struct.to==self.player then struct=nil end end
-	if struct then return (use and self:askForUseCard("@@fangzhu","@fangzhu")~=".") end
-	struct=data:toJudge()
-	if struct then if not struct.card then struct=nil end end
-	if not struct then assert(false) end
-	return (use and sgs.ai_skill_invoke["@shouqiu"](self,"dummyprompt",struct)~=".")
 end
 
 local jilve_skill={}
@@ -409,4 +399,32 @@ sgs.ai_skill_use["@zhiheng"]=function(self,prompt)
 	self:useSkillCard(card,dummy_use)
 	if dummy_use.card then return (dummy_use.card):toString() .. "->." end
 	return "."
+end
+
+sgs.ai_skill_playerchosen.wuhun = function(self, targets)
+	local targetlist=sgs.QList2Table(targets)
+	local target
+	for _, player in ipairs(targetlist) do
+		if self:isEnemy(player) and (not target or target:getHp() < player:getHp()) then
+			target = player
+		end
+	end
+	if target then return target end
+	self:sort(targetlist, "hp")
+	if self.player:getRole() == "loyalist" and targetlist[1]:isLord() then return targetlist[2] end
+	return targetlist[1]
+end
+
+local longhun_skill={}
+longhun_skill.name="longhun"
+table.insert(sgs.ai_skills, longhun_skill)
+longhun_skill.getTurnUseCard = function(self)
+	if self.player:getHp()>1 then return end
+	local cards=sgs.QList2Table(self.player:getCards("he"))
+	self:sortByUseValue(cards,true)
+	for _, card in ipairs(cards) do
+		if card:getSuit() == sgs.Card_Diamond then
+			return sgs.Card_Parse(("fire_slash:longhun[%s:%s]=%d"):format(card:getSuitString(),card:getNumberString(),card:getId()))
+		end
+	end
 end

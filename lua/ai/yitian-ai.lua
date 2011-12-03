@@ -87,6 +87,55 @@ sgs.ai_skill_invoke.tongxin = true
 -- wuling, choose a effect randomly
 sgs.ai_skill_choice.wuling = function(self, choices)
 	local choices_table = choices:split("+")
+	local available = {}
+	for _, availchoice in ipairs(choices_table) do
+		available[availchoice] = true
+	end
+	if available["water"] then
+		self:sort(self.friends, "hp")
+		if self:isWeak(self.friends[1]) then return "water" end
+	end
+	if available["earth"] then
+		if #(self:getChainedFriends()) > #(self:getChainedEnemies()) and
+			#(self:getChainedFriends()) + #(self:getChainedEnemies()) > 1 then return "earth" end
+		if self:hasWizard(self.enemies, true) and not self:hasWizard(self.friends, true) then
+			for _, player in sgs.qlist(self.room:getAlivePlayers()) do
+				if player:containsTrick("lightning") then return "earth" end
+			end
+		end
+	end
+	if available["fire"] then
+		for _,enemy in ipairs(self.enemies) do
+			if self:isEquip("GaleShell", enemy) or self:isEquip("Vine", enemy) then return "fire" end
+		end
+		if #(self:getChainedFriends()) < #(self:getChainedEnemies()) and
+			#(self:getChainedFriends()) + #(self:getChainedEnemies()) > 1 then return "fire" end
+	end
+	if available["wind"] then
+		for _,enemy in ipairs(self.enemies) do
+			if self:isEquip("GaleShell", enemy) or self:isEquip("Vine", enemy) then return "wind" end
+		end
+		for _,friend in ipairs(self.friends) do
+			if friend:hasSkill("huoji") then return "wind" end
+		end
+		if #(self:getChainedFriends()) < #(self:getChainedEnemies()) and
+			#(self:getChainedFriends()) + #(self:getChainedEnemies()) > 1 then return "wind" end
+		for _,friend in ipairs(self.friends) do
+			if self:isEquip("Fan", friend) then return "wind" end
+		end
+		if self:getCardId("FireSlash") or self:getCardId("FireAttack") then return "wind" end
+	end
+	if available["thunder"] then
+		if self:hasWizard(self.friends,true) and not self:hasWizard(self.enemies,true) then
+			for _, player in sgs.qlist(self.room:getAlivePlayers()) do
+				if player:containsTrick("lightning") then return "thunder" end
+			end
+			for _, friend in ipairs(self.friends) do
+				if friend:hasSkill("leiji") then return "thunder" end
+			end
+		end
+		if self:getCardId("ThunderSlash") then return "thunder" end
+	end
 	return choices_table[math.random(1, #choices_table)]
 end
 
@@ -101,6 +150,27 @@ sgs.ai_skill_invoke.toudu = function(self, data)
 end
 
 sgs.ai_skill_playerchosen.toudu = sgs.ai_skill_playerchosen.zero_card_as_slash
+
+-- yitian-sword
+
+-- hit enemy when yitian sword was lost
+sgs.ai_skill_invoke["yitian-lost"] = function(self, data)
+	if next(self.enemies) then
+		return true
+	else
+		return false
+	end
+end
+
+sgs.ai_skill_playerchosen["yitian_lost"] = sgs.ai_skill_playerchosen.damage
+
+sgs.ai_skill_invoke["yitian_sword"] = function(self, targets)
+	local slash=self:getCard("Slash")
+	if not slash then return false end
+	dummy_use={isDummy=true}
+	self:useBasicCard(slash,dummy_use)
+	if dummy_use.card then return true else return false end
+end
 
 -- zhenwei
 sgs.ai_skill_invoke.zhenwei = true
@@ -140,7 +210,7 @@ local function chooseKingdomForPlayer(self, to_modify)
 			return lord:getKingdom()
 		else
 			-- find a kingdom that is different from the lord
-			local kingdoms = {"wei", "shu", "wu", "qun"}
+			local kingdoms = {"zhen", "shu", "wu", "qun"}
 			for _, kingdom in ipairs(kingdoms) do
 				if lord:getKingdom() ~= kingdom then
 					return kingdom
@@ -148,10 +218,10 @@ local function chooseKingdomForPlayer(self, to_modify)
 			end
 		end
 	elseif lord:hasLordSkill("xueyi") and not to_modify:isLord() then
-		return isGood and "qun" or "wei"
+		return isGood and "qun" or "zhen"
 	end
 
-	return "wei"
+	return "zhen"
 end
 
 sgs.ai_skill_choice.guixin2 = function(self, choices)
@@ -202,11 +272,10 @@ sgs.ai_skill_invoke.lukang_weiyan = function(self, data)
 	local handcard = self.player:getHandcardNum()
 	local max_card = self.player:getMaxCards()
 
-	if self.player:getPhase() == sgs.Player_Draw then
-		-- weiyan1: Draw -> Play
-		return handcard >= max_card
-	elseif self.player:getPhase() == sgs.Player_Play then
-		-- weiyan2: Play -> Draw
+	prompt = data:toString()
+	if prompt == "draw2play" then
+		return handcard >= max_card and #(self:getTurnUse())>0
+	elseif prompt == "play2draw" then
 		return handcard < max_card
 	end
 end
@@ -272,4 +341,72 @@ sgs.ai_skill_invoke.gongmou = true
 sgs.ai_skill_playerchosen.gongmou = function(self,choices)
 	self:sort(self.enemies,"defense")
 	return self.enemies[1]
+end
+
+sgs.ai_cardshow.lexue = function(self, requestor)
+	local cards = self.player:getHandcards()
+	if self:isFriend(requestor) then
+		for _, card in sgs.qlist(cards) do
+			if card:inherits("Peach") and requestor:isWounded() then
+				result = card
+			elseif card:isNDTrick() then
+				result = card
+			elseif card:inherits("EquipCard") then
+				result = card
+			elseif card:inherits("Slash") then
+				result = card
+			end
+			if result then return result end
+		end
+	else
+		for _, card in sgs.qlist(cards) do
+			if card:inherits("Jink") or card:inherits("Shit") then
+				result = card
+				return result
+			end
+		end
+	end
+	return self.player:getRandomHandCard() 
+end
+
+local lexue_skill={name="lexue"}
+table.insert(sgs.ai_skills,lexue_skill)
+lexue_skill.getTurnUseCard = function(self)
+	if not self.player:hasUsed("LexueCard") then return sgs.Card_Parse("@LexueCard=.") end
+	if self.player:hasFlag("lexue") and self.lexuesuccess then return sgs.Card_Parse("@LexueCard=.") end
+end
+
+sgs.ai_skill_use_func["LexueCard"] = function(card, use, self)
+	if self.player:hasFlag("lexue") then
+		local lexuesrc = sgs.Sanguosha:getCard(self.player:getMark("lexue"))
+		local cards = sgs.QList2Table(self.player:getHandcards())
+		self:sortByUseValue(cards, true)
+		for _, hcard in ipairs(cards) do
+			if hcard:getSuit() == lexuesrc:getSuit() then
+				local lexue = ("%s:lexue[%s:%s]=%d"):format(lexuesrc:objectName(),
+					lexuesrc:getSuitString(), lexuesrc:getNumberString(), hcard:getId())
+				lexue = sgs.Card_Parse(lexue)
+				if self:getUseValue(lexue) > self:getUseValue(hcard) then
+					if lexue:inherits("BasicCard") then
+						self:useBasicCard(lexue, use)
+					else
+						self:useTrickCard(lexue, use)
+					end
+				end
+			end						
+		end
+	else
+		use.card = card
+		if use.to then
+			self:sort(self.enemies, "hp")
+			enemy = self.enemies[1]
+			if self:isWeak(enemy) and not enemy:isKongcheng() then
+				use.to:append(enemy)
+				return
+			end
+			self:sort(self.friends_noself, "handcard")
+			friend = self.friends_noself[#self.friends_noself]
+			if not friend:isKongcheng() then use.to:append(friend) end
+		end
+	end
 end

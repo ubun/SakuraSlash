@@ -2,8 +2,6 @@
 
 return {
 	["maneuvering"] = "增补卡牌包",
-	["buff_card"] = "辅助伤害卡",
-	["damage_spread"] = "伤害传导",
 	["fire_attack"] = "火攻",
 	["thunder_slash"] = "雷杀",
 	["fire_slash"] = "火杀",

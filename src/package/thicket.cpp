@@ -983,11 +983,11 @@ ThicketPackage::ThicketPackage()
 {
     General *shiratorininzaburou = new General(this, "shiratorininzaburou", "jing");
     shiratorininzaburou->addSkill(new Guilin);
-/*
+
     General *hondoueisuke = new General(this, "hondoueisuke", "za");
     hondoueisuke->addSkill(new Mihu);
     hondoueisuke->addSkill(new Zhizhuo);
-*/
+
 }
 
 ADD_PACKAGE(Thicket)

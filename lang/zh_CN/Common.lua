@@ -43,6 +43,28 @@ return {
 	["yes"] = "是",
 	["no"] = "否",
 
+	["attack_card"] = "进攻牌",
+	["defense_card"] = "防御牌",
+	["recover_card"] = "恢复牌",
+	["disgusting_card"] = "恶心牌",
+	["global_effect"] = "全局效果",
+	["aoe"] = "范围效果",
+	["single_target_trick"] = "单体锦囊",
+	["delayed_trick"] = "延时锦囊",
+	["buff_card"] = "辅助伤害卡",
+	["damage_spread"] = "伤害传导",
+	["weapon"] = "武器",
+	["armor"] = "防具",
+	["defensive_car"] = "防御车",
+	["offensive_car"] = "进攻车",
+
+	["disgusting_card"] = "恶心牌",
+
+	["wei"] = "魏",
+	["shu"] = "蜀",
+	["wu"] = "吴",
+	["qun"] = "群",
+
 	["test"] = "测试",
 	["sujiang"] = "素将",
 	["sujiangf"] = "素将(女)",

@@ -17,7 +17,7 @@ local function card_for_qiaobian(self, who, return_prompt)
 		end
 
 		local equips = who:getCards("e")
-		if not equips:isEmpty() then
+		if not target and not equips:isEmpty() then
 			for _, equip in sgs.qlist(equips) do
 				if equip:inherits("OffensiveCar") then card = equip break
 				elseif equip:inherits("DefensiveCar") then card = equip break
@@ -247,7 +247,7 @@ sgs.ai_skill_invoke.fangquan = function(self, data)
 	end
 
 	local limit = self.player:getMaxCards()
-	return self.player:getHandcardNum() <= limit
+	return self.player:getHandcardNum() <= limit and not self.player:isKongcheng()
 end
 
 sgs.ai_skill_playerchosen.fangquan = function(self, targets)
@@ -404,7 +404,7 @@ zhiba_skill.getTurnUseCard = function(self)
 			max_card = hcard
 		end
 
-		if hcard:getNumber() <= min_num then
+		if hcard:getNumber() <= min_num and not (self:isFriend(lord) and hcard:inherits("Shit")) then
 			if hcard:getNumber() == min_num then
 				if min_card and self:getKeepValue(hcard) > self:getKeepValue(min_card) then
 					min_num = hcard:getNumber()
