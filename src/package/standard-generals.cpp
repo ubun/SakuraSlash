@@ -1993,7 +1993,7 @@ void StandardPackage::addGenerals(){
     sharon = new General(this, "sharon", "yi", 3, false);
     sharon->addSkill(new Yirong);
     sharon->addSkill(new MarkAssignSkill("@yaiba", 1));
-    related_skills.insertMulti("yirong", "#@yaiba");
+    related_skills.insertMulti("yirong", "#@yaiba-1");
     sharon->addSkill(new Wuyu);
 
     General *megurejyuuzou, *matsumotokiyonaka, *otagiritoshirou;
@@ -2014,7 +2014,7 @@ void StandardPackage::addGenerals(){
     kurobakaitou = new General(this, "kurobakaitou", "guai");
     kurobakaitou->addSkill(new Tishen);
     kurobakaitou->addSkill(new MarkAssignSkill("@fake", 1));
-    related_skills.insertMulti("tishen", "#@fake");
+    related_skills.insertMulti("tishen", "#@fake-1");
     //kurobakaitou->addSkill(new MarkAssignSkill("magic", 1));
     kurobakaitou->addSkill(new Moshu);
 
@@ -2026,7 +2026,7 @@ void StandardPackage::addGenerals(){
     gin = new General(this, "gin$", "hei");
     gin->addSkill(new Ansha);
     gin->addSkill(new MarkAssignSkill("@ansha", 1));
-    related_skills.insertMulti("ansha", "#@ansha");
+    related_skills.insertMulti("ansha", "#@ansha-1");
     gin->addSkill(new Juelu);
     gin->addSkill(new Heiyi);
 
