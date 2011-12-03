@@ -1144,7 +1144,7 @@ public:
     }
 
     virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
-        return selected.length() <= 2;
+        return selected.length() < 2;
     }
 
     virtual const Card *viewAs(const QList<CardItem *> &cards) const{

@@ -184,7 +184,7 @@ return {
 	["suyuan"] = "溯源",
 	[":suyuan"] = "在你参与的伤害事件结算前，你可以更改伤害来源",
 	["#SuyuanChange"] = "%from 将本次伤害来源更改为 %to",
-	["#BeetleChange"] = "%from 将本次伤害目标更改为 %to", 
+	["#BeetleChange"] = "%from 将本次伤害目标更改为 %to",
 	["baomu"] = "保姆",
 	[":baomu"] = "主公技，在少势力角色濒死时，你可以弃一张黑桃手牌，为其回复1点体力",
 	["@baomu"] = "你可以弃掉一张黑桃牌，为 %src 回复一点体力",

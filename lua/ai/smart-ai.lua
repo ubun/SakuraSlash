@@ -719,7 +719,7 @@ end
 sgs.ai_skill_invoke = {
 	eight_diagram = function(self, data)
 		for _, enemy in ipairs(self.enemies) do
-			if enemy:hasSkill("guidao") and enemy:getCards("he"):length()>2 then return false end
+			if enemy:hasSkill("fating") and enemy:getCards("h"):length()>2 then return false end
 		end
 		if sgs.hujiasource and not self:isFriend(sgs.hujiasource) then return false end
 		if sgs.lianlisource and not self:isFriend(sgs.lianlisource) then return false end
@@ -872,6 +872,15 @@ function SmartAI:slashIsEffective(slash, to)
 		if slash:isBlack() then
 			return false
 		end		
+	end
+	if to:hasSkill("huachi") then
+		local players = self.room:getAllPlayers()
+		players = sgs.QList2Table(players)
+		for _, player in ipairs(players) do
+			if player:getMark("@flower") > 0 and self:isFriend(player) then
+				return false
+			end
+		end
 	end
 	
 	local nature = {
@@ -2811,6 +2820,17 @@ function SmartAI:askForCard(pattern, prompt, data)
 		elseif self:isEnemy(player) and not self.player:isKongcheng() then
 			if self:getCardId("Shit") then return self:getCardId("Shit") end
 			if self:getCardId("Disaster") then return self:getCardId("Disaster") end
+		end
+		return "."
+	elseif parsedPrompt[1] == "@nijian" then
+		local allcards = self.player:getCards("he")
+		allcards = sgs.QList2Table(allcards)
+		local damage = data:toDamage()
+		if damage.from == self.player then return "." end
+		for _, fcard in ipairs(allcards) do
+			if fcard:getSuit() == damage.card:getSuit() then
+				return fcard:getEffectiveId()
+			end
 		end
 		return "."
 	elseif parsedPrompt[1] == "@dushu" then

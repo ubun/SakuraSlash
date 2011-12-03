@@ -986,8 +986,8 @@ SecretsPackage::SecretsPackage()
     tips.at(3)->setObjectName("kiss");
     tips.at(4)->setObjectName("nvyanyuan");
     tips.at(5)->setObjectName("dikaer");
-    /*tips.at(6)->setObjectName("zuanshi");
-    tips.at(7)->setObjectName("zifahuxi");
+    tips.at(6)->setObjectName("zuanshi");
+    /*tips.at(7)->setObjectName("zifahuxi");
     tips.at(8)->setObjectName("jiban");
     tips.at(9)->setObjectName("shipinliaotian");
     tips.at(10)->setObjectName("dianti");

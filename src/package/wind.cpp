@@ -328,9 +328,9 @@ public:
             return false;
         Room *room = heiji->getRoom();
         QString suit_str = card->getSuitString();
-        QString pattern = QString(".%1").arg(suit_str.at(0).toUpper());
+        QString pattern = QString("..%1").arg(suit_str.at(0).toUpper());
         QString prompt = QString("@nijian:%1::%2").arg(damage.from->getGeneralName()).arg(suit_str);
-        if(room->askForCard(heiji, pattern, prompt)){
+        if(room->askForCard(heiji, pattern, prompt, data)){
             damage.to = damage.from;
             room->damage(damage);
             return true;
@@ -889,6 +889,7 @@ bool WeixiaoCard::targetFilter(const QList<const Player *> &targets, const Playe
 
 void WeixiaoCard::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.from->getRoom();
+    effect.to->obtainCard(this);
     LogMessage log;
     log.from = effect.to;
     log.to << effect.from;
