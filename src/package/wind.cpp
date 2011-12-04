@@ -205,16 +205,28 @@ public:
         if(genta->getPhase() == Player::Start && genta->isWounded()
             && genta->askForSkillInvoke(objectName())){
             Room *room = genta->getRoom();
+
             int card_id = room->drawCard();
+            room->moveCardTo(Sanguosha->getCard(card_id), NULL, Player::Special, true);
+            LogMessage log;
+            log.from = genta;
+            log.type = "$Manyu";
+            log.card_str = QString::number(card_id);
+            room->sendLog(log);
             room->getThread()->delay();
+
             if(Sanguosha->getCard(card_id)->getSuit() == Card::Spade){
                 RecoverStruct recover;
                 recover.card = Sanguosha->getCard(card_id);
                 room->recover(genta, recover);
+                room->throwCard(card_id);
             }
             else{
                 ServerPlayer *target = room->askForPlayerChosen(genta, room->getOtherPlayers(genta), objectName());
+                log.type = "$ManyuTo";
+                log.to << target;
                 room->obtainCard(target, card_id);
+                room->sendLog(log);
             }
         }
         return false;
@@ -695,7 +707,7 @@ public:
             if(zhenjing.isEmpty())
                 return false;
             room->setPlayerMark(heizou, "lingjia", use.card->getNumber());
-            if(room->askForCard(heizou, ".Lj", prompt)){
+            if(room->askForCard(heizou, ".Lj", prompt, data)){
                 ServerPlayer *target = room->askForPlayerChosen(heizou, zhenjing, objectName());
                 target->obtainCard(use.card);
                 return true;

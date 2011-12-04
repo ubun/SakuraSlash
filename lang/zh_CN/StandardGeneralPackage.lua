@@ -174,7 +174,7 @@ return {
 	["#Jushenslash"] = "%from 的锁定技【%arg】生效，目标不可闪避",
 	["xunzhi"] = "殉职",
 	[":xunzhi"] = "锁定技，当你死亡时，令包括杀死你的角色在内的一共两名角色获得以下技能直到游戏结束：摸牌阶段，少摸一张牌",
-	["#Xunzhieffect"] = "%from 受到【%arg】效果的影响，少摸了1张牌",
+	["#Xunzhieffect"] = "%from 受到【%arg】效果的影响，少摸了 1 张牌",
 	["@aka"] = "红色",
 
 	["agasahiroshi"] = "阿笠博士",

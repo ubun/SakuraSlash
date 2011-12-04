@@ -97,6 +97,11 @@ sgs.ai_skill_invoke["ouxiang"] = function(self, data)
 	return self.player:getHandcardNum() < 10
 end
 
+-- lingjia
+sgs.ai_skill_playerchosen["lingjia"] = function(self, targets)
+	return targets[1]
+end
+
 -- yinsi
 sgs.ai_skill_choice["yinsi"] = function(self, choices)
 	local target = self.room:getTag("YinsTarget"):toPlayer()
@@ -186,7 +191,67 @@ end
 sgs.ai_skill_invoke["kuai"] = true
 sgs.ai_skill_invoke["dianwan"] = true
 
+-- qianmian
+sgs.ai_skill_choice["qianmian"] = function(self, choices)
+	if self.player:getRole() == "rebel" then
+		return "loyalist"
+	elseif self.player:getRole() == "loyalist" then
+		return "renegade"
+	else
+		return "cancel"
+	end
+end
 
+-- qingdi
+sgs.ai_skill_invoke["qingdi"] = true
+sgs.ai_skill_playerchosen["qingdi"] = function(self, targets)
+	self:sort(self.enemies, "hp")
+	local target = self.enemies[1]
+	if not target then target = targets[1] end
+	return target
+end
+
+-- zhiyu
+local zhiyu_skill={}
+zhiyu_skill.name = "zhiyu"
+table.insert(sgs.ai_skills, zhiyu_skill)
+zhiyu_skill.getTurnUseCard = function(self)
+	if self.player:isNude() or self.player:hasUsed("ZhiyuCard") then return nil end
+	local cards = self.player:getCards("he")
+	cards=sgs.QList2Table(cards)
+	self:sortByKeepValue(cards)
+	local card_str = ("@ZhiyuCard=%d"):format(cards[1]:getId())
+	return sgs.Card_Parse(card_str)
+end
+sgs.ai_skill_use_func["ZhiyuCard"]=function(card,use,self)
+	self:sort(self.friends, "defense")
+	for _, friend in ipairs(self.friends) do
+		if friend:isWounded() then
+			use.card=card
+			if use.to then use.to:append(friend) end
+			return
+		end
+	end
+end
+sgs.ai_skill_invoke["zhiyu"] = true
+
+-- yanshi
+sgs.ai_skill_invoke["yanshi"] = function(self, data)
+	local damage = data:toDamageStar()
+	if not damage then return true end
+	local cards = damage.to:getHandcards()
+	local shit_num = 0
+	for _, card in sgs.qlist(cards) do
+		if card:inherits("Shit") then
+			shit_num = shit_num + 1
+			if card:getSuit() == sgs.Card_Spade then
+				shit_num = shit_num + 1
+			end
+		end
+	end
+	if shit_num > 1 then return false end
+	return true
+end
 
 -- liegong, same with tieji
 sgs.ai_skill_invoke.liegong = sgs.ai_skill_invoke.tieji

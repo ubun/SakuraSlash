@@ -2833,6 +2833,18 @@ function SmartAI:askForCard(pattern, prompt, data)
 			end
 		end
 		return "."
+	elseif parsedPrompt[1] == ".Lj" then
+		local carduse = data:toCardUse()
+		if self:isEnemy(carduse.from) then
+			local allcards = self.player:getCards("he")
+			allcards = sgs.QList2Table(allcards)
+			for _, fcard in ipairs(allcards) do
+				if self.player:getMark("lingjia") == carduse.card:getNumber() then
+					return fcard:getEffectiveId()
+				end
+			end
+		end
+		return "."
 	elseif parsedPrompt[1] == "@dushu" then
 		local player = data:toPlayer()
 		if self:isEnemy(player) then
