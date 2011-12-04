@@ -208,51 +208,6 @@ public:
     }
 };
 
-class Duanchang: public TriggerSkill{
-public:
-    Duanchang():TriggerSkill("duanchang"){
-        events << Death;
-
-        frequency = Compulsory;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return target->hasSkill(objectName());
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        DamageStar damage = data.value<DamageStar>();
-
-        if(damage && damage->from){
-            Room *room = player->getRoom();
-
-            LogMessage log;
-            log.type = "#DuanchangLoseSkills";
-            log.from = player;
-            log.to << damage->from;
-            room->sendLog(log);
-
-            QList<const Skill *> skills = damage->from->getVisibleSkillList();
-            foreach(const Skill *skill, skills){
-                if(skill->parent())
-                    room->detachSkillFromPlayer(damage->from, skill->objectName());
-            }
-
-            QString kingdom = damage->from->getKingdom();
-
-            QString to_transfigure = damage->from->getGeneral()->isMale() ? "sujiang" : "sujiangf";
-            room->setPlayerProperty(damage->from, "general", to_transfigure);
-            if(damage->from->getGeneral2())
-                room->setPlayerProperty(damage->from, "general2", to_transfigure);
-            room->setPlayerProperty(damage->from, "kingdom", kingdom);
-
-            room->resetAI(damage->from);
-        }
-
-        return false;
-    }
-};
-
 class Guixiang: public GameStartSkill{
 public:
     Guixiang():GameStartSkill("guixiang"){

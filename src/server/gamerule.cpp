@@ -565,9 +565,11 @@ void GameRule::rewardAndPunish(ServerPlayer *killer, ServerPlayer *victim) const
     if(killer->getRoom()->getMode() == "06_3v3"){
         killer->drawCards(3);
     }else{
-        if(victim->getRole() == "rebel" && killer != victim){
+        QString role = !victim->hasSkill("qianmian") ? victim->getRole():
+                       victim->tag.value("Qmmv").toString();
+        if(role == "rebel" && killer != victim){
             killer->drawCards(3);
-        }else if(victim->getRole() == "loyalist" && killer->getRole() == "lord"){
+        }else if(role == "loyalist" && killer->getRole() == "lord"){
             killer->throwAllEquips();
             killer->throwAllHandCards();
         }

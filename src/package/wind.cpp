@@ -960,6 +960,35 @@ public:
     }
 };
 
+class Qianmian: public TriggerSkill{
+public:
+    Qianmian():TriggerSkill("qianmian"){
+        events << Death;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        Room *room = target->getRoom();
+        return !target->isLord() && target->hasSkill(objectName()) && room->getMode() != "06_3v3";
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        player->tag["Qmmv"] = player->getRole();
+        QString role = room->askForChoice(player, objectName(), "renegade+rebel+loyalist+cancel");
+        if(role != "cancel"){
+            LogMessage log;
+            log.type = "#Qianmian";
+            log.from = player;
+            log.arg = role;
+            log.arg2 = objectName();
+            room->sendLog(log);
+
+            player->tag["Qmmv"] = role;
+        }
+        return false;
+    }
+};
+
 class Kuai: public TriggerSkill{
 public:
     Kuai():TriggerSkill("kuai$"){
@@ -1303,6 +1332,7 @@ WindPackage::WindPackage()
 
     General *vermouth = new General(this, "vermouth$", "hei", 4, false);
     vermouth->addSkill(new Weixiao);
+    vermouth->addSkill(new Qianmian);
     vermouth->addSkill(new Kuai);
 
     General *jodie = new General(this, "jodie", "te", 3, false);

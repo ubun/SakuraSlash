@@ -3,8 +3,8 @@
 return {
 	["standard"] = "标准版",
 
-	["designer:otagiritoshirou"] = "Ailue、尉迟泱",
-	["designer:kobayashisumiko"] = "Ailue、尉迟泱",
+	["designer:otagiritoshirou"] = "宇文天启、尉迟泱",
+	["designer:kobayashisumiko"] = "宇文天启、尉迟泱",
 
 	["kudoushinichi"] = "工藤新一",
 	["zhenxiang"] = "真相",
