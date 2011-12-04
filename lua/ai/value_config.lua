@@ -9,6 +9,8 @@ sgs.dynamic_value = {
 		
 		DiaobingCard = true,
 		AnshaCard = true,
+	-- wind
+		WeijiaoCard = true,
 	},
 	control_usecard = 
 	{
@@ -30,6 +32,12 @@ sgs.dynamic_value = {
 		RenxingCard = true,
 		YuandingCard = true,
 		JingshenCard = true,
+	-- wind
+		FatingCard = true,
+		TuanzhangCard = true,
+		HuachiCard = true,
+		YunchouCard = true,
+		WeixiaoCard = true,
 	},
 	lucky_chance = 
 	{
@@ -47,6 +55,10 @@ sgs.dynamic_value = {
 		ZhenxiangCard = true,
 		RenxingCard = true,
 		MazuiCard = true,
+	-- wind
+		TuanzhangCard = true,
+		WeijiaoCard = true,
+		ZhiyuCard = true,
 	},
 }
 

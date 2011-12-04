@@ -52,6 +52,14 @@ sgs.ai_use_value =
 		MaixiongCard = 8.5,
 		YuandingCard = 4.4,
 		JingshenCard = 2.6,
+	-- wind
+		TuanzhangCard = 7.5,
+		HuachiCard = 6.6,
+		YunchouCard = 8.1,
+		WeijiaoCard = 9.7,
+		WeixiaoCard = 5.9,
+		ShuangyuCard = 4.3,
+		ZhiyuCard = 9.3,
 --normal cards
 		ExNihilo=10,
 
@@ -122,7 +130,13 @@ sgs.ai_use_priority = {
 		MaixiongCard = 5.8,
 		YuandingCard = 6,
 		JingshenCard = 1.7,
-		
+	-- wind
+		TuanzhangCard = 7.2,
+		HuachiCard = 1.5,
+		YunchouCard = 3.2,
+		WeixiaoCard = 4.4,
+		ShuangyuCard = 0.7,
+		ZhiyuCard = 7.3,
 --
 		Peach = 4.1,
 
@@ -171,15 +185,6 @@ sgs.ai_use_priority = {
 		GaleShell=0.9,
 
 		DefensiveCar = 0,
-
-		--god_salvation
-		--deluge
-		--supply_shortage
-		--earthquake
-		--indulgence
-		--mudslide
-		--lightning
-		--typhoon
 }
 
 
@@ -216,5 +221,14 @@ sgs.ai_chaofeng = {
 		kojimagenta = 2,
 		heiji = 4,
 		okidasouji = 1,
+		suzukisonoko = -2,
+		okinoyouko = -2,
+		hattoriheizou = 7,
+		touyamaginshirou = 5,
+		nakamoriginzou = 6,
+		vermouth = 1,
+		jodie = 1,
+		araidetomoaki = 7,
+		tomesan = 7,
 }
 

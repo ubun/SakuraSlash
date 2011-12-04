@@ -22,22 +22,20 @@ kobayashisumiko 71 7 69 9
 yamamuramisae 82 11 94 8
 aoyamagoushou 61 6 122 11
 
-
-caocao 108 8 65 10
-zhangliao 90 10 69 15
-simayi 98 10 107 15
-xiahoudun 129 5 111 6
-guojia 104 8 64 12
-xuchu 79 6 60 15
-zhenji 8 7 54 12
-
-liubei 73 8 56 12
-guanyu 68 6 58 8
-zhugeliang 136 5 123 10
-zhangfei 21 3 59 12
-zhaoyun 122 8 57 8
-machao 4 6 124 10
-huangyueying 88 8 81 12
+kisakieri 108 8 65 10
+kujoureiko 90 10 69 15
+kojimagenta 98 10 107 15
+heiji 129 5 111 6
+okidasouji 104 8 64 12
+suzukisonoko 79 6 60 15
+okinoyouko 8 7 54 12
+hattoriheizou 73 8 56 12
+touyamaginshirou 68 6 58 8
+nakamoriginzou 136 5 123 10
+vermouth 21 3 59 12
+jodie 122 8 57 8
+araidetomoaki 4 6 124 10
+tomesan 88 8 81 12
 
 sunquan 97 8 53 15
 ganning 114 5 109 10
