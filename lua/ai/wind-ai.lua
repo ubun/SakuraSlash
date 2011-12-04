@@ -157,7 +157,7 @@ local weixiao_skill={}
 weixiao_skill.name = "weixiao"
 table.insert(sgs.ai_skills, weixiao_skill)
 weixiao_skill.getTurnUseCard = function(self)
-	if self.player:isNude() then return end
+	if self.player:hasUsed("WeixiaoCard") or self.player:isNude() then return nil end
 	local hasgit = false
 	for _, friend in ipairs(self.friends) do
 		if friend:getGeneral():isMale() then
@@ -181,6 +181,7 @@ sgs.ai_skill_use_func["WeixiaoCard"]=function(card,use,self)
 		if friend:getGeneral():isMale() then
 			if use.to then use.to:append(friend) end
 			use.card = card
+			return
 		end
 	end
 end

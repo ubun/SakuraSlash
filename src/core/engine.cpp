@@ -38,6 +38,8 @@ extern "C" {
     Package *NewStandardCard();
     Package *NewBlackDragon();
     Package *NewThunderBird();
+    //Package *NewWhiteTiger();
+    //Package *NewIronDino();
 //    Package *NewGod();
 //    Package *NewYitian();
     Package *NewNostalgia();

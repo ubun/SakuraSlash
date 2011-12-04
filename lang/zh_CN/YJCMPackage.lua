@@ -1,8 +1,8 @@
 -- translation for YJCM Package
 
 return {
-	["YJCM"] = "一将成名", 
-	
+	["YJCM"] = "一将成名",
+
 	["caozhi"] = "曹植",
 	["yujin"] = "于禁",
 	["fazheng"] = "法正",
@@ -63,9 +63,13 @@ return {
 	["#WuyanGood"] = "%from 的锁定技【无言】被触发， %to 的锦囊【%arg】对其无效",
 	["#EnyuanRecover"] = "%from 的锁定技【恩怨】被触发，对其恢复体力的角色 %to 将摸 %arg 张牌",
 	["@enyuan"] = "请展示一张红桃手牌并交给对方",
+	["#GanluSwap"] = "%from 交换了 %to 之间的装备",
 	["@xianzhen-slash"] = "你可以对陷阵目标不限次数出杀",
 	["#ZhichiDamaged"] = "%from 受到了伤害，本回合内【杀】和非延时锦囊都将对其无效",
 	["#ZhichiAvoid"] = "%from 的锁定技【智迟】被触发，【杀】和非延时锦囊对其无效",
+	["mingce:nothing"] = "收下此牌",
+	["mingce:use"] = "视为对其攻击范围内的另一名由你指定的角色使用一张【杀】",
+	["mingce:draw"] = "摸一张牌",
 	["#HuileiThrow"] = "%from 的锁定技【挥泪】被触发，凶手 %to 需要弃掉所有的装备和手牌",
 	["xuanfeng:nothing"] = "不发动",
 	["xuanfeng:damage"] = "对距离1以内的其他角色造成伤害",
