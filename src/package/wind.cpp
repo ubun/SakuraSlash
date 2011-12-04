@@ -316,6 +316,8 @@ public:
     }
 
     virtual void onGameStart(ServerPlayer *kojima) const{
+        if(!kojima->isLord())
+            return;
         Room *room = kojima->getRoom();
         QList<ServerPlayer *> players = room->getAlivePlayers();
         foreach(ServerPlayer *player, players){

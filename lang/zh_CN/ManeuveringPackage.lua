@@ -1,7 +1,7 @@
 -- translation for ManeuveringPackage
 
 return {
-	["maneuvering"] = "增补卡牌包",
+	["black_dragon"] = "青龙",
 	["fire_attack"] = "火攻",
 	["thunder_slash"] = "雷杀",
 	["fire_slash"] = "火杀",
@@ -40,6 +40,7 @@ return {
 	[":citroBX"] = "其他角色计算与你的距离时，始终+1。（你可以理解为一种防御上的优势）<br/>\
 ◆？？专用技：？？",
 
+	["thunder_bird"] = "朱雀",
 	["gale-shell"] = "狂风甲",
 	[":gale-shell"] = "锁定技，每次受到火焰伤害时，该伤害+1；你可以将狂风甲装备和你距离为1以内的一名角色的装备区内",
 	["#GaleShellDamage"] = "%from 装备【狂风甲】的负面技能被触发，由 %arg 点火焰伤害增加到 %arg2 点火焰伤害",

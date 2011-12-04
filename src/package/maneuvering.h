@@ -70,13 +70,6 @@ public:
     virtual void onUninstall(ServerPlayer *player) const;
 };
 
-class RenwangShield: public Armor{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE RenwangShield(Card::Suit suit, int number);
-};
-
 class IronChain: public TrickCard{
     Q_OBJECT
 
@@ -112,6 +105,20 @@ public:
 
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual void takeEffect(ServerPlayer *target) const;
+};
+
+class BlackDragonPackage: public Package{
+    Q_OBJECT
+
+public:
+    BlackDragonPackage();
+};
+
+class RenwangShield: public Armor{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE RenwangShield(Card::Suit suit, int number);
 };
 
 class Emigration:public DelayedTrick{
@@ -151,11 +158,11 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class ManeuveringPackage: public Package{
+class ThunderBirdPackage: public Package{
     Q_OBJECT
 
 public:
-    ManeuveringPackage();
+    ThunderBirdPackage();
 };
 
 #endif // MANEUVERING_H

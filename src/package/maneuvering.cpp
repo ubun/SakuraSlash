@@ -365,6 +365,84 @@ void SupplyShortage::takeEffect(ServerPlayer *target) const{
     target->skip(Player::Draw);
 }
 
+BlackDragonPackage::BlackDragonPackage()
+    :Package("black_dragon")
+{
+    QList<Card *> cards;
+
+    // spade
+    cards
+            << new GudingBlade(Card::Spade, 1)
+            << new Vine(Card::Spade, 2)
+            << new Analeptic(Card::Spade, 3)
+            << new ThunderSlash(Card::Spade, 4)
+            << new ThunderSlash(Card::Spade, 5)
+            << new ThunderSlash(Card::Spade, 6)
+            << new ThunderSlash(Card::Spade, 7)
+            << new ThunderSlash(Card::Spade, 8)
+            << new Analeptic(Card::Spade, 9)
+            << new SupplyShortage(Card::Spade,10)
+            << new IronChain(Card::Spade, 11)
+            << new IronChain(Card::Spade, 12)
+            << new Nullification(Card::Spade, 13);
+
+    // club
+    cards
+            << new SilverLion(Card::Club, 1)
+            << new Vine(Card::Club, 2)
+            << new Analeptic(Card::Club, 3)
+            << new SupplyShortage(Card::Club, 4)
+            << new ThunderSlash(Card::Club, 5)
+            << new ThunderSlash(Card::Club, 6)
+            << new ThunderSlash(Card::Club, 7)
+            << new ThunderSlash(Card::Club, 8)
+            << new Analeptic(Card::Club, 9)
+            << new IronChain(Card::Club, 10)
+            << new IronChain(Card::Club, 11)
+            << new IronChain(Card::Club, 12)
+            << new IronChain(Card::Club, 13);
+
+    // heart
+    cards
+            << new Nullification(Card::Heart, 1)
+            << new FireAttack(Card::Heart, 2)
+            << new FireAttack(Card::Heart, 3)
+            << new FireSlash(Card::Heart, 4)
+            << new Peach(Card::Heart, 5)
+            << new Peach(Card::Heart, 6)
+            << new FireSlash(Card::Heart, 7)
+            << new Jink(Card::Heart, 8)
+            << new Jink(Card::Heart, 9)
+            << new FireSlash(Card::Heart, 10)
+            << new Jink(Card::Heart, 11)
+            << new Jink(Card::Heart, 12)
+            << new Nullification(Card::Heart, 13);
+
+    // diamond
+    cards
+            << new Fan(Card::Diamond, 1)
+            << new Peach(Card::Diamond, 2)
+            << new Peach(Card::Diamond, 3)
+            << new FireSlash(Card::Diamond, 4)
+            << new FireSlash(Card::Diamond, 5)
+            << new Jink(Card::Diamond, 6)
+            << new Jink(Card::Diamond, 7)
+            << new Jink(Card::Diamond, 8)
+            << new Analeptic(Card::Diamond, 9)
+            << new Jink(Card::Diamond, 10)
+            << new Jink(Card::Diamond, 11)
+            << new FireAttack(Card::Diamond, 12);
+
+    DefensiveCar *citroBX = new DefensiveCar(Card::Diamond, 13);
+    citroBX->setObjectName("citroBX");
+    cards << citroBX;
+
+    foreach(Card *card, cards)
+        card->setParent(this);
+
+    type = CardPack;
+}
+
 class RenwangShieldSkill: public ArmorSkill{
 public:
     RenwangShieldSkill():ArmorSkill("renwang_shield"){
@@ -572,78 +650,14 @@ void YitianSword::onMove(const CardMoveStruct &move) const{
     }
 }
 
-ManeuveringPackage::ManeuveringPackage()
-    :Package("maneuvering")
+ThunderBirdPackage::ThunderBirdPackage()
+    :Package("thunder_bird")
 {
     QList<Card *> cards;
 
-// firstly
     // spade
-    cards << new GudingBlade(Card::Spade, 1)
-            << new Vine(Card::Spade, 2)
-            << new Analeptic(Card::Spade, 3)
-            << new ThunderSlash(Card::Spade, 4)
-            << new ThunderSlash(Card::Spade, 5)
-            << new ThunderSlash(Card::Spade, 6)
-            << new ThunderSlash(Card::Spade, 7)
-            << new ThunderSlash(Card::Spade, 8)
-            << new Analeptic(Card::Spade, 9)
-            << new SupplyShortage(Card::Spade,10)
-            << new IronChain(Card::Spade, 11)
-            << new IronChain(Card::Spade, 12)
-            << new Nullification(Card::Spade, 13);
-
-    // club
-    cards << new SilverLion(Card::Club, 1)
-            << new Vine(Card::Club, 2)
-            << new Analeptic(Card::Club, 3)
-            << new SupplyShortage(Card::Club, 4)
-            << new ThunderSlash(Card::Club, 5)
-            << new ThunderSlash(Card::Club, 6)
-            << new ThunderSlash(Card::Club, 7)
-            << new ThunderSlash(Card::Club, 8)
-            << new Analeptic(Card::Club, 9)
-            << new IronChain(Card::Club, 10)
-            << new IronChain(Card::Club, 11)
-            << new IronChain(Card::Club, 12)
-            << new IronChain(Card::Club, 13);
-
-    // heart
-    cards << new Nullification(Card::Heart, 1)
-            << new FireAttack(Card::Heart, 2)
-            << new FireAttack(Card::Heart, 3)
-            << new FireSlash(Card::Heart, 4)
-            << new Peach(Card::Heart, 5)
-            << new Peach(Card::Heart, 6)
-            << new FireSlash(Card::Heart, 7)
-            << new Jink(Card::Heart, 8)
-            << new Jink(Card::Heart, 9)
-            << new FireSlash(Card::Heart, 10)
-            << new Jink(Card::Heart, 11)
-            << new Jink(Card::Heart, 12)
-            << new Nullification(Card::Heart, 13);
-
-    // diamond
-    cards << new Fan(Card::Diamond, 1)
-            << new Peach(Card::Diamond, 2)
-            << new Peach(Card::Diamond, 3)
-            << new FireSlash(Card::Diamond, 4)
-            << new FireSlash(Card::Diamond, 5)
-            << new Jink(Card::Diamond, 6)
-            << new Jink(Card::Diamond, 7)
-            << new Jink(Card::Diamond, 8)
-            << new Analeptic(Card::Diamond, 9)
-            << new Jink(Card::Diamond, 10)
-            << new Jink(Card::Diamond, 11)
-            << new FireAttack(Card::Diamond, 12);
-
-    DefensiveCar *citroBX = new DefensiveCar(Card::Diamond, 13);
-    citroBX->setObjectName("citroBX");
-    cards << citroBX;
-
-// secondly
-    // spade
-    cards << new YxSword(Card::Spade, 1)
+    cards
+            << new YxSword(Card::Spade, 1)
             << new Dismantlement(Card::Spade, 2)
             << new ThunderSlash(Card::Spade, 3)
             << new Peach(Card::Spade, 4)
@@ -660,7 +674,8 @@ ManeuveringPackage::ManeuveringPackage()
     cards << jaguarE;
 
     // club
-    cards << new Jink(Card::Club, 1)
+    cards
+            << new Jink(Card::Club, 1)
             << new Emigration(Card::Club, 2)
             //<< new paoji(Card::Club, 3) trick
             << new ThunderSlash(Card::Club, 4)
@@ -673,10 +688,11 @@ ManeuveringPackage::ManeuveringPackage()
             << new RenwangShield(Card::Club, 11)
             << new ExNihilo(Card::Club, 12)
             //<< new Moshenqi(Card::Club, 13) armor
-			;
+                        ;
 
     // heart
-    cards << new Emigration(Card::Heart, 1)
+    cards
+            << new Emigration(Card::Heart, 1)
             //<< new yushi(Card::Heart, 2) trick
             << new Slash(Card::Heart, 3)
             << new Collateral(Card::Heart, 4)
@@ -691,7 +707,8 @@ ManeuveringPackage::ManeuveringPackage()
             << new Nullification(Card::Heart, 13);
 
     // diamond
-    cards << new ArcheryAttack(Card::Diamond, 1)
+    cards
+            << new ArcheryAttack(Card::Diamond, 1)
             << new Dismantlement(Card::Diamond, 2)
             //<< new paoji(Card::Diamond, 3) trick
             << new FireSlash(Card::Diamond, 4)
@@ -711,4 +728,5 @@ ManeuveringPackage::ManeuveringPackage()
     type = CardPack;
 }
 
-ADD_PACKAGE(Maneuvering)
+ADD_PACKAGE(BlackDragon)
+ADD_PACKAGE(ThunderBird)

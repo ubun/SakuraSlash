@@ -98,9 +98,7 @@ sgs.ai_skill_invoke["ouxiang"] = function(self, data)
 end
 
 -- lingjia
-sgs.ai_skill_playerchosen["lingjia"] = function(self, targets)
-	return targets[1]
-end
+sgs.ai_skill_playerchosen["lingjia"] = sgs.ai_skill_playerchosen["fenju"]
 
 -- yinsi
 sgs.ai_skill_choice["yinsi"] = function(self, choices)
