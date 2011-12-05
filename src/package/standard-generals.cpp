@@ -1392,18 +1392,24 @@ public:
         events << Damage;
     }
 
+    virtual int getPriority() const{
+        return -2;
+    }
+
     virtual bool trigger(TriggerEvent , ServerPlayer *gin, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
         if(damage.card && damage.card->inherits("Slash") && damage.to->isAlive()){
             Room *room = gin->getRoom();
-            if(room->askForSkillInvoke(gin, objectName(), data)){
-                const Card *card = room->askForCard(gin, "slash", "juelu-slash");
-                if(card){
-                    // if player is drank, unset his flag
-                    if(gin->hasFlag("drank"))
-                        room->setPlayerFlag(gin, "-drank");
-                    room->cardEffect(card, gin, damage.to);
-                }
+            const Card *card = room->askForCard(gin, "slash", "juelu-slash");
+            if(card){
+                LogMessage log;
+                log.type = "#InvokeSkill";
+                log.from = gin;
+                log.arg = objectName();
+                room->sendLog(log);
+                if(gin->hasFlag("drank"))
+                    room->setPlayerFlag(gin, "-drank");
+                room->cardEffect(card, gin, damage.to);
             }
         }
         return false;

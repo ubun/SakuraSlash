@@ -1,7 +1,7 @@
 # -------------------------------------------------
 # Project created by QtCreator 2010-06-13T04:26:52
 # -------------------------------------------------
-TARGET = QSanguosha
+TARGET = ConanSlash
 QT += network sql
 TEMPLATE = app
 CONFIG += warn_on audio joystick qaxcontainer

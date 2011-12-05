@@ -2936,13 +2936,6 @@ function SmartAI:askForCard(pattern, prompt, data)
 				or (target:getHp() > 2 and self.player:getHp() <= 1 and self:getCardsNum("Peach") == 0 and not self.player:hasSkill("buqu")) then 
 				return self:getCardId("Slash")
 			else return "." end
-		elseif (parsedPrompt[1] == "@jijiang-slash") then
-			if target and self:isFriend(target) then 
-				if (self.player:hasSkill("longdan") and self:getCardsNum("Jink") > 1) then 
-					self:speak("jijiang", self.player:getGeneral():isFemale()) 
-					return self:getCardId("Slash")
-				end 
-			else return "." end	
 		elseif parsedPrompt[1] == "savage-assault-slash"  then
 			if not self:damageIsEffective(nil, nil, target) then return "." end
 			local aoe = sgs.Sanguosha:cloneCard("savage_assault", sgs.Card_NoSuit , 0)	

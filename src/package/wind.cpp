@@ -1139,7 +1139,7 @@ public:
             ServerPlayer *target = room->askForPlayerChosen(player, room->getAllPlayers(), objectName());
             use.to << target;
 
-            room->useCard(use);
+            room->useCard(use, false);
         }
         return false;
     }
@@ -1188,7 +1188,7 @@ public:
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{
-        return true;
+        return to_select->getCard()->getSuit() == Card::Diamond;
     }
 
     virtual const Card *viewAs(CardItem *card_item) const{

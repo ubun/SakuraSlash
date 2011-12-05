@@ -299,12 +299,6 @@ sgs.ai_skill_use_func["RenxingCard"]=function(card,use,self)
 	end
 end
 
--- juelu
-sgs.ai_skill_invoke["juelu"] = function(self, data)
-	local damage = data:toDamage()
-	return self:isEnemy(damage.to)
-end
-
 -- heiyi
 sgs.ai_skill_invoke["heiyi"] = function(self, data)
 	if self.player:getHandcardNum() > 3 and self:isFriend(data:toPlayer()) then

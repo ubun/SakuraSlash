@@ -219,8 +219,13 @@ zhiyu_skill.getTurnUseCard = function(self)
 	local cards = self.player:getCards("he")
 	cards=sgs.QList2Table(cards)
 	self:sortByKeepValue(cards)
-	local card_str = ("@ZhiyuCard=%d"):format(cards[1]:getId())
-	return sgs.Card_Parse(card_str)
+	for _, card in sgs.qlist(cards) do
+		if card:getSuit() == sgs.Card_Diamond then
+			local card_str = ("@ZhiyuCard=%d"):format(card:getId())
+			return sgs.Card_Parse(card_str)
+		end
+	end
+	return nil
 end
 sgs.ai_skill_use_func["ZhiyuCard"]=function(card,use,self)
 	self:sort(self.friends, "defense")
