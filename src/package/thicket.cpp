@@ -933,20 +933,20 @@ public:
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->tag.value("Store", -1).toInt() > -1;
+        return player->property("Store").toInt() > -1;
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{
         if(to_select->isEquipped())
             return false;
-        if(to_select->getCard()->getSuit() != Sanguosha->getCard(Self->tag.value("Store", -1).toInt())->getSuit())
+        if(to_select->getCard()->getSuit() != Sanguosha->getCard(Self->property("Store").toInt())->getSuit())
             return false;
         return true;
     }
 
     virtual const Card *viewAs(CardItem *card_item) const{
         const Card *card = card_item->getCard();
-        Card *new_card = Sanguosha->cloneCard(Sanguosha->getCard(Self->tag.value("Store", -1).toInt())->objectName(), card->getSuit(), card->getNumber());
+        Card *new_card = Sanguosha->cloneCard(Sanguosha->getCard(Self->property("Store").toInt())->objectName(), card->getSuit(), card->getNumber());
         new_card->addSubcard(card);
         new_card->setSkillName("zhizhuo");
         return new_card;
@@ -965,14 +965,14 @@ public:
             return false;
         if(event == PhaseChange){
             if(player->getPhase() == Player::Start)
-                Self->tag["Store"] = -1;
+                player->getRoom()->setPlayerProperty(player, "Store", QVariant::fromValue(-1));
             return false;
         }
         CardUseStruct card = data.value<CardUseStruct>();
         if(card.card->subcardsLength() > 0 || card.card->getNumber() < 1)
             return false;
         if(card.card->isNDTrick() || card.card->inherits("BasicCard"))
-            Self->tag["Store"] = card.card->getId();
+            player->getRoom()->setPlayerProperty(player, "Store", QVariant::fromValue(card.card->getId()));
 
         return false;
     }

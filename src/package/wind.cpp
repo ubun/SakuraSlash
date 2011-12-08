@@ -568,7 +568,7 @@ public:
             QList<ServerPlayer *> players = room->getAllPlayers();
             foreach(ServerPlayer *player, players){
                 if(player->tag.value("Yunchou", "").toString() != "")
-                    player->tag["Yunchou"] = "";
+                    player->tag.remove("Yunchou");
             }
         }
         return false;

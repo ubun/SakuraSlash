@@ -986,7 +986,7 @@ public:
     }
 
     virtual bool onPhaseChange(ServerPlayer *player) const{
-        if(player->getHandcardNum() > player->getHp())
+        if(player->getHandcardNum() > player->getMaxHP())
             return true;
         return false;
     }
