@@ -3,7 +3,6 @@
 return {
 	["standard"] = "标准版",
 
-	["designer:otagiritoshirou"] = "宇文天启、尉迟泱",
 	["designer:kobayashisumiko"] = "宇文天启、尉迟泱",
 
 	["kudoushinichi"] = "工藤新一",

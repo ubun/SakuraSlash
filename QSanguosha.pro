@@ -49,7 +49,6 @@ SOURCES += src/main.cpp \
 	src/package/standard.cpp \
 	src/package/thicket.cpp \
 	src/package/wind.cpp \
-	src/package/yitianpackage.cpp \
 	src/package/secrets.cpp \
 	src/scenario/boss-mode-scenario.cpp \
 	src/scenario/challengemode.cpp \
@@ -123,7 +122,6 @@ HEADERS += src/client/aux-skills.h \
 	src/package/standard.h \
 	src/package/thicket.h \
 	src/package/wind.h \
-	src/package/yitianpackage.h \
 	src/package/secrets.h \
 	src/scenario/boss-mode-scenario.h \
 	src/scenario/challengemode.h \

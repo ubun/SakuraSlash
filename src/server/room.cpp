@@ -583,8 +583,13 @@ bool Room::askForNullification(const TrickCard *trick, ServerPlayer *from, Serve
             broadcastInvoke("animate", QString("nullification:%1:%2")
                             .arg(player->objectName()).arg(to->objectName()));
             ServerPlayer *ok = findPlayerBySkillName("qinjian");
-            if(ok)
+            if(ok){
+                log.type = "#TriggerSkill";
+                log.from = ok;
+                log.arg = "qinjian";
+                sendLog(log);
                 ok->obtainCard(trick);
+            }
 
             QVariant decisionData = QVariant::fromValue(use);
             thread->trigger(ChoiceMade, player, decisionData);

@@ -41,7 +41,6 @@ extern "C" {
     //Package *NewWhiteTiger();
     //Package *NewIronDino();
 //    Package *NewGod();
-//    Package *NewYitian();
     Package *NewNostalgia();
     Package *NewJoy();
     Package *NewDisaster();
@@ -70,7 +69,6 @@ Engine::Engine()
     //addPackage(NewFire());
     //addPackage(NewMountain());
     //addPackage(NewGod());
-    //addPackage(NewYitian());
     //addPackage(NewWisdom());
     addPackage(NewTest());
 
