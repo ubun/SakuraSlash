@@ -1059,7 +1059,7 @@ public:
         return new DiaobingCard;
     }
 };
-
+/*
 class Qinjian: public TriggerSkill{
 public:
     Qinjian():TriggerSkill("qinjian"){
@@ -1090,7 +1090,7 @@ public:
         return false;
     }
 };
-
+*/
 class Tishen: public TriggerSkill{
 public:
     Tishen():TriggerSkill("tishen"){
@@ -2035,7 +2035,7 @@ void StandardPackage::addGenerals(){
     matsumotokiyonaka->addSkill(new Diaobing);
 
     otagiritoshirou = new General(this, "otagiritoshirou", "jing");
-    otagiritoshirou->addSkill(new Qinjian);
+    otagiritoshirou->addSkill(new Skill("qinjian", Skill::Compulsory));
 
     General *kurobakaitou, *nakamoriaoko;
     kurobakaitou = new General(this, "kurobakaitou", "guai");
