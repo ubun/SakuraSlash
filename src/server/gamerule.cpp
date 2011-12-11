@@ -113,7 +113,10 @@ void GameRule::onPhaseChange(ServerPlayer *player) const{
                 room->setPlayerFlag(player, "-drank");
             }
 
+            bool newt = player->hasFlag("NewTurn") ? true : false;
             player->clearFlags();
+            if(newt)
+                player->gainAnExtraTurn();
 
             return;
         }

@@ -158,6 +158,49 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
+class ThunderShell:public Armor{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE ThunderShell(Card::Suit suit, int number);
+
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual void onUse(Room *room, const CardUseStruct &card_use) const;
+};
+
+class Potential: public SingleTargetTrick{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE Potential(Card::Suit suit, int number);
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
+class RedAlert: public AOE{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE RedAlert(Card::Suit suit, int number);
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
+class Turnover: public SingleTargetTrick{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE Turnover(Card::Suit suit, int number);
+
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
+class YajiaoSpear: public Weapon{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE YajiaoSpear(Card::Suit suit = Club, int number = 9);
+};
+
 class ThunderBirdPackage: public Package{
     Q_OBJECT
 

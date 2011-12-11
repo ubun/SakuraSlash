@@ -624,8 +624,7 @@ public:
 
 class YitianSword: public Weapon{
 public:
-    YitianSword(Suit suit, int number)
-        :Weapon(suit, number, 2){
+    YitianSword(Suit suit, int number): Weapon(suit, number, 2){
         setObjectName("yitian_sword");
         skill = new YitianSwordSkill;
     }
@@ -650,6 +649,104 @@ void YitianSword::onMove(const CardMoveStruct &move) const{
     }
 }
 
+class ThunderShellSkill: public ArmorSkill{
+public:
+    ThunderShellSkill():ArmorSkill("thunder-shell"){
+        events << Predamaged;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        if(damage.nature != DamageStruct::Thunder){
+            LogMessage log;
+            log.type = "#ThunSheProtect";
+            log.from = player;
+            log.arg = QString::number(damage.damage);
+            if(damage.nature == DamageStruct::Normal)
+                log.arg2 = "normal_nature";
+            else
+                log.arg2 = damage.nature == DamageStruct::Fire ? "fire_nature" : "thunder_nature";
+            player->getRoom()->sendLog(log);
+            return true;
+        }
+        return false;
+    }
+};
+
+ThunderShell::ThunderShell(Suit suit, int number) :Armor(suit, number){
+    setObjectName("thunder-shell");
+    skill = new ThunderShellSkill;
+
+    target_fixed = false;
+}
+
+bool ThunderShell::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && Self->distanceTo(to_select) <= 1;
+}
+
+void ThunderShell::onUse(Room *room, const CardUseStruct &card_use) const{
+    Card::onUse(room, card_use);
+}
+
+Potential::Potential(Suit suit, int number)
+    :SingleTargetTrick(suit, number, false)
+{
+    setObjectName("potential");
+    target_fixed = true;
+}
+
+void Potential::onEffect(const CardEffectStruct &effect) const{
+    effect.to->setFlags("NewTurn");
+}
+
+RedAlert::RedAlert(Suit suit, int number)
+    :AOE(suit, number){
+    setObjectName("redalert");
+}
+
+void RedAlert::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.to->getRoom();
+    const Card *trick = room->askForCard(effect.to, "trick", "redalert-trick:" + effect.from->getGeneralName());
+    if(!trick)
+        room->loseHp(effect.to);
+}
+
+Turnover::Turnover(Suit suit, int number)
+    :SingleTargetTrick(suit, number, false) {
+    setObjectName("turnover");
+}
+
+bool Turnover::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(!targets.isEmpty())
+        return false;
+    return Self->inMyAttackRange(to_select);
+}
+
+void Turnover::onEffect(const CardEffectStruct &effect) const{
+    if(!effect.to->getRoom()->askForCard(effect.to, "slash", "turnover-slash:" + effect.from->getGeneralName()))
+        effect.to->turnOver();
+}
+
+class YajiaoSpearSkill: public WeaponSkill{
+public:
+    YajiaoSpearSkill():TriggerSkill("yajiao_spear"){
+        events << SlashMissed;
+    }
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        if(player->getRoom()->obtainable(effect.jink, player))
+            player->obtainCard(effect.jink);
+        return false;
+    }
+};
+
+YajiaoSpear::YajiaoSpear(Suit suit, int number)
+    :Weapon(suit, number, 2)
+{
+    setObjectName("yajiao_spear");
+    skill = new YajiaoSpearSkill;
+}
+
 ThunderBirdPackage::ThunderBirdPackage()
     :Package("thunder_bird")
 {
@@ -661,9 +758,9 @@ ThunderBirdPackage::ThunderBirdPackage()
             << new Dismantlement(Card::Spade, 2)
             << new ThunderSlash(Card::Spade, 3)
             << new Peach(Card::Spade, 4)
-            //<< new dawujia(Card::Spade, 5) armor
+            << new ThunderShell(Card::Spade, 5)
             << new Slash(Card::Spade, 6)
-            //<< new linglibaofa(Card::Spade, 7) trick
+            << new Potential(Card::Spade, 7)
             << new YitianSword(Card::Spade, 8)
             << new SavageAssault(Card::Spade, 9)
             << new Snatch(Card::Spade,10)
@@ -677,7 +774,7 @@ ThunderBirdPackage::ThunderBirdPackage()
     cards
             << new Jink(Card::Club, 1)
             << new Emigration(Card::Club, 2)
-            //<< new paoji(Card::Club, 3) trick
+            << new Turnover(Card::Club, 3)
             << new ThunderSlash(Card::Club, 4)
             //<< new napoliun(Card::Club, 5) armor
             << new Slash(Card::Club, 6)
@@ -693,7 +790,7 @@ ThunderBirdPackage::ThunderBirdPackage()
     // heart
     cards
             << new Emigration(Card::Heart, 1)
-            //<< new yushi(Card::Heart, 2) trick
+            << new Sacrifice(Card::Heart, 2)
             << new Slash(Card::Heart, 3)
             << new Collateral(Card::Heart, 4)
             << new FireSlash(Card::Heart, 5)
@@ -710,12 +807,12 @@ ThunderBirdPackage::ThunderBirdPackage()
     cards
             << new ArcheryAttack(Card::Diamond, 1)
             << new Dismantlement(Card::Diamond, 2)
-            //<< new paoji(Card::Diamond, 3) trick
+            << new Turnover(Card::Diamond, 3)
             << new FireSlash(Card::Diamond, 4)
-            //<< new monkey(Card::Diamond, 5)
-            //<< new jingbao(Card::Diamond, 6) trick
+            << new Potential(Card::Diamond, 5)
+            << new RedAlert(Card::Diamond, 6)
             << new Analeptic(Card::Diamond, 7)
-            //<< new shouqiang(Card::Diamond, 8) weapon
+            << new YajiaoSpear(Card::Diamond, 8)
             << new Jink(Card::Diamond, 9)
             << new FireSlash(Card::Diamond, 10)
             << new IronChain(Card::Diamond, 11)

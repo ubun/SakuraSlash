@@ -481,7 +481,7 @@ public:
     }
 
     virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
-        ServerPlayer *kyo = player->tag.value("Kyo", NULL).value<ServerPlayer *>();
+        ServerPlayer *kyo = player->tag["Kyo"].value<PlayerStar>();
         if(!kyo || kyo->getMark("@flower") == 0)
             return false;
         DamageStruct damage = data.value<DamageStruct>();
