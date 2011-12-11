@@ -564,7 +564,6 @@ public:
             room->removeTag("YxSwordVictim");
             damage.from = target;
             data = QVariant::fromValue(damage);
-            room->moveCardTo(player->getWeapon(), damage.from, Player::Hand);
         }
         return damage.to->isDead();
     }
@@ -701,7 +700,7 @@ void Potential::onEffect(const CardEffectStruct &effect) const{
 
 RedAlert::RedAlert(Suit suit, int number)
     :AOE(suit, number){
-    setObjectName("redalert");
+    setObjectName("red-alert");
 }
 
 void RedAlert::onEffect(const CardEffectStruct &effect) const{
@@ -729,7 +728,7 @@ void Turnover::onEffect(const CardEffectStruct &effect) const{
 
 class YajiaoSpearSkill: public WeaponSkill{
 public:
-    YajiaoSpearSkill():TriggerSkill("yajiao_spear"){
+    YajiaoSpearSkill():WeaponSkill("yajiao_spear"){
         events << SlashMissed;
     }
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
