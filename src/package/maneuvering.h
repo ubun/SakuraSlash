@@ -201,6 +201,14 @@ public:
     Q_INVOKABLE YajiaoSpear(Card::Suit suit = Club, int number = 9);
 };
 
+class Wolf: public SingleTargetTrick{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE Wolf(Card::Suit suit, int number);
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
 class ThunderBirdPackage: public Package{
     Q_OBJECT
 

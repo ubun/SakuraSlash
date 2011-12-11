@@ -746,6 +746,27 @@ YajiaoSpear::YajiaoSpear(Suit suit, int number)
     skill = new YajiaoSpearSkill;
 }
 
+Wolf::Wolf(Suit suit, int number)
+    :SingleTargetTrick(suit, number, false) {
+    setObjectName("wolf");
+    target_fixed = true;
+}
+
+void Wolf::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.to->getRoom();
+    int count = 0;
+    foreach(ServerPlayer *tmp, room->getOtherPlayers(effect.to)){
+        if(tmp->isAllNude())
+            continue;
+        QList<const Card *> cards = tmp->getCards("hej");
+        int index = qrand() % cards.length();
+        effect.to->obtainCard(cards.at(index));
+        count ++;
+        if(count == 4)
+            room->loseHp(effect.to);
+    }
+}
+
 ThunderBirdPackage::ThunderBirdPackage()
     :Package("thunder_bird")
 {
@@ -778,7 +799,7 @@ ThunderBirdPackage::ThunderBirdPackage()
             //<< new napoliun(Card::Club, 5) armor
             << new Slash(Card::Club, 6)
             << new Nullification(Card::Club, 7)
-            //<< new jiedao(Card::Club, 8)
+            << new Wolf(Card::Club, 8)
             << new Duel(Card::Club, 9)
             << new ThunderSlash(Card::Club, 10)
             << new RenwangShield(Card::Club, 11)
