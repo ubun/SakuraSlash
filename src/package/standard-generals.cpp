@@ -955,14 +955,12 @@ public:
 
         if(player->getPhase() == Player::Discard){
             CardStar card = data.value<CardStar>();
-            QMutableListIterator<int> itor(card->getSubcards());
-            while(itor.hasNext()){
-                itor.next();
-                if(Sanguosha->getCard(itor.value())->inherits("Weapon"))
-                    itor.remove();
-            }
+            QList<int> card_ids;
+            foreach(int tmp, card->getSubcards())
+                if(!Sanguosha->getCard(tmp)->inherits("Weapon"))
+                    card_ids << tmp;
 
-            if(card->getSubcards().isEmpty() || !room->askForSkillInvoke(megure, objectName(), data))
+            if(card_ids.isEmpty() || !room->askForSkillInvoke(megure, objectName(), data))
                 return false;
             if(megure->hasLordSkill("ranglu")){
                 QList<ServerPlayer *> players;
@@ -975,7 +973,7 @@ public:
                     megure = room->askForPlayerChosen(megure, players, "ranglu");
                 }
             }
-            foreach(int card_id, card->getSubcards()){
+            foreach(int card_id, card_ids){
                 room->obtainCard(megure, card_id);
             }
         }

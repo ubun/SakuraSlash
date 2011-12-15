@@ -249,10 +249,6 @@ sgs.ai_carduse_intention["LiuliCard"]=function(card,from,to,source)
         return sgs.ai_card_intention.general(to,70)
 end
 
-sgs.ai_card_intention["QingnangCard"]=function(card,from,to,source)
-        return sgs.ai_card_intention.general(to,-80)
-end
-
 sgs.ai_card_intention["JujianCard"]=function(card,from,to,source)
         return sgs.ai_card_intention.general(to,-80)
 end
@@ -270,6 +266,48 @@ sgs.ai_card_intention["JixiCard"]=function(card,from,to,source, different)
 		if different then intension_value = 80 end
         return sgs.ai_card_intention.general(to, intension_value)
 end
+
+sgs.ai_card_intention["ChengxiangCard"]=sgs.ai_card_intention["QingnangCard"]
+
+sgs.ai_card_intention["JuejiCard"]=sgs.ai_card_intention["TianyiCard"]
+
+sgs.ai_card_intention["LianliCard"]=function(card,from,to,source)
+	return sgs.ai_card_intention.general(to,-80)
+end
+
+sgs.ai_card_intention["QiaocaiCard"]=function(card,from,to,source)
+	return sgs.ai_card_intention.general(to,-70)
+end
+
+sgs.ai_card_intention["ShouyeCard"]=sgs.ai_card_intention["JujianCard"]
+
+sgs.ai_card_intention["HouyuanCard"]=sgs.ai_card_intention["JujianCard"]
+
+sgs.ai_card_intention["BawangCard"]=sgs.ai_card_intention["ShensuCard"]
+
+sgs.ai_card_intention["WeidaiCard"]=sgs.ai_card_intention["Peach"]
+
+sgs.ai_card_intention["GongxinCard"]=sgs.ai_card_intention["TianyiCard"]
+
+sgs.ai_card_intention["SmallYeyanCard"]=sgs.ai_card_intention["QiangxiCard"]
+
+sgs.ai_card_intention["MediumYeyanCard"]=function(card,from,to,source)
+	return sgs.ai_card_intention.general(to, 200)
+end
+
+sgs.ai_card_intention["GreatYeyanCard"]=sgs.ai_card_intention["SmallYeyanCard"]
+
+sgs.ai_card_intention["WuqianCard"]=sgs.ai_card_intention["XianzhenCard"]
+
+sgs.ai_card_intention["KuangfengCard"]=function(card,from,to,source)
+	return sgs.ai_card_intention.general(to, 80)
+end
+
+sgs.ai_card_intention["DawuCard"]=function(card,from,to,source)
+	return sgs.ai_card_intention.general(to, -70)
+end
+
+sgs.ai_card_intention["GaleShell"]=sgs.ai_card_intention["KuangfengCard"]
 
 sgs.ai_explicit={}
 sgs.ai_royalty={}
