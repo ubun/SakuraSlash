@@ -337,6 +337,11 @@ sgs.ai_skill_use["@@gaizao"] = function(self, prompt)
 		return "."
 	end
 end
+sgs.ai_skill_cardchosen["gaizao"] = function(self, who)
+	local ecards = who:getCards("e")
+	ecards = sgs.QList2Table(ecards)
+	return ecards[1]
+end
 
 -- baomu
 sgs.ai_skill_invoke["baomu"] = function(self, data)
