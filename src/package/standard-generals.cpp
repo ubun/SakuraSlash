@@ -955,6 +955,13 @@ public:
 
         if(player->getPhase() == Player::Discard){
             CardStar card = data.value<CardStar>();
+            QMutableListIterator<int> itor(card->getSubcards());
+            while(itor.hasNext()){
+                itor.next();
+                if(Sanguosha->getCard(itor.value())->inherits("Weapon"))
+                    itor.remove();
+            }
+
             if(card->getSubcards().isEmpty() || !room->askForSkillInvoke(megure, objectName(), data))
                 return false;
             if(megure->hasLordSkill("ranglu")){

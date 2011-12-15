@@ -876,7 +876,8 @@ public:
     virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
         Room *room = player->getRoom();
         const Card *card = damage.card;
-        if(room->obtainable(card, player) && room->askForSkillInvoke(player, objectName())){
+        if(room->obtainable(card, player) && card->getSubcards().length() < 2
+            && room->askForSkillInvoke(player, objectName())){
             player->obtainCard(card);
             QList<ServerPlayer *> targets;
             if(damage.from && !damage.from->isNude())
