@@ -135,6 +135,7 @@ QWidget *ServerDialog::createAdvancedTab(){
 
     contest_mode_checkbox = new QCheckBox(tr("Contest mode"));
     contest_mode_checkbox->setChecked(Config.ContestMode);
+    contest_mode_checkbox->setEnabled(false);
     contest_mode_checkbox->setToolTip(tr("Requires password to login, hide screen name and disable kicking"));
 
     free_choose_checkbox = new QCheckBox(tr("Choose generals and cards freely"));
@@ -154,6 +155,7 @@ QWidget *ServerDialog::createAdvancedTab(){
     disable_chat_checkbox->setChecked(Config.DisableChat);
 
     second_general_checkbox = new QCheckBox(tr("Enable second general"));
+	second_general_checkbox->setEnabled(false);
 
     scene_checkbox  = new QCheckBox(tr("Enable Scene"));
     //changjing
@@ -203,7 +205,7 @@ QWidget *ServerDialog::createAdvancedTab(){
     layout->addWidget(free_choose_checkbox);
     layout->addWidget(free_assign_checkbox);
     layout->addLayout(HLay(new QLabel(tr("Upperlimit for general")), maxchoice_spinbox));
-    //layout->addLayout(HLay(second_general_checkbox, banpair_button));
+    layout->addLayout(HLay(second_general_checkbox, banpair_button));
     layout->addLayout(HLay(new QLabel(tr("Max HP scheme")), max_hp_scheme_combobox));
     layout->addWidget(scene_checkbox);		//changjing
     layout->addWidget(announce_ip_checkbox);
@@ -328,6 +330,7 @@ QGroupBox *ServerDialog::create3v3Box(){
     QVBoxLayout *vlayout = new QVBoxLayout;
 
     standard_3v3_radiobutton = new QRadioButton(tr("Standard mode"));
+    standard_3v3_radiobutton->setEnabled(false);
     QRadioButton *extend = new QRadioButton(tr("Extension mode"));
     QPushButton *extend_edit_button = new QPushButton(tr("General selection ..."));
     extend_edit_button->setEnabled(false);
@@ -400,6 +403,10 @@ QGroupBox *ServerDialog::createGameModeBox(){
                 item_list << button;
             }
 
+            QStringList ban_mode;
+            ban_mode << "04_1v3" << "08boss";
+            if(ban_mode.contains(itor.key()))
+                button->setEnabled(false);
             if(itor.key() == Config.GameMode)
                 button->setChecked(true);
         }
