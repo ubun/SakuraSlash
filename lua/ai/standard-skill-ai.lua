@@ -28,24 +28,20 @@ sgs.ai_skill_invoke.ice_sword=function(self, data)
 	if self.player:hasFlag("drank") then return false end
 	local effect = data:toSlashEffect() 
 	local target = effect.to
-	if self:isFriend(target) then return false end
-	local hasPeach
-	local cards = target:getHandcards()
-	for _, card in sgs.qlist(cards) do
-		if card:inherits("Peach") or card:inherits("Analeptic") then hasPeach = true break end
-	end
-	if hasPeach then return true end
-	if (target:getHandcardNum() > 1 or target:getArmor()) and target:getHp() > 1 then
+	if self:isFriend(target) then
+		if self:isWeak(target) then return true
+		elseif target:getLostHp()<1 then return false end
 		return true
-	end
-	return false
-end
-
-sgs.ai_skill_cardchosen.ice_sword = function(self, who)
-	local hcards = who:getCards("h")
-	hcards = sgs.QList2Table(hcards)
-	for _, peach in ipairs(hcards) do
-		if peach:inherits("Peach") or peach:inherits("Analeptic") then return peach end
+	else
+		if self:isWeak(target) then return false end
+		if target:getArmor() and self:evaluateArmor(target:getArmor(), target)>3 then return true end
+		local num = target:getHandcardNum()
+		if self.player:hasSkill("tieji") or (self.player:hasSkill("liegong")
+			and (num >= self.player:getHp() or num <= self.player:getAttackRange())) then return false end
+		if target:hasSkill("tuntian") then return false end
+		if self:hasSkills(sgs.need_kongcheng, target) then return false end
+		if target:getCards("he"):length()<4 and target:getCards("he"):length()>1 then return true end
+		return false
 	end
 end
 
@@ -53,30 +49,30 @@ local spear_skill={}
 spear_skill.name="spear"
 table.insert(sgs.ai_skills,spear_skill)
 spear_skill.getTurnUseCard=function(self,inclusive)
-    local cards = self.player:getCards("h")	
-    cards=sgs.QList2Table(cards)
-    
-    if #cards<(self.player:getHp()+1) then return nil end
-    if #cards<2 then return nil end
-    if self:getCard("Slash") then return nil end
-    
-    self:sortByUseValue(cards,true)
-    
-    local suit1 = cards[1]:getSuitString()
+	local cards = self.player:getCards("h")	
+	cards=sgs.QList2Table(cards)
+
+	if #cards<(self.player:getHp()+1) then return nil end
+	if #cards<2 then return nil end
+	if self:getCard("Slash") then return nil end
+
+	self:sortByUseValue(cards,true)
+
+	local suit1 = cards[1]:getSuitString()
 	local card_id1 = cards[1]:getEffectiveId()
 	
 	local suit2 = cards[2]:getSuitString()
 	local card_id2 = cards[2]:getEffectiveId()
-	
+
 	local suit="no_suit"
 	if cards[1]:isBlack() == cards[2]:isBlack() then suit = suit1 end
-	
+
 	local card_str = ("slash:spear[%s:%s]=%d+%d"):format(suit, 0, card_id1, card_id2)
+
+	local slash = sgs.Card_Parse(card_str)
+
+	return slash
 	
-    local slash = sgs.Card_Parse(card_str)
-    
-    return slash
-    
 end
 
 local jieyin_skill={}
