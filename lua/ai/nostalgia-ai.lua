@@ -31,11 +31,11 @@ sgs.ai_skill_use["@tianxiang"]=function(self, data)
 	local target
 	local cant_use_skill
 	local dmg
-	
+
 	if data=="@@tianxiang-card" then
 		dmg = self.player:getTag("TianxiangDamage"):toDamage()
 	else
-		dmg=data
+		dmg = data
 	end
 
 	local cards = self.player:getCards("h")
