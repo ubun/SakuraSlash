@@ -29,6 +29,14 @@
 
 Engine *Sanguosha = NULL;
 
+QString Engine::getVersion() const{
+    return "1.0";
+}
+
+QString Engine::getVersionName() const{
+    return tr("Happy New Year");
+}
+
 extern "C" {
     Package *NewStandard();
     Package *NewWind();
@@ -341,14 +349,6 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const{
         return card;
     }else
         return NULL;
-}
-
-QString Engine::getVersion() const{
-    return "0.7";
-}
-
-QString Engine::getVersionName() const{
-    return tr("Bachelor");
 }
 
 QStringList Engine::getExtensions() const{
