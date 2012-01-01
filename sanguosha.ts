@@ -1178,122 +1178,124 @@
 <context>
     <name>Engine</name>
     <message>
-        <location filename="src/core/engine.cpp" line="88"/>
+        <location filename="src/core/engine.cpp" line="98"/>
         <source>2 players</source>
         <translation>2 人局</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="90"/>
+        <location filename="src/core/engine.cpp" line="100"/>
         <source>2 players (KOF style)</source>
         <translation>2 人局 [KOF模式]</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="91"/>
+        <location filename="src/core/engine.cpp" line="101"/>
         <source>3 players</source>
         <translation>3 人局</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="92"/>
+        <location filename="src/core/engine.cpp" line="102"/>
         <source>4 players</source>
         <translation>4 人局</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="108"/>
         <source>4 players (Hulao Pass)</source>
-        <translation>4 人局 [虎牢关1v3]</translation>
+        <translation type="obsolete">4 人局 [虎牢关1v3]</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="94"/>
+        <location filename="src/core/engine.cpp" line="104"/>
         <source>5 players</source>
         <translation>5 人局</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="95"/>
+        <location filename="src/core/engine.cpp" line="105"/>
         <source>6 players</source>
         <translation>6 人局</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="96"/>
+        <location filename="src/core/engine.cpp" line="106"/>
         <source>6 players (2 renegades)</source>
         <translation>6 人局 [双内奸]</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="97"/>
+        <location filename="src/core/engine.cpp" line="107"/>
         <source>6 players (3v3)</source>
         <translation>6 人局 [3v3]</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="98"/>
+        <location filename="src/core/engine.cpp" line="108"/>
         <source>7 players</source>
         <translation>7 人局</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="99"/>
+        <location filename="src/core/engine.cpp" line="109"/>
         <source>8 players</source>
         <translation>8 人局</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="100"/>
+        <location filename="src/core/engine.cpp" line="110"/>
         <source>8 players (2 renegades)</source>
         <translation>8 人局 [双内奸]</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="116"/>
         <source>8 players (boss mode)</source>
-        <translation>8 人局 [魔王模式]</translation>
+        <translation type="obsolete">8 人局 [魔王模式]</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="102"/>
+        <location filename="src/core/engine.cpp" line="37"/>
+        <source>Happy New Year</source>
+        <translation>元旦快乐版</translation>
+    </message>
+    <message>
+        <location filename="src/core/engine.cpp" line="112"/>
         <source>8 players (same mode)</source>
         <translation>8 人局 [同将模式]</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="103"/>
+        <location filename="src/core/engine.cpp" line="113"/>
         <source>8 players (runaway mode)</source>
         <translation>8 人局 [跑路模式]</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="104"/>
+        <location filename="src/core/engine.cpp" line="114"/>
         <source>9 players</source>
         <translation>9 人局</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="105"/>
+        <location filename="src/core/engine.cpp" line="115"/>
         <source>10 players</source>
         <translation>10 人局</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="111"/>
+        <location filename="src/core/engine.cpp" line="121"/>
         <source>Boss mode</source>
         <translation>魔王模式</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="112"/>
+        <location filename="src/core/engine.cpp" line="122"/>
         <source>Runaway mode</source>
         <translation>跑路模式</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="119"/>
+        <location filename="src/core/engine.cpp" line="129"/>
         <source>Lua script error</source>
         <translation>Lua 脚本错误</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="196"/>
+        <location filename="src/core/engine.cpp" line="206"/>
         <source>Duplicated skill : %1</source>
         <translation>重复技能: %1</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="349"/>
         <source>Bachelor</source>
-        <translation>光棍版</translation>
+        <translation type="obsolete">光棍版</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="432"/>
+        <location filename="src/core/engine.cpp" line="434"/>
         <source>%1 [Challenge mode]</source>
         <translation>%1 【挑战模式】</translation>
     </message>
     <message>
-        <location filename="src/core/engine.cpp" line="434"/>
+        <location filename="src/core/engine.cpp" line="436"/>
         <source>%1 [Scenario mode]</source>
         <translation>%1 【剧情模式】</translation>
     </message>
@@ -1425,14 +1427,6 @@
         <location filename="src/dialog/halldialog.cpp" line="44"/>
         <source>Waiting room only</source>
         <translation>仅显示未满房间</translation>
-    </message>
-</context>
-<context>
-    <name>HuashenDialog</name>
-    <message>
-        <location filename="src/package/mountainpackage.cpp" line="1042"/>
-        <source>Incarnation</source>
-        <translation>化身</translation>
     </message>
 </context>
 <context>
@@ -2307,54 +2301,54 @@
 <context>
     <name>Room</name>
     <message>
-        <location filename="src/server/room.cpp" line="1190"/>
+        <location filename="src/server/room.cpp" line="1207"/>
         <source>disconnected</source>
         <translation>断开</translation>
     </message>
     <message>
-        <location filename="src/server/room.cpp" line="1309"/>
+        <location filename="src/server/room.cpp" line="1326"/>
         <source>Reply player should be %1 instead of %2</source>
         <translation>回复玩家应该是 %1 而不是 %2</translation>
     </message>
     <message>
-        <location filename="src/server/room.cpp" line="1342"/>
+        <location filename="src/server/room.cpp" line="1359"/>
         <source>Computer %1</source>
         <translation>电脑 %1</translation>
     </message>
     <message>
-        <location filename="src/server/room.cpp" line="1301"/>
+        <location filename="src/server/room.cpp" line="1318"/>
         <source>Reply function should be %1 instead of %2</source>
         <translation>回复函数应该是 %1 而不是 %2</translation>
     </message>
     <message>
-        <location filename="src/server/room.cpp" line="1212"/>
-        <location filename="src/server/room.cpp" line="1415"/>
+        <location filename="src/server/room.cpp" line="1229"/>
+        <location filename="src/server/room.cpp" line="1432"/>
         <source>Contestant</source>
         <translation>选手</translation>
     </message>
     <message>
-        <location filename="src/server/room.cpp" line="1213"/>
+        <location filename="src/server/room.cpp" line="1230"/>
         <source>&lt;font color=#000000&gt;Player &lt;b&gt;%1&lt;/b&gt; left the game&lt;/font&gt;</source>
         <oldsource>&lt;font color=#000000&gt;Player &lt;b&gt;%1&lt;/b&gt; leave the game&lt;/font&gt;</oldsource>
         <translation>&lt;font color=#000000&gt;玩家 %1 离开了游戏&lt;/font&gt;</translation>
     </message>
     <message>
-        <location filename="src/server/room.cpp" line="1321"/>
+        <location filename="src/server/room.cpp" line="1338"/>
         <source>%1: %2 is not invokable</source>
         <translation>%1: 不可调用的方法名 %2</translation>
     </message>
     <message>
-        <location filename="src/server/room.cpp" line="1346"/>
+        <location filename="src/server/room.cpp" line="1363"/>
         <source>Hello, I&apos;m a robot</source>
         <translation>大家好，我是一个机器人</translation>
     </message>
     <message>
-        <location filename="src/server/room.cpp" line="1414"/>
+        <location filename="src/server/room.cpp" line="1431"/>
         <source>&lt;font color=#EEB422&gt;Player &lt;b&gt;%1&lt;/b&gt; joined the game&lt;/font&gt;</source>
         <translation>&lt;font color=#EEB422&gt;玩家 &lt;b&gt;%1&lt;/b&gt; 加入了游戏&lt;/font&gt;</translation>
     </message>
     <message>
-        <location filename="src/server/room.cpp" line="2388"/>
+        <location filename="src/server/room.cpp" line="2404"/>
         <source>Card can not parse:
  %1</source>
         <oldsource>Card can not parse:
