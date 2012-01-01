@@ -2102,7 +2102,7 @@ function SmartAI:getTurnUse()
 					self.predictedRange = sgs.weapon_range[card:className()]
 					self.weaponUsed = true
 				end
-				if card:inherits("OffensiveHorse") then self.predictNewHorse = true end
+				if card:inherits("OffensiveCar") then self.predictNewCar = true end
 				if card:objectName() == "crossbow" then slashAvail = 100 end
 				if card:inherits("Snatch") then i = i-1 end
 				if card:inherits("Peach") then i = i+2 end
@@ -2762,7 +2762,7 @@ function SmartAI:askForCardChosen(who, flags, reason)
 			end
 
 			if self:isEquip("Monkey", who) then
-				return who:getOffensiveHorse():getId()
+				return who:getOffensiveCar():getId()
 			end
 		end
 
