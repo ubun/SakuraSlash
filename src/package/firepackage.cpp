@@ -445,135 +445,100 @@ public:
         return false;
     }
 };
-
-class Kanpo: public OneCardViewAsSkill{
+*/
+class Jiaoxie: public TriggerSkill{
 public:
-    Kanpo():OneCardViewAsSkill("kanpo"){
-
+    Jiaoxie():TriggerSkill("jiaoxie"){
+        events << CardLost;
+        frequency = Frequent;
     }
 
-    virtual bool viewFilter(const CardItem *to_select) const{
-        return to_select->getFilteredCard()->isBlack() && !to_select->isEquipped();
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return false;
+    virtual int getPriority() const{
+        return 2;
     }
 
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return  pattern == "nullification";
-    }
-
-    virtual const Card *viewAs(CardItem *card_item) const{
-        const Card *first = card_item->getFilteredCard();
-        Card *ncard = new Nullification(first->getSuit(), first->getNumber());
-        ncard->addSubcard(first);
-        ncard->setSkillName("kanpo");
-
-        return ncard;
-    }
-};
-
-TianyiCard::TianyiCard(){
-    once = true;
-    will_throw = false;
-}
-
-bool TianyiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty() && !to_select->isKongcheng() && to_select != Self;
-}
-
-void TianyiCard::use(Room *room, ServerPlayer *taishici, const QList<ServerPlayer *> &targets) const{
-    bool success = taishici->pindian(targets.first(), "tianyi", this);
-    if(success){
-        room->setPlayerFlag(taishici, "tianyi_success");
-    }else{
-        room->setPlayerFlag(taishici, "tianyi_failed");
-    }
-}
-
-class TianyiViewAsSkill: public OneCardViewAsSkill{
-public:
-    TianyiViewAsSkill():OneCardViewAsSkill("tianyi"){
-
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return !player->hasUsed("TianyiCard") && !player->isKongcheng();
-    }
-
-    virtual bool viewFilter(const CardItem *to_select) const{
-        return !to_select->isEquipped();
-    }
-
-    virtual const Card *viewAs(CardItem *card_item) const{
-        Card *card = new TianyiCard;
-        card->addSubcard(card_item->getFilteredCard());
-        return card;
-    }
-};
-
-class Tianyi: public PhaseChangeSkill{
-public:
-    Tianyi():PhaseChangeSkill("tianyi"){
-        view_as_skill = new TianyiViewAsSkill;
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *target) const{
-        if(target->getPhase() == Player::Finish){
-            Room *room = target->getRoom();
-            if(target->hasFlag("tianyi_failed"))
-                room->setPlayerFlag(target, "-tianyi_failed");
-            if(target->hasFlag("tianyi_success")){
-                room->setPlayerFlag(target, "-tianyi_success");
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *jiuwenlong = room->findPlayerBySkillName(objectName());
+        if(!jiuwenlong || player == jiuwenlong)
+            return false;
+        CardMoveStar move = data.value<CardMoveStar>();
+        if(move->to_place == Player::DiscardedPile){
+            const Card *weapon = Sanguosha->getCard(move->card_id);
+            if(weapon->inherits("Weapon") &&
+               jiuwenlong->askForSkillInvoke(objectName())){
+                room->playSkillEffect(objectName());
+                jiuwenlong->obtainCard(weapon);
             }
         }
-
         return false;
     }
 };
-*/
+
+class EquipPattern: public CardPattern{
+public:
+    virtual bool match(const Player *player, const Card *card) const{
+        return card->getTypeId() == Card::Equip;
+    }
+};
+
+class Xianv: public TriggerSkill{
+public:
+    Xianv():TriggerSkill("xianv"){
+        events << Predamage;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *jiuwenlong = room->findPlayerBySkillName(objectName());
+        if(!jiuwenlong || jiuwenlong->isKongcheng())
+            return false;
+        DamageStruct damage = data.value<DamageStruct>();
+
+        if(damage.nature == DamageStruct::Normal && damage.to->isAlive() && damage.damage > 0){
+            bool caninvoke = false;
+            foreach(const Card *cd, jiuwenlong->getCards("he")){
+                if(cd->getTypeId() == Card::Equip){
+                    caninvoke = true;
+                    break;
+                }
+            }
+            if(caninvoke){
+                const Card *card = room->askForCard(jiuwenlong, ".equip", "@xianv", data);
+                if(card){
+                    LogMessage log;
+                    log.type = "$Xianv";
+                    log.from = jiuwenlong;
+                    log.to << damage.to;
+                    log.card_str = card->getEffectIdString();
+                    room->sendLog(log);
+                    room->playSkillEffect(objectName());
+
+                    damage.damage --;
+                }
+                data = QVariant::fromValue(damage);
+            }
+        }
+        return false;
+    }
+};
+
 FirePackage::FirePackage()
     :Package("fire")
-{/*
-    General *xunyu, *dianwei, *wolong, *pangtong, *taishici, *yuanshao, *shuangxiong, *pangde;
-
-    xunyu = new General(this, "xunyu", "wei", 3);
-    xunyu->addSkill(new Quhu);
-    xunyu->addSkill(new Jieming);
-
-    dianwei = new General(this, "dianwei", "wei");
-    dianwei->addSkill(new Qiangxi);
-
-    wolong = new General(this, "wolong", "shu", 3);
-    wolong->addSkill(new Huoji);
-    wolong->addSkill(new Kanpo);
-    wolong->addSkill(new Bazhen);
-
-    pangtong = new General(this, "pangtong", "shu", 3);
-    pangtong->addSkill(new Lianhuan);
-    pangtong->addSkill(new MarkAssignSkill("@nirvana", 1));
-    pangtong->addSkill(new Niepan);
-
-    related_skills.insertMulti("niepan", "#@nirvana-1");
-
-    taishici = new General(this, "taishici", "wu");
-    taishici->addSkill(new Tianyi);
-
-    yuanshao = new General(this, "yuanshao$", "qun");
-    yuanshao->addSkill(new Luanji);
-    yuanshao->addSkill(new Skill("xueyi$", Skill::Compulsory));
-
-    shuangxiong = new General(this, "shuangxiong", "qun");
-    shuangxiong->addSkill(new Shuangxiong);
-
-    pangde = new General(this, "pangde", "qun");
-    pangde->addSkill(new Mengjin);
-    pangde->addSkill("mashu");
-
-    addMetaObject<QuhuCard>();
-    addMetaObject<JiemingCard>();
-    addMetaObject<QiangxiCard>();
+{
+    General *satomiwako = new General(this, "satomiwako", "jing", 4);
+    satomiwako->addSkill(new Jiaoxie);
+    satomiwako->addSkill(new Xianv);
+    patterns[".equip"] = new EquipPattern;
+/*
     addMetaObject<TianyiCard>();*/
 }
 

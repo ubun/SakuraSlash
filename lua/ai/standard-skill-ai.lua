@@ -79,27 +79,27 @@ local jieyin_skill={}
 jieyin_skill.name="jieyin"
 table.insert(sgs.ai_skills,jieyin_skill)
 jieyin_skill.getTurnUseCard=function(self)
-        if self.player:getHandcardNum()<2 then return nil end
-        if self.player:hasUsed("JieyinCard") then return nil end
-		
-		local cards = self.player:getHandcards()
-		cards=sgs.QList2Table(cards)
-		
-		local first, second
-		self:sortByUseValue(cards,true)
-		for _, card in ipairs(cards) do
-			if card:getTypeId() ~= sgs.Card_Equip then
-				if not first then first  = cards[1]:getEffectiveId()
-				else second = cards[2]:getEffectiveId()
-				end
+	if self.player:getHandcardNum()<2 then return nil end
+	if self.player:hasUsed("JieyinCard") then return nil end
+	
+	local cards = self.player:getHandcards()
+	cards=sgs.QList2Table(cards)
+	
+	local first, second
+	self:sortByUseValue(cards,true)
+	for _, card in ipairs(cards) do
+		if card:getTypeId() ~= sgs.Card_Equip and not (card:inherits("Shit") and self:isWeak() and self:getAllPeachNum()==0) then
+			if not first then first  = cards[1]:getEffectiveId()
+			else second = cards[2]:getEffectiveId()
 			end
-			if second then break end
 		end
-		
-		if not second then return end
-		local card_str = ("@JieyinCard=%d+%d"):format(first, second)
-		assert(card_str)
-		return sgs.Card_Parse(card_str)
+		if second then break end
+	end
+	
+	if not second then return end
+	local card_str = ("@JieyinCard=%d+%d"):format(first, second)
+	assert(card_str)
+	return sgs.Card_Parse(card_str)
 end
 
 sgs.ai_skill_use_func["JieyinCard"]=function(card,use,self)
@@ -118,23 +118,25 @@ local qingnang_skill={}
 qingnang_skill.name="qingnang"
 table.insert(sgs.ai_skills,qingnang_skill)
 qingnang_skill.getTurnUseCard=function(self)
-        if self.player:getHandcardNum()<1 then return nil end
-        if self.player:usedTimes("QingnangCard")>0 then return nil end
-		
-		local cards = self.player:getHandcards()
-		cards=sgs.QList2Table(cards)
-		
-		self:sortByKeepValue(cards)
+	if self.player:getHandcardNum()<1 then return nil end
+	if self.player:usedTimes("QingnangCard")>0 then return nil end
+	
+	local cards = self.player:getHandcards()
+	cards=sgs.QList2Table(cards)
+	
+	self:sortByKeepValue(cards)
 
-		local card_str = ("@QingnangCard=%d"):format(cards[1]:getId())
-		return sgs.Card_Parse(card_str)
+	local card_str = ("@QingnangCard=%d"):format(cards[1]:getId())
+	return sgs.Card_Parse(card_str)
 end
 
 sgs.ai_skill_use_func["QingnangCard"]=function(card,use,self)
 	self:sort(self.friends, "defense")
 	
 	for _, friend in ipairs(self.friends) do
-		if friend:isWounded() then
+		if friend:isWounded() and
+			not (friend:hasSkill("longhun") and self:getAllPeachNum() > 0) and
+			not (friend:hasSkill("hunzi") and friend:getMark("hunzi") == 0 and self:getAllPeachNum() > 1) then
 			use.card=card
 			if use.to then use.to:append(friend) end
 			return
@@ -146,20 +148,20 @@ local kurou_skill={}
 kurou_skill.name="kurou"
 table.insert(sgs.ai_skills,kurou_skill)
 kurou_skill.getTurnUseCard=function(self,inclusive)
-        if  (self.player:getHp() > 3 and self.player:getHandcardNum() > self.player:getHp()) or		
+	if  (self.player:getHp() > 3 and self.player:getHandcardNum() > self.player:getHp()) or		
 		(self.player:getHp() - self.player:getHandcardNum() >= 2) then
-                return sgs.Card_Parse("@KurouCard=.")
-        end
+		return sgs.Card_Parse("@KurouCard=.")
+	end
 		
-		--if not inclusive then return nil end
+	--if not inclusive then return nil end
 		
 	if self.player:getWeapon() and self.player:getWeapon():inherits("Crossbow") then
-        for _, enemy in ipairs(self.enemies) do
-            if self.player:canSlash(enemy,true) and self.player:getHp()>1 then
-                return sgs.Card_Parse("@KurouCard=.")
-            end
-        end
-    end
+		for _, enemy in ipairs(self.enemies) do
+			if self.player:canSlash(enemy,true) and self.player:getHp()>1 then
+				return sgs.Card_Parse("@KurouCard=.")
+			end
+		end
+	end
 end
 
 sgs.ai_skill_use_func["KurouCard"]=function(card,use,self)

@@ -41,7 +41,7 @@ extern "C" {
     Package *NewStandard();
     Package *NewWind();
     Package *NewThicket();
-//    Package *NewFire();
+    Package *NewFire();
 //    Package *NewMountain();
     Package *NewStandardCard();
     Package *NewBlackDragon();
@@ -74,7 +74,7 @@ Engine::Engine()
     addPackage(NewStandard());
     addPackage(NewWind());
     addPackage(NewThicket());
-    //addPackage(NewFire());
+    addPackage(NewFire());
     //addPackage(NewMountain());
     //addPackage(NewGod());
     //addPackage(NewWisdom());
@@ -100,7 +100,7 @@ Engine::Engine()
     modes["02_1v1"] = tr("2 players (KOF style)");
     modes["03p"] = tr("3 players");
     modes["04p"] = tr("4 players");
-    //modes["04_1v3"] = tr("4 players (Hulao Pass)");
+    modes["04_1v3"] = tr("4 players (Hulao Pass)");
     modes["05p"] = tr("5 players");
     modes["06p"] = tr("6 players");
     modes["06pd"] = tr("6 players (2 renegades)");
@@ -108,7 +108,7 @@ Engine::Engine()
     modes["07p"] = tr("7 players");
     modes["08p"] = tr("8 players");
     modes["08pd"] = tr("8 players (2 renegades)");
-    //modes["08boss"] = tr("8 players (boss mode)");
+    modes["08boss"] = tr("8 players (boss mode)");
     modes["08same"] = tr("8 players (same mode)");
     modes["08raw"] = tr("8 players (runaway mode)");
     modes["09p"] = tr("9 players");
