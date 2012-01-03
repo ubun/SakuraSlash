@@ -793,8 +793,10 @@ WeijiaoCard::WeijiaoCard(){
 bool WeijiaoCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     if(targets.length() >= 2)
         return false;
-
-    return !to_select->isKongcheng();
+    if(targets.length() == 1)
+        return !to_select->isKongcheng() && to_select->getGender() != targets.first()->getGender();
+    else
+        return !to_select->isKongcheng();
 }
 
 bool WeijiaoCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{

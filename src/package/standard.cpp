@@ -423,6 +423,13 @@ public:
     }
 };
 
+class TrickPattern: public CardPattern{
+public:
+    virtual bool match(const Player *player, const Card *card) const{
+        return card->inherits("TrickCard");
+    }
+};
+
 StandardPackage::StandardPackage()
     :Package("standard")
 {
@@ -445,6 +452,7 @@ StandardPackage::StandardPackage()
     patterns["peach"] = new NamePattern("peach");
     patterns["nullification"] = new NamePattern("nullification");
     patterns["peach+analeptic"] = new PAPattern;
+    patterns["trick"] = new TrickPattern;
 }
 
 ADD_PACKAGE(Standard)

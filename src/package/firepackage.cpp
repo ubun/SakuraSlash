@@ -534,7 +534,7 @@ public:
 FirePackage::FirePackage()
     :Package("fire")
 {
-    General *satomiwako = new General(this, "satomiwako", "jing", 4);
+    General *satomiwako = new General(this, "satomiwako", "jing", 4, false);
     satomiwako->addSkill(new Jiaoxie);
     satomiwako->addSkill(new Xianv);
     patterns[".equip"] = new EquipPattern;

@@ -83,13 +83,18 @@ end
 
 -- huachi
 sgs.ai_skill_use["@@huachi"] = function(self, prompt)
+	local final
 	self:sort(self.enemies, "hp")
 	for _, enemy in ipairs(self.enemies) do
 		if enemy:getGeneral():isMale() then
-			return "@HuachiCard=.->" .. enemy:objectName()
+			final = enemy
 		end
 	end
-	return "."
+	if final then
+		return "@HuachiCard=.->" .. final:objectName()
+	else
+		return "."
+	end
 end
 
 -- ouxiang
@@ -123,7 +128,7 @@ sgs.ai_skill_use["@@weijiao"] = function(self, prompt)
 		elseif not self.enemies[i]:isKongcheng() then
 			if not first_index then
 				first_index = i
-			else
+			elseif self.enemies[i]:getGender() ~= self.enemies[first_index]:getGender() then
 				second_index = i
 			end
 		end
@@ -134,7 +139,8 @@ sgs.ai_skill_use["@@weijiao"] = function(self, prompt)
 		local others = self.room:getOtherPlayers(self.player)
 		for _, other in sgs.qlist(others) do
 			if (not self:isFriend(other) or (self:hasSkills(sgs.need_kongcheng, other) and other:getHandcardNum() == 1)) and
-				self.enemies[first_index]:objectName() ~= other:objectName() and not other:isKongcheng() then
+				self.enemies[first_index]:objectName() ~= other:objectName() and not other:isKongcheng() and
+				self.enemies[first_index]:getGender() ~= other:getGender() then
 				return ("@WeijiaoCard=.->%s+%s"):format(self.enemies[first_index]:objectName(), other:objectName())
 			end
 		end
