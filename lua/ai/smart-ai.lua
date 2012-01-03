@@ -2864,30 +2864,23 @@ function SmartAI:askForCard(pattern, prompt, data)
 			end
 		end
 		return "."
-	elseif parsedPrompt[1] == "@xiangle-discard" then
-		local effect = data:toCardEffect()
-		if self:isFriend(effect.to) and not
-			(effect.to:hasSkill("leiji") and (self:getCardsNum("Jink", effect.to)>0 or (not self:isWeak(effect.to) and self:isEquip("EightDiagram",effect.to))))
-			then return "." end
-		local has_peach, has_anal, has_slash, slash_jink
-		for _, card in sgs.qlist(self.player:getHandcards()) do
-			if card:inherits("Peach") then has_peach = card
-			elseif card:inherits("Analeptic") then has_anal = card
-			elseif card:inherits("Slash") then has_slash = card
-			elseif card:inherits("Jink") then has_jink = card
-			end
-		end
-
-		if has_slash then return "$" .. has_slash:getEffectiveId()
-		elseif has_jink then return "$" .. has_jink:getEffectiveId()
-		elseif has_anal or has_peach then
-			if self:getCardsNum("Jink", effect.to) == 0 and self.player:hasFlag("drank") and self:getAllPeachNum(effect.to) == 0 then
-				if has_anal then return "$" .. has_anal:getEffectiveId()
-				else return "$" .. has_peach:getEffectiveId()
+	elseif parsedPrompt[1] == "@bianhu" then
+		local use = data:toCardUse()
+		if self:isEnemy(use.from) and use.card:inherits("ExNihilo") then
+			local allcards = self.player:getCards("he")
+			for _, card in sgs.qlist(allcards) do
+				if (pattern == "..S" and card:getSuit() == sgs.Card_Spade) or
+					(pattern == "..H" and card:getSuit() == sgs.Card_Heart) or
+					(pattern == "..C" and card:getSuit() == sgs.Card_Club) or
+					(pattern == "..D" and card:getSuit() == sgs.Card_Diamond) then
+					return card:getEffectiveId()
 				end
 			end
-		else return "."
 		end
+	--	if self:isFriend(use.to) and use.card:inherits("Dismantlement") then
+	--		return true
+	--	end
+		return "."
 	elseif parsedPrompt[1] == "@hujia-jink" then
 		if not self:isFriend(sgs.hujiasource) then return "." end
 		return self:getCardId("Jink") or "."
@@ -2919,18 +2912,7 @@ function SmartAI:askForCard(pattern, prompt, data)
 			if self:getCardId("Disaster") then return self:getCardId("Disaster") end
 		end
 		return "."
-	elseif parsedPrompt[1] == "@nijian" then
-		local allcards = self.player:getCards("he")
-		allcards = sgs.QList2Table(allcards)
-		local damage = data:toDamage()
-		if damage.from == self.player then return "." end
-		for _, fcard in ipairs(allcards) do
-			if fcard:getSuit() == damage.card:getSuit() then
-				return fcard:getEffectiveId()
-			end
-		end
-		return "."
-	elseif parsedPrompt[1] == ".Lj" then
+	elseif parsedPrompt[1] == "@lingjia" then
 		local carduse = data:toCardUse()
 		if self:isEnemy(carduse.from) then
 			local allcards = self.player:getCards("he")

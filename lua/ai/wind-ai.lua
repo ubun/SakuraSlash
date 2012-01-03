@@ -1,14 +1,4 @@
 -- bianhu
-sgs.ai_skill_invoke["bianhu"] = function(self, data)
-	local use = data:toCardUse()
-	if self:isEnemy(use.from) and use.card:inherits("ExNihilo") then
-		return true
-	end
---	if self:isFriend(use.to) and use.card:inherits("Dismantlement") then
---		return true
---	end
-	return false
-end
 sgs.ai_skill_playerchosen["bianhu"] = function(self, targets)
 	return self.player
 end
@@ -104,6 +94,12 @@ end
 
 -- lingjia
 sgs.ai_skill_playerchosen["lingjia"] = sgs.ai_skill_playerchosen["fenju"]
+
+-- nijian
+sgs.ai_skill_invoke["nijian"] = function(self, data)
+	local damage = data:toDamage()
+	return self:isEnemy(damage.from)
+end
 
 -- yinsi
 sgs.ai_skill_choice["yinsi"] = function(self, choices)
@@ -384,70 +380,4 @@ sgs.ai_skill_use["@@shensu2"]=function(self,prompt)
 	if target then return "@ShensuCard="..eCard:getEffectiveId().."->"..target:objectName() end
 
 	return "."
-end
-
-local huangtianv_skill={}
-huangtianv_skill.name="huangtianv"
-table.insert(sgs.ai_skills,huangtianv_skill)
-
-huangtianv_skill.getTurnUseCard=function(self)
-    if self.player:hasUsed("HuangtianCard") then return nil end
-    if self.player:isLord() then return nil end
-    if self.player:getKingdom() ~= "qun" then return nil end
-	if not self.room:getLord():hasSkill("huangtian") then return nil end
-
-    local cards = self.player:getCards("h")
-    cards=sgs.QList2Table(cards)
-
-	local card
-
-	self:sortByUseValue(cards,true)
-
-	for _,acard in ipairs(cards)  do
-		if acard:inherits("Jink") then
-			card = acard
-			break
-		end
-	end
-
-	if not card then
-		return nil
-	end
-
-	local card_id = card:getEffectiveId()
-	local card_str = "@HuangtianCard="..card_id
-	local skillcard = sgs.Card_Parse(card_str)
-
-	assert(skillcard)
-	return skillcard
-end
-
-sgs.ai_skill_use_func["HuangtianCard"]=function(card,use,self)
-    local targets = {}
-	for _, friend in ipairs(self.friends_noself) do
-		if friend:hasLordSkill("Huangtian") then
-			table.insert(targets, friend)
-		end
-	end
-
-	if #targets == 0 then return end
-
-	use.card=card
-	self:sort(targets, "defense")
-	if use.to then
-		use.to:append(targets[1])
-    end
-end
-
-sgs.ai_skill_askforag.buqu = function(self, card_ids)
--- find duplicated one or the first
-	for i, card_id in ipairs(card_ids) do
-		for j, card_id2 in sgs.list(card_ids) do
-			if i ~= j and card_id == card_id2 then
-				return card_id
-			end
-		end
-	end
-
-	return card_ids[1]
 end

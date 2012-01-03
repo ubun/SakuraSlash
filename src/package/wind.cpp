@@ -11,7 +11,6 @@ class Bianhu: public TriggerSkill{
 public:
     Bianhu():TriggerSkill("bianhu"){
         events << CardUsed;
-        frequency = Frequent;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
@@ -30,16 +29,16 @@ public:
             return false;
         if(use.card->inherits("TrickCard") && !use.card->inherits("Nullification")){
             QString suit_str = use.card->getSuitString();
-            QString pattern = QString(".%1").arg(suit_str.at(0).toUpper());
+            QString pattern = QString("..%1").arg(suit_str.at(0).toUpper());
             QString prompt = QString("@bianhu:%1::%2").arg(use.from->getGeneralName()).arg(suit_str);
-            if(eri->askForSkillInvoke(objectName(), data) && room->askForCard(eri, pattern, prompt)){
+            if(room->askForCard(eri, pattern, prompt, data)){
                 ServerPlayer *target = room->askForPlayerChosen(eri, room->getAllPlayers(), objectName());
                 use.to.clear();
                 use.to << target;
                 LogMessage log;
                 log.type = "$Bianhu";
                 log.card_str = use.card->getEffectIdString();
-                log.from = player;
+                log.from = eri;
                 log.to << target;
                 room->sendLog(log);
                 data = QVariant::fromValue(use);
@@ -336,31 +335,40 @@ class Nijian: public TriggerSkill{
 public:
     Nijian():TriggerSkill("nijian"){
         events << Predamaged;
-        frequency = Frequent;
     }
 
     virtual bool trigger(TriggerEvent, ServerPlayer *heiji, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
         const Card *card = damage.card;
-        if(!card->inherits("Slash") && !card->inherits("Duel"))
+        if(!card->inherits("Slash") && !card->inherits("Duel") && !card->inherits("FireAttack"))
             return false;
-        if(!heiji->askForSkillInvoke(objectName()))
-            return false;
-        Room *room = heiji->getRoom();
-        QString suit_str = card->getSuitString();
-        QString pattern = QString("..%1").arg(suit_str.at(0).toUpper());
-        QString prompt = QString("@nijian:%1::%2").arg(damage.from->getGeneralName()).arg(suit_str);
-        if(room->askForCard(heiji, pattern, prompt, data)){
-            damage.to = damage.from;
-            LogMessage log;
-            log.type = "#Nijian";
-            log.arg = objectName();
-            log.from = heiji;
-            log.to << damage.to;
-            log.arg2 = QString::number(damage.damage);
-            room->sendLog(log);
-            room->damage(damage);
-            return true;
+        if(damage.from && heiji->askForSkillInvoke(objectName(), data)){
+            Room *room = heiji->getRoom();
+
+            JudgeStruct judge;
+            judge.pattern = QRegExp("(.*):(heart):(.*)");
+            judge.good = false;
+            judge.reason = objectName();
+            judge.who = heiji;
+
+            room->judge(judge);
+            if(judge.isGood()){
+                damage.to = damage.from;
+                LogMessage log;
+                log.type = "#Nijian";
+                log.from = heiji;
+                log.to << damage.to;
+                log.arg = QString::number(damage.damage);
+                if(damage.nature == DamageStruct::Thunder)
+                    log.arg2 = "thunder_nature";
+                else if(damage.nature == DamageStruct::Fire)
+                    log.arg2 = "fire_nature";
+                else
+                    log.arg2 = "normal_nature",
+                room->sendLog(log);
+                room->damage(damage);
+                return true;
+            }
         }
         return false;
     }
