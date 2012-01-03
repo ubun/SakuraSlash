@@ -42,6 +42,8 @@ return {
 	[":zhenwu"] = "若你选择跳过摸牌阶段或出牌阶段，可以规定在你下个回合开始之前：（二选一）1.所有人不能使用黑色【杀】；2.所有人不能使用黑色非延时锦囊",
 	["zhenwu:slash"] = "封印黑色的【杀】",
 	["zhenwu:ndtrick"] = "封印黑色的非延时锦囊",
+	["#Zhenwu"] = "%from 发动了【%arg2】，封印了黑色的 %arg",
+	["#ZhenwuEffect"] = "受到【%arg】效果的影响，%from 使用的 %arg2 无效",
 
 	["suzukisonoko"] = "铃木园子",
 	["huachi"] = "花痴",

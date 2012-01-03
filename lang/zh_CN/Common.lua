@@ -43,6 +43,7 @@ return {
 	["aoe"] = "范围效果",
 	["single_target_trick"] = "单体锦囊",
 	["delayed_trick"] = "延时锦囊",
+	["ndtrick"] = "非延时锦囊",
 	["buff_card"] = "辅助伤害卡",
 	["damage_spread"] = "伤害传导",
 	["weapon"] = "武器",
