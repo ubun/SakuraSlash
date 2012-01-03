@@ -381,6 +381,12 @@ public:
             if(room->getTag("Zhenwu").isNull() && okida->askForSkillInvoke(objectName())){
                 QString choice = room->askForChoice(okida, objectName(), "slash+ndtrick");
                 room->setTag("Zhenwu", QVariant::fromValue(choice));
+                LogMessage log;
+                log.type = "#Zhenwu";
+                log.from = okida;
+                log.arg = choice;
+                log.arg2 = objectName();
+                room->sendLog(log);
                 return true;
             }
         }
@@ -407,10 +413,16 @@ public:
         CardUseStruct use = data.value<CardUseStruct>();
         if(use.card->isRed())
             return false;
-        if(use.card->inherits("Slash") && zhenwutag == "slash")
+        if((use.card->inherits("Slash") && zhenwutag == "slash") ||
+           (use.card->isNDTrick() && zhenwutag == "ndtrick")){
+            LogMessage log;
+            log.type = "#ZhenwuEffect";
+            log.from = player;
+            log.arg = "zhenwu";
+            log.arg2 = use.card->objectName();
+            room->sendLog(log);
             return true;
-        if(use.card->isNDTrick() && zhenwutag == "ndtrick")
-            return true;
+        }
         return false;
     }
 };

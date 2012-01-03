@@ -1160,6 +1160,7 @@ function SmartAI:useBasicCard(card, use, no_distance)
 	self.predictedRange = self.player:getAttackRange()
 	if card:inherits("Slash") and self:slashIsAvailable() then
 		local target_count = 0
+		if card:isBlack() and self.room:getTag("Zhenwu"):toString() == "slash" then return end
 		if self.player:hasSkill("qingnang") and self:isWeak() and self:getOverflow() == 0 then return end
 		for _, friend in ipairs(self.friends_noself) do						
 			local slash_prohibit = false
@@ -1841,7 +1842,7 @@ function SmartAI:getAllPeachNum(player)
 end
 
 function SmartAI:useTrickCard(card, use)
-	if self.player:hasSkill("chengxiang") and self.player:getHandcardNum() < 8 and card:getNumber() < 7 then return end
+	if card:isBlack() and self.room:getTag("Zhenwu"):toString() == "ndtrick" then return end
 	if card:inherits("AOE") then
 		if self.player:hasSkill("wuyan") or self.player:hasSkill("tianzhen") then return end
 		local good, bad = 0, 0
