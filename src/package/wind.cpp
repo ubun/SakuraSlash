@@ -36,6 +36,12 @@ public:
                 ServerPlayer *target = room->askForPlayerChosen(eri, room->getAllPlayers(), objectName());
                 use.to.clear();
                 use.to << target;
+                LogMessage log;
+                log.type = "$Bianhu";
+                log.card_str = use.card->getEffectIdString();
+                log.from = player;
+                log.to << target;
+                room->sendLog(log);
                 data = QVariant::fromValue(use);
             }
         }
@@ -346,6 +352,13 @@ public:
         QString prompt = QString("@nijian:%1::%2").arg(damage.from->getGeneralName()).arg(suit_str);
         if(room->askForCard(heiji, pattern, prompt, data)){
             damage.to = damage.from;
+            LogMessage log;
+            log.type = "#Nijian";
+            log.arg = objectName();
+            log.from = heiji;
+            log.to << damage.to;
+            log.arg2 = QString::number(damage.damage);
+            room->sendLog(log);
             room->damage(damage);
             return true;
         }
@@ -493,12 +506,12 @@ public:
         log.from = player;
         log.to << kyo;
         log.arg = QString::number(damage.damage);
-        if(damage.nature == DamageStruct::Normal)
-            log.arg2 = "normal_nature";
+        if(damage.nature == DamageStruct::Thunder)
+            log.arg2 = "thunder_nature";
         else if(damage.nature == DamageStruct::Fire)
             log.arg2 = "fire_nature";
         else
-            log.arg2 = "thunder_nature",
+            log.arg2 = "normal_nature",
         room->sendLog(log);
 
         room->damage(damage);
@@ -761,6 +774,11 @@ public:
         }
         if(choice == "cancel")
             return false;
+        LogMessage log;
+        log.type = "#InvokeSkill";
+        log.from = toyama;
+        log.arg = objectName();
+        room->sendLog(log);
         if(choice == "friend"){
             const Card *peach = room->askForCard(toyama, "peach", "@yinsi-friend:" + damage.to->objectName(), data);
             if(peach){
