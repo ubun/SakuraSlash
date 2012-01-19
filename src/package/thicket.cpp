@@ -966,14 +966,14 @@ public:
             return false;
         if(event == PhaseChange){
             if(player->getPhase() == Player::Start)
-                player->getRoom()->setPlayerProperty(player, "Store", QVariant::fromValue(-1));
+                player->getRoom()->setPlayerProperty(player, "Store", -1);
             return false;
         }
         CardUseStruct card = data.value<CardUseStruct>();
         if(card.card->subcardsLength() > 0 || card.card->getNumber() < 1)
             return false;
         if(card.card->isNDTrick() || card.card->inherits("BasicCard"))
-            player->getRoom()->setPlayerProperty(player, "Store", QVariant::fromValue(card.card->getId()));
+            player->getRoom()->setPlayerProperty(player, "Store", card.card->getEffectiveId());
 
         return false;
     }

@@ -452,7 +452,7 @@ void HuachiCard::onEffect(const CardEffectStruct &effect) const{
         room->moveCardTo(cards, effect.to, Player::Hand, false);
         delete cards;
         effect.to->gainMark("@flower");
-        effect.from->tag["Kyo"] = QVariant::fromValue(effect.to);
+        effect.from->tag["Kyo"] = QVariant::fromValue((PlayerStar)effect.to);
     }
 }
 
@@ -785,7 +785,7 @@ public:
         if(damage.to->isDead())
             return false;
         QString choice = "cancel";
-        toyama->tag["YinsTarget"] = QVariant::fromValue(damage.to);
+        toyama->tag["YinsTarget"] = QVariant::fromValue((PlayerStar)damage.to);
         if(peach > 0 && (toyama->inMyAttackRange(damage.to) || equip > 0)){
             choice = room->askForChoice(toyama, objectName(), "friend+enemy+cancel");
         }
@@ -1306,7 +1306,7 @@ public:
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         DyingStruct dying_data = data.value<DyingStruct>();
-        ServerPlayer *git = dying_data.who;
+        PlayerStar git = dying_data.who;
         Room *room = player->getRoom();
         ServerPlayer *tomy = room->findPlayerBySkillName(objectName());
         if(tomy && tomy->inMyAttackRange(git)){

@@ -76,18 +76,19 @@ public:
     }
 };
 
-class Wuwei:public MasochismSkill{
+class Wuwei:public TriggerSkill{
 public:
-    Wuwei():MasochismSkill("wuwei$"){
+    Wuwei():TriggerSkill("wuwei"){
+        events << DamageComplete;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
         return target->hasLordSkill("wuwei");
     }
 
-    virtual void onDamaged(ServerPlayer *kudou, const DamageStruct &damage) const{
+    virtual bool trigger(TriggerEvent , ServerPlayer *kudou, QVariant &data) const{
         Room *room = kudou->getRoom();
-        QVariant data = QVariant::fromValue(damage);
+        DamageStruct damage = data.value<DamageStruct>();
         if(room->getCurrent() != kudou && damage.from && room->askForSkillInvoke(kudou, objectName(), data)){
             foreach(ServerPlayer *player, room->getOtherPlayers(kudou)){
                 const Card *slash = room->askForCard(player, "slash", "@wuwei-slash", data);
@@ -100,12 +101,17 @@ public:
                 }
             }
         }
+        return false;
     }
 };
 
 class Rexue:public MasochismSkill{
 public:
     Rexue():MasochismSkill("rexue"){
+    }
+
+    virtual int getPriority() const{
+        return -1;
     }
 
     virtual void onDamaged(ServerPlayer *hatto, const DamageStruct &) const{
@@ -613,9 +619,8 @@ public:
             return false;
 
         Room *room = mouriran->getRoom();
-        ServerPlayer *source = room->getCurrent();
-        QVariant tgt = QVariant::fromValue(source);
-        if(source->getWeapon() && room->askForSkillInvoke(mouriran, "duoren", tgt))
+        PlayerStar source = room->getCurrent();
+        if(source->getWeapon() && room->askForSkillInvoke(mouriran, "duoren", QVariant::fromValue(source)))
             mouriran->obtainCard(source->getWeapon());
         return false;
     }
@@ -1031,7 +1036,7 @@ void DiaobingCard::use(Room *room, ServerPlayer *matsu, const QList<ServerPlayer
     QList<ServerPlayer *> lieges = room->getLieges("jing", matsu);
     const Card *slash = NULL;
     foreach(ServerPlayer *liege, lieges){
-        slash = room->askForCard(liege, ".At", "@diaobing-slash", QVariant::fromValue(matsu));
+        slash = room->askForCard(liege, ".At", "@diaobing-slash", QVariant::fromValue((PlayerStar)matsu));
         if(slash && (!targets.first()->isKongcheng() || !slash->inherits("FireAttack"))){
             CardUseStruct card_use;
             card_use.card = slash;
@@ -1187,7 +1192,7 @@ public:
         if(!kaitou || player == kaitou)
             return false;
         if(player->getPhase() == Player::Draw && !kaitou->hasFlag("MagicUsed")
-           && kaitou->askForSkillInvoke(objectName(), QVariant::fromValue(player))){
+           && kaitou->askForSkillInvoke(objectName(), QVariant::fromValue((PlayerStar)player))){
             LogMessage log;
             log.type = "#Moshu";
             log.from = kaitou;
@@ -1432,7 +1437,7 @@ public:
         if(player->getPhase() != Player::Draw)
             return false;
         Room *room = player->getRoom();
-        ServerPlayer *gin = room->getLord();
+        PlayerStar gin = room->getLord();
         if(gin->hasLordSkill(objectName())){
             if(player != gin && room->askForSkillInvoke(player, "heiyi", QVariant::fromValue(gin))){
                 gin->gainMark("@heiyi");
@@ -1522,7 +1527,7 @@ public:
         Room *room = player->getRoom();
         if(player->getPhase() == Player::Finish && player->askForSkillInvoke(objectName(), data)){
             foreach(ServerPlayer *other, room->getOtherPlayers(player)){
-                const Card *card = room->askForCard(other, ".", "@dashou-get:" + player->objectName(), QVariant::fromValue(player));
+                const Card *card = room->askForCard(other, ".", "@dashou-get:" + player->objectName(), QVariant::fromValue((PlayerStar)player));
                 if(card){
                     player->obtainCard(card);
                     player->addMark("dashou");
@@ -1756,7 +1761,7 @@ public:
         Room *room = player->getRoom();
         ServerPlayer *cancer = room->findPlayerBySkillName(objectName());
 
-        if(cancer && room->askForSkillInvoke(cancer, objectName(), QVariant::fromValue(dying_data.who))){
+        if(cancer && room->askForSkillInvoke(cancer, objectName(), QVariant::fromValue((PlayerStar)dying_data.who))){
             const Card *recovcd = room->askForCard(cancer, ".S", "@baomu:" + dying_data.who->objectName());
             if(!recovcd)
                 return false;
