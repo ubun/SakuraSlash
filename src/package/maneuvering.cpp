@@ -522,7 +522,7 @@ public:
 };
 
 GaleShell::GaleShell(Suit suit, int number) :Armor(suit, number){
-    setObjectName("gale-shell");
+    setObjectName("gale_shell");
     skill = new GaleShellSkill;
 
     target_fixed = false;
@@ -673,7 +673,7 @@ public:
 };
 
 ThunderShell::ThunderShell(Suit suit, int number) :Armor(suit, number){
-    setObjectName("thunder-shell");
+    setObjectName("thunder_shell");
     skill = new ThunderShellSkill;
 
     target_fixed = false;
@@ -700,7 +700,7 @@ void Potential::onEffect(const CardEffectStruct &effect) const{
 
 RedAlert::RedAlert(Suit suit, int number)
     :AOE(suit, number){
-    setObjectName("red-alert");
+    setObjectName("red_alert");
 }
 
 void RedAlert::onEffect(const CardEffectStruct &effect) const{
