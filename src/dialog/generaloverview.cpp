@@ -74,10 +74,11 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
         ui->tableWidget->setItem(i, 4, package_item);
     }
 
-    ui->tableWidget->setColumnWidth(0, 100);
-    ui->tableWidget->setColumnWidth(1, 50);
+    ui->tableWidget->setColumnWidth(0, 130);
+    ui->tableWidget->setColumnWidth(1, 60);
     ui->tableWidget->setColumnWidth(2, 50);
     ui->tableWidget->setColumnWidth(3, 60);
+    ui->tableWidget->setColumnWidth(4, 55);
 
     ui->tableWidget->setCurrentItem(ui->tableWidget->item(0,0));
 }

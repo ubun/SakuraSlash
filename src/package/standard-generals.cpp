@@ -1909,7 +1909,7 @@ void StandardPackage::addGenerals(){
     suolong->addSkill(new FNF);
     suolong->addSkill(new SQSJ);
 
-    General *weiwei = new General(this, "weiwei", "red");
+    General *weiwei = new General(this, "weiwei", "red", 3, false);
     weiwei->addSkill(new ZZ);
     weiwei->addSkill(new TM);
 
@@ -1918,11 +1918,11 @@ void StandardPackage::addGenerals(){
     xiangji->addSkill(new EMFJ);
     xiangji->addSkill(new DC);
 
-    General *namei = new General(this, "namei", "red");
+    General *namei = new General(this, "namei", "red", 3, false);
     namei->addSkill(new XZM);
     namei->addSkill(new JM);
 
-    General *buluke = new General(this, "buluke", "red");
+    General *buluke = new General(this, "buluke", "red", 3);
     buluke->addSkill(new HQ);
     buluke->addSkill(new Skill("cs", Skill::Nirvana));
 
@@ -1930,43 +1930,56 @@ void StandardPackage::addGenerals(){
     fulanqi->addSkill(new JT);
     //fulanqi->addSkill(new LB);
 
-    General *luobin = new General(this, "luobin", "red");
+    General *luobin = new General(this, "luobin", "red", 3, false);
     //luobin->addSkill(new HK);
     luobin->addSkill(new TS);
 
-    General *qiaoba = new General(this, "qiaoba", "red");
+    General *qiaoba = new General(this, "qiaoba", "red", 3);
     qiaoba->addSkill(new YS);
     qiaoba->addSkill(new Skill("wny", Skill::Nirvana));
 
-    General *wusuopu = new General(this, "wusuopu", "red");
+    General *wusuopu = new General(this, "wusuopu", "red", 3);
     wusuopu->addSkill(new CN);
     wusuopu->addSkill(new JDXJ);
     //wusuopu->addSkill(new SLX);
 
-    General *qingzhi = new General(this, "qingzhi", "blue");
+    General *qingzhi = new General(this, "qingzhi", "blue", 3);
     qingzhi->addSkill(new BD);
+
+    General *zhantaowan = new General(this, "zhantaowan", "blue", 3);
+    General *maizelun = new General(this, "maizelun", "blue");
+    General *chiquan = new General(this, "chiquan", "blue");
+    General *dasiqi = new General(this, "dasiqi", "blue", 3, false);
+    General *kebi = new General(this, "kebi", "blue", 3);
+    General *huangyuan = new General(this, "huangyuan", "blue");
+    General *simoge = new General(this, "simoge", "blue");
+    General *luqi = new General(this, "luqi", "blue");
 
     General *yingyan = new General(this, "yingyan", "purple");
     yingyan->addSkill(new PZ);
 
-    General *lita = new General(this, "lita", "yellow");
+    General *keluokedaer = new General(this, "keluokedaer", "purple");
+    General *xiong = new General(this, "xiong", "purple");
+    General *duofulangminge = new General(this, "duofulangminge", "purple", 3);
+    General *diqi = new General(this, "diqi", "purple", 3);
+    General *hankuke = new General(this, "hankuke", "purple", 3, false);
+    General *shenpin = new General(this, "shenpin", "purple");
+    General *moliya = new General(this, "moliya", "purple", 3);
+
+    General *lita = new General(this, "lita", "yellow", 4, false);
     //lita->addSkill(new HH);
+
+    General *baji = new General(this, "baji", "yellow", 3);
+    General *mrkr = new General(this, "mrkr", "yellow");
+    General *peiluola = new General(this, "peiluola", "yellow", 3, false);
+    General *yiwankefu = new General(this, "yiwankefu", "yellow", 3);
+    General *jide = new General(this, "jide", "yellow");
+    General *luo = new General(this, "luo", "yellow", 3);
+    General *ainilu = new General(this, "aililu", "yellow", 3);
 
     // for skill cards
     addMetaObject<SQSJCard>();
     addMetaObject<DCCard>();
-    addMetaObject<ShouqiuCard>();
-    addMetaObject<BaiyiCard>();
-    addMetaObject<DiaobingCard>();
-    addMetaObject<MoshuCard>();
-    addMetaObject<RenxingCard>();
-    addMetaObject<AnshaCard>();
-    addMetaObject<MaixiongCard>();
-    addMetaObject<GaizaoCard>();
-    addMetaObject<YuandingCard>();
-    addMetaObject<JingshenCard>();
-
-    patterns[".At"] = new AttackPattern;
 
     addMetaObject<CheatCard>();
 }
