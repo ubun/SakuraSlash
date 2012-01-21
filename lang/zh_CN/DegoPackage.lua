@@ -1,15 +1,15 @@
 -- translation for DegoPackage
 
 return {
-	["dego"] = "帝击花组", 
-	["sakura"] = "真宫寺樱", 
-	["sumire"] = "神崎堇", 
-	["alice"] = "爱丽丝", 
-	["lihonglan"] = "李红兰", 
-	["maria"] = "玛利亚·橘", 
-	["reni"] = "雷尼", 
-	["orihime"] = "织姬", 
-	["kanna"] = "桐岛神奈", 
+	["dego"] = "帝击花组",
+	["sakura"] = "真宫寺樱",
+	["sumire"] = "神崎堇",
+	["alice"] = "爱丽丝",
+	["lihonglan"] = "李红兰",
+	["maria"] = "玛利亚·橘",
+	["reni"] = "雷尼",
+	["orihime"] = "织姬",
+	["kanna"] = "桐岛神奈",
 
 	["wusheng"] = "樱花雾翔", 
 	[":wusheng"] = "你可以将你的任意一张红色牌当【杀】使用或打出；当你使用红桃牌当杀时攻击范围无限",
