@@ -55,7 +55,7 @@ Engine::Engine()
     Sanguosha = this;
 
     addPackage(NewStandard());
-    addPackage(NewTest());
+    //addPackage(NewTest());
 
     addPackage(NewStandardCard());
     addPackage(NewStandardExCard());
@@ -324,7 +324,7 @@ QStringList Engine::getExtensions() const{
 QStringList Engine::getKingdoms() const{
     static QStringList kingdoms;
     if(kingdoms.isEmpty())
-        kingdoms << "zhen" << "shao" << "woo" << "yi" << "god";
+        kingdoms << "red" << "blue" << "purple" << "yellow" << "god";
 
     return kingdoms;
 }
@@ -332,16 +332,10 @@ QStringList Engine::getKingdoms() const{
 QColor Engine::getKingdomColor(const QString &kingdom) const{
     static QMap<QString, QColor> color_map;
     if(color_map.isEmpty()){
-        color_map["guai"] = QColor(0x03, 0x01, 0xEE);
-        color_map["jing"] = QColor(0x54, 0x79, 0x98);
-        color_map["woo"] = QColor(0xD0, 0x79, 0x6C);
-        color_map["yi"] = QColor(0xFF, 0x34, 0xB3);
-        color_map["te"] = QColor(0xFF, 0x00, 0x00);
-        color_map["shao"] = QColor(0x00, 0xFF, 0x00);
-        color_map["zhen"] = QColor(0x8A, 0x80, 0x7A);
-        color_map["hei"] = QColor(0x04, 0x02, 0x05);
-        color_map["za"] = QColor(0x0A, 0x0A, 0x0B);
-        color_map["god"] = QColor(0x96, 0x94, 0x3D);
+        color_map["blue"] = QColor(0x03, 0x01, 0xEE);
+        color_map["red"] = QColor(0xD0, 0x79, 0x6C);
+        color_map["purple"] = QColor(0x66, 0x00, 0x66);
+        color_map["yellow"] = QColor(0x96, 0x94, 0x3D);
     }
 
     return color_map.value(kingdom);
