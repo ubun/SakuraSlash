@@ -107,113 +107,11 @@ public:
     virtual void takeEffect(ServerPlayer *target) const;
 };
 
-class BlackDragonPackage: public Package{
+class ManeuveringPackage: public Package{
     Q_OBJECT
 
 public:
-    BlackDragonPackage();
-};
-
-class RenwangShield: public Armor{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE RenwangShield(Card::Suit suit, int number);
-};
-
-class Emigration:public DelayedTrick{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Emigration(Card::Suit suit, int number);
-
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void takeEffect(ServerPlayer *target) const;
-};
-
-class GaleShell:public Armor{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE GaleShell(Card::Suit suit, int number);
-
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onUse(Room *room, const CardUseStruct &card_use) const;
-};
-
-class YxSword: public Weapon{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE YxSword(Card::Suit suit = Club, int number = 9);
-};
-
-class Sacrifice: public SingleTargetTrick{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Sacrifice(Card::Suit suit, int number);
-
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
-};
-
-class ThunderShell:public Armor{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE ThunderShell(Card::Suit suit, int number);
-
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onUse(Room *room, const CardUseStruct &card_use) const;
-};
-
-class Potential: public SingleTargetTrick{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Potential(Card::Suit suit, int number);
-    virtual void onEffect(const CardEffectStruct &effect) const;
-};
-
-class RedAlert: public AOE{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE RedAlert(Card::Suit suit, int number);
-    virtual void onEffect(const CardEffectStruct &effect) const;
-};
-
-class Turnover: public SingleTargetTrick{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Turnover(Card::Suit suit, int number);
-
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
-};
-
-class YajiaoSpear: public Weapon{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE YajiaoSpear(Card::Suit suit = Club, int number = 9);
-};
-
-class Wolf: public SingleTargetTrick{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Wolf(Card::Suit suit, int number);
-    virtual void onEffect(const CardEffectStruct &effect) const;
-};
-
-class ThunderBirdPackage: public Package{
-    Q_OBJECT
-
-public:
-    ThunderBirdPackage();
+    ManeuveringPackage();
 };
 
 #endif // MANEUVERING_H

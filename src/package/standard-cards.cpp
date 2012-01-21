@@ -399,28 +399,28 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
-        QStringList cars;
+        QStringList horses;
         if(effect.to->getDefensiveHorse())
-            cars << "dcar";
+            horses << "dhorse";
         if(effect.to->getOffensiveHorse())
-            cars << "ocar";
+            horses << "ohorse";
 
-        if(cars.isEmpty())
+        if(horses.isEmpty())
             return false;
 
         Room *room = player->getRoom();
         if(!player->askForSkillInvoke(objectName(), data))
             return false;
 
-        QString car_type;
-        if(cars.length() == 2)
-            car_type = room->askForChoice(player, objectName(), cars.join("+"));
+        QString horse_type;
+        if(horses.length() == 2)
+            horse_type = room->askForChoice(player, objectName(), horses.join("+"));
         else
-            car_type = cars.first();
+            horse_type = horses.first();
 
-        if(car_type == "dcar")
+        if(horse_type == "dhorse")
             room->throwCard(effect.to->getDefensiveHorse());
-        else if(car_type == "ocar")
+        else if(horse_type == "ohorse")
             room->throwCard(effect.to->getOffensiveHorse());
 
         return false;
@@ -771,8 +771,7 @@ bool Snatch::targetFilter(const QList<const Player *> &targets, const Player *to
     if(to_select == Self)
         return false;
 
-    if(Self->distanceTo(to_select) > 1 &&
-       !Self->hasSkill("shentou") && !Self->hasSkill("qicai"))
+    if(Self->distanceTo(to_select) > 1 && !Self->hasSkill("qicai"))
         return false;
 
     return true;
@@ -885,6 +884,9 @@ void Lightning::takeEffect(ServerPlayer *target) const{
     target->getRoom()->damage(damage);
 }
 
+
+// EX cards
+
 class IceSwordSkill: public TriggerSkill{
 public:
     IceSwordSkill():TriggerSkill("ice_sword"){
@@ -923,9 +925,38 @@ IceSword::IceSword(Suit suit, int number)
     skill = new IceSwordSkill;
 }
 
-class CarSkill: public DistanceSkill{
+class RenwangShieldSkill: public ArmorSkill{
 public:
-    CarSkill():DistanceSkill("car"){
+    RenwangShieldSkill():ArmorSkill("renwang_shield"){
+        events << SlashEffected;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        if(effect.slash->isBlack()){
+            LogMessage log;
+            log.type = "#ArmorNullify";
+            log.from = player;
+            log.arg = objectName();
+            log.arg2 = effect.slash->objectName();
+            player->getRoom()->sendLog(log);
+
+            return true;
+        }else
+            return false;
+    }
+};
+
+RenwangShield::RenwangShield(Suit suit, int number)
+    :Armor(suit, number)
+{
+    setObjectName("renwang_shield");
+    skill = new RenwangShieldSkill;
+}
+
+class HorseSkill: public DistanceSkill{
+public:
+    HorseSkill():DistanceSkill("horse"){
 
     }
 
@@ -937,33 +968,6 @@ public:
             correct += to->getDefensiveHorse()->getCorrect();
 
         return correct;
-    }
-};
-
-class Porsche365A:public OneCardViewAsSkill{
-public:
-    Porsche365A():OneCardViewAsSkill("porsche365A"){
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->getGeneralName() == "gin" && Slash::IsAvailable(player);
-    }
-
-    virtual bool viewFilter(const CardItem *to_select) const{
-        const Card *card = to_select->getFilteredCard();
-        return card->isBlack();
-    }
-
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return pattern == "slash";
-    }
-
-    virtual const Card *viewAs(CardItem *card_item) const{
-        const Card *card = card_item->getCard();
-        Card *slash = new Slash(card->getSuit(), card->getNumber());
-        slash->addSubcard(card->getId());
-        slash->setSkillName(objectName());
-        return slash;
     }
 };
 
@@ -1037,7 +1041,6 @@ StandardCardPackage::StandardCardPackage()
 
           << new Crossbow(Card::Club)
           << new Crossbow(Card::Diamond)
-          << new IceSword
           << new DoubleSword
           << new QinggangSword
           << new Blade
@@ -1052,30 +1055,30 @@ StandardCardPackage::StandardCardPackage()
     skills << EightDiagramSkill::GetInstance();
 
     {
-        QList<Card *> cars;
-        cars << new DefensiveHorse(Card::Spade, 5)
-                << new OffensiveHorse(Card::Heart, 5)
+        QList<Card *> horses;
+        horses << new DefensiveHorse(Card::Spade, 5)
                 << new DefensiveHorse(Card::Club, 5)
-                << new OffensiveHorse(Card::Spade, 13)
                 << new DefensiveHorse(Card::Heart, 13)
+                << new OffensiveHorse(Card::Heart, 5)
+                << new OffensiveHorse(Card::Spade, 13)
                 << new OffensiveHorse(Card::Diamond, 13);
 
-        cars.at(0)->setObjectName("porsche365A");
-        cars.at(1)->setObjectName("chevyCK");
-        cars.at(2)->setObjectName("beetle");
-        cars.at(3)->setObjectName("skateboard");
-        cars.at(4)->setObjectName("mazdaRX7");
-        cars.at(5)->setObjectName("benzCLK");
+        horses.at(0)->setObjectName("jueying");
+        horses.at(1)->setObjectName("dilu");
+        horses.at(2)->setObjectName("zhuahuangfeidian");
+        horses.at(3)->setObjectName("chitu");
+        horses.at(4)->setObjectName("dayuan");
+        horses.at(5)->setObjectName("zixing");
 
-        cards << cars;
+        cards << horses;
 
-        skills << new CarSkill;
-        skills << new Porsche365A << new Skill("chevyCK") << new Skill("beetle");
+        skills << new HorseSkill;
     }
 
     cards << new AmazingGrace(Card::Heart, 3)
           << new AmazingGrace(Card::Heart, 4)
           << new GodSalvation
+          << new SavageAssault(Card::Spade, 7)
           << new SavageAssault(Card::Spade, 13)
           << new SavageAssault(Card::Club, 7)
           << new ArcheryAttack
@@ -1113,4 +1116,20 @@ StandardCardPackage::StandardCardPackage()
     skills << new SpearSkill << new AxeViewAsSkill;
 }
 
+StandardExCardPackage::StandardExCardPackage()
+    :Package("standard_ex_cards")
+{
+    QList<Card *> cards;
+    cards << new IceSword(Card::Spade, 2)
+            << new RenwangShield(Card::Club, 2)
+            << new Lightning(Card::Heart, 12)
+            << new Nullification(Card::Diamond, 12);
+
+    foreach(Card *card, cards)
+        card->setParent(this);
+
+    type = CardPack;
+}
+
 ADD_PACKAGE(StandardCard)
+ADD_PACKAGE(StandardExCard)

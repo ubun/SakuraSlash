@@ -39,8 +39,8 @@ QString Engine::getVersionName() const{
 extern "C" {
     Package *NewStandard();
     Package *NewStandardCard();
-    Package *NewBlackDragon();
-    Package *NewThunderBird();
+    Package *NewStandardExCard();
+    Package *NewManeuvering();
     Package *NewTest();
 
     Scenario *NewZombieScenario();
@@ -58,8 +58,8 @@ Engine::Engine()
     addPackage(NewTest());
 
     addPackage(NewStandardCard());
-    //addPackage(NewBlackDragon());
-    //addPackage(NewThunderBird());
+    addPackage(NewStandardExCard());
+    addPackage(NewManeuvering());
 
     addScenario(NewZombieScenario());
 
