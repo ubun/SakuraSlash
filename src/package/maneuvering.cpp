@@ -433,7 +433,7 @@ BlackDragonPackage::BlackDragonPackage()
             << new Jink(Card::Diamond, 11)
             << new FireAttack(Card::Diamond, 12);
 
-    DefensiveCar *citroBX = new DefensiveCar(Card::Diamond, 13);
+    DefensiveHorse *citroBX = new DefensiveHorse(Card::Diamond, 13);
     citroBX->setObjectName("citroBX");
     cards << citroBX;
 
@@ -786,7 +786,7 @@ ThunderBirdPackage::ThunderBirdPackage()
             << new Snatch(Card::Spade,10)
             << new Emigration(Card::Spade, 11)
             << new ThunderSlash(Card::Spade, 12);
-    OffensiveCar *jaguarE = new OffensiveCar(Card::Spade, 13);
+    OffensiveHorse *jaguarE = new OffensiveHorse(Card::Spade, 13);
     jaguarE->setObjectName("jaguarE");
     cards << jaguarE;
 

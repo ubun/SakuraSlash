@@ -186,8 +186,8 @@ bool TrustAI::useCard(const Card *card){
                 return new_weapon->getRange() > weapon->getRange();
             }
         case EquipCard::ArmorLocation: return !self->getArmor();
-        case EquipCard::OffensiveCarLocation: return !self->getOffensiveCar();
-        case EquipCard::DefensiveCarLocation: return !self->getDefensiveCar();
+        case EquipCard::OffensiveHorseLocation: return !self->getOffensiveHorse();
+        case EquipCard::DefensiveHorseLocation: return !self->getDefensiveHorse();
         default:
             return true;
         }

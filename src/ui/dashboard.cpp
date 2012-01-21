@@ -14,7 +14,7 @@
 Dashboard::Dashboard()
     :left_pixmap("image/system/dashboard-equip.png"), right_pixmap("image/system/dashboard-avatar.png"),
     selected(NULL), avatar(NULL),
-    weapon(NULL), armor(NULL), defensive_car(NULL), offensive_car(NULL),
+    weapon(NULL), armor(NULL), defensive_horse(NULL), offensive_horse(NULL),
     view_as_skill(NULL), filter(NULL)
 {
     createLeft();
@@ -36,7 +36,7 @@ Dashboard::Dashboard()
 void Dashboard::createLeft(){
     left = new QGraphicsRectItem(QRectF(left_pixmap.rect()), this);
 
-    equips << &weapon << &armor << &defensive_car << &offensive_car;
+    equips << &weapon << &armor << &defensive_horse << &offensive_horse;
 
     int i;
     for(i=0; i<4; i++){
@@ -474,8 +474,8 @@ void Dashboard::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidg
 
     drawEquip(painter, weapon, 0);
     drawEquip(painter, armor, 1);
-    drawEquip(painter, defensive_car, 2);
-    drawEquip(painter, offensive_car, 3);
+    drawEquip(painter, defensive_horse, 2);
+    drawEquip(painter, offensive_horse, 3);
 
     // draw player's judging area
     int i;
@@ -617,8 +617,8 @@ void Dashboard::installEquip(CardItem *equip){
     switch(equip_card->location()){
     case EquipCard::WeaponLocation: weapon = equip; index = 0; break;
     case EquipCard::ArmorLocation: armor = equip; index = 1; break;
-    case EquipCard::DefensiveCarLocation: defensive_car = equip; index = 2; break;
-    case EquipCard::OffensiveCarLocation: offensive_car = equip; index = 3; break;
+    case EquipCard::DefensiveHorseLocation: defensive_horse = equip; index = 2; break;
+    case EquipCard::OffensiveHorseLocation: offensive_horse = equip; index = 3; break;
     }
 
     if(index >= 0)

@@ -400,9 +400,9 @@ public:
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
         QStringList cars;
-        if(effect.to->getDefensiveCar())
+        if(effect.to->getDefensiveHorse())
             cars << "dcar";
-        if(effect.to->getOffensiveCar())
+        if(effect.to->getOffensiveHorse())
             cars << "ocar";
 
         if(cars.isEmpty())
@@ -419,9 +419,9 @@ public:
             car_type = cars.first();
 
         if(car_type == "dcar")
-            room->throwCard(effect.to->getDefensiveCar());
+            room->throwCard(effect.to->getDefensiveHorse());
         else if(car_type == "ocar")
-            room->throwCard(effect.to->getOffensiveCar());
+            room->throwCard(effect.to->getOffensiveHorse());
 
         return false;
     }
@@ -931,10 +931,10 @@ public:
 
     virtual int getCorrect(const Player *from, const Player *to) const{
         int correct = 0;
-        if(from->getOffensiveCar())
-            correct += from->getOffensiveCar()->getCorrect();
-        if(to->getDefensiveCar())
-            correct += to->getDefensiveCar()->getCorrect();
+        if(from->getOffensiveHorse())
+            correct += from->getOffensiveHorse()->getCorrect();
+        if(to->getDefensiveHorse())
+            correct += to->getDefensiveHorse()->getCorrect();
 
         return correct;
     }
@@ -1053,12 +1053,12 @@ StandardCardPackage::StandardCardPackage()
 
     {
         QList<Card *> cars;
-        cars << new DefensiveCar(Card::Spade, 5)
-                << new OffensiveCar(Card::Heart, 5)
-                << new DefensiveCar(Card::Club, 5)
-                << new OffensiveCar(Card::Spade, 13)
-                << new DefensiveCar(Card::Heart, 13)
-                << new OffensiveCar(Card::Diamond, 13);
+        cars << new DefensiveHorse(Card::Spade, 5)
+                << new OffensiveHorse(Card::Heart, 5)
+                << new DefensiveHorse(Card::Club, 5)
+                << new OffensiveHorse(Card::Spade, 13)
+                << new DefensiveHorse(Card::Heart, 13)
+                << new OffensiveHorse(Card::Diamond, 13);
 
         cars.at(0)->setObjectName("porsche365A");
         cars.at(1)->setObjectName("chevyCK");

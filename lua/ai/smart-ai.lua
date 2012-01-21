@@ -1221,7 +1221,7 @@ function SmartAI:useBasicCard(card, use, no_distance)
 							self:useEquipCard(self:getCard("Fan"), use)
 							if use.card then return end
 						end
-						if enemy:getDefensiveCar() and self:getCardsNum("KylinBow", self.player, "h") > 0 then
+						if enemy:getDefensiveHorse() and self:getCardsNum("KylinBow", self.player, "h") > 0 then
 							self:useEquipCard(self:getCard("KylinBow") ,use)
 							if use.card then return end
 						end
@@ -1935,7 +1935,7 @@ function SmartAI:evaluateEquip(card)
 					deltaSelfThreat = deltaSelfThreat+3
 				elseif card:inherits("Axe") and enemy:getHp() < 3 then
 					deltaSelfThreat = deltaSelfThreat+3-enemy:getHp()
-				elseif card:inherits("KylinBow") and (enemy:getDefensiveCar() or enemy:getDefensiveCar())then
+				elseif card:inherits("KylinBow") and (enemy:getDefensiveHorse() or enemy:getDefensiveHorse())then
 					deltaSelfThreat = deltaSelfThreat+1
 					break
 				elseif card:inherits("GudingBlade") and enemy:getHandcardNum() < 3 then
@@ -2021,10 +2021,10 @@ function SmartAI:useEquipCard(card, use)
 		end
 		if self:evaluateArmor(card) > self:evaluateArmor() then use.card = card end
 		return
-	elseif card:inherits("OffensiveCar") and self.player:hasSkill("rende") then
+	elseif card:inherits("OffensiveHorse") and self.player:hasSkill("rende") then
 		for _,friend in ipairs(self.friends_noself) do
-			if not friend:getOffensiveCar() then return end
-		end	
+			if not friend:getOffensiveHorse() then return end
+		end
 	elseif card:inherits("Monkey") or self.lua_ai:useCard(card) then
 		use.card = card
 	end
@@ -2037,7 +2037,7 @@ function SmartAI:getTurnUse()
 	local turnUse = {}
 	local slashAvail = 1
 	self.predictedRange = self.player:getAttackRange()
-    	self.predictNewCar = false
+	self.predictNewHorse = false
 	self.retain_thresh = 5
 	self.slash_targets = 1
 	self.slash_distance_limit = false
@@ -2102,7 +2102,7 @@ function SmartAI:getTurnUse()
 					self.predictedRange = sgs.weapon_range[card:className()]
 					self.weaponUsed = true
 				end
-				if card:inherits("OffensiveCar") then self.predictNewCar = true end
+				if card:inherits("OffensiveHorse") then self.predictNewHorse = true end
 				if card:objectName() == "crossbow" then slashAvail = 100 end
 				if card:inherits("Snatch") then i = i-1 end
 				if card:inherits("Peach") then i = i+2 end
@@ -2195,8 +2195,8 @@ function SmartAI:getUseValue(card)
 
 	if card:getTypeId() == sgs.Card_Equip then
 		if self:hasEquip(card) then
-			if card:inherits("OffensiveCar") and self.player:getAttackRange()>2 then return 5.5 end
-			if card:inherits("DefensiveCar") and self:isEquip("EightDiagram") then return 5.5 end
+			if card:inherits("OffensiveHorse") and self.player:getAttackRange()>2 then return 5.5 end
+			if card:inherits("DefensiveHorse") and self:isEquip("EightDiagram") then return 5.5 end
 			return 9
 		end
 		if not self:hasSameEquip(card) then v = 6.7 end
@@ -2241,8 +2241,8 @@ function SmartAI:getUsePriority(card)
 		if self:hasSkill(sgs.lose_equip_skill) then return 10 end
 		if card:inherits("Armor") and not self.player:getArmor() then v = 6
 		elseif card:inherits("Weapon") and not self.player:getWeapon() then v = 5.7
-        elseif card:inherits("DefensiveCar") and not self.player:getDefensiveCar() then v = 5.8
-        elseif card:inherits("OffensiveCar") and not self.player:getOffensiveCar() then v = 5.5
+		elseif card:inherits("DefensiveHorse") and not self.player:getDefensiveHorse() then v = 5.8
+		elseif card:inherits("OffensiveHorse") and not self.player:getOffensiveHorse() then v = 5.5
 		end
 		return v
 	end
@@ -2526,9 +2526,9 @@ function SmartAI:askForDiscard(reason, discard_num, optional, include_equip)
 
 	local weapon = self.player:getWeapon()
 	local armor = self.player:getArmor()
-	local offensive_car = self.player:getOffensiveCar()
-	local defensive_car = self.player:getDefensiveCar()
-	
+	local offensive_horse = self.player:getOffensiveHorse()
+	local defensive_horse = self.player:getDefensiveHorse()
+
 	if reason == "gongmou" then
 		for _, card in ipairs(cards) do
 			if #to_discard >= discard_num then break end
@@ -2552,9 +2552,9 @@ function SmartAI:askForDiscard(reason, discard_num, optional, include_equip)
 			if armor:inherits("GaleShell") then table.insert(to_discard, armor:getId()) armor = nil
 			elseif armor:inherits("SilverLion") and self.player:isWounded() then table.insert(to_discard, armor:getId()) armor = nil end
 		end
-		if #to_discard < discard_num and offensive_car then table.insert(to_discard, offensive_car:getId()) offensive_car = nil end
+		if #to_discard < discard_num and offensive_horse then table.insert(to_discard, offensive_horse:getId()) offensive_horse = nil end
 		if #to_discard < discard_num and weapon then table.insert(to_discard, weapon:getId()) weapon = nil end
-		if #to_discard < discard_num and defensive_car then table.insert(to_discard, defensive_car:getId()) defensive_car = nil end
+		if #to_discard < discard_num and defensive_horse then table.insert(to_discard, defensive_horse:getId()) defensive_horse = nil end
 		if #to_discard < discard_num and armor then table.insert(to_discard, armor:getId()) armor = nil end
 	end
 
@@ -2571,9 +2571,9 @@ function SmartAI:askForDiscard(reason, discard_num, optional, include_equip)
 			if armor:inherits("GaleShell") then table.insert(to_discard, armor:getId()) armor = nil
 			elseif armor:inherits("SilverLion") and self.player:isWounded() then table.insert(to_discard, armor:getId()) armor = nil end
 		end
-		if #to_discard < discard_num and offensive_car then table.insert(to_discard, offensive_car:getId()) end
+		if #to_discard < discard_num and offensive_horse then table.insert(to_discard, offensive_horse:getId()) end
 		if #to_discard < discard_num and weapon then table.insert(to_discard, weapon:getId()) end
-		if #to_discard < discard_num and defensive_car then table.insert(to_discard, defensive_car:getId()) end
+		if #to_discard < discard_num and defensive_horse then table.insert(to_discard, defensive_horse:getId()) end
 		if #to_discard < discard_num and armor then table.insert(to_discard, armor:getId()) end
 	end
 	return to_discard
@@ -2744,15 +2744,19 @@ function SmartAI:askForCardChosen(who, flags, reason)
 				for _, friend in ipairs(self.friends) do
 					if who:distanceTo(friend) <= 1 then return who:getWeapon():getId() end
 				end
-				for _, enemy in ipairs(self.enemies) do
-					if who:distanceTo(enemy) <= 1 then return who:getWeapon():getId() end
-				end
 			end
 
-			if who:getDefensiveCar() then
+			self:sort(self.friends, "hp")
+			local friend = self.friends[1]
+			if self:isWeak(friend) and who:inMyAttackRange(friend) then
+				if who:getWeapon() and who:distanceTo(friend) > 1 then return who:getWeapon():getId() end
+				if who:getOffensiveHorse() and who:distanceTo(friend) > 1 then return who:getOffensiveHorse():getId() end
+			end
+
+			if who:getDefensiveHorse() then
 				for _,friend in ipairs(self.friends) do
-					if friend:distanceTo(who) == friend:getAttackRange()+1 then 
-					 	return who:getDefensiveCar():getId()
+					if friend:distanceTo(who) == friend:getAttackRange()+1 then
+						return who:getDefensiveHorse():getId()
 					end
 				end
 			end
@@ -2762,7 +2766,7 @@ function SmartAI:askForCardChosen(who, flags, reason)
 			end
 
 			if self:isEquip("Monkey", who) then
-				return who:getOffensiveCar():getId()
+				return who:getOffensiveHorse():getId()
 			end
 		end
 
@@ -2799,13 +2803,13 @@ function SmartAI:askForCardChosen(who, flags, reason)
 				end
 			end
 		
-			if who:getOffensiveCar() then
+			if who:getOffensiveHorse() then
 			    if who:hasSkill("wuyu") and who:getHandcardNum() >= who:getHp() then
 				else
 					for _,friend in ipairs(self.friends) do
 						if who:distanceTo(friend) == who:getAttackRange() and
 						who:getAttackRange() > 1 then
-					 	    return who:getOffensiveCar():getId() 
+							return who:getOffensiveHorse():getId()
 						end
 					end
 				end
@@ -2972,14 +2976,14 @@ function SmartAI:askForCard(pattern, prompt, data)
 			cards = sgs.QList2Table(cards)
 			local index
 			if self:hasSkills(sgs.need_kongcheng) then index = #cards end
-			if self.player:getOffensiveCar() then 
+			if self.player:getOffensiveHorse() then
 				if index then
 					if index < 2 then
 						index = index + 1
-						table.insert(cards, self.player:getOffensiveCar()) 
+						table.insert(cards, self.player:getOffensiveHorse())
 					end
 				end
-				table.insert(cards, self.player:getOffensiveCar()) 
+				table.insert(cards, self.player:getOffensiveHorse())
 			end
 			if self.player:getArmor() then
 				if index then
@@ -2990,14 +2994,14 @@ function SmartAI:askForCard(pattern, prompt, data)
 				end
 				table.insert(cards, self.player:getArmor())
 			end
-			if self.player:getDefensiveCar() then 
+			if self.player:getDefensiveHorse() then
 				if index then
 					if index < 2 then
 						index = index + 1
-						table.insert(cards, self.player:getDefensiveCar()) 
+						table.insert(cards, self.player:getDefensiveHorse())
 					end
 				end
-				table.insert(cards, self.player:getDefensiveCar()) 
+				table.insert(cards, self.player:getDefensiveHorse())
 			end
 			if #cards >= 2 then
 				self:sortByUseValue(cards, true)
@@ -3361,10 +3365,10 @@ function SmartAI:hasSameEquip(card, player)
 		if player:getWeapon() then return true end
 	elseif card:inherits("Armor") then
 		if player:getArmor() then return true end
-	elseif card:inherits("DefensiveCar") then
-		if player:getDefensiveCar() then return true end
-	elseif card:inherits("OffensiveCar") then 
-		if player:getOffensiveCar() then return true end
+	elseif card:inherits("DefensiveHorse") then
+		if player:getDefensiveHorse() then return true end
+	elseif card:inherits("OffensiveHorse") then
+		if player:getOffensiveHorse() then return true end
 	end
 	return false
 end

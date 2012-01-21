@@ -9,7 +9,7 @@ Player::Player(QObject *parent)
     :QObject(parent), owner(false), ready(false), general(NULL), general2(NULL),
     hp(-1), max_hp(-1), state("online"), seat(0), alive(true),
     phase(NotActive),
-    weapon(NULL), armor(NULL), defensive_car(NULL), offensive_car(NULL),
+    weapon(NULL), armor(NULL), defensive_horse(NULL), offensive_horse(NULL),
     face_up(true), chained(false)
 {
 }
@@ -354,8 +354,8 @@ void Player::setEquip(const EquipCard *card){
     switch(card->location()){
     case EquipCard::WeaponLocation: weapon = qobject_cast<const Weapon*>(card); break;
     case EquipCard::ArmorLocation: armor = qobject_cast<const Armor*>(card); break;
-    case EquipCard::DefensiveCarLocation: defensive_car = qobject_cast<const Car*>(card); break;
-    case EquipCard::OffensiveCarLocation: offensive_car = qobject_cast<const Car*>(card); break;
+    case EquipCard::DefensiveHorseLocation: defensive_horse = qobject_cast<const Horse*>(card); break;
+    case EquipCard::OffensiveHorseLocation: offensive_horse = qobject_cast<const Horse*>(card); break;
     }
 }
 
@@ -363,17 +363,17 @@ void Player::removeEquip(const EquipCard *equip){
     switch(equip->location()){
     case EquipCard::WeaponLocation: weapon = NULL; break;
     case EquipCard::ArmorLocation: armor = NULL; break;
-    case EquipCard::DefensiveCarLocation: defensive_car = NULL; break;
-    case EquipCard::OffensiveCarLocation:offensive_car = NULL; break;
+    case EquipCard::DefensiveHorseLocation: defensive_horse = NULL; break;
+    case EquipCard::OffensiveHorseLocation:offensive_horse = NULL; break;
     }
 }
 
 bool Player::hasEquip(const Card *card) const{
-    return weapon == card || armor == card || defensive_car == card || offensive_car == card;
+    return weapon == card || armor == card || defensive_horse == card || offensive_horse == card;
 }
 
 bool Player::hasEquip() const{
-    return weapon || armor || defensive_car || offensive_car;
+    return weapon || armor || defensive_horse || offensive_horse;
 }
 
 const Weapon *Player::getWeapon() const{
@@ -384,12 +384,12 @@ const Armor *Player::getArmor() const{
     return armor;
 }
 
-const Car *Player::getDefensiveCar() const{
-    return defensive_car;
+const Horse *Player::getDefensiveHorse() const{
+    return defensive_horse;
 }
 
-const Car *Player::getOffensiveCar() const{
-    return offensive_car;
+const Horse *Player::getOffensiveHorse() const{
+    return offensive_horse;
 }
 
 QList<const Card *> Player::getEquips() const{
@@ -398,10 +398,10 @@ QList<const Card *> Player::getEquips() const{
         equips << weapon;
     if(armor)
         equips << armor;
-    if(defensive_car)
-        equips << defensive_car;
-    if(offensive_car)
-        equips << offensive_car;
+    if(defensive_horse)
+        equips << defensive_horse;
+    if(offensive_horse)
+        equips << offensive_horse;
 
     return equips;
 }
@@ -410,8 +410,8 @@ const EquipCard *Player::getEquip(int index) const{
     switch(index){
     case 0: return weapon; break;
     case 1: return armor; break;
-    case 2: return defensive_car; break;
-    case 3: return offensive_car; break;
+    case 2: return defensive_horse; break;
+    case 3: return offensive_horse; break;
     default:
         break;
     }
@@ -605,10 +605,10 @@ int Player::getCardCount(bool include_equip) const{
         if(armor)
             count ++;
 
-        if(defensive_car)
+        if(defensive_horse)
             count ++;
 
-        if(offensive_car)
+        if(offensive_horse)
             count ++;
     }
 
@@ -762,8 +762,8 @@ void Player::copyFrom(Player* p)
     b->phase            = a->phase;
     b->weapon           = a->weapon;
     b->armor            = a->armor;
-    b->defensive_car  = a->defensive_car;
-    b->offensive_car  = a->offensive_car;
+    b->defensive_horse  = a->defensive_horse;
+    b->offensive_horse  = a->offensive_horse;
     b->face_up          = a->face_up;
     b->chained          = a->chained;
     b->judging_area     = QList<const Card *> (a->judging_area);

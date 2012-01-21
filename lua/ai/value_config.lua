@@ -116,7 +116,7 @@ Fan				= 4.8,
 KylinBow		= 4.7,
 Halberd			= 4.6,
 MoonSpear		= 4.5,
-DefensiveCar 	= 4
+DefensiveHorse 	= 4
 }
 
 sgs.sunshangxiang_keep_value = 
@@ -135,8 +135,8 @@ IceSword=5,
 Fan=5,
 MoonSpear=5,
 GudingBlade=5,
-DefensiveCar = 5,
-OffensiveCar = 5
+DefensiveHorse = 5,
+OffensiveHorse = 5
 }
 
 sgs.xiahouyuan_keep_value = 
@@ -155,8 +155,8 @@ IceSword=5,
 Fan=5,
 MoonSpear=5,
 GudingBlade=5,
-DefensiveCar = 5,
-OffensiveCar = 5
+DefensiveHorse = 5,
+OffensiveHorse = 5
 }
 
 sgs.shenzhaoyun_suit_value = 

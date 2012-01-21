@@ -87,7 +87,7 @@ private:
     Pixmap *chain_icon, *back_icon;
 
     QGraphicsRectItem *equip_rects[4];
-    CardItem *weapon, *armor, *defensive_car, *offensive_car;
+    CardItem *weapon, *armor, *defensive_horse, *offensive_horse;
     QList<CardItem **> equips;
 
     QGraphicsRectItem *trusting_item;

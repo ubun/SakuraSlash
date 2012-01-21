@@ -161,8 +161,8 @@ public:
 
     const Weapon *getWeapon() const;
     const Armor *getArmor() const;
-    const Car *getDefensiveCar() const;
-    const Car *getOffensiveCar() const;
+    const Horse *getDefensiveHorse() const;
+    const Horse *getOffensiveHorse() const;
     QList<const Card *> getEquips() const;
     const EquipCard *getEquip(int index) const;
 
@@ -629,9 +629,6 @@ public:
     QStringList getScenarioNames() const;
     void addScenario(Scenario *scenario);
     const Scenario *getScenario(const char *name) const;
-
-    const ChallengeModeSet *getChallengeModeSet() const;
-    const ChallengeMode *getChallengeMode(const char *name) const;
 
     const General *getGeneral(const char *name) const;
     int getGeneralCount(bool include_banned = false) const;

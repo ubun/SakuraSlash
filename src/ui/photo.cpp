@@ -24,7 +24,7 @@ Photo::Photo()
     player(NULL),
     handcard("image/system/handcard.png"),
     chain("image/system/chain.png"), action_item(NULL), save_me_item(NULL), permanent(false),
-    weapon(NULL), armor(NULL), defensive_car(NULL), offensive_car(NULL),
+    weapon(NULL), armor(NULL), defensive_horse(NULL), offensive_horse(NULL),
     order_item(NULL), hide_avatar(false)
 {
     setAcceptHoverEvents(true);
@@ -68,7 +68,7 @@ Photo::Photo()
     small_avatar_area->setPos(86, 30);
     small_avatar_area->setPen(Qt::NoPen);
 
-    equips << &weapon << &armor << &defensive_car << &offensive_car;
+    equips << &weapon << &armor << &defensive_horse << &offensive_horse;
     int i;
     for(i=0; i<4; i++){
         equip_rects[i] = new QGraphicsRectItem(QRect(1, 118 + 17 * i, 129, 16), this);
@@ -396,8 +396,8 @@ void Photo::installEquip(CardItem *equip){
     switch(equip_card->location()){
     case EquipCard::WeaponLocation: weapon = equip; index = 0; break;
     case EquipCard::ArmorLocation: armor = equip; index = 1; break;
-    case EquipCard::DefensiveCarLocation: defensive_car = equip; index = 2; break;
-    case EquipCard::OffensiveCarLocation: offensive_car = equip; index = 3; break;
+    case EquipCard::DefensiveHorseLocation: defensive_horse = equip; index = 2; break;
+    case EquipCard::OffensiveHorseLocation: offensive_horse = equip; index = 3; break;
     }
 
     if(index >= 0)
@@ -633,8 +633,8 @@ void Photo::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
 
     drawEquip(painter, weapon, 0);
     drawEquip(painter, armor, 1);
-    drawEquip(painter, defensive_car, 2);
-    drawEquip(painter, offensive_car, 3);
+    drawEquip(painter, defensive_horse, 2);
+    drawEquip(painter, offensive_horse, 3);
 
     // draw iron chain
     if(player->isChained())

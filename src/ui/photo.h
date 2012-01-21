@@ -80,7 +80,7 @@ private:
 
     QGraphicsTextItem *mark_item;
 
-    CardItem *weapon, *armor, *defensive_car, *offensive_car;
+    CardItem *weapon, *armor, *defensive_horse, *offensive_horse;
     QList<CardItem **> equips;
     QGraphicsRectItem *equip_rects[4];
 

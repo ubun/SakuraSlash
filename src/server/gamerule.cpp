@@ -841,22 +841,22 @@ bool RunawayMode::trigger(TriggerEvent event, ServerPlayer *player, QVariant &da
             log.arg = QString::number(runum);
             room->sendLog(log);
 
-            if(player->getDefensiveCar() || player->getOffensiveCar()){
+            if(player->getDefensiveHorse() || player->getOffensiveHorse()){
                 QString step;
-                if(player->getDefensiveCar() && player->getOffensiveCar())
+                if(player->getDefensiveHorse() && player->getOffensiveHorse())
                     step = room->askForChoice(player, "runbycar", "fast+slow+kao");
-                else if(player->getDefensiveCar())
+                else if(player->getDefensiveHorse())
                     step = room->askForChoice(player, "runbycar", "slow+kao");
                 else
                     step = room->askForChoice(player, "runbycar", "fast+kao");
                 if(step == "fast"){
                     log2.type = "$runfast";
-                    log2.card_str = player->getOffensiveCar()->toString();
+                    log2.card_str = player->getOffensiveHorse()->toString();
                     runum ++;
                 }
                 else if(step == "slow"){
                     log2.type = "$runslow";
-                    log2.card_str = player->getDefensiveCar()->toString();
+                    log2.card_str = player->getDefensiveHorse()->toString();
                     runum --;
                 }
                 log2.from = player;
