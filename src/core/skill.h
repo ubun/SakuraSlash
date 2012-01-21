@@ -22,6 +22,7 @@ public:
         NotFrequent,
         Compulsory,
         Limited,
+        Nirvana,
         Wake
     };
 

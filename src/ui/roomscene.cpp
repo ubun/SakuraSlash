@@ -1236,6 +1236,7 @@ void RoomScene::addSkillButton(const Skill *skill, bool from_left){
         }
 
         case Skill::Wake:
+        case Skill::Nirvana:
         case Skill::Compulsory: button = new QPushButton(); break;
         }
     }else if(skill->inherits("FilterSkill")){

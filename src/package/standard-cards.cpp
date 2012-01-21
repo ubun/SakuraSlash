@@ -141,7 +141,7 @@ void Peach::onEffect(const CardEffectStruct &effect) const{
     RecoverStruct recover;
     recover.card = this;
     recover.who = effect.from;
-    if(effect.from->hasSkill("wny") && effect.from->isWeak() && Sanguosha->getCard(this->getSubcards().first())->getSuit() == Card::Heart)
+    if(effect.from->hasSkill("wny") && effect.from->isWeak() && effect.card->getSuit() == Card::Heart)
         recover.recover = 2;
 
     room->recover(effect.to, recover);

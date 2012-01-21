@@ -62,7 +62,7 @@ public:
 class WQ: public OneCardViewAsSkill{
 public:
     WQ():OneCardViewAsSkill("wq"){
-        frequency = Compulsory;
+        frequency = Nirvana;
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{
@@ -138,6 +138,7 @@ public:
     SQSJ():TriggerSkill("sqsj"){
         events << CardUsed;
         view_as_skill = new SQSJViewAsSkill;
+        frequency = Nirvana;
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *yueying, QVariant &data) const{
@@ -193,6 +194,7 @@ public:
 class TM:public MasochismSkill{
 public:
     TM():MasochismSkill("tm"){
+        frequency = Nirvana;
     }
 
     virtual void onDamaged(ServerPlayer *mori, const DamageStruct &damage) const{
@@ -274,7 +276,7 @@ public:
 class DC: public ViewAsSkill{
 public:
     DC():ViewAsSkill("dc"){
-        frequency = Limited;
+        frequency = Nirvana;
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
@@ -318,7 +320,7 @@ public:
 class JM:public TriggerSkill{
 public:
     JM():TriggerSkill("jm"){
-        frequency = Frequent;
+        frequency = Nirvana;
         events << CardUsed << CardResponsed;
     }
 
@@ -425,7 +427,7 @@ class TS: public TriggerSkill{
 public:
     TS():TriggerSkill("ts"){
         events << CardEffected;
-        frequency = Compulsory;
+        frequency = Nirvana;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
@@ -2009,7 +2011,7 @@ void StandardPackage::addGenerals(){
 
     General *buluke = new General(this, "buluke", "zhen");
     buluke->addSkill(new HQ);
-    buluke->addSkill(new Skill("cs"));
+    buluke->addSkill(new Skill("cs", Skill::Nirvana));
 
     General *fulanqi = new General(this, "fulanqi", "zhen");
     fulanqi->addSkill(new JT);
@@ -2021,7 +2023,7 @@ void StandardPackage::addGenerals(){
 
     General *qiaoba = new General(this, "qiaoba", "zhen");
     qiaoba->addSkill(new YS);
-    qiaoba->addSkill(new Skill("wny", Skill::Compulsory));
+    qiaoba->addSkill(new Skill("wny", Skill::Nirvana));
 
     General *wusuopu = new General(this, "wusuopu", "zhen");
     wusuopu->addSkill(new CN);
