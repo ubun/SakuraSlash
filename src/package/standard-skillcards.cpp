@@ -4,105 +4,21 @@
 #include "engine.h"
 #include "client.h"
 
-ZhihengCard::ZhihengCard(){
-    target_fixed = true;
-    once = true;
+SQSJCard::SQSJCard(){
 }
 
-void ZhihengCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    room->throwCard(this);
-    if(source->isAlive())
-        room->drawCards(source, subcards.length());
-}
-
-RendeCard::RendeCard(){
-    will_throw = false;
-}
-
-void RendeCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    ServerPlayer *target = NULL;
-    if(targets.isEmpty()){
-        foreach(ServerPlayer *player, room->getAlivePlayers()){
-            if(player != source){
-                target = player;
-                break;
-            }
-        }
-    }else
-        target = targets.first();
-
-    room->moveCardTo(this, target, Player::Hand, false);
-
-    int old_value = source->getMark("rende");
-    int new_value = old_value + subcards.length();
-    room->setPlayerMark(source, "rende", new_value);
-
-    if(old_value < 2 && new_value >= 2){
-        RecoverStruct recover;
-        recover.card = this;
-        recover.who = source;
-        room->recover(source, recover);
-    }
-}
-
-JieyinCard::JieyinCard(){
-    once = true;
-    mute = true;
-}
-
-bool JieyinCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    if(!targets.isEmpty())
-        return false;
-
-    return to_select->getGeneral()->isMale() && to_select->isWounded();
-}
-
-void JieyinCard::onEffect(const CardEffectStruct &effect) const{
-    Room *room = effect.from->getRoom();
-
-    RecoverStruct recover;
-    recover.card = this;
-    recover.who = effect.from;
-
-    room->recover(effect.from, recover, true);
-    room->recover(effect.to, recover, true);
-
-    int index = -1;
-    if(effect.from->getGeneral()->isMale()){
-        if(effect.from == effect.to)
-            index = 5;
-        else if(effect.from->getHp() >= effect.to->getHp())
-            index = 3;
-        else
-            index = 4;
-    }else{
-        index = 1 + qrand() % 2;
-    }
-
-    room->playSkillEffect("jieyin", index);
-}
-
-TuxiCard::TuxiCard(){
-}
-
-bool TuxiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool SQSJCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     if(targets.length() >= 2)
         return false;
-
     if(to_select == Self)
         return false;
-
-    return !to_select->isKongcheng();
+    if(to_select->hasFlag("Sq1"))
+        return false;
+    return Self->canSlash(to_select);
 }
 
-void TuxiCard::onEffect(const CardEffectStruct &effect) const{
-    Room *room = effect.from->getRoom();
-    int card_id = room->askForCardChosen(effect.from, effect.to, "h", "tuxi");
-    const Card *card = Sanguosha->getCard(card_id);
-    room->moveCardTo(card, effect.from, Player::Hand, false);
-
-    room->setEmotion(effect.to, "bad");
-    room->setEmotion(effect.from, "good");
+void SQSJCard::onEffect(const CardEffectStruct &effect) const{
+    effect.to->setFlags("Sqsj");
 }
 
 FanjianCard::FanjianCard(){

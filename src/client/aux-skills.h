@@ -53,6 +53,14 @@ private:
     DummyCard *card;
 };
 
+class RendeCard:public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE RendeCard();
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
+
 class YijiViewAsSkill : public ViewAsSkill{
     Q_OBJECT
 

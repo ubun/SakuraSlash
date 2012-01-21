@@ -1,6 +1,7 @@
 #include "general.h"
 #include "standard.h"
 #include "standard-generals.h"
+#include "standard-skillcards.h"
 #include "skill.h"
 #include "engine.h"
 #include "client.h"
@@ -47,7 +48,6 @@ public:
             LogMessage log;
             log.type = "#JYTEffect";
             log.from = player;
-            log.to << damage.to;
             log.arg = objectName();
             log.arg2 = QString::number(damage.damage);
             room->sendLog(log);
@@ -109,21 +109,54 @@ public:
     }
 };
 
-class SQSJ:public TriggerSkill{ //should use skill card
+class SQSJViewAsSkill: public OneCardViewAsSkill{
+public:
+    SQSJViewAsSkill():OneCardViewAsSkill("sqsj"){
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        SQSJCard *card = new SQSJCard;
+        card->addSubcard(card_item->getCard()->getId());
+        return card;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return true;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "@@sqsj";
+    }
+};
+
+class SQSJ:public TriggerSkill{
 public:
     SQSJ():TriggerSkill("sqsj"){
         events << CardUsed;
+        view_as_skill = new SQSJViewAsSkill;
     }
 
-    virtual bool trigger(TriggerEvent event, ServerPlayer *yueying, QVariant &data) const{
+    virtual bool trigger(TriggerEvent , ServerPlayer *yueying, QVariant &data) const{
         CardUseStruct use = data.value<CardUseStruct>();
         CardStar card = use.card;
-        if(card->inherits("Slash")){
+        if(yueying->isWeak() && card->inherits("Slash") && use.to.length() == 1){
             Room *room = yueying->getRoom();
-            if(room->askForCard(yueying, "..", objectName())){
+            use.to.first()->setFlags("Sq1");
+            if(room->askForUseCard(yueying, "@@sqsj", "@sqsj")){
                 room->playSkillEffect(objectName());
-                yueying->drawCards(1);
+                foreach(ServerPlayer *tmp, room->getOtherPlayers(use.to.first())){
+                    if(tmp->hasFlag("Sqsj")){
+                        tmp->setFlags("-Sqsj");
+                        use.to << tmp;
+                    }
+                }
+                data = QVariant::fromValue(use);
             }
+            use.to.first()->setFlags("-Sq1");
         }
         return false;
     }
@@ -1961,6 +1994,7 @@ void StandardPackage::addGenerals(){
     aoyamagoushou->addSkill(new Long);
 
     // for skill cards
+    addMetaObject<SQSJCard>();
     addMetaObject<ShouqiuCard>();
     addMetaObject<BaiyiCard>();
     addMetaObject<DiaobingCard>();
