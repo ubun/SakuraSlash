@@ -37,23 +37,11 @@ SOURCES += src/main.cpp \
 	src/dialog/roleassigndialog.cpp \
 	src/dialog/scenario-overview.cpp \
         src/dialog/halldialog.cpp \
-	src/package/firepackage.cpp \
-	src/package/god.cpp \
-	src/package/joypackage.cpp \
 	src/package/maneuvering.cpp \
-	src/package/mountainpackage.cpp \
-	src/package/nostalgia.cpp \
 	src/package/standard-cards.cpp \
 	src/package/standard-generals.cpp \
 	src/package/standard-skillcards.cpp \
 	src/package/standard.cpp \
-	src/package/thicket.cpp \
-	src/package/wind.cpp \
-	src/package/secrets.cpp \
-	src/scenario/boss-mode-scenario.cpp \
-	src/scenario/challengemode.cpp \
-	src/scenario/couple-scenario.cpp \
-	src/scenario/legend-mode-scenario.cpp \
 	src/scenario/scenario.cpp \
 	src/scenario/scenerule.cpp \
 	src/scenario/zombie-mode-scenario.cpp \
@@ -109,24 +97,12 @@ HEADERS += src/client/aux-skills.h \
 	src/dialog/playercarddialog.h \
 	src/dialog/roleassigndialog.h \ 
 	src/dialog/scenario-overview.h \
-	src/package/firepackage.h \
-	src/package/god.h \
-	src/package/joypackage.h \
 	src/package/maneuvering.h \
-	src/package/mountainpackage.h \
-	src/package/nostalgia.h \
 	src/package/package.h \
 	src/package/standard-equips.h \
 	src/package/standard-generals.h \
 	src/package/standard-skillcards.h \
 	src/package/standard.h \
-	src/package/thicket.h \
-	src/package/wind.h \
-	src/package/secrets.h \
-	src/scenario/boss-mode-scenario.h \
-	src/scenario/challengemode.h \
-	src/scenario/couple-scenario.h \
-	src/scenario/legend-mode-scenario.h \
 	src/scenario/scenario.h \
 	src/scenario/scenerule.h \
 	src/scenario/zombie-mode-scenario.h \

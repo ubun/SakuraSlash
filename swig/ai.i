@@ -1,7 +1,6 @@
 %{
 
 #include "ai.h"
-#include "joypackage.h"
 
 %}
 
@@ -76,15 +75,6 @@ public:
 };
 
 // for some AI use
-class Shit:public BasicCard{
-public:
-    Shit(Card::Suit suit, int number);
-    virtual QString getSubtype() const;
-    virtual void onMove(const CardMoveStruct &move) const;
-
-    static bool HasShit(const Card *card);
-};
-
 %{
 
 bool LuaAI::askForSkillInvoke(const QString &skill_name, const QVariant &data) {

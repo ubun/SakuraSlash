@@ -4,7 +4,6 @@
 #include "ai.h"
 #include "settings.h"
 #include "scenario.h"
-#include "challengemode.h"
 #include "lua.hpp"
 #include "banpairdialog.h"
 
@@ -39,28 +38,12 @@ QString Engine::getVersionName() const{
 
 extern "C" {
     Package *NewStandard();
-    Package *NewWind();
-    Package *NewThicket();
-//    Package *NewFire();
-//    Package *NewMountain();
     Package *NewStandardCard();
     Package *NewBlackDragon();
     Package *NewThunderBird();
-    //Package *NewWhiteTiger();
-    //Package *NewIronDino();
-//    Package *NewGod();
-    Package *NewNostalgia();
-    Package *NewJoy();
-    Package *NewDisaster();
-    Package *NewJoyEquip();
-    Package *NewSecrets();
-    Package *NewWisdom();
     Package *NewTest();
 
-    Scenario *NewCoupleScenario();
     Scenario *NewZombieScenario();
-    Scenario *NewLegendScenario();
-    Scenario *NewImpasseScenario();
 }
 
 extern "C" {
@@ -72,27 +55,13 @@ Engine::Engine()
     Sanguosha = this;
 
     addPackage(NewStandard());
-    addPackage(NewWind());
-    addPackage(NewThicket());
-    //addPackage(NewFire());
-    //addPackage(NewMountain());
-    //addPackage(NewGod());
-    //addPackage(NewWisdom());
     addPackage(NewTest());
 
     addPackage(NewStandardCard());
     addPackage(NewBlackDragon());
     addPackage(NewThunderBird());
-    addPackage(NewNostalgia());
-    addPackage(NewJoy());
-    addPackage(NewDisaster());
-    addPackage(NewJoyEquip());
-    addPackage(NewSecrets());
 
-    addScenario(NewCoupleScenario());
     addScenario(NewZombieScenario());
-    addScenario(NewLegendScenario());
-    addScenario(NewImpasseScenario());
 
     // available game modes
     modes["02p"] = tr("2 players");
@@ -113,10 +82,6 @@ Engine::Engine()
     modes["08raw"] = tr("8 players (runaway mode)");
     modes["09p"] = tr("9 players");
     modes["10p"] = tr("10 players");
-
-    //challenge_mode_set = NULL;
-    challenge_mode_set = new ChallengeModeSet(this);
-    //addPackage(challenge_mode_set);
 
     translations.insert("bossmode", tr("Boss mode"));
     translations.insert("runaway", tr("Runaway mode"));
@@ -190,14 +155,6 @@ void Engine::addScenario(Scenario *scenario){
 
 const Scenario *Engine::getScenario(const QString &name) const{
     return scenarios.value(name, NULL);
-}
-
-const ChallengeModeSet *Engine::getChallengeModeSet() const{
-    return challenge_mode_set;
-}
-
-const ChallengeMode *Engine::getChallengeMode(const QString &name) const{
-    return challenge_mode_set->getMode(name);
 }
 
 void Engine::addSkills(const QList<const Skill *> &all_skills){
@@ -361,8 +318,6 @@ QStringList Engine::getExtensions() const{
         extensions << package->objectName();
     }
 
-    extensions.removeOne("challenge_modes");
-
     return extensions;
 }
 
@@ -430,8 +385,6 @@ QMap<QString, QString> Engine::getAvailableModes() const{
 QString Engine::getModeName(const QString &mode) const{
     if(modes.contains(mode))
         return modes.value(mode);
-    else if(mode.startsWith("@"))
-        return tr("%1 [Challenge mode]").arg(translate(mode));
     else
         return tr("%1 [Scenario mode]").arg(translate(mode));
 
@@ -444,11 +397,6 @@ int Engine::getPlayerCount(const QString &mode) const{
         int index = rx.indexIn(mode);
         if(index != -1)
             return rx.capturedTexts().first().toInt();
-    }else if(mode.startsWith("@")){
-        // challenge mode
-        const ChallengeMode *cmode = challenge_mode_set->getMode(mode);
-        if(cmode)
-            return cmode->getGenerals().length() * 2;
     }else{
         // scenario mode
         const Scenario *scenario = scenarios.value(mode, NULL);
