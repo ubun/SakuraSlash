@@ -472,8 +472,6 @@ public:
     }
 };
 
-//wny
-
 class CN: public OneCardViewAsSkill{
 public:
     CN():OneCardViewAsSkill("cn"){
@@ -505,132 +503,47 @@ public:
 
 //slx
 
-class Tianzhen: public TriggerSkill{
+class BD: public PhaseChangeSkill{
 public:
-    Tianzhen():TriggerSkill("tianzhen"){
-        events << Predamaged << Predamage;
-        frequency = Compulsory;
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *ayumi, QVariant &data) const{
-        DamageStruct damage = data.value<DamageStruct>();
-        if(damage.card && damage.card->inherits("TrickCard")){
-            LogMessage log;
-            log.type = "#TianzhenPrevent";
-            log.from = ayumi;
-            log.to << damage.to;
-            log.arg = objectName();
-            log.arg2 = QString::number(damage.damage);
-            ayumi->getRoom()->sendLog(log);
-            return true;
-        }
-        return false;
-    }
-};
-
-class Lanman: public OneCardViewAsSkill{
-public:
-    Lanman():OneCardViewAsSkill("lanman"){
-    }
-
-    virtual bool isEnabledAtPlay(const Player *yoshida) const{
-        return yoshida->getHandcardNum() < 4;
-    }
-
-    virtual bool viewFilter(const CardItem *to_select) const{
-        return !to_select->isEquipped() && to_select->getCard()->getSuit() == Card::Diamond;
-    }
-
-    virtual const Card *viewAs(CardItem *card_item) const{
-        const Card *first = card_item->getCard();
-        ExNihilo *exnihilo = new ExNihilo(first->getSuit(), first->getNumber());
-        exnihilo->addSubcard(first->getId());
-        exnihilo->setSkillName(objectName());
-        return exnihilo;
-    }
-};
-
-class Dontcry: public PhaseChangeSkill{
-public:
-    Dontcry():PhaseChangeSkill("dontcry"){
-        frequency = Wake;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return PhaseChangeSkill::triggerable(target)
-                && target->getMark("cry") < 4
-                && target->isAlive();
+    BD():PhaseChangeSkill("bd"){
     }
 
     virtual bool onPhaseChange(ServerPlayer *ayumi) const{
-        Room *room = ayumi->getRoom();
-        if(ayumi->getPhase() == Player::Start){
-            ayumi->addMark("cry");
-        }else if(ayumi->getPhase() == Player::Discard){
-            if(ayumi->getMark("cry") == 1)
-                //room->playSkillEffect(objectName());
-                return true;
-        }else if(ayumi->getPhase() == Player::Finish){
-            if(ayumi->getMark("cry") == 2 && ayumi->isAlive()){
-                room->setPlayerProperty(ayumi, "maxhp", ayumi->getMaxHP()+1);
-                room->broadcastInvoke("animate", "lightbox:$dontcry");
-                room->setPlayerProperty(ayumi, "hp", ayumi->getMaxHP());
-
-                LogMessage log;
-                log.type = "#BukuWake";
-                log.from = ayumi;
-                log.arg = objectName();
-                room->sendLog(log);
+        //Room *room = ayumi->getRoom();
+        if(ayumi->getPhase() == Player::Finish && !ayumi->hasFlag("Bd")){
+            if(ayumi->askForSkillInvoke(objectName())){
+                ayumi->setFlags("Bd");
+                ayumi->gainAnExtraTurn();
             }
         }
         return false;
     }
 };
 
-class DuorenViewAsSkill:public OneCardViewAsSkill{
+class PZ: public TriggerSkill{
 public:
-    DuorenViewAsSkill():OneCardViewAsSkill("duoren"){
+    PZ():TriggerSkill("pz"){
+        events << SlashMissed;
+        frequency = Compulsory;
     }
 
-    virtual bool viewFilter(const CardItem *to_select) const{
-        return to_select->getCard()->isRed() && !to_select->isEquipped();
-    }
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        SlashEffectStruct slash_effect = data.value<SlashEffectStruct>();
+        PlayerStar next = slash_effect.to->getNextAlive();
+        if(next == player)
+            next = next->getNextAlive();
+        room->playSkillEffect(objectName());
+        LogMessage log;
+        log.type = "#PZEffect";
+        log.from = player;
+        log.to << next;
+        log.arg = objectName();
+        room->sendLog(log);
 
-    virtual const Card *viewAs(CardItem *card_item) const{
-        const Card *card = card_item->getCard();
-        Jink *jink = new Jink(card->getSuit(), card->getNumber());
-        jink->setSkillName(objectName());
-        jink->addSubcard(card->getId());
-        return jink;
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return false;
-    }
-
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return  pattern == "jink";
-    }
-};
-
-class Duoren: public TriggerSkill{
-public:
-    Duoren():TriggerSkill("duoren"){
-        events << CardResponsed;
-        view_as_skill = new DuorenViewAsSkill;
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *mouriran, QVariant &data) const{
-        CardStar card_star = data.value<CardStar>();
-        if(!card_star->inherits("Jink"))
-            return false;
-
-        Room *room = mouriran->getRoom();
-        ServerPlayer *source = room->getCurrent();
-        QVariant tgt = QVariant::fromValue(source);
-        if(source->getWeapon() && room->askForSkillInvoke(mouriran, "duoren", tgt))
-            mouriran->obtainCard(source->getWeapon());
-        return false;
+        slash_effect.to = next;
+        room->slashEffect(slash_effect);
+        return true;
     }
 };
 
@@ -978,7 +891,7 @@ public:
             if(megure->hasLordSkill("ranglu")){
                 QList<ServerPlayer *> players;
                 foreach(ServerPlayer *tmp, room->getOtherPlayers(megure)){
-                    if(tmp != player && tmp->getKingdom() == "zhen"){
+                    if(tmp != player && tmp->getKingdom() == "red"){
                         players << tmp;
                     }
                 }
@@ -1764,7 +1677,7 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         DyingStruct dying_data = data.value<DyingStruct>();
 
-        if(dying_data.who->getKingdom() != "shao")
+        if(dying_data.who->getKingdom() != "blue")
             return false;
         Room *room = player->getRoom();
         ServerPlayer *cancer = room->findPlayerBySkillName(objectName());
@@ -1987,128 +1900,86 @@ void CheatCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *
 }
 
 void StandardPackage::addGenerals(){
-    General *lufei = new General(this, "lufei", "zhen");
+    General *lufei = new General(this, "lufei", "red");
     lufei->addSkill(new XJQ);
     lufei->addSkill(new JYT);
     lufei->addSkill(new WQ);
 
-    General *suolong = new General(this, "suolong", "zhen");
+    General *suolong = new General(this, "suolong", "red");
     suolong->addSkill(new FNF);
     suolong->addSkill(new SQSJ);
 
-    General *weiwei = new General(this, "weiwei", "zhen");
+    General *weiwei = new General(this, "weiwei", "red", 3, false);
     weiwei->addSkill(new ZZ);
     weiwei->addSkill(new TM);
 
-    General *xiangji = new General(this, "xiangji", "zhen");
+    General *xiangji = new General(this, "xiangji", "red");
     xiangji->addSkill(new SS);
     xiangji->addSkill(new EMFJ);
     xiangji->addSkill(new DC);
 
-    General *namei = new General(this, "namei", "zhen");
+    General *namei = new General(this, "namei", "red", 3, false);
     namei->addSkill(new XZM);
     namei->addSkill(new JM);
 
-    General *buluke = new General(this, "buluke", "zhen");
+    General *buluke = new General(this, "buluke", "red", 3);
     buluke->addSkill(new HQ);
     buluke->addSkill(new Skill("cs", Skill::Nirvana));
 
-    General *fulanqi = new General(this, "fulanqi", "zhen");
+    General *fulanqi = new General(this, "fulanqi", "red");
     fulanqi->addSkill(new JT);
     //fulanqi->addSkill(new LB);
 
-    General *luobin = new General(this, "luobin", "zhen");
+    General *luobin = new General(this, "luobin", "red", 3, false);
     //luobin->addSkill(new HK);
     luobin->addSkill(new TS);
 
-    General *qiaoba = new General(this, "qiaoba", "zhen");
+    General *qiaoba = new General(this, "qiaoba", "red", 3);
     qiaoba->addSkill(new YS);
     qiaoba->addSkill(new Skill("wny", Skill::Nirvana));
 
-    General *wusuopu = new General(this, "wusuopu", "zhen");
+    General *wusuopu = new General(this, "wusuopu", "red", 3);
     wusuopu->addSkill(new CN);
     wusuopu->addSkill(new JDXJ);
     //wusuopu->addSkill(new SLX);
 
-    General *megurejyuuzou, *matsumotokiyonaka, *otagiritoshirou;
-    megurejyuuzou = new General(this, "megurejyuuzou", "jing");
-    megurejyuuzou->addSkill(new Quzheng);
-    megurejyuuzou->addSkill(new QuzhengSkip);
-    related_skills.insertMulti("quzheng", "#quzheng_skip");
-    megurejyuuzou->addSkill(new Skill("ranglu$"));
+    General *qingzhi = new General(this, "qingzhi", "blue", 3);
+    qingzhi->addSkill(new BD);
 
-    matsumotokiyonaka = new General(this, "matsumotokiyonaka$", "jing");
-    matsumotokiyonaka->addSkill(new Shangchi);
-    matsumotokiyonaka->addSkill(new Diaobing);
+    General *zhantaowan = new General(this, "zhantaowan", "blue", 3);
+    General *maizelun = new General(this, "maizelun", "blue");
+    General *chiquan = new General(this, "chiquan", "blue");
+    General *dasiqi = new General(this, "dasiqi", "blue", 3, false);
+    General *kebi = new General(this, "kebi", "blue", 3);
+    General *huangyuan = new General(this, "huangyuan", "blue");
+    General *simoge = new General(this, "simoge", "blue");
+    General *luqi = new General(this, "luqi", "blue");
 
-    otagiritoshirou = new General(this, "otagiritoshirou", "jing");
-    otagiritoshirou->addSkill(new Skill("qinjian", Skill::Compulsory));
+    General *yingyan = new General(this, "yingyan", "purple");
+    yingyan->addSkill(new PZ);
 
-    General *kurobakaitou, *nakamoriaoko;
-    kurobakaitou = new General(this, "kurobakaitou", "guai");
-    kurobakaitou->addSkill(new Tishen);
-    kurobakaitou->addSkill(new MarkAssignSkill("@fake", 1));
-    related_skills.insertMulti("tishen", "#@fake-1");
-    //kurobakaitou->addSkill(new MarkAssignSkill("magic", 1));
-    kurobakaitou->addSkill(new Moshu);
+    General *keluokedaer = new General(this, "keluokedaer", "purple");
+    General *xiong = new General(this, "xiong", "purple");
+    General *duofulangminge = new General(this, "duofulangminge", "purple", 3);
+    General *diqi = new General(this, "diqi", "purple", 3);
+    General *hankuke = new General(this, "hankuke", "purple", 3, false);
+    General *shenping = new General(this, "shenping", "purple");
+    General *moliya = new General(this, "moliya", "purple", 3);
 
-    nakamoriaoko = new General(this, "nakamoriaoko", "guai", 4, false);
-    nakamoriaoko->addSkill(new Renxing);
-    nakamoriaoko->addSkill(new Qingmei);
+    General *lita = new General(this, "lita", "yellow", 4, false);
+    //lita->addSkill(new HH);
 
-    General *gin, *vodka, *akaishuichi;
-    gin = new General(this, "gin$", "hei");
-    gin->addSkill(new Ansha);
-    gin->addSkill(new MarkAssignSkill("@ansha", 1));
-    related_skills.insertMulti("ansha", "#@ansha-1");
-    gin->addSkill(new Juelu);
-    gin->addSkill(new Heiyi);
-
-    vodka = new General(this, "vodka", "hei");
-    vodka->addSkill(new Maixiong);
-    vodka->addSkill(new Dashou);
-
-    akaishuichi = new General(this, "akaishuichi", "te");
-    akaishuichi->addSkill(new Jushen);
-    akaishuichi->addSkill(new Xunzhi);
-    akaishuichi->addSkill(new Xunzhiresult);
-    related_skills.insertMulti("xunzhi", "#xunzhiresult");
-
-    General *agasahiroshi, *kobayashisumiko, *yamamuramisae, *aoyamagoushou;
-
-    agasahiroshi = new General(this, "agasahiroshi$", "za");
-    agasahiroshi->addSkill(new Gaizao);
-    agasahiroshi->addSkill(new Suyuan);
-    agasahiroshi->addSkill(new Baomu);
-
-    kobayashisumiko = new General(this, "kobayashisumiko", "za", 4, false);
-    kobayashisumiko->addSkill(new Yuanding);
-    kobayashisumiko->addSkill(new Qiniao);
-    kobayashisumiko->addSkill(new QiniaoSkip);
-    related_skills.insertMulti("qiniao", "#qiniaoskip");
-
-    yamamuramisae = new General(this, "yamamuramisae", "za", 3, false);
-    yamamuramisae->addSkill(new Biaoche);
-    yamamuramisae->addSkill(new Jingshen);
-
-    aoyamagoushou = new General(this, "aoyamagoushou", "god");
-    aoyamagoushou->addSkill(new Long);
+    General *baji = new General(this, "baji", "yellow", 3);
+    General *mrkr = new General(this, "mrkr", "yellow");
+    General *peiluola = new General(this, "peiluola", "yellow", 3, false);
+    General *yiwankefu = new General(this, "yiwankefu", "yellow", 3);
+    General *jide = new General(this, "jide", "yellow");
+    General *luo = new General(this, "luo", "yellow", 3);
+    General *ainilu = new General(this, "ainilu", "yellow", 3);
 
     // for skill cards
     addMetaObject<SQSJCard>();
     addMetaObject<DCCard>();
-    addMetaObject<ShouqiuCard>();
-    addMetaObject<BaiyiCard>();
-    addMetaObject<DiaobingCard>();
-    addMetaObject<MoshuCard>();
-    addMetaObject<RenxingCard>();
-    addMetaObject<AnshaCard>();
-    addMetaObject<MaixiongCard>();
-    addMetaObject<GaizaoCard>();
-    addMetaObject<YuandingCard>();
-    addMetaObject<JingshenCard>();
-
-    patterns[".At"] = new AttackPattern;
 
     addMetaObject<CheatCard>();
 }

@@ -24,16 +24,13 @@ GeneralOverview::GeneralOverview(QWidget *parent) :
 
 void GeneralOverview::fillGenerals(const QList<const General *> &generals){
     ui->tableWidget->clearContents();
-    ui->tableWidget->setRowCount(generals.length() -3);
+    ui->tableWidget->setRowCount(generals.length());
     ui->tableWidget->setIconSize(QSize(20,20));
     QIcon lord_icon("image/system/roles/lord.png");
 
     int i;
     for(i=0; i<generals.length(); i++){
         const General *general = generals[i];
-
-        if(general->isHidden())
-            continue;
 
         QString name, kingdom, gender, max_hp, package;
 
@@ -52,8 +49,8 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
             name_item->setTextAlignment(Qt::AlignCenter);
         }
 
-        //if(general->isHidden())
-        //    name_item->setBackgroundColor(Qt::gray);
+        if(general->isHidden())
+            name_item->setBackgroundColor(Qt::gray);
 
         QTableWidgetItem *kingdom_item = new QTableWidgetItem(kingdom);
         kingdom_item->setTextAlignment(Qt::AlignCenter);
@@ -74,10 +71,11 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
         ui->tableWidget->setItem(i, 4, package_item);
     }
 
-    ui->tableWidget->setColumnWidth(0, 100);
-    ui->tableWidget->setColumnWidth(1, 50);
+    ui->tableWidget->setColumnWidth(0, 130);
+    ui->tableWidget->setColumnWidth(1, 60);
     ui->tableWidget->setColumnWidth(2, 50);
     ui->tableWidget->setColumnWidth(3, 60);
+    ui->tableWidget->setColumnWidth(4, 55);
 
     ui->tableWidget->setCurrentItem(ui->tableWidget->item(0,0));
 }
@@ -167,7 +165,14 @@ void GeneralOverview::on_tableWidget_itemSelectionChanged()
     }
 
     QString last_word = Sanguosha->translate("~" + general->objectName());
+    if(last_word.startsWith("~")){
+        QStringList origin_generals = general->objectName().split("_");
+        if(origin_generals.length()>1)
+            last_word = Sanguosha->translate(("~") +  origin_generals.at(1));
+    }
+
     if(!last_word.startsWith("~")){
+
         QCommandLinkButton *death_button = new QCommandLinkButton(tr("Death"), last_word);
         button_layout->addWidget(death_button);
 
