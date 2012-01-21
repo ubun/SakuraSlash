@@ -81,6 +81,10 @@ bool Player::isWounded() const{
         return hp < max_hp;
 }
 
+bool Player::isWeak() const{
+    return hp <= max_hp / 2;
+}
+
 General::Gender Player::getGender() const{
     if(general)
         return general->getGender();

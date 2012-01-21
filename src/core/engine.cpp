@@ -58,8 +58,8 @@ Engine::Engine()
     addPackage(NewTest());
 
     addPackage(NewStandardCard());
-    addPackage(NewBlackDragon());
-    addPackage(NewThunderBird());
+    //addPackage(NewBlackDragon());
+    //addPackage(NewThunderBird());
 
     addScenario(NewZombieScenario());
 
@@ -324,8 +324,7 @@ QStringList Engine::getExtensions() const{
 QStringList Engine::getKingdoms() const{
     static QStringList kingdoms;
     if(kingdoms.isEmpty())
-        kingdoms << "zhen" << "shao" << "woo" << "yi" << "jing"
-                << "guai" << "hei" << "te" << "za" << "god";
+        kingdoms << "zhen" << "shao" << "woo" << "yi" << "god";
 
     return kingdoms;
 }

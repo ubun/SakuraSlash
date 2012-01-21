@@ -66,6 +66,7 @@ public:
     void setMaxHP(int max_hp);
     int getLostHp() const;
     bool isWounded() const;
+    bool isWeak() const;
     General::Gender getGender() const;
 
     bool isOwner() const;
