@@ -1765,6 +1765,11 @@ void Room::applyDamage(ServerPlayer *victim, const DamageStruct &damage){
     }
 
     broadcastInvoke("hpChange", change_str);
+    if(victim->hasSkill("cs") && victim->isWeak() && !victim->getPile("hq_pile").isEmpty()
+        && victim->askForSkillInvoke("cs")){
+        foreach(int x, victim->getPile("hq_pile"))
+            throwCard(x);
+    }
 }
 
 void Room::recover(ServerPlayer *player, const RecoverStruct &recover, bool set_emotion){

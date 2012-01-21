@@ -1,8 +1,8 @@
--- This is ConanSlash's Main translate file.
+-- This is OnePieceSlash's Main translate file.
 
 return {
-	["conanslash"]="柯南杀",
-	["DefaultDesigner"] = "Ailue",
+	["onepieceslash"] = "海贼杀",
+	["DefaultDesigner"] = "海贼杀官方",
 	
 	["spade"] = "黑桃",
 	["club"] = "梅花",

@@ -226,6 +226,11 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             room->sendLog(log);
 
             room->setPlayerProperty(player, "hp", player->getHp() - lose);
+            if(player->hasSkill("cs") && player->isWeak() && !player->getPile("hq_pile").isEmpty()
+                && player->askForSkillInvoke("cs")){
+                foreach(int x, player->getPile("hq_pile"))
+                    room->throwCard(x);
+            }
             room->broadcastInvoke("hpChange", QString("%1:%2").arg(player->objectName()).arg(-lose));
 
             if(player->getHp() <= 0)

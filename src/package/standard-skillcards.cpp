@@ -21,47 +21,21 @@ void SQSJCard::onEffect(const CardEffectStruct &effect) const{
     effect.to->setFlags("Sqsj");
 }
 
-FanjianCard::FanjianCard(){
-    once = true;
+DCCard::DCCard(){
 }
 
-void FanjianCard::onEffect(const CardEffectStruct &effect) const{
-    ServerPlayer *zhouyu = effect.from;
-    ServerPlayer *target = effect.to;
-    Room *room = zhouyu->getRoom();
-
-    int card_id = zhouyu->getRandomHandCardId();
-    const Card *card = Sanguosha->getCard(card_id);
-    Card::Suit suit = room->askForSuit(target);
-
-    LogMessage log;
-    log.type = "#ChooseSuit";
-    log.from = target;
-    log.arg = Card::Suit2String(suit);
-    room->sendLog(log);
-
-    room->getThread()->delay();
-    target->obtainCard(card);
-    room->showCard(target, card_id);
-
-    if(card->getSuit() != suit){
-        DamageStruct damage;
-        damage.card = NULL;
-        damage.from = zhouyu;
-        damage.to = target;
-
-        room->damage(damage);
-    }
+bool DCCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(targets.length() >= 3)
+        return false;
+    return to_select->isWounded();
 }
 
-KurouCard::KurouCard(){
-    target_fixed = true;
-}
-
-void KurouCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    room->loseHp(source);
-    if(source->isAlive())
-        room->drawCards(source, 2);
+void DCCard::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.from->getRoom();
+    RecoverStruct ov;
+    ov.card = this;
+    ov.who = effect.from;
+    room->recover(effect.to, ov);
 }
 
 LijianCard::LijianCard(){

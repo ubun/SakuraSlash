@@ -141,9 +141,11 @@ public:
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *yueying, QVariant &data) const{
+        if(!yueying->isWeak())
+            return false;
         CardUseStruct use = data.value<CardUseStruct>();
         CardStar card = use.card;
-        if(yueying->isWeak() && card->inherits("Slash") && use.to.length() == 1){
+        if(card->inherits("Slash") && use.to.length() == 1){
             Room *room = yueying->getRoom();
             use.to.first()->setFlags("Sq1");
             if(room->askForUseCard(yueying, "@@sqsj", "@sqsj")){
@@ -230,7 +232,7 @@ public:
         ServerPlayer *xiang = room->findPlayerBySkillName(objectName());
         if(!xiang || !xiang->askForSkillInvoke(objectName()))
             return false;
-        if(!room->askForDiscard(xiang, objectName(), 2, false, true))
+        if(!room->askForDiscard(xiang, objectName(), 2, true, true))
             room->loseHp(xiang);
         return true;
     }
@@ -253,9 +255,9 @@ public:
         QString slasher = lubu->objectName();
 
         const Card *first_jink = NULL, *second_jink = NULL;
-        first_jink = room->askForCard(effect.to, "jink", "@wushuang-jink-1:" + slasher);
+        first_jink = room->askForCard(effect.to, "jink", "@emfj-jink-1:" + slasher);
         if(first_jink)
-            second_jink = room->askForCard(effect.to, "jink", "@wushuang-jink-2:" + slasher);
+            second_jink = room->askForCard(effect.to, "jink", "@emfj-jink-2:" + slasher);
 
         Card *jink = NULL;
         if(first_jink && second_jink){
@@ -269,7 +271,30 @@ public:
     }
 };
 
-//dc skill card
+class DC: public ViewAsSkill{
+public:
+    DC():ViewAsSkill("dc"){
+        frequency = Limited;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->isWeak();
+    }
+
+    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
+        if(selected.length() >= 2)
+            return false;
+        return !to_select->isEquipped();
+    }
+
+    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
+        if(cards.length() != 2)
+            return NULL;
+        DCCard *card = new DCCard;
+        card->addSubcards(cards);
+        return card;
+    }
+};
 
 class XZM: public OneCardViewAsSkill{
 public:
@@ -321,8 +346,57 @@ public:
     }
 };
 
-//hq like buqu
-//cs
+class HQ:public TriggerSkill{
+public:
+    HQ():TriggerSkill("hq"){
+        events << DamageDone << HpLost;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *yueying, QVariant &data) const{
+        int n;
+        if(event == HpLost)
+            n = data.toInt();
+        else{
+            DamageStruct damage = data.value<DamageStruct>();
+            n = damage.damage;
+        }
+        if(n < 1)
+            return false;
+        Room *room = yueying->getRoom();
+        for(int i = 0; i < n; i++){
+            if(yueying->askForSkillInvoke(objectName())){
+                JudgeStruct judge;
+                judge.reason = objectName();
+                judge.who = yueying;
+
+                room->judge(judge);
+                const Card *card = judge.card;
+                bool canadd = false;
+                foreach(int tmp, yueying->getPile("hq_pile")){
+                    const Card *tmpcard = Sanguosha->getCard(tmp);
+                    if(tmpcard->getSuit() == card->getSuit()){
+                        canadd = true;
+                        break;
+                    }
+                }
+                if(!canadd){
+                    yueying->addToPile("hq_pile", judge.card->getEffectiveId());
+                    n --;
+                }
+            }
+        }
+        if(n < 1)
+            return true;
+        else if(event == HpLost)
+            data = QVariant::fromValue(n);
+        else{
+            DamageStruct damage = data.value<DamageStruct>();
+            damage.damage = n;
+            data = QVariant::fromValue(damage);
+        }
+        return false;
+    }
+};
 
 class JT: public OneCardViewAsSkill{
 public:
@@ -347,7 +421,32 @@ public:
 
 //hk
 
-//ts
+class TS: public TriggerSkill{
+public:
+    TS():TriggerSkill("ts"){
+        events << CardEffected;
+        frequency = Compulsory;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->isWeak();
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        CardEffectStruct effect = data.value<CardEffectStruct>();
+        if(effect.card->inherits("AOE")){
+            LogMessage log;
+            log.from = player;
+            log.type = "#TSNullify";
+            log.arg = objectName();
+            log.arg2 = effect.card->objectName();
+            player->getRoom()->sendLog(log);
+
+            return true;
+        }
+        return false;
+    }
+};
 
 class YS: public OneCardViewAsSkill{
 public:
@@ -1902,27 +2001,27 @@ void StandardPackage::addGenerals(){
     General *xiangji = new General(this, "xiangji", "zhen");
     xiangji->addSkill(new SS);
     xiangji->addSkill(new EMFJ);
-    //xiangji->addSkill(new DC);
+    xiangji->addSkill(new DC);
 
     General *namei = new General(this, "namei", "zhen");
     namei->addSkill(new XZM);
     namei->addSkill(new JM);
 
-    //General *buluke = new General(this, "buluke", "zhen");
-    //buluke->addSkill(new HQ);
-    //buluke->addSkill(new CS);
+    General *buluke = new General(this, "buluke", "zhen");
+    buluke->addSkill(new HQ);
+    buluke->addSkill(new Skill("cs"));
 
     General *fulanqi = new General(this, "fulanqi", "zhen");
     fulanqi->addSkill(new JT);
     //fulanqi->addSkill(new LB);
 
-    //General *luobin = new General(this, "luobin", "zhen");
+    General *luobin = new General(this, "luobin", "zhen");
     //luobin->addSkill(new HK);
-    //luobin->addSkill(new TS);
+    luobin->addSkill(new TS);
 
     General *qiaoba = new General(this, "qiaoba", "zhen");
     qiaoba->addSkill(new YS);
-    //qiaoba->addSkill(new WNY);
+    qiaoba->addSkill(new Skill("wny", Skill::Compulsory));
 
     General *wusuopu = new General(this, "wusuopu", "zhen");
     wusuopu->addSkill(new CN);
@@ -1995,6 +2094,7 @@ void StandardPackage::addGenerals(){
 
     // for skill cards
     addMetaObject<SQSJCard>();
+    addMetaObject<DCCard>();
     addMetaObject<ShouqiuCard>();
     addMetaObject<BaiyiCard>();
     addMetaObject<DiaobingCard>();
