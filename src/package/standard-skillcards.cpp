@@ -18,6 +18,7 @@ bool SQSJCard::targetFilter(const QList<const Player *> &targets, const Player *
 }
 
 void SQSJCard::onEffect(const CardEffectStruct &effect) const{
+    room->throwCard(this);
     effect.to->setFlags("Sqsj");
 }
 
@@ -31,6 +32,7 @@ bool DCCard::targetFilter(const QList<const Player *> &targets, const Player *to
 }
 
 void DCCard::onEffect(const CardEffectStruct &effect) const{
+    room->throwCard(this);
     Room *room = effect.from->getRoom();
     RecoverStruct ov;
     ov.card = this;
@@ -38,40 +40,22 @@ void DCCard::onEffect(const CardEffectStruct &effect) const{
     room->recover(effect.to, ov);
 }
 
-LijianCard::LijianCard(){
-    once = true;
+DLDCard::DLDCard(){
+    will_throw = false;
 }
 
-bool LijianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    if(!to_select->getGeneral()->isMale())
-        return false;
-
-    if(targets.isEmpty() && to_select->hasSkill("kongcheng") && to_select->isKongcheng()){
-        return false;
-    }
-
-    return true;
+bool DLDCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && to_select != Self;
 }
 
-bool LijianCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
-    return targets.length() == 2;
-}
-
-void LijianCard::use(Room *room, ServerPlayer *, const QList<ServerPlayer *> &targets) const{
-    room->throwCard(this);
-
-    ServerPlayer *to = targets.at(0);
-    ServerPlayer *from = targets.at(1);
-
-    Duel *duel = new Duel(Card::NoSuit, 0);
-    duel->setSkillName("lijian");
-    duel->setCancelable(false);
-
-    CardUseStruct use;
-    use.from = from;
-    use.to << to;
-    use.card = duel;
-    room->useCard(use);
+void DLDCard::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.from->getRoom();
+    room->moveCardTo(effect.card, effect.to, Player::Hand, false);
+    DamageStruct damage;
+    damage.from = effect.from;
+    damage.to = effect.to;
+    damage.card = effect.card;
+    room->damage(damage);
 }
 
 QingnangCard::QingnangCard(){
