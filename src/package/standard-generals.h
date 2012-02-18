@@ -4,54 +4,6 @@
 #include "skill.h"
 #include "card.h"
 
-class ShouqiuCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE ShouqiuCard();
-
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-};
-
-class BaiyiCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE BaiyiCard();
-
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-};
-
-class DiaobingCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE DiaobingCard();
-
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select) const;
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-};
-
-class MoshuCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE MoshuCard();
-
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-};
-
-class RenxingCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE RenxingCard();
-
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select) const;
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-};
-
 class AnshaCard: public SkillCard{
     Q_OBJECT
 

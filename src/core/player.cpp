@@ -140,15 +140,13 @@ void Player::clearFlags(){
 }
 
 int Player::getAttackRange() const{
+    int range = weapon ? weapon->getRange() : 1;
     if(hasFlag("tianyi_success"))
-        return 1000;
-
-    if(weapon)
-        return weapon->getRange();
-    else if(hasSkill("zhengfeng"))
-        return hp;
-    else
-        return 1;
+        range = 1000;
+    int plus = 0;
+    if(hasSkill("bw"))
+        plus ++;
+    return range + plus;
 }
 
 bool Player::inMyAttackRange(const Player *other) const{
@@ -460,6 +458,9 @@ void Player::setFaceUp(bool face_up){
 }
 
 int Player::getMaxCards() const{
+    if(hasSkill("yg"))
+        return getHp() + getLostHp() * 2;
+
     int extra = 0;
     if(Config.MaxHpScheme == 2 && general2){
         int total = general->getMaxHp() + general2->getMaxHp();
@@ -469,20 +470,11 @@ int Player::getMaxCards() const{
 
     int juejing = hasSkill("juejing") ? 2 : 0;
 
-    int xueyi = 0;
-    if(hasLordSkill("xueyi")){
-        QList<const Player *> players = getSiblings();
-        foreach(const Player *player, players){
-            if(player->isAlive() && player->getKingdom() == "qun")
-                xueyi += 2;
-        }
-    }
-
     int shenwei = 0;
     if(hasSkill("shenwei"))
         shenwei = 2;
 
-    return qMax(hp,0) + extra + juejing + xueyi + shenwei;
+    return qMax(hp,0) + extra + juejing + shenwei;
 }
 
 QString Player::getKingdom() const{

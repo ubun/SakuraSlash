@@ -18,7 +18,7 @@ bool SQSJCard::targetFilter(const QList<const Player *> &targets, const Player *
 }
 
 void SQSJCard::onEffect(const CardEffectStruct &effect) const{
-    room->throwCard(this);
+    effect.from->getRoom()->throwCard(this);
     effect.to->setFlags("Sqsj");
 }
 
@@ -32,8 +32,8 @@ bool DCCard::targetFilter(const QList<const Player *> &targets, const Player *to
 }
 
 void DCCard::onEffect(const CardEffectStruct &effect) const{
-    room->throwCard(this);
     Room *room = effect.from->getRoom();
+    room->throwCard(this);
     RecoverStruct ov;
     ov.card = this;
     ov.who = effect.from;

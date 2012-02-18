@@ -2380,6 +2380,8 @@ void Room::setEmotion(ServerPlayer *target, const QString &emotion){
 }
 
 void Room::activate(ServerPlayer *player, CardUseStruct &card_use){
+    if(player->hasFlag("ShutUp"))
+        return;
     AI *ai = player->getAI();
     if(ai){
         thread->delay(Config.AIDelay);
