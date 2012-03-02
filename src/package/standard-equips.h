@@ -7,14 +7,14 @@ class Crossbow:public Weapon{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE Crossbow(Card::Suit suit, int number = 1);
+    Q_INVOKABLE Crossbow(Card::Suit suit = Club, int number = 1);
 };
 
 class Hammer:public Weapon{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE Hammer(Card::Suit suit, int number = 1);
+    Q_INVOKABLE Hammer(Card::Suit suit = Diamond, int number = 1);
 };
 
 class DoubleSword:public Weapon{
@@ -70,28 +70,28 @@ class GudingBlade: public Weapon{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE GudingBlade(Card::Suit suit, int number);
+    Q_INVOKABLE GudingBlade(Card::Suit suit = Spade, int number = 1);
 };
 
 class EightDiagram:public Armor{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE EightDiagram(Card::Suit suit, int number = 2);
+    Q_INVOKABLE EightDiagram(Card::Suit suit = Spade, int number = 2);
 };
 
 class NightDiagram:public Armor{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE NightDiagram(Card::Suit suit, int number = 2);
+    Q_INVOKABLE NightDiagram(Card::Suit suit = Club, int number = 2);
 };
 
 class Mask:public Armor{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE Mask(Card::Suit suit, int number = 2);
+    Q_INVOKABLE Mask(Card::Suit suit = Heart, int number = 13);
 };
 
 class StandardCardPackage: public Package{

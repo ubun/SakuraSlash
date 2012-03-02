@@ -323,7 +323,7 @@ OffensiveHorse::OffensiveHorse(Card::Suit suit, int number, int correct)
 }
 
 QString OffensiveHorse::getSubtype() const{
-    return "offensive_car";
+    return "offensive_horse";
 }
 
 DefensiveHorse::DefensiveHorse(Card::Suit suit, int number, int correct)
@@ -333,7 +333,7 @@ DefensiveHorse::DefensiveHorse(Card::Suit suit, int number, int correct)
 }
 
 QString DefensiveHorse::getSubtype() const{
-    return "defensive_car";
+    return "defensive_horse";
 }
 
 EquipCard::Location Horse::location() const{

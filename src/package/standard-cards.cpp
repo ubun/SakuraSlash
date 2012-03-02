@@ -398,6 +398,7 @@ public:
             log.type = "#AxeSkill";
             log.from = player;
             log.to << effect.to;
+            log.arg = objectName();
             room->sendLog(log);
 
             room->slashResult(effect, NULL);
@@ -470,30 +471,9 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
-        QStringList horses;
-        if(effect.to->getDefensiveHorse())
-            horses << "dhorse";
-        if(effect.to->getOffensiveHorse())
-            horses << "ohorse";
-
-        if(horses.isEmpty())
-            return false;
-
         Room *room = player->getRoom();
-        if(!player->askForSkillInvoke(objectName(), data))
-            return false;
-
-        QString horse_type;
-        if(horses.length() == 2)
-            horse_type = room->askForChoice(player, objectName(), horses.join("+"));
-        else
-            horse_type = horses.first();
-
-        if(horse_type == "dhorse")
+        if(effect.to->getDefensiveHorse() && player->askForSkillInvoke(objectName(), data))
             room->throwCard(effect.to->getDefensiveHorse());
-        else if(horse_type == "ohorse")
-            room->throwCard(effect.to->getOffensiveHorse());
-
         return false;
     }
 };
@@ -1096,11 +1076,10 @@ StandardCardPackage::StandardCardPackage()
           << new Peach(Card::Heart, 8)
           << new Peach(Card::Heart, 9)
           << new Peach(Card::Heart, 12)
-
           << new Peach(Card::Diamond, 12)
 
-          << new Crossbow(Card::Club)
-          << new Crossbow(Card::Diamond)
+          << new Crossbow
+          << new Hammer
           << new DoubleSword
           << new QinggangSword
           << new Blade
@@ -1108,9 +1087,10 @@ StandardCardPackage::StandardCardPackage()
           << new Axe
           << new Halberd
           << new KylinBow
-
-          << new EightDiagram(Card::Spade)
-          << new EightDiagram(Card::Club);
+          << new GudingBlade
+          << new Mask
+          << new EightDiagram
+          << new NightDiagram;
 
     skills << EightDiagramSkill::GetInstance();
 
@@ -1147,8 +1127,8 @@ StandardCardPackage::StandardCardPackage()
           << new Duel(Card::Diamond, 1)
           << new ExNihilo(Card::Heart, 7)
           << new ExNihilo(Card::Heart, 8)
-          << new ExNihilo(Card::Heart, 9)
-          << new ExNihilo(Card::Heart, 11)
+          << new ExNihilp(Card::Heart, 9)
+          << new ExNihilp(Card::Heart, 11)
           << new Snatch(Card::Spade, 3)
           << new Snatch(Card::Spade, 4)
           << new Snatch(Card::Spade, 11)
@@ -1164,7 +1144,7 @@ StandardCardPackage::StandardCardPackage()
           << new Collateral(Card::Club, 13)
           << new Nullification(Card::Spade, 11)
           << new Nullification(Card::Club, 12)
-          << new Nullification(Card::Club, 13)
+          << new Nullificatiom(Card::Club, 13)
           << new Indulgence(Card::Spade, 6)
           << new Indulgence(Card::Club, 6)
           << new Indulgence(Card::Heart, 6)
