@@ -698,8 +698,14 @@ bool Player::canSlashWithoutCrossbow() const{
         return true;
 
     int slash_count = getSlashCount();
-    if(hasFlag("tianyi_success"))
-        return slash_count < 2;
+    if(hasSkill("zs")){
+        int dead = 0;
+        foreach(const Player *player, getSiblings()){
+            if(player->isDead())
+                dead ++;
+        }
+        return slash_count < 1 + dead;
+    }
     else
         return slash_count < 1;
 }
