@@ -157,6 +157,51 @@ Crossbow::Crossbow(Suit suit, int number)
     setObjectName("crossbow");
 }
 
+class HammerSkill: public WeaponSkill{
+public:
+    HammerSkill():WeaponSkill("hammer"){
+        events << SlashEffect << Predamage;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        if(event == SlashEffect){
+            SlashEffectStruct effect = data.value<SlashEffectStruct>();
+            if(effect.from->askForSkillInvoke(objectName())){
+                Room *room = player->getRoom();
+                JudgeStruct judge;
+                judge.pattern = QRegExp("(.*):(heart|diamond):(.*)");
+                judge.good = true;
+                judge.reason = objectName();
+                judge.who = player;
+
+                room->judge(judge);
+                if(judge.isGood())
+                    room->setPlayerFlag(player, "hammer"); //+1
+                else
+                    room->setPlayerFlag(player, "hanner");
+            }
+        }
+        else{
+            DamageStruct damage = data.value<DamageStruct>();
+            if(player->hasFlag("hammer"))
+                damage ++;
+            else if(player->hasFlag("hanner"))
+                damage --;
+            data = QVariant::fromValue(damage);
+            room->setPlayerFlag(player, "-hammer");
+            room->setPlayerFlag(player, "-hanner");
+        }
+        return false;
+    }
+};
+
+Hammer::Hammer(Suit suit, int number)
+    :Weapon(suit, number, 1)
+{
+    setObjectName("hammer");
+    skill = new HammerSkill;
+}
+
 class DoubleSwordSkill: public WeaponSkill{
 public:
     DoubleSwordSkill():WeaponSkill("double_sword"){
@@ -165,28 +210,10 @@ public:
 
     virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
-        Room *room = player->getRoom();
-
         if(effect.from->getGeneral()->isMale() != effect.to->getGeneral()->isMale()){
-            if(effect.from->askForSkillInvoke(objectName())){
-                bool draw_card = false;
-
-                if(effect.to->isKongcheng())
-                    draw_card = true;
-                else{
-                    QString prompt = "double-sword-card:" + effect.from->getGeneralName();
-                    const Card *card = room->askForCard(effect.to, ".", prompt);
-                    if(card){
-                        room->throwCard(card);
-                    }else
-                        draw_card = true;
-                }
-
-                if(draw_card)
-                    effect.from->drawCards(1);
-            }
+            if(effect.from->askForSkillInvoke(objectName()))
+                effect.from->drawCards(1);
         }
-
         return false;
     }
 };
@@ -386,10 +413,50 @@ Axe::Axe(Suit suit, int number)
     attach_skill = true;
 }
 
+class HalberdSkill: public WeaponSkill{
+public:
+    HalberdSkill():WeaponSkill("halberd"){
+        events << AskForRetrial;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return TriggerSkill::triggerable(target) && !target->isKongcheng();
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        JudgeStar judge = data.value<JudgeStar>();
+
+        QStringList prompt_list;
+        prompt_list << "@halberd" << judge->who->objectName()
+                << "" << judge->reason << judge->card->getEffectIdString();
+        QString prompt = prompt_list.join(":");
+        const Card *card = room->askForCard(player, "..", prompt, data);
+
+        if(card){
+            room->throwCard(judge->card);
+
+            judge->card = Sanguosha->getCard(card->getEffectiveId());
+            room->moveCardTo(judge->card, NULL, Player::Special);
+
+            LogMessage log;
+            log.type = "$ChangedJudge";
+            log.from = player;
+            log.to << judge->who;
+            log.card_str = card->getEffectIdString();
+            room->sendLog(log);
+
+            room->sendJudgeResult(judge);
+        }
+        return false;
+    }
+};
+
 Halberd::Halberd(Suit suit, int number)
     :Weapon(suit, number, 4)
 {
     setObjectName("halberd");
+    skill = new HalberdSkill;
 }
 
 class KylinBowSkill: public WeaponSkill{
@@ -436,6 +503,40 @@ KylinBow::KylinBow(Suit suit, int number)
     skill = new KylinBowSkill;
 }
 
+class GudingBladeSkill: public WeaponSkill{
+public:
+    GudingBladeSkill():WeaponSkill("guding_blade"){
+        events << Predamage;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        if(damage.card && damage.card->inherits("Slash") &&
+            damage.to->isKongcheng())
+        {
+            Room *room = damage.to->getRoom();
+
+            LogMessage log;
+            log.type = "#GudingBladeEffect";
+            log.from = player;
+            log.to << damage.to;
+            log.arg = QString::number(damage.damage);
+            log.arg2 = QString::number(damage.damage + 1);
+            room->sendLog(log);
+
+            damage.damage ++;
+            data = QVariant::fromValue(damage);
+        }
+
+        return false;
+    }
+};
+
+GudingBlade::GudingBlade(Suit suit, int number):Weapon(suit, number, 2){
+    setObjectName("guding_blade");
+    skill = new GudingBladeSkill;
+}
+
 class EightDiagramSkill: public ArmorSkill{
 private:
     EightDiagramSkill():ArmorSkill("eight_diagram"){
@@ -459,10 +560,11 @@ public:
         QString asked = data.toString();
         if(asked == "jink"){
             Room *room = player->getRoom();
-            if(room->askForSkillInvoke(player, objectName())){
+            QString objnm = player->getArmor()->objectName();
+            if(room->askForSkillInvoke(player, objnm)){
                 JudgeStruct judge;
                 judge.pattern = QRegExp("(.*):(heart|diamond):(.*)");
-                judge.good = true;
+                judge.good = objnm == "eight_diagram";
                 judge.reason = objectName();
                 judge.who = player;
 
@@ -472,7 +574,6 @@ public:
                     jink->setSkillName(objectName());
                     room->provide(jink);
                     room->setEmotion(player, "good");
-                    room->broadcastInvoke("playAudio", objectName());
 
                     return true;
                 }else
@@ -483,11 +584,15 @@ public:
     }
 };
 
-
-
 EightDiagram::EightDiagram(Suit suit, int number)
     :Armor(suit, number){
     setObjectName("eight_diagram");
+    skill = EightDiagramSkill::GetInstance();
+}
+
+NightDiagram::NightDiagram(Suit suit, int number)
+    :Armor(suit, number){
+    setObjectName("night_diagram");
     skill = EightDiagramSkill::GetInstance();
 }
 
@@ -696,6 +801,12 @@ bool Nullification::isAvailable(const Player *) const{
     return false;
 }
 
+Nullificatiom::Nullificatiom(Suit suit, int number)
+    :Nullification(suit, number, false)
+{
+    setObjectName("nullificatiom");
+}
+
 ExNihilo::ExNihilo(Suit suit, int number)
     :SingleTargetTrick(suit, number, false)
 {
@@ -704,6 +815,16 @@ ExNihilo::ExNihilo(Suit suit, int number)
 }
 
 void ExNihilo::onEffect(const CardEffectStruct &effect) const{
+    effect.to->drawCards(2);
+}
+
+ExNihilp::ExNihilp(Suit suit, int number)
+    :ExNihilo(suit, number)
+{
+    setObjectName("ex_nihilp");
+}
+
+void ExNihilp::onEffect(const CardEffectStruct &effect) const{
     effect.to->drawCards(2);
 }
 
@@ -886,76 +1007,6 @@ void Lightning::takeEffect(ServerPlayer *target) const{
     target->getRoom()->damage(damage);
 }
 
-
-// EX cards
-
-class IceSwordSkill: public TriggerSkill{
-public:
-    IceSwordSkill():TriggerSkill("ice_sword"){
-        events << SlashHit;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return target->hasWeapon(objectName());
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        SlashEffectStruct effect = data.value<SlashEffectStruct>();
-
-        Room *room = player->getRoom();
-
-        if(!effect.to->isNude() && player->askForSkillInvoke("ice_sword", data)){
-            int card_id = room->askForCardChosen(player, effect.to, "he", "ice_sword");
-            room->throwCard(card_id);
-
-            if(!effect.to->isNude()){
-                card_id = room->askForCardChosen(player, effect.to, "he", "ice_sword");
-                room->throwCard(card_id);
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-};
-
-IceSword::IceSword(Suit suit, int number)
-    :Weapon(suit, number, 2)
-{
-    setObjectName("ice_sword");
-    skill = new IceSwordSkill;
-}
-
-class RenwangShieldSkill: public ArmorSkill{
-public:
-    RenwangShieldSkill():ArmorSkill("renwang_shield"){
-        events << SlashEffected;
-    }
-
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        SlashEffectStruct effect = data.value<SlashEffectStruct>();
-        if(effect.slash->isBlack()){
-            LogMessage log;
-            log.type = "#ArmorNullify";
-            log.from = player;
-            log.arg = objectName();
-            log.arg2 = effect.slash->objectName();
-            player->getRoom()->sendLog(log);
-
-            return true;
-        }else
-            return false;
-    }
-};
-
-RenwangShield::RenwangShield(Suit suit, int number)
-    :Armor(suit, number)
-{
-    setObjectName("renwang_shield");
-    skill = new RenwangShieldSkill;
-}
-
 class HorseSkill: public DistanceSkill{
 public:
     HorseSkill():DistanceSkill("horse"){
@@ -1118,20 +1169,4 @@ StandardCardPackage::StandardCardPackage()
     skills << new SpearSkill << new AxeViewAsSkill;
 }
 
-StandardExCardPackage::StandardExCardPackage()
-    :Package("standard_ex_cards")
-{
-    QList<Card *> cards;
-    cards << new IceSword(Card::Spade, 2)
-            << new RenwangShield(Card::Club, 2)
-            << new Lightning(Card::Heart, 12)
-            << new Nullification(Card::Diamond, 12);
-
-    foreach(Card *card, cards)
-        card->setParent(this);
-
-    type = CardPack;
-}
-
 ADD_PACKAGE(StandardCard)
-ADD_PACKAGE(StandardExCard)

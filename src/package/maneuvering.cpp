@@ -111,40 +111,6 @@ Fan::Fan(Suit suit, int number):Weapon(suit, number, 4){
     skill = new FanSkill;
 }
 
-class GudingBladeSkill: public WeaponSkill{
-public:
-    GudingBladeSkill():WeaponSkill("guding_blade"){
-        events << Predamage;
-    }
-
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        DamageStruct damage = data.value<DamageStruct>();
-        if(damage.card && damage.card->inherits("Slash") &&
-            damage.to->isKongcheng())
-        {
-            Room *room = damage.to->getRoom();
-
-            LogMessage log;
-            log.type = "#GudingBladeEffect";
-            log.from = player;
-            log.to << damage.to;
-            log.arg = QString::number(damage.damage);
-            log.arg2 = QString::number(damage.damage + 1);
-            room->sendLog(log);
-
-            damage.damage ++;
-            data = QVariant::fromValue(damage);
-        }
-
-        return false;
-    }
-};
-
-GudingBlade::GudingBlade(Suit suit, int number):Weapon(suit, number, 2){
-    setObjectName("guding_blade");
-    skill = new GudingBladeSkill;
-}
-
 class VineSkill: public ArmorSkill{
 public:
     VineSkill():ArmorSkill("vine"){

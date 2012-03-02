@@ -11,6 +11,7 @@ return {
 	["basic"] = "基本牌",
 	["trick"] = "锦囊牌",
 	["equip"] = "装备牌",
+	["ndtrick"] = "非延时锦囊",
 
 	["lord"] = "主公",
 	["loyalist"] = "忠臣",
@@ -32,8 +33,11 @@ return {
 	["robot"] = "电脑",
 	["trust"] = "托管",
 	["cheat"] = "作弊",
+	["free-discard"] = "自由弃牌",
 	["yes"] = "是",
 	["no"] = "否",
+	["male"] = "男性",
+	["female"] = "女性",
 
 	["attack_card"] = "进攻牌",
 	["defense_card"] = "防御牌",
@@ -47,9 +51,6 @@ return {
 	["damage_spread"] = "伤害传导",
 	["weapon"] = "武器",
 	["armor"] = "防具",
-	["defensive_car"] = "防御车",
-	["offensive_car"] = "进攻车",
-
 	["disgusting_card"] = "恶心牌",
 
 	["red"] = "草帽团",
@@ -109,6 +110,8 @@ return {
 	["#IronChainDamage"] = "%from 处于铁锁连环状态，将受到铁锁的传导伤害",
 	["#LoseHp"] = "%from 流失了 %arg 点体力",
 	["#ChangeKingdom"] = "%from 把 %to 的国籍由原来的 %arg 改成了 %arg2",
+	["#GetMark"] = "%from 得到了 %arg2 枚 %arg 标记",
+	["#LoseMark"] = "%from 失去了 %arg2 枚 %arg 标记",
 	["@askforslash"] = "你可以对你攻击范围内的一名角色使用一张【杀】",
 
 	["3v3:cw"] = "顺时针",

@@ -1249,7 +1249,6 @@ class CK: public TriggerSkill{
 public:
     CK():TriggerSkill("ck"){
         view_as_skill = new CKViewAsSkill;
-
         events << AskForRetrial;
     }
 

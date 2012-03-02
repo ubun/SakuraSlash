@@ -163,6 +163,13 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
+class ExNihilp: public ExNihilo{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE ExNihilp(Card::Suit suit, int number);
+};
+
 class Duel:public SingleTargetTrick{
     Q_OBJECT
 
@@ -228,6 +235,14 @@ public:
 
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
     virtual bool isAvailable(const Player *player) const;
+};
+
+class Nullificatiom:public Nullification{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE Nullificatiom(Card::Suit suit, int number);
+
 };
 
 class Weapon:public EquipCard{

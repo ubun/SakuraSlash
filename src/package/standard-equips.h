@@ -10,6 +10,13 @@ public:
     Q_INVOKABLE Crossbow(Card::Suit suit, int number = 1);
 };
 
+class Hammer:public Weapon{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE Hammer(Card::Suit suit, int number = 1);
+};
+
 class DoubleSword:public Weapon{
     Q_OBJECT
 
@@ -59,6 +66,13 @@ public:
     Q_INVOKABLE KylinBow(Card::Suit suit = Heart, int number = 5);
 };
 
+class GudingBlade: public Weapon{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE GudingBlade(Card::Suit suit, int number);
+};
+
 class EightDiagram:public Armor{
     Q_OBJECT
 
@@ -66,18 +80,11 @@ public:
     Q_INVOKABLE EightDiagram(Card::Suit suit, int number = 2);
 };
 
-class IceSword: public Weapon{
+class NightDiagram:public Armor{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE IceSword(Card::Suit suit, int number);
-};
-
-class RenwangShield: public Armor{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE RenwangShield(Card::Suit suit, int number);
+    Q_INVOKABLE NightDiagram(Card::Suit suit, int number = 2);
 };
 
 class StandardCardPackage: public Package{
@@ -85,13 +92,6 @@ class StandardCardPackage: public Package{
 
 public:
     StandardCardPackage();
-};
-
-class StandardExCardPackage: public Package{
-    Q_OBJECT
-
-public:
-    StandardExCardPackage();
 };
 
 #endif // STANDARDEQUIPS_H
