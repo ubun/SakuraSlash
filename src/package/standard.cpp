@@ -2,7 +2,6 @@
 #include "serverplayer.h"
 #include "room.h"
 #include "skill.h"
-#include "maneuvering.h"
 #include "clientplayer.h"
 #include "engine.h"
 #include "client.h"
@@ -232,10 +231,6 @@ const DelayedTrick *DelayedTrick::CastFrom(const Card *card){
         trick->addSubcard(card->getId());
     }else if(card->inherits("DelayedTrick"))
         return qobject_cast<const DelayedTrick *>(card);
-    else if(card->isBlack() && (card->inherits("BasicCard") || card->inherits("EquipCard"))){
-        trick = new SupplyShortage(suit, number);
-        trick->addSubcard(card->getId());
-    }
 
     return trick;
 }

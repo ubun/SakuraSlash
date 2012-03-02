@@ -89,6 +89,8 @@ bool Slash::targetFilter(const QList<const Player *> &targets, const Player *to_
         distance_limit = false;
     }
 
+    if(to_select->getArmor() && to_select->getArmor()->objectName() == "mask")
+        return Self->distanceTo(to_select) <= 1;
     return Self->canSlash(to_select, distance_limit);
 }
 
@@ -594,6 +596,11 @@ NightDiagram::NightDiagram(Suit suit, int number)
     :Armor(suit, number){
     setObjectName("night_diagram");
     skill = EightDiagramSkill::GetInstance();
+}
+
+Mask::Mask(Suit suit, int number)
+    :Armor(suit, number){
+    setObjectName("mask");
 }
 
 AmazingGrace::AmazingGrace(Suit suit, int number)

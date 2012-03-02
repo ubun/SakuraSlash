@@ -309,33 +309,6 @@ public:
     }
 };
 
-GanranEquip::GanranEquip(Card::Suit suit, int number)
-    :IronChain(suit, number)
-{
-
-}
-
-
-class Ganran: public FilterSkill{
-public:
-    Ganran():FilterSkill("ganran"){
-
-    }
-
-    virtual bool viewFilter(const CardItem *to_select) const{
-        return to_select->getCard()->getTypeId() == Card::Equip;
-    }
-
-    virtual const Card *viewAs(CardItem *card_item) const{
-        const Card *card = card_item->getCard();
-        GanranEquip *ironchain = new GanranEquip(card->getSuit(), card->getNumber());
-        ironchain->addSubcard(card_item->getCard()->getId());
-        ironchain->setSkillName(objectName());
-
-        return ironchain;
-    }
-};
-
 ZombieScenario::ZombieScenario()
     :Scenario("zombie_mode")
 {
@@ -345,14 +318,12 @@ ZombieScenario::ZombieScenario()
 
     General *zombie = new General(this, "zombie", "die", 3, true, true);
     zombie->addSkill(new Xunmeng);
-    zombie->addSkill(new Ganran);
     zombie->addSkill(new Zaibian);
 
     zombie->addSkill(new Skill("paoxiao"));
     zombie->addSkill(new Skill("wansha", Skill::Compulsory));
 
     addMetaObject<PeachingCard>();
-    addMetaObject<GanranEquip>();
 }
 
 ADD_SCENARIO(Zombie)

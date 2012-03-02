@@ -3,7 +3,6 @@
 #include "engine.h"
 #include "standard.h"
 #include "settings.h"
-#include "maneuvering.h"
 #include "lua.hpp"
 #include "scenario.h"
 #include "aux-skills.h"
@@ -325,28 +324,6 @@ const Card *TrustAI::askForSinglePeach(ServerPlayer *dying) {
         foreach(const Card *card, cards){
             if(card->inherits("Peach"))
                 return card;
-
-            if(card->inherits("Analeptic") && dying == self)
-                return card;
-        }
-
-        if(dying == self){
-            if(self->hasSkill("jiuchi")){
-                foreach(const Card *card, cards){
-                    if(card->getSuit() == Card::Spade){
-                        Analeptic *analeptic = new Analeptic(Card::Spade, card->getNumber());
-                        analeptic->addSubcard(card);
-                        analeptic->setSkillName("jiuchi");
-                        return analeptic;
-                    }
-                }
-            }
-
-            if(self->hasSkill("jiushi") && self->faceUp()){
-                Analeptic *analeptic = new Analeptic(Card::NoSuit, 0);
-                analeptic->setSkillName("jiushi");
-                return analeptic;
-            }
         }
 
         if(self->hasSkill("jijiu") && self->getPhase() == Player::NotActive){

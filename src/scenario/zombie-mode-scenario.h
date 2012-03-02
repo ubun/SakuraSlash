@@ -3,7 +3,6 @@
 
 #include "scenario.h"
 #include "standard-skillcards.h"
-#include "maneuvering.h"
 
 class ZombieScenario : public Scenario{
     Q_OBJECT
@@ -21,13 +20,6 @@ public:
 
 private:
     QStringList females;
-};
-
-class GanranEquip: public IronChain{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE GanranEquip(Card::Suit suit, int number);
 };
 
 class PeachingCard: public QingnangCard{

@@ -87,6 +87,13 @@ public:
     Q_INVOKABLE NightDiagram(Card::Suit suit, int number = 2);
 };
 
+class Mask:public Armor{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE Mask(Card::Suit suit, int number = 2);
+};
+
 class StandardCardPackage: public Package{
     Q_OBJECT
 
