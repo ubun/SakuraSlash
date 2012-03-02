@@ -107,7 +107,7 @@ void SBCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &
     const QString pattern = Sanguosha->getCard(getSubcards().first())->isRed() ?
                             ".red" : ".black";
     foreach(ServerPlayer *target, room->getOtherPlayers(source)){
-        if(!room->askForCard(target, pattern, QVariant::fromValue((PlayerStar)source))){
+        if(!room->askForCard(target, pattern, "@sb:" + pattern.mid(1), QVariant::fromValue((PlayerStar)source))){
             DamageStruct dmg;
             dmg.from = source;
             dmg.card = this;
@@ -189,96 +189,3 @@ void WQQCard::onEffect(const CardEffectStruct &effect) const{
     room->damage(damage);
 }
 
-XinzhanCard::XinzhanCard(){
-    target_fixed = true;
-    once = true;
-}
-
-void XinzhanCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    QList<int> cards = room->getNCards(3), left;
-    left = cards;
-
-    QList<int> hearts;
-    foreach(int card_id, cards){
-        const Card *card = Sanguosha->getCard(card_id);
-        if(card->getSuit() == Card::Heart)
-            hearts << card_id;
-    }
-
-    if(!hearts.isEmpty()){
-        room->fillAG(cards, source);
-
-        while(!hearts.isEmpty()){
-            int card_id = room->askForAG(source, hearts, true, "xinzhan");
-            if(card_id == -1)
-                break;
-
-            if(!hearts.contains(card_id))
-                continue;
-
-            hearts.removeOne(card_id);
-            left.removeOne(card_id);
-
-            source->obtainCard(Sanguosha->getCard(card_id));
-            room->showCard(source, card_id);
-        }
-
-        source->invoke("clearAG");
-    }
-
-    if(!left.isEmpty())
-        room->doGuanxing(source, left, true);
-}
-
-GanluCard::GanluCard(){
-    once = true;
-}
-
-void GanluCard::swapEquip(ServerPlayer *first, ServerPlayer *second, int index) const{
-    const EquipCard *e1 = first->getEquip(index);
-    const EquipCard *e2 = second->getEquip(index);
-
-    Room *room = first->getRoom();
-
-    if(e1)
-        first->obtainCard(e1);
-
-    if(e2)
-        room->moveCardTo(e2, first, Player::Equip);
-
-    if(e1)
-        room->moveCardTo(e1, second, Player::Equip);
-}
-
-bool GanluCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
-    return targets.length() == 2;
-}
-
-bool GanluCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    switch(targets.length()){
-    case 0: return true;
-    case 1: {
-            int n1 = targets.first()->getEquips().length();
-            int n2 = to_select->getEquips().length();
-            return qAbs(n1-n2) <= Self->getLostHp();
-        }
-
-    default:
-        return false;
-    }
-}
-
-void GanluCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    ServerPlayer *first = targets.first();
-    ServerPlayer *second = targets.at(1);
-
-    int i;
-    for(i=0; i<4; i++)
-        swapEquip(first, second, i);
-
-    LogMessage log;
-    log.type = "#GanluSwap";
-    log.from = source;
-    log.to = targets;
-    room->sendLog(log);
-}

@@ -69,6 +69,7 @@ class YYSDCard: public SkillCard{
 public:
     Q_INVOKABLE YYSDCard();
 
+    virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual void use(Room *room, ServerPlayer *vodka, const QList<ServerPlayer *> &targets) const;
 };
@@ -89,28 +90,8 @@ class WQQCard: public SkillCard{
 public:
     Q_INVOKABLE WQQCard();
 
-    virtual void onEffect(const CardEffectStruct &effect) const;
-};
-
-class GanluCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE GanluCard();
-    void swapEquip(ServerPlayer *first, ServerPlayer *second, int index) const;
-
-    virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-};
-
-class XinzhanCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE XinzhanCard();
-
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+    virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
 #endif // STANDARDSKILLCARDS_H

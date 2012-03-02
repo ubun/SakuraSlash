@@ -536,7 +536,7 @@ public:
             nui ++;
         QString slasher = lubu->objectName();
 
-        const Card *first_jink = NULL, *second_jink = NULL;
+        const Card *first_jink = NULL;
         first_jink = room->askForCard(effect.to, "jink", "@wushuang-jink-1:" + slasher);
         if(first_jink){
             for(int i = 0; i < nui ; i++){
@@ -1400,7 +1400,7 @@ public:
 
     virtual bool isProhibited(const Player *from, const Player *to, const Card *card) const{
         if(card->inherits("Slash") || card->inherits("Duel"))
-            return to->hasSkill(objectName) && to->isWeak() &&
+            return to->hasSkill(objectName()) && to->isWeak() &&
                     from->getGeneral()->isMale();
         else
             return false;
@@ -1479,7 +1479,6 @@ public:
                 room->moveCardTo(all_cards, caopi, Player::Hand, false);
                 delete all_cards;
             }
-            break;
         }
         return false;
     }
