@@ -37,7 +37,6 @@ SOURCES += src/main.cpp \
 	src/dialog/roleassigndialog.cpp \
 	src/dialog/scenario-overview.cpp \
         src/dialog/halldialog.cpp \
-	src/package/maneuvering.cpp \
 	src/package/standard-cards.cpp \
 	src/package/standard-generals.cpp \
 	src/package/standard-skillcards.cpp \
@@ -97,7 +96,6 @@ HEADERS += src/client/aux-skills.h \
 	src/dialog/playercarddialog.h \
 	src/dialog/roleassigndialog.h \ 
 	src/dialog/scenario-overview.h \
-	src/package/maneuvering.h \
 	src/package/package.h \
 	src/package/standard-equips.h \
 	src/package/standard-generals.h \

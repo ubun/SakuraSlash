@@ -164,10 +164,10 @@ public:
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
         if(event == SlashEffect){
             SlashEffectStruct effect = data.value<SlashEffectStruct>();
             if(effect.from->askForSkillInvoke(objectName())){
-                Room *room = player->getRoom();
                 JudgeStruct judge;
                 judge.pattern = QRegExp("(.*):(heart|diamond):(.*)");
                 judge.good = true;
@@ -184,9 +184,9 @@ public:
         else{
             DamageStruct damage = data.value<DamageStruct>();
             if(player->hasFlag("hammer"))
-                damage ++;
+                damage.damage ++;
             else if(player->hasFlag("hanner"))
-                damage --;
+                damage.damage --;
             data = QVariant::fromValue(damage);
             room->setPlayerFlag(player, "-hammer");
             room->setPlayerFlag(player, "-hanner");
@@ -802,7 +802,7 @@ bool Nullification::isAvailable(const Player *) const{
 }
 
 Nullificatiom::Nullificatiom(Suit suit, int number)
-    :Nullification(suit, number, false)
+    :Nullification(suit, number)
 {
     setObjectName("nullificatiom");
 }
