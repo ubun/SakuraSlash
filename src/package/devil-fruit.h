@@ -1,16 +1,17 @@
-#ifndef DEVILFRUIT_H
-#define DEVILFRUIT_H
+#ifndef DEVILFRUITPACKAGE_H
+#define DEVILFRUITPACKAGE_H
 
-#include "skill.h"
+#include "package.h"
 #include "card.h"
 
-class DevilFruitPackage : public Package{
+class DevilFruitPackage: public Package{
     Q_OBJECT
 
 public:
     DevilFruitPackage();
 };
 
+// test
 class CheatCard: public SkillCard{
     Q_OBJECT
 

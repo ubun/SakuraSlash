@@ -1,14 +1,11 @@
+#include "devil-fruit.h"
 #include "general.h"
 #include "standard.h"
-#include "devil-fruit.h"
 #include "skill.h"
 #include "engine.h"
 #include "client.h"
-#include "settings.h"
 #include "carditem.h"
-#include "serverplayer.h"
-#include "room.h"
-#include "ai.h"
+#include "settings.h"
 
 CheatCard::CheatCard(){
     target_fixed = true;
@@ -50,6 +47,7 @@ public:
 DevilFruitPackage::DevilFruitPackage()
     :Package("devil_fruit")
 {
+    type = CardPack;
     skills << new Orange;
 }
 

@@ -54,9 +54,9 @@ Engine::Engine()
     Sanguosha = this;
 
     addPackage(NewStandard());
-    addPackage(NewDevilFruit());
     addPackage(NewTest());
     addPackage(NewStandardCard());
+    addPackage(NewDevilFruit());
 
     addScenario(NewZombieScenario());
 

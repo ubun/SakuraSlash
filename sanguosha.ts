@@ -501,12 +501,12 @@
         <location filename="src/client/client.cpp" line="1231"/>
         <source>You are dying, please provide %1 peach(es)(or analeptic) to save yourself</source>
         <oldsource>You are dying, please provide %2 peach(es)(or analeptic) to save yourself</oldsource>
-        <translation>您正在死亡线上挣扎，请提供 %1 个桃子（或酒）来救您自己</translation>
+        <translation>您正在死亡线上挣扎，请提供 %1 坨肉来救您自己</translation>
     </message>
     <message>
         <location filename="src/client/client.cpp" line="1235"/>
         <source>%1 is dying, please provide %2 peach(es) to save him</source>
-        <translation>%1 正在死亡线上挣扎，请提供 %2 个桃子来拯救他</translation>
+        <translation>%1 正在死亡线上挣扎，请提供 %2 坨肉来拯救他</translation>
     </message>
     <message>
         <location filename="src/client/client.cpp" line="1246"/>
@@ -1457,8 +1457,8 @@
     <message>
         <location filename="src/dialog/mainwindow.ui" line="14"/>
         <location filename="src/dialog/mainwindow.cpp" line="138"/>
-        <source>ConanSlash</source>
-        <translation>太阳神柯南杀 - 太阳神三国杀MOD</translation>
+        <source>OnePieceSlash</source>
+        <translation>海贼杀单机版 - 太阳神三国杀MOD</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.ui" line="28"/>
@@ -2416,8 +2416,8 @@
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="305"/>
-        <source>ConanSlash</source>
-        <translation>柯南杀</translation>
+        <source>OnePieceSlash</source>
+        <translation>海贼杀</translation>
     </message>
     <message>
         <location filename="src/ui/roomscene.cpp" line="1025"/>
@@ -3145,9 +3145,8 @@
     </message>
     <message>
         <location filename="src/core/settings.cpp" line="81"/>
-        <source>ConanSlash-fans</source>
-        <oldsource>Sanguosha-lover</oldsource>
-        <translation>柯南杀fans</translation>
+        <source>OnePieceSlash-fans</source>
+        <translation>海贼杀fans</translation>
     </message>
     <message>
         <location filename="src/core/settings.cpp" line="82"/>
