@@ -408,6 +408,10 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             damage.damage = 1;
             if(effect.drank)
                 damage.damage ++;
+            if(effect.from->hasFlag("Dph")){
+                effect.from->setFlags("-Dph");
+                damage.damage ++;
+            }
 
             damage.from = effect.from;
             damage.to = effect.to;

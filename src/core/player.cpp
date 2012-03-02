@@ -144,7 +144,7 @@ int Player::getAttackRange() const{
     if(hasFlag("tianyi_success"))
         range = 1000;
     int plus = 0;
-    if(hasSkill("bw"))
+    if(hasSkill("bwn"))
         plus ++;
     return range + plus;
 }
@@ -468,13 +468,13 @@ int Player::getMaxCards() const{
             extra = 1;
     }
 
-    int juejing = hasSkill("juejing") ? 2 : 0;
+    int heimu = hasSkill("hm") && isWeak() ? 3 : 0;
 
     int shenwei = 0;
     if(hasSkill("shenwei"))
         shenwei = 2;
 
-    return qMax(hp,0) + extra + juejing + shenwei;
+    return qMax(hp,0) + extra + heimu + shenwei;
 }
 
 QString Player::getKingdom() const{

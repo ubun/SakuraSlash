@@ -4,25 +4,6 @@
 #include "skill.h"
 #include "card.h"
 
-class AnshaCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE AnshaCard();
-
-    virtual void use(Room *room, ServerPlayer *gin, const QList<ServerPlayer *> &) const;
-};
-
-class MaixiongCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE MaixiongCard();
-
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void use(Room *room, ServerPlayer *vodka, const QList<ServerPlayer *> &targets) const;
-};
-
 class GaizaoCard: public SkillCard{
     Q_OBJECT
 
