@@ -1,6 +1,5 @@
 #include "general.h"
 #include "standard.h"
-#include "standard-generals.h"
 #include "standard-skillcards.h"
 #include "skill.h"
 #include "engine.h"
@@ -1594,6 +1593,7 @@ public:
                toom->damage(dmg);
            }
         }
+        return false;
     }
 };
 
@@ -1610,16 +1610,6 @@ public:
             return 0;
     }
 };
-
-CheatCard::CheatCard(){
-    target_fixed = true;
-    will_throw = false;
-}
-
-void CheatCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    if(Config.FreeChoose)
-        room->obtainCard(source, subcards.first());
-}
 
 void StandardPackage::addGenerals(){
     General *lufei = new General(this, "lufei", "red");
@@ -1782,16 +1772,4 @@ void StandardPackage::addGenerals(){
     addMetaObject<YYSDCard>();
     addMetaObject<HDCard>();
     addMetaObject<WQQCard>();
-
-    addMetaObject<CheatCard>();
 }
-
-TestPackage::TestPackage()
-    :Package("test")
-{
-    // for test only
-    new General(this, "uzumaki", "god", 5, true, true);
-    new General(this, "haruno", "god", 5, false, true);
-}
-
-ADD_PACKAGE(Test)

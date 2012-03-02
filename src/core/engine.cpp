@@ -33,13 +33,14 @@ QString Engine::getVersion() const{
 }
 
 QString Engine::getVersionName() const{
-    return tr("Happy New Year");
+    return tr("Hello World");
 }
 
 extern "C" {
     Package *NewStandard();
     Package *NewStandardCard();
     Package *NewTest();
+    Package *NewDevilFruit();
 
     Scenario *NewZombieScenario();
 }
@@ -53,7 +54,8 @@ Engine::Engine()
     Sanguosha = this;
 
     addPackage(NewStandard());
-    //addPackage(NewTest());
+    addPackage(NewDevilFruit());
+    addPackage(NewTest());
     addPackage(NewStandardCard());
 
     addScenario(NewZombieScenario());

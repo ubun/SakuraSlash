@@ -41,6 +41,7 @@ SOURCES += src/main.cpp \
 	src/package/standard-generals.cpp \
 	src/package/standard-skillcards.cpp \
 	src/package/standard.cpp \
+        src/package/devil-fruit.cpp \
 	src/scenario/scenario.cpp \
 	src/scenario/scenerule.cpp \
 	src/scenario/zombie-mode-scenario.cpp \
@@ -98,9 +99,9 @@ HEADERS += src/client/aux-skills.h \
 	src/dialog/scenario-overview.h \
 	src/package/package.h \
 	src/package/standard-equips.h \
-	src/package/standard-generals.h \
 	src/package/standard-skillcards.h \
 	src/package/standard.h \
+        src/package/devil-fruit.h \
 	src/scenario/scenario.h \
 	src/scenario/scenerule.h \
 	src/scenario/zombie-mode-scenario.h \

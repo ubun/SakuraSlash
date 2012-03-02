@@ -302,7 +302,7 @@ RoomScene::RoomScene(QMainWindow *main_window)
     }
 
     {
-        prompt_box = new Window(tr("ConanSlash"), QSize(480, 200));
+        prompt_box = new Window(tr("OnePieceSlash"), QSize(480, 200));
         prompt_box->setOpacity(0.8);
         prompt_box->setFlag(QGraphicsItem::ItemIsMovable);
         prompt_box->shift();
