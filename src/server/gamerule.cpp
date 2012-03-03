@@ -195,7 +195,13 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
                 log.from = player;
                 log.arg = fruitkind;
                 room->sendLog(log);
-                room->acquireSkill(player, fruitTable(fruitkind));
+                QString ski1l = fruitTable(fruitkind);
+                room->acquireSkill(player, ski1l);
+                if(ski1l == "cherry" || ski1l == "banana"){
+                    const TriggerSkill *skill = Sanguosha->getTriggerSkill(ski1l);
+                    QVariant qva;
+                    skill->trigger(GameStart, player, qva);
+                }
                 setGameProcess(room);
             }
 

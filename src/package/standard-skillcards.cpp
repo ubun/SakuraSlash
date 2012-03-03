@@ -189,3 +189,66 @@ void WQQCard::onEffect(const CardEffectStruct &effect) const{
     room->damage(damage);
 }
 
+JXCard::JXCard(){
+}
+
+bool JXCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && !to_select->getEquips().isEmpty();
+}
+
+void JXCard::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.to->getRoom();
+    room->throwCard(this);
+    room->obtainCard(effect.from, room->askForCardChosen(effect.to, effect.from, "e", "jx"));
+}
+
+CLCard::CLCard(){
+    will_throw = false;
+}
+
+void CLCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    ServerPlayer *target;
+    if(!targets.isEmpty())
+        target = targets.first();
+    else
+        target = source;
+    const Card *c = Sanguosha->getCard(this->getSubcards().first());
+    const EquipCard *equipped = qobject_cast<const EquipCard *>(c);
+    equipped->use(room,target,targets);
+}
+
+YongleCard::YongleCard(){
+}
+
+int YongleCard::getKingdoms(const Player *Self) const{
+    QSet<QString> kingdom_set;
+    QList<const Player *> players = Self->getSiblings();
+    players << Self;
+    foreach(const Player *player, players){
+        if(player->isDead())
+            continue;
+        kingdom_set << player->getKingdom();
+    }
+    return kingdom_set.size();
+}
+
+bool YongleCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    int x = getKingdoms(Self);
+    return targets.length() < x && !to_select->isKongcheng();
+}
+
+bool YongleCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+    int x = getKingdoms(Self);
+    return targets.length() <= x && !targets.isEmpty();
+}
+
+void YongleCard::use(Room *room, ServerPlayer *fangla, const QList<ServerPlayer *> &targets) const{
+    foreach(ServerPlayer *tmp, targets){
+        const Card *card = tmp->getRandomHandCard();
+        fangla->obtainCard(card);
+    }
+    foreach(ServerPlayer *tmp, targets){
+        const Card *card = room->askForCardShow(fangla, tmp, "yongle");
+        tmp->obtainCard(card);
+    }
+}

@@ -1611,6 +1611,94 @@ public:
     }
 };
 
+class JX: public OneCardViewAsSkill{
+public:
+    JX():OneCardViewAsSkill("jx"){
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return !to_select->isEquipped() && to_select->getCard()->isRed();
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return !player->hasUsed("JXCard");
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        JXCard *card = new JXCard;
+        card->addSubcard(card_item->getCard());
+        card->setSkillName(objectName());
+        return card;
+    }
+};
+
+class CL: public OneCardViewAsSkill{
+public:
+    CL():OneCardViewAsSkill("cl"){
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        const Card *card = to_select->getFilteredCard();
+        return card->inherits("EquipCard");
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        CLCard *nonocd = new CLCard;
+        nonocd->addSubcard(card_item->getCard());
+        return nonocd;
+    }
+};
+
+class JXH:public OneCardViewAsSkill{
+public:
+    JXH():OneCardViewAsSkill("jxh"){
+        frequency = Nirvana;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return Slash::IsAvailable(player);
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "slash" || pattern == "jink";
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return to_select->getCard()->inherits("EquipCard") && !to_select->getCard()->inherits("Weapon");
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        if(!Self->isWeak())
+            return NULL;
+        const Card *card = card_item->getCard();
+        if(ClientInstance->getPattern() == "jink"){
+            Card *jink = new Jink(card->getSuit(), card->getNumber());
+            jink->addSubcard(card->getEffectiveId());
+            jink->setSkillName(objectName());
+            return jink;
+        }
+        Card *slash = new Slash(card->getSuit(), card->getNumber());
+        slash->addSubcard(card->getId());
+        slash->setSkillName(objectName());
+        return slash;
+    }
+};
+
+class Yongle: public ZeroCardViewAsSkill{
+public:
+    Yongle():ZeroCardViewAsSkill("yongle"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return !player->hasUsed("YongleCard");
+    }
+
+    virtual const Card *viewAs() const{
+        return new YongleCard;
+    }
+};
+
 void StandardPackage::addGenerals(){
     General *lufei = new General(this, "lufei", "Red");
     lufei->addSkill(new XJQ);
@@ -1751,9 +1839,9 @@ void StandardPackage::addGenerals(){
     yiwankefu->addSkill(new Skill("qljs"));
 
     General *jide = new General(this, "jide", "Yellow");
-    //jide->addSkill(new JX);
-    //jide->addSkill(new CL);
-    //jide->addSkill(new JXH);
+    jide->addSkill(new JX);
+    jide->addSkill(new CL);
+    jide->addSkill(new JXH);
 
     General *luo = new General(this, "luo", "Yellow", 3);
     //luo->addSkill(new LY);
@@ -1772,4 +1860,6 @@ void StandardPackage::addGenerals(){
     addMetaObject<YYSDCard>();
     addMetaObject<HDCard>();
     addMetaObject<WQQCard>();
+    addMetaObject<JXCard>();
+    addMetaObject<CLCard>();
 }

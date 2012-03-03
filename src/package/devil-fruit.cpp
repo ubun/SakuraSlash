@@ -287,11 +287,12 @@ CherryCard::CherryCard(){
 }
 
 void CherryCard::use(Room *room, ServerPlayer *galoo, const QList<ServerPlayer *> &targets) const{
-    /*RecoverStruct r00m;
+    room->throwCard(this);
+    RecoverStruct r00m;
     r00m.who = galoo;
     r00m.card = this;
-    room->recover(targets.first(), r00m);*/
-    room->cardEffect(this, galoo, targets.first());
+    room->recover(targets.first(), r00m);
+    //room->cardEffect(this, galoo, targets.first());
 }
 
 bool CherryCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
