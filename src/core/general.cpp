@@ -30,10 +30,14 @@ QString General::getKingdom() const{
 }
 
 bool General::isMale() const{
+    if(hasSkill("ry") || hasSkill("ryw"))
+        return false;
     return gender == Male;
 }
 
 bool General::isFemale() const{
+    if(hasSkill("ry") || hasSkill("ryw"))
+        return false;
     return gender == Female;
 }
 

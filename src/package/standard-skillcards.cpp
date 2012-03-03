@@ -217,38 +217,70 @@ void CLCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &
     equipped->use(room,target,targets);
 }
 
-YongleCard::YongleCard(){
+LYCard::LYCard(){
+    target_fixed = true;
+    once = true;
 }
 
-int YongleCard::getKingdoms(const Player *Self) const{
-    QSet<QString> kingdom_set;
-    QList<const Player *> players = Self->getSiblings();
-    players << Self;
-    foreach(const Player *player, players){
-        if(player->isDead())
-            continue;
-        kingdom_set << player->getKingdom();
-    }
-    return kingdom_set.size();
-}
-
-bool YongleCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    int x = getKingdoms(Self);
-    return targets.length() < x && !to_select->isKongcheng();
-}
-
-bool YongleCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
-    int x = getKingdoms(Self);
-    return targets.length() <= x && !targets.isEmpty();
-}
-
-void YongleCard::use(Room *room, ServerPlayer *fangla, const QList<ServerPlayer *> &targets) const{
-    foreach(ServerPlayer *tmp, targets){
+void LYCard::use(Room *room, ServerPlayer *fangla, const QList<ServerPlayer *> &targets) const{
+    foreach(ServerPlayer *tmp, room->getOtherPlayers(fangla)){
         const Card *card = tmp->getRandomHandCard();
         fangla->obtainCard(card);
     }
-    foreach(ServerPlayer *tmp, targets){
-        const Card *card = room->askForCardShow(fangla, tmp, "yongle");
+    foreach(ServerPlayer *tmp, room->getOtherPlayers(fangla)){
+        const Card *card = room->askForCardShow(fangla, tmp, "ly");
         tmp->obtainCard(card);
+    }
+}
+
+MZCard::MZCard(){
+    will_throw = false;
+}
+
+bool MZCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && Self->inMyAttackRange(to_select);
+}
+
+void MZCard::use(Room *, ServerPlayer *, const QList<ServerPlayer *> &targets) const{
+    int cid = getSubcards().first();
+    targets.first()->addToPile("mazui", cid);
+}
+
+YRCard::YRCard(){
+    target_fixed = true;
+}
+
+void YRCard::use(Room *room, ServerPlayer *f, const QList<ServerPlayer *> &targets) const{
+    QString kingdom = room->askForChoice(f, "ry", "Red+Blud+Purple+Yellow");
+    room->setPlayerProperty(f, "kingdom", kingdom);
+}
+
+YQCard::YQCard(){
+    will_throw = false;
+}
+
+void YQCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    ServerPlayer *target = NULL;
+    if(targets.isEmpty()){
+        foreach(ServerPlayer *player, room->getAlivePlayers()){
+            if(player != source){
+                target = player;
+                break;
+            }
+        }
+    }else
+        target = targets.first();
+
+    room->moveCardTo(this, target, Player::Hand, false);
+
+    int old_value = source->getMark("YQ");
+    int new_value = old_value + subcards.length();
+    room->setPlayerMark(source, "YQ", new_value);
+
+    if(old_value < 2 && new_value >= 2){
+        RecoverStruct recover;
+        recover.card = this;
+        recover.who = source;
+        room->recover(source, recover);
     }
 }

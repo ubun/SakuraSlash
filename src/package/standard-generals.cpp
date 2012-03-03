@@ -78,7 +78,7 @@ public:
 
     virtual const Card *viewAs(CardItem *card_item) const{
         const Card *first = card_item->getFilteredCard();
-        Card *ncard = new Nullification(first->getSuit(), first->getNumber());
+        Card *ncard = new Nullificatiom(first->getSuit(), first->getNumber());
         ncard->addSubcard(first);
         ncard->setSkillName("wq");
 
@@ -1549,6 +1549,57 @@ public:
     }
 };
 
+class YR:public ZeroCardViewAsSkill{
+public:
+    YR():ZeroCardViewAsSkill("yr"){
+    }
+
+    virtual const Card *viewAs() const{
+        return new YRCard;
+    }
+};
+
+class YQViewAsSkill:public ViewAsSkill{
+public:
+    YQViewAsSkill():ViewAsSkill("yq"){
+    }
+
+    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
+        return !to_select->isEquipped();
+    }
+
+    virtual bool isEnabledAtPlay(const Player *h) const{
+        return h->isWeak();
+    }
+
+    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
+        if(cards.isEmpty() || cards.length() > 2)
+            return NULL;
+        YQCard *YQ_card = new YQCard;
+        YQ_card->addSubcards(cards);
+        return YQ_card;
+    }
+};
+
+class YQ: public PhaseChangeSkill{
+public:
+    YQ():PhaseChangeSkill("yq"){
+        view_as_skill = new YQViewAsSkill;
+        frequency = Nirvana;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return PhaseChangeSkill::triggerable(target)
+                && target->getPhase() == Player::NotActive
+                && target->hasUsed("YQCard");
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *target) const{
+        target->getRoom()->setPlayerMark(target, "YQ", 0);
+        return false;
+    }
+};
+
 class XJ: public OneCardViewAsSkill{
 public:
     XJ():OneCardViewAsSkill("xj"){
@@ -1608,6 +1659,83 @@ public:
             return +1;
         else
             return 0;
+    }
+};
+
+class JS: public TriggerSkill{
+public:
+    JS():TriggerSkill("js"){
+        events << AskForPeaches << PhaseChange;
+    }
+
+    virtual bool trigger(TriggerEvent v, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        if(v == PhaseChange){
+            if(player->getPhase() == Player::NotActive){
+                DamageStruct damage;
+                damage.from = player;
+                foreach(ServerPlayer *tmp, room->getAllPlayers()){
+                    if(tmp->getMark("jsp") > 0 && tmp->getMark("@js") < 1)
+                        room->killPlayer(tmp, &damage);
+                }
+            }
+            return false;
+        }
+        DyingStruct dy = data.value<DyingStruct>();
+        if(dy.who->getMark("jsp") < 1 && room->askForCard(player, ".black", "@js:" + dy.who->objectName())){
+            RecoverStruct rec;
+            rec.who = player;
+            rec.recover = dy.who->getLostHp();
+            room->recover(dy.who, rec);
+            dy.who->setMark("jsp", 1);
+            dy.who->gainMark("@js");
+        }
+        return false;
+    }
+};
+
+class JSP: public TriggerSkill{
+public:
+    JSP():TriggerSkill("#jsp"){
+        events << PhaseChange;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent v, ServerPlayer *player, QVariant &data) const{
+        if(player->getPhase() == Player::Start && player->getMark("jsp") > 0)
+            player->loseMark("@js");
+        return false;
+    }
+};
+
+class QLJS: public TriggerSkill{
+public:
+    QLJS():TriggerSkill("qljs"){
+        events << AskForPeaches;
+    }
+
+    virtual bool trigger(TriggerEvent v, ServerPlayer *player, QVariant &data) const{
+        if(!player->isWeak())
+            return false;
+        Room *room = player->getRoom();
+        DyingStruct dy = data.value<DyingStruct>();
+        if(dy.who->getMark("jsp") < 1 && room->askForCard(player, ".black", "@qljs:" + dy.who->objectName())){
+            int maxhp = dy.who->getGeneral()->getMaxHp();
+            room->setPlayerProperty(dy.who, "maxhp", maxhp);
+            RecoverStruct rec;
+            rec.who = player;
+            rec.recover = dy.who->getLostHp();
+            room->recover(dy.who, rec);
+            dy.who->setMark("jsp", 1);
+            dy.who->gainMark("@js", 3);
+            int card = dy.who->getMaxCards() - dy.who->getHandcardNum();
+            if(card > 0)
+                dy.who->drawCards(card);
+        }
+        return false;
     }
 };
 
@@ -1684,18 +1812,158 @@ public:
     }
 };
 
-class Yongle: public ZeroCardViewAsSkill{
+class LY: public ZeroCardViewAsSkill{
 public:
-    Yongle():ZeroCardViewAsSkill("yongle"){
-
+    LY():ZeroCardViewAsSkill("ly"){
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return !player->hasUsed("YongleCard");
+        return !player->hasUsed("LYCard");
     }
 
     virtual const Card *viewAs() const{
-        return new YongleCard;
+        return new LYCard;
+    }
+};
+
+class MZViewAsSkill: public OneCardViewAsSkill{
+public:
+    MZViewAsSkill():OneCardViewAsSkill("mz"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->isWeak();
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        const Card *card = to_select->getFilteredCard();
+        return !to_select->isEquipped() && card->isBlack();
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        MZCard *nonocd = new MZCard;
+        nonocd->addSubcard(card_item->getCard());
+        return nonocd;
+    }
+};
+
+class MZ: public PhaseChangeSkill{
+public:
+    MZ():PhaseChangeSkill("mz"){
+        view_as_skill = new MZViewAsSkill;
+        frequency = Nirvana;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *mouri) const{
+        if(mouri->getPhase() != Player::Start)
+            return false;
+        //Room *room = mouri->getRoom();
+        if(!mouri->isWounded() && !mouri->getPile("mazui").isEmpty()){
+            mouri->skip(Player::Play);
+            mouri->skip(Player::Discard);
+        }
+        return false;
+    }
+};
+
+class FD: public TriggerSkill{
+public:
+    FD():TriggerSkill("fd"){
+        events << SlashEffect;
+        frequency = Compulsory;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *daqiao, QVariant &data) const{
+        Room *room = daqiao->getRoom();
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        JudgeStruct judge;
+        judge.pattern = QRegExp("(.*):(spade):([2-9])");
+        judge.good = false;
+        judge.reason = objectName();
+        judge.who = effect.to;
+
+        room->judge(judge);
+        if(judge.isBad()){
+            DamageStruct damage;
+            damage.card = effect.slash;
+            damage.damage = 3;
+            damage.from = NULL;
+            damage.to = effect.to;
+            damage.nature = DamageStruct::Thunder;
+
+            room->damage(damage);
+        }
+        return false;
+    }
+};
+
+class DL: public TriggerSkill{
+public:
+    DL():TriggerSkill("dl"){
+        events << Predamaged;
+        frequency = Compulsory;
+    }
+
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        if(damage.nature == DamageStruct::Thunder && damage.damage > 0){
+            Room *room = damage.to->getRoom();
+
+            LogMessage log;
+            log.type = "#DLEffect";
+            log.from = player;
+            log.arg = objectName();
+            log.arg2 = QString::number(damage.damage);
+            room->sendLog(log);
+
+            RecoverStruct tru;
+            tru.who = damage.from;
+            tru.recover = damage.damage;
+            room->recover(player, tru);
+            return true;
+        }
+        return false;
+    }
+};
+
+class WL: public PhaseChangeSkill{
+public:
+    WL():PhaseChangeSkill("wl"){
+        frequency = Nirvana;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *mouri) const{
+        if(!mouri->isWeak() || mouri->getPhase() != Player::Start)
+            return false;
+        Room *room = mouri->getRoom();
+        if(mouri->askForSkillInvoke(objectName())){
+            JudgeStruct judge;
+            judge.pattern = QRegExp("(.*):(spade):(.*)");
+            judge.good = true;
+            judge.reason = objectName();
+            judge.who = mouri;
+
+            room->judge(judge);
+            if(judge.isGood()){
+                DamageStruct damage;
+                damage.from = mouri;
+                damage.damage = 2;
+                damage.nature = DamageStruct::Thunder;
+                foreach(ServerPlayer *kuba, room->getAllPlayers()){
+                    damage.to = kuba;
+                    room->damage(damage);
+                }
+            }
+        }
+        return false;
     }
 };
 
@@ -1824,9 +2092,9 @@ void StandardPackage::addGenerals(){
     baji->addSkill(new WLB);
 
     General *mrkr = new General(this, "mrkr", "Yellow");
-    mrkr->addSkill(new Skill("ry"));
-    mrkr->addSkill(new Skill("yr"));
-    mrkr->addSkill(new Skill("yq"));
+    mrkr->addSkill(new Skill("ry", Skill::Compulsory));
+    mrkr->addSkill(new YR);
+    mrkr->addSkill(new YQ);
 
     General *peiluola = new General(this, "peiluola", "Yellow", 3, false);
     peiluola->addSkill(new XJ);
@@ -1834,9 +2102,11 @@ void StandardPackage::addGenerals(){
     peiluola->addSkill(new LH);
 
     General *yiwankefu = new General(this, "yiwankefu", "Yellow", 3);
-    yiwankefu->addSkill(new Skill("ryw"));
-    yiwankefu->addSkill(new Skill("js"));
-    yiwankefu->addSkill(new Skill("qljs"));
+    yiwankefu->addSkill(new Skill("ryw", Skill::Compulsory));
+    yiwankefu->addSkill(new JS);
+    yiwankefu->addSkill(new JSP);
+    related_skills.insertMulti("js", "#jsp");
+    yiwankefu->addSkill(new QLJS);
 
     General *jide = new General(this, "jide", "Yellow");
     jide->addSkill(new JX);
@@ -1844,13 +2114,13 @@ void StandardPackage::addGenerals(){
     jide->addSkill(new JXH);
 
     General *luo = new General(this, "luo", "Yellow", 3);
-    //luo->addSkill(new LY);
-    //luo->addSkill(new MZ);
+    luo->addSkill(new LY);
+    luo->addSkill(new MZ);
 
     General *ainilu = new General(this, "ainilu", "Yellow", 3);
-    //ainilu->addSkill(new FD);
-    //ainilu->addSkill(new DL);
-    //ainilu->addSkill(new WL);
+    ainilu->addSkill(new FD);
+    ainilu->addSkill(new DL);
+    ainilu->addSkill(new WL);
 
     // for skill cards
     addMetaObject<SQSJCard>();
@@ -1862,4 +2132,8 @@ void StandardPackage::addGenerals(){
     addMetaObject<WQQCard>();
     addMetaObject<JXCard>();
     addMetaObject<CLCard>();
+    addMetaObject<LYCard>();
+    addMetaObject<MZCard>();
+    addMetaObject<YRCard>();
+    addMetaObject<YQCard>();
 }

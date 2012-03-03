@@ -113,15 +113,39 @@ public:
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
-class YongleCard: public SkillCard{
+class LYCard: public SkillCard{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE YongleCard();
+    Q_INVOKABLE LYCard();
 
-    virtual int getKingdoms(const Player *Self) const;
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
+
+class MZCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE MZCard();
+
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
+
+class YRCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE YRCard();
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
+
+class YQCard:public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE YQCard();
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 

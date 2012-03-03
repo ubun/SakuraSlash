@@ -372,14 +372,14 @@ DummyCard *ServerPlayer::wholeHandCards() const{
 }
 
 bool ServerPlayer::hasNullification() const{
-    if(hasSkill("kanpo")){
-        foreach(const Card *card, handcards){
-            if(card->isBlack() || card->objectName() == "nullification")
+    if(hasSkill("wq")){
+        foreach(const Card *card, getCards("he")){
+            if(card->getSuit() == Card::Diamond || card->objectName() == "nullification")
                 return true;
         }
-    }else if(hasSkill("wushen")){
+    }else if(hasSkill("hw")){
         foreach(const Card *card, handcards){
-            if(card->objectName() == "nullification" && card->getSuit() != Card::Heart)
+            if(card->inherits("Slash") || card->inherits("Jink") || card->objectName() == "nullification")
                 return true;
         }
     }else if(hasSkill("guhuo")){
