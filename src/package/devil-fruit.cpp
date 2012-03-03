@@ -126,7 +126,6 @@ class Honeymelon: public TriggerSkill{
 public:
     Honeymelon():TriggerSkill("honeymelon$"){
         events << CardAsked;
-        default_choice = "ignore";
         view_as_skill = new HoneymelonViewAsSkill;
     }
 
@@ -222,16 +221,60 @@ public:
     }
 };
 
-//defense-fruit
-class Hujia:public TriggerSkill{
+class Apple: public TriggerSkill{
 public:
-    Hujia():TriggerSkill("hujia$"){
-        events << CardAsked;
-        default_choice = "ignore";
+    Apple():TriggerSkill("apple$"){
+        events << AskForPeachesDone << CardEffected;
+        frequency = Compulsory;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return target->hasLordSkill("hujia");
+        return target->hasLordSkill("apple");
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *sunquan, QVariant &data) const{
+        Room *room = sunquan->getRoom();
+        switch(event){
+        case CardEffected: {
+                CardEffectStruct effect = data.value<CardEffectStruct>();
+                if(effect.card->inherits("Peach") && effect.from->getKingdom() == sunquan->getKingdom()
+                   && sunquan != effect.from && sunquan->hasFlag("dying")){
+                    sunquan->setFlags("apple");
+
+                    LogMessage log;
+                    log.type = "#AppleExtraRecover";
+                    log.from = sunquan;
+                    log.to << effect.from;
+                    room->sendLog(log);
+
+                    RecoverStruct recover;
+                    recover.who = effect.from;
+                    room->recover(sunquan, recover);
+
+                    room->getThread()->delay(2000);
+                }
+                break;
+            }
+        case AskForPeachesDone:{
+                sunquan->setFlags("-apple");
+                break;
+            }
+        default:
+            break;
+        }
+        return false;
+    }
+};
+
+//defense-fruit
+class Pineapple:public TriggerSkill{
+public:
+    Pineapple():TriggerSkill("pineapple$"){
+        events << CardAsked;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->hasLordSkill("pineapple");
     }
 
     virtual bool trigger(TriggerEvent, ServerPlayer *caocao, QVariant &data) const{
@@ -240,7 +283,7 @@ public:
             return false;
 
         Room *room = caocao->getRoom();
-        QList<ServerPlayer *> lieges = room->getLieges("wei", caocao);
+        QList<ServerPlayer *> lieges = room->getLieges(caocao->getKingdom(), caocao);
         if(lieges.isEmpty())
             return false;
 
@@ -250,14 +293,78 @@ public:
         room->playSkillEffect(objectName());
         QVariant tohelp = QVariant::fromValue((PlayerStar)caocao);
         foreach(ServerPlayer *liege, lieges){
-            const Card *jink = room->askForCard(liege, "jink", "@hujia-jink:" + caocao->objectName(), tohelp);
+            const Card *jink = room->askForCard(liege, "jink", "@pineapple-jink:" + caocao->objectName(), tohelp);
             if(jink){
                 room->provide(jink);
                 return true;
             }
         }
-
         return false;
+    }
+};
+
+class Lemon:public MasochismSkill{
+public:
+    Lemon():MasochismSkill("lemon$"){
+    }
+
+    virtual void onDamaged(ServerPlayer *xiahou, const DamageStruct &damage) const{
+        if(!damage.from || damage.from->getKingdom() == xiahou->getKingdom())
+            return;
+        if(xiahou->askForSkillInvoke(objectName()))
+            xiahou->drawCards(1);
+    }
+};
+HuangtianCard::HuangtianCard(){
+    once = true;
+}
+
+void HuangtianCard::use(Room *room, ServerPlayer *, const QList<ServerPlayer *> &targets) const{
+    ServerPlayer *zhangjiao = targets.first();
+    if(zhangjiao->hasLordSkill("huangtian")){
+        zhangjiao->obtainCard(this);
+        room->setEmotion(zhangjiao, "good");
+    }
+}
+
+bool HuangtianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && to_select->hasLordSkill("huangtian") && to_select != Self;
+}
+class HuangtianViewAsSkill: public OneCardViewAsSkill{
+public:
+    HuangtianViewAsSkill():OneCardViewAsSkill("huangtianv"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return !player->hasUsed("HuangtianCard") && player->getKingdom() == "qun";
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        const Card *card = to_select->getCard();
+        return card->objectName() == "jink" || card->objectName() == "lightning";
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        HuangtianCard *card = new HuangtianCard;
+        card->addSubcard(card_item->getFilteredCard());
+
+        return card;
+    }
+};
+
+class Huangtian: public GameStartSkill{
+public:
+    Huangtian():GameStartSkill("huangtian$"){
+
+    }
+
+    virtual void onGameStart(ServerPlayer *zhangjiao) const{
+        Room *room = zhangjiao->getRoom();
+        QList<ServerPlayer *> players = room->getAlivePlayers();
+        foreach(ServerPlayer *player, players){
+            room->attachSkillToPlayer(player, "huangtianv");
+        }
     }
 };
 
@@ -267,8 +374,8 @@ DevilFruitPackage::DevilFruitPackage()
     type = CardPack;
     skills
             << new Orange << new Mango << new Starfruit << new Honeymelon
-            << new Papaya << new Durian
-            << new Skill("grape$") << new Pineapple
+            << new Papaya << new Durian << new Apple
+            << new Skill("grape$") << new Pineapple << new Lemon
             ;
     addMetaObject<HoneymelonCard>();
 }
@@ -281,6 +388,7 @@ TestPackage::TestPackage()
     new General(this, "haruno", "god", 5, false, true);
 
     addMetaObject<CheatCard>();
+    addMetaObject<HuangtianCard>();
 }
 
 ADD_PACKAGE(DevilFruit)

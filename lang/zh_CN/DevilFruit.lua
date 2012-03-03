@@ -17,8 +17,6 @@ return {
 	["honeymelon"] = "蜜瓜",
 	["honeymelon"] = "与你同团角色可替你出【杀】。",
 	[":honeymelon:"] = "%from 想让你帮其出一张【杀】:",
-	["honeymelon:accept"] = "响应",
-	["honeymelon:ignore"] = "不响应",
 	["@honeymelon-slash"] = "请打出一张【杀】以响应海贼王的【蜜瓜】",
 
 --回复型 Recovery
@@ -35,6 +33,7 @@ return {
 
 	["apple"] = "苹果",
 	[":apple"] = "锁定技，其他与你同团角色在你濒死状态下对你使用【肉】，你额外回复1点体力。",
+	["#AppleExtraRecover"] = "%from 的【苹果】产生效果，额外恢复了1点体力",
 
 --防御型 Defense
 	["defense"] = "防御型",
@@ -46,6 +45,8 @@ return {
 
 	["pineapple"] = "菠萝",
 	[":pineapple"] = "与你同团角色可替你出【闪】。",
+	[":pineapple:"] = "%from 想让你帮他出一张【闪】:",
+	["@pineapple-jink"] = "请打出一张【闪】以响应 %src 的【菠萝】",
 
 	["lemon"] = "柠檬",
 	[":lemon"] = "当你被不同团角色的【杀】造成伤害后，可以摸一张牌。",
