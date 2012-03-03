@@ -145,8 +145,8 @@ FORMS += src/mainwindow.ui \
     src/connectiondialog.ui \
     src/generaloverview.ui \
     src/cardoverview.ui \
-    src/distanceviewdialog.ui \
-    src/configdialog.ui
+    src/configdialog.ui \
+    src/distanceviewdialog.ui
 
 
 INCLUDEPATH += include/lua
