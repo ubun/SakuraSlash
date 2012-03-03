@@ -542,11 +542,10 @@ public:
         QString asked = data.toString();
         if(asked == "jink"){
             Room *room = player->getRoom();
-            QString objnm = player->getArmor()->objectName();
-            if(room->askForSkillInvoke(player, objnm)){
+            if(room->askForSkillInvoke(player, objectName())){
                 JudgeStruct judge;
                 judge.pattern = QRegExp("(.*):(heart|diamond):(.*)");
-                judge.good = objnm == "eight_diagram";
+                judge.good = true;
                 judge.reason = objectName();
                 judge.who = player;
 
@@ -572,10 +571,55 @@ EightDiagram::EightDiagram(Suit suit, int number)
     skill = EightDiagramSkill::GetInstance();
 }
 
+class NightDiagramSkill: public ArmorSkill{
+private:
+    NightDiagramSkill():ArmorSkill("night_diagram"){
+        events << CardAsked;
+    }
+
+public:
+    static NightDiagramSkill *GetInstance(){
+        static NightDiagramSkill *instance = NULL;
+        if(instance == NULL)
+            instance = new NightDiagramSkill;
+        return instance;
+    }
+
+    virtual int getPriority() const{
+        return 2;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        QString asked = data.toString();
+        if(asked == "jink"){
+            Room *room = player->getRoom();
+            if(room->askForSkillInvoke(player, objectName())){
+                JudgeStruct judge;
+                judge.pattern = QRegExp("(.*):(heart|diamond):(.*)");
+                judge.good = false;
+                judge.reason = objectName();
+                judge.who = player;
+
+                room->judge(judge);
+                if(judge.isGood()){
+                    Jink *jink = new Jink(Card::NoSuit, 0);
+                    jink->setSkillName(objectName());
+                    room->provide(jink);
+                    room->setEmotion(player, "good");
+
+                    return true;
+                }else
+                    room->setEmotion(player, "bad");
+            }
+        }
+        return false;
+    }
+};
+
 NightDiagram::NightDiagram(Suit suit, int number)
     :Armor(suit, number){
     setObjectName("night_diagram");
-    skill = EightDiagramSkill::GetInstance();
+    skill = NightDiagramSkill::GetInstance();
 }
 
 Mask::Mask(Suit suit, int number)
@@ -812,7 +856,7 @@ ExNihilp::ExNihilp(Suit suit, int number)
 }
 
 void ExNihilp::onEffect(const CardEffectStruct &effect) const{
-    effect.to->drawCards(2);
+    effect.to->drawCards(3);
 }
 
 Duel::Duel(Suit suit, int number)

@@ -193,6 +193,8 @@ FreeChooseDialog::FreeChooseDialog(QWidget *parent, bool pair_choose)
     }
 
     QStringList kingdoms = Sanguosha->getKingdoms();
+    if(Config.BanPackages.contains("test"))
+        kingdoms.removeOne("god");
 
     int i=0,j=0;
     foreach(QString kingdom, kingdoms){

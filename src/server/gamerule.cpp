@@ -150,15 +150,15 @@ QString GameRule::fruitTable(QString kind) const{
     QMap<QString, QStringList> map;
 
     QStringList attacks;
-    attacks << "orange";
+    attacks << "orange" << "mango" << "starfruit" << "honeymelon";
     map["attack"] = attacks;
 
     QStringList defenso;
-    defenso << "papaya";
+    defenso << "grape";
     map["defense"] = defenso;
 
     QStringList recover;
-    recover << "grape";
+    recover << "papaya";
     map["recovery"] = recover;
 
     QStringList result = map.value(kind, QStringList());
@@ -605,11 +605,10 @@ void GameRule::rewardAndPunish(ServerPlayer *killer, ServerPlayer *victim) const
     if(killer->getRoom()->getMode() == "06_3v3"){
         killer->drawCards(3);
     }else{
-        QString role = !victim->hasSkill("qianmian") ? victim->getRole():
-                       victim->tag.value("Qmmv").toString();
+        QString role = victim->getRole();
         if(role == "rebel" && killer != victim){
             killer->drawCards(3);
-        }else if(role == "loyalist" && killer->getRole() == "lord"){
+        }else if(role == "loyalist" && killer->getRole() == "lord" && !killer->hasLordSkill("mango")){
             killer->throwAllEquips();
             killer->throwAllHandCards();
         }

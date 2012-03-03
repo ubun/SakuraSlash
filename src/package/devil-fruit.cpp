@@ -45,6 +45,133 @@ public:
     }
 };
 
+class Mango: public TriggerSkill{
+public:
+    Mango():TriggerSkill("mango$"){
+        events << Death;
+        frequency = Compulsory;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        DamageStar damage = data.value<DamageStar>();
+        ServerPlayer *killer = damage ? damage->from : NULL;
+        if(!killer || !killer->hasLordSkill(objectName()))
+            return false;
+        if(killer->isAlive())
+            killer->drawCards(2);
+        return false;
+    }
+};
+
+class Starfruit: public TriggerSkill{
+public:
+    Starfruit():TriggerSkill("starfruit$"){
+        events << SlashMissed;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        if(effect.to->getKingdom() != effect.from->getKingdom() && player->askForSkillInvoke(objectName()))
+            player->drawCards(1);
+        return false;
+    }
+};
+
+JijiangCard::JijiangCard(){
+
+}
+
+bool JijiangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && Self->canSlash(to_select);
+}
+
+void JijiangCard::use(Room *room, ServerPlayer *liubei, const QList<ServerPlayer *> &targets) const{
+    QList<ServerPlayer *> lieges = room->getLieges("shu", liubei);
+    const Card *slash = NULL;
+
+    QVariant tohelp = QVariant::fromValue((PlayerStar)liubei);
+    foreach(ServerPlayer *liege, lieges){
+        slash = room->askForCard(liege, "slash", "@jijiang-slash:" + liubei->objectName(), tohelp);
+        if(slash){
+            CardUseStruct card_use;
+            card_use.card = slash;
+            card_use.from = liubei;
+            card_use.to << targets.first();
+
+            room->useCard(card_use);
+            return;
+        }
+    }
+}
+
+class JijiangViewAsSkill:public ZeroCardViewAsSkill{
+public:
+    JijiangViewAsSkill():ZeroCardViewAsSkill("jijiang$"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->hasLordSkill("jijiang") && Slash::IsAvailable(player);
+    }
+
+    virtual const Card *viewAs() const{
+        return new JijiangCard;
+    }
+};
+
+class Jijiang: public TriggerSkill{
+public:
+    Jijiang():TriggerSkill("jijiang$"){
+        events << CardAsked;
+        default_choice = "ignore";
+
+        view_as_skill = new JijiangViewAsSkill;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->hasLordSkill("jijiang");
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *liubei, QVariant &data) const{
+        QString pattern = data.toString();
+        if(pattern != "slash")
+            return false;
+
+        Room *room = liubei->getRoom();
+        QList<ServerPlayer *> lieges = room->getLieges("shu", liubei);
+        if(lieges.isEmpty())
+            return false;
+
+        if(!room->askForSkillInvoke(liubei, objectName()))
+            return false;
+
+        room->playSkillEffect(objectName(), getEffectIndex(liubei, NULL));
+
+        QVariant tohelp = QVariant::fromValue((PlayerStar)liubei);
+        foreach(ServerPlayer *liege, lieges){
+            const Card *slash = room->askForCard(liege, "slash", "@jijiang-slash:" + liubei->objectName(), tohelp);
+            if(slash){
+                room->provide(slash);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    virtual int getEffectIndex(ServerPlayer *player, const Card *) const{
+        int r = 1 + qrand() % 2;
+        if(player->getGeneralName() == "liushan" || player->getGeneral2Name() == "liushan")
+            r += 2;
+
+        return r;
+    }
+};
+
 //recovery-fruit
 class Papaya: public PhaseChangeSkill{
 public:
@@ -85,7 +212,7 @@ DevilFruitPackage::DevilFruitPackage()
 {
     type = CardPack;
     skills
-            << new Orange
+            << new Orange << new Mango << new Starfruit << new Honeymelon
             << new Papaya
             << new Skill("grape$")
             ;
