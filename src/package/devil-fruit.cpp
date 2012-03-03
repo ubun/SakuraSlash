@@ -81,21 +81,21 @@ public:
     }
 };
 
-JijiangCard::JijiangCard(){
+HoneymelonCard::HoneymelonCard(){
 
 }
 
-bool JijiangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool HoneymelonCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     return targets.isEmpty() && Self->canSlash(to_select);
 }
 
-void JijiangCard::use(Room *room, ServerPlayer *liubei, const QList<ServerPlayer *> &targets) const{
-    QList<ServerPlayer *> lieges = room->getLieges("shu", liubei);
+void HoneymelonCard::use(Room *room, ServerPlayer *liubei, const QList<ServerPlayer *> &targets) const{
+    QList<ServerPlayer *> lieges = room->getLieges(liubei->getKingdom(), liubei);
     const Card *slash = NULL;
 
     QVariant tohelp = QVariant::fromValue((PlayerStar)liubei);
     foreach(ServerPlayer *liege, lieges){
-        slash = room->askForCard(liege, "slash", "@jijiang-slash:" + liubei->objectName(), tohelp);
+        slash = room->askForCard(liege, "slash", "@honeymelon-slash:" + liubei->objectName(), tohelp);
         if(slash){
             CardUseStruct card_use;
             card_use.card = slash;
@@ -108,32 +108,30 @@ void JijiangCard::use(Room *room, ServerPlayer *liubei, const QList<ServerPlayer
     }
 }
 
-class JijiangViewAsSkill:public ZeroCardViewAsSkill{
+class HoneymelonViewAsSkill:public ZeroCardViewAsSkill{
 public:
-    JijiangViewAsSkill():ZeroCardViewAsSkill("jijiang$"){
-
+    HoneymelonViewAsSkill():ZeroCardViewAsSkill("honeymelon$"){
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->hasLordSkill("jijiang") && Slash::IsAvailable(player);
+        return player->hasLordSkill("honeymelon") && Slash::IsAvailable(player);
     }
 
     virtual const Card *viewAs() const{
-        return new JijiangCard;
+        return new HoneymelonCard;
     }
 };
 
-class Jijiang: public TriggerSkill{
+class Honeymelon: public TriggerSkill{
 public:
-    Jijiang():TriggerSkill("jijiang$"){
+    Honeymelon():TriggerSkill("honeymelon$"){
         events << CardAsked;
         default_choice = "ignore";
-
-        view_as_skill = new JijiangViewAsSkill;
+        view_as_skill = new HoneymelonViewAsSkill;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return target->hasLordSkill("jijiang");
+        return target->hasLordSkill("honeymelon");
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *liubei, QVariant &data) const{
@@ -142,33 +140,22 @@ public:
             return false;
 
         Room *room = liubei->getRoom();
-        QList<ServerPlayer *> lieges = room->getLieges("shu", liubei);
+        QList<ServerPlayer *> lieges = room->getLieges(liubei->getKingdom(), liubei);
         if(lieges.isEmpty())
             return false;
 
         if(!room->askForSkillInvoke(liubei, objectName()))
             return false;
 
-        room->playSkillEffect(objectName(), getEffectIndex(liubei, NULL));
-
         QVariant tohelp = QVariant::fromValue((PlayerStar)liubei);
         foreach(ServerPlayer *liege, lieges){
-            const Card *slash = room->askForCard(liege, "slash", "@jijiang-slash:" + liubei->objectName(), tohelp);
+            const Card *slash = room->askForCard(liege, "slash", "@honeymelon-slash:" + liubei->objectName(), tohelp);
             if(slash){
                 room->provide(slash);
                 return true;
             }
         }
-
         return false;
-    }
-
-    virtual int getEffectIndex(ServerPlayer *player, const Card *) const{
-        int r = 1 + qrand() % 2;
-        if(player->getGeneralName() == "liushan" || player->getGeneral2Name() == "liushan")
-            r += 2;
-
-        return r;
     }
 };
 
@@ -204,8 +191,75 @@ public:
     }
 };
 
-//defense-fruit
+class Durian: public TriggerSkill{
+public:
+    Durian():TriggerSkill("durian$"){
+        events << Predamaged;
+        frequency = Compulsory;
+    }
 
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        if(damage.from && damage.damage > 1 &&
+           damage.from->getKingdom() != player->getKingdom()){
+            Room *room = damage.to->getRoom();
+
+            LogMessage log;
+            log.type = "#DurianProtect";
+            log.from = player;
+            log.arg = objectName();
+            log.arg2 = QString::number(damage.damage);
+            room->sendLog(log);
+
+            damage.damage = 1;
+            data = QVariant::fromValue(damage);
+        }
+        return false;
+    }
+};
+
+//defense-fruit
+class Hujia:public TriggerSkill{
+public:
+    Hujia():TriggerSkill("hujia$"){
+        events << CardAsked;
+        default_choice = "ignore";
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->hasLordSkill("hujia");
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *caocao, QVariant &data) const{
+        QString pattern = data.toString();
+        if(pattern != "jink")
+            return false;
+
+        Room *room = caocao->getRoom();
+        QList<ServerPlayer *> lieges = room->getLieges("wei", caocao);
+        if(lieges.isEmpty())
+            return false;
+
+        if(!room->askForSkillInvoke(caocao, objectName()))
+            return false;
+
+        room->playSkillEffect(objectName());
+        QVariant tohelp = QVariant::fromValue((PlayerStar)caocao);
+        foreach(ServerPlayer *liege, lieges){
+            const Card *jink = room->askForCard(liege, "jink", "@hujia-jink:" + caocao->objectName(), tohelp);
+            if(jink){
+                room->provide(jink);
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
 
 DevilFruitPackage::DevilFruitPackage()
     :Package("devil_fruit")
@@ -213,9 +267,10 @@ DevilFruitPackage::DevilFruitPackage()
     type = CardPack;
     skills
             << new Orange << new Mango << new Starfruit << new Honeymelon
-            << new Papaya
-            << new Skill("grape$")
+            << new Papaya << new Durian
+            << new Skill("grape$") << new Pineapple
             ;
+    addMetaObject<HoneymelonCard>();
 }
 
 TestPackage::TestPackage()

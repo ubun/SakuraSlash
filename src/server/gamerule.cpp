@@ -154,11 +154,11 @@ QString GameRule::fruitTable(QString kind) const{
     map["attack"] = attacks;
 
     QStringList defenso;
-    defenso << "grape";
+    defenso << "grape" << "banana" << "pineapple" << "lemon";
     map["defense"] = defenso;
 
     QStringList recover;
-    recover << "papaya";
+    recover << "papaya" << "cherry" << "apple" << "durian";
     map["recovery"] = recover;
 
     QStringList result = map.value(kind, QStringList());
