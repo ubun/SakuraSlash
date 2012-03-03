@@ -13,15 +13,27 @@ public:
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
-class HuangtianCard: public SkillCard{
+
+class BananaCard: public SkillCard{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE HuangtianCard();
+    Q_INVOKABLE BananaCard();
 
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
+
+class CherryCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE CherryCard();
+
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+};
+
 class DevilFruitPackage: public Package{
     Q_OBJECT
 

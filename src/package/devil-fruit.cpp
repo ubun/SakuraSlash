@@ -24,6 +24,10 @@ public:
         events << Damage;
     }
 
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->hasLordSkill(objectName());
+    }
+
     virtual bool trigger(TriggerEvent , ServerPlayer *zhurong, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
         if(damage.card && damage.card->inherits("Slash")){
@@ -71,6 +75,10 @@ class Starfruit: public TriggerSkill{
 public:
     Starfruit():TriggerSkill("starfruit$"){
         events << SlashMissed;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->hasLordSkill(objectName());
     }
 
     virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
@@ -130,7 +138,7 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return target->hasLordSkill("honeymelon");
+        return target->hasLordSkill(objectName());
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *liubei, QVariant &data) const{
@@ -162,6 +170,10 @@ public:
 class Papaya: public PhaseChangeSkill{
 public:
     Papaya():PhaseChangeSkill("papaya$"){
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->hasLordSkill(objectName());
     }
 
     virtual bool onPhaseChange(ServerPlayer *mouri) const{
@@ -197,6 +209,10 @@ public:
         frequency = Compulsory;
     }
 
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->hasLordSkill(objectName());
+    }
+
     virtual int getPriority() const{
         return -1;
     }
@@ -229,7 +245,7 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return target->hasLordSkill("apple");
+        return target->hasLordSkill(objectName());
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *sunquan, QVariant &data) const{
@@ -266,6 +282,57 @@ public:
     }
 };
 
+CherryCard::CherryCard(){
+    once = true;
+}
+
+void CherryCard::use(Room *room, ServerPlayer *galoo, const QList<ServerPlayer *> &targets) const{
+    /*RecoverStruct r00m;
+    r00m.who = galoo;
+    r00m.card = this;
+    room->recover(targets.first(), r00m);*/
+    room->cardEffect(this, galoo, targets.first());
+}
+
+bool CherryCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && to_select->isWounded() && to_select->hasLordSkill("cherry") &&
+           to_select->getKingdom() == Self->getKingdom() && to_select != Self;
+}
+
+class CherryViewAsSkill: public OneCardViewAsSkill{
+public:
+    CherryViewAsSkill():OneCardViewAsSkill("cherryv"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return !player->hasUsed("CherryCard");
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return to_select->getCard()->inherits("Peach");
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        CherryCard *card = new CherryCard;
+        card->addSubcard(card_item->getFilteredCard());
+        return card;
+    }
+};
+
+class Cherry: public GameStartSkill{
+public:
+    Cherry():GameStartSkill("cherry$"){
+    }
+
+    virtual void onGameStart(ServerPlayer *zhangjiao) const{
+        Room *room = zhangjiao->getRoom();
+        QList<ServerPlayer *> players = room->getAlivePlayers();
+        foreach(ServerPlayer *player, players){
+            room->attachSkillToPlayer(player, "cherryv");
+        }
+    }
+};
+
 //defense-fruit
 class Pineapple:public TriggerSkill{
 public:
@@ -274,7 +341,7 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return target->hasLordSkill("pineapple");
+        return target->hasLordSkill(objectName());
     }
 
     virtual bool trigger(TriggerEvent, ServerPlayer *caocao, QVariant &data) const{
@@ -308,6 +375,10 @@ public:
     Lemon():MasochismSkill("lemon$"){
     }
 
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->hasLordSkill(objectName());
+    }
+
     virtual void onDamaged(ServerPlayer *xiahou, const DamageStruct &damage) const{
         if(!damage.from || damage.from->getKingdom() == xiahou->getKingdom())
             return;
@@ -315,55 +386,55 @@ public:
             xiahou->drawCards(1);
     }
 };
-HuangtianCard::HuangtianCard(){
+
+BananaCard::BananaCard(){
     once = true;
 }
 
-void HuangtianCard::use(Room *room, ServerPlayer *, const QList<ServerPlayer *> &targets) const{
+void BananaCard::use(Room *room, ServerPlayer *, const QList<ServerPlayer *> &targets) const{
     ServerPlayer *zhangjiao = targets.first();
-    if(zhangjiao->hasLordSkill("huangtian")){
+    if(zhangjiao->hasLordSkill("banana")){
         zhangjiao->obtainCard(this);
         room->setEmotion(zhangjiao, "good");
     }
 }
 
-bool HuangtianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty() && to_select->hasLordSkill("huangtian") && to_select != Self;
+bool BananaCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && to_select->hasLordSkill("banana") &&
+           to_select->getKingdom() == Self->getKingdom() && to_select != Self;
 }
-class HuangtianViewAsSkill: public OneCardViewAsSkill{
+
+class BananaViewAsSkill: public OneCardViewAsSkill{
 public:
-    HuangtianViewAsSkill():OneCardViewAsSkill("huangtianv"){
+    BananaViewAsSkill():OneCardViewAsSkill("bananav"){
 
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return !player->hasUsed("HuangtianCard") && player->getKingdom() == "qun";
+        return !player->hasUsed("BananaCard");
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{
-        const Card *card = to_select->getCard();
-        return card->objectName() == "jink" || card->objectName() == "lightning";
+        return !to_select->isEquipped();
     }
 
     virtual const Card *viewAs(CardItem *card_item) const{
-        HuangtianCard *card = new HuangtianCard;
+        BananaCard *card = new BananaCard;
         card->addSubcard(card_item->getFilteredCard());
-
         return card;
     }
 };
 
-class Huangtian: public GameStartSkill{
+class Banana: public GameStartSkill{
 public:
-    Huangtian():GameStartSkill("huangtian$"){
-
+    Banana():GameStartSkill("banana$"){
     }
 
     virtual void onGameStart(ServerPlayer *zhangjiao) const{
         Room *room = zhangjiao->getRoom();
         QList<ServerPlayer *> players = room->getAlivePlayers();
         foreach(ServerPlayer *player, players){
-            room->attachSkillToPlayer(player, "huangtianv");
+            room->attachSkillToPlayer(player, "bananav");
         }
     }
 };
@@ -374,10 +445,12 @@ DevilFruitPackage::DevilFruitPackage()
     type = CardPack;
     skills
             << new Orange << new Mango << new Starfruit << new Honeymelon
-            << new Papaya << new Durian << new Apple
-            << new Skill("grape$") << new Pineapple << new Lemon
-            ;
+            << new Papaya << new Durian << new Apple << new Cherry
+            << new Skill("grape$") << new Pineapple << new Lemon << new Banana
+            << new CherryViewAsSkill << new BananaViewAsSkill;
     addMetaObject<HoneymelonCard>();
+    addMetaObject<CherryCard>();
+    addMetaObject<BananaCard>();
 }
 
 TestPackage::TestPackage()
@@ -388,7 +461,6 @@ TestPackage::TestPackage()
     new General(this, "haruno", "god", 5, false, true);
 
     addMetaObject<CheatCard>();
-    addMetaObject<HuangtianCard>();
 }
 
 ADD_PACKAGE(DevilFruit)
