@@ -294,7 +294,7 @@ int Horse::getCorrect() const{
 }
 
 QString Horse::getEffectPath(bool) const{
-    return "audio/card/common/car.ogg";
+    return "audio/card/common/horse.ogg";
 }
 
 void Horse::onInstall(ServerPlayer *my) const{

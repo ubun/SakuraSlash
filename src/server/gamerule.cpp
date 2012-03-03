@@ -3,6 +3,7 @@
 #include "room.h"
 #include "standard.h"
 #include "engine.h"
+#include "settings.h"
 
 #include <QTime>
 
@@ -189,18 +190,20 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             }
 
             if(player->isLord()){
-                QString fruitkind = room->askForChoice(player, "devil_fruit", "attack+recovery+defense");
-                LogMessage log;
-                log.type = "#ChooseFruit";
-                log.from = player;
-                log.arg = fruitkind;
-                room->sendLog(log);
-                QString ski1l = fruitTable(fruitkind);
-                room->acquireSkill(player, ski1l);
-                if(ski1l == "cherry" || ski1l == "banana"){
-                    const TriggerSkill *skill = Sanguosha->getTriggerSkill(ski1l);
-                    QVariant qva;
-                    skill->trigger(GameStart, player, qva);
+                if(!Config.BanPackages.contains("devil_fruit")){
+                    QString fruitkind = room->askForChoice(player, "devil_fruit", "attack+recovery+defense");
+                    LogMessage log;
+                    log.type = "#ChooseFruit";
+                    log.from = player;
+                    log.arg = fruitkind;
+                    room->sendLog(log);
+                    QString ski1l = fruitTable(fruitkind);
+                    room->acquireSkill(player, ski1l);
+                    if(ski1l == "cherry" || ski1l == "banana"){
+                        const TriggerSkill *skill = Sanguosha->getTriggerSkill(ski1l);
+                        QVariant qva;
+                        skill->trigger(GameStart, player, qva);
+                    }
                 }
                 setGameProcess(room);
             }

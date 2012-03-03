@@ -431,6 +431,8 @@ public:
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        if(player->getPhase() != Player::Play)
+            return false;
         Room *room = player->getRoom();
         ServerPlayer *nicole = room->findPlayerBySkillName(objectName());
         if(nicole && nicole->askForSkillInvoke(objectName()))

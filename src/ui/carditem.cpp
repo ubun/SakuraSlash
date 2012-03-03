@@ -17,10 +17,13 @@ CardItem::CardItem(const Card *card)
     Q_ASSERT(card != NULL);
 
     suit_pixmap.load(QString("image/system/suit/%1.png").arg(card->getSuitString()));
+    cardsuit_pixmap.load(QString("image/system/cardsuit/%1.png").arg(card->getSuitString()));
+    number_pixmap.load(QString("image/system/%1/%2.png").arg(card->isBlack()?"black":"red").arg(card->getNumberString()));
     icon_pixmap.load(card->getIconPath());
     setTransformOriginPoint(pixmap.width()/2, pixmap.height()/2);
 
     setToolTip(card->getDescription());
+    setAcceptHoverEvents(true);
 
     QPixmap frame_pixmap("image/system/frame/good.png");
     frame = new QGraphicsPixmapItem(frame_pixmap, this);
@@ -28,6 +31,7 @@ CardItem::CardItem(const Card *card)
     frame->hide();
 
     avatar = NULL;
+    owner_pixmap = NULL;
 }
 
 CardItem::CardItem(const QString &general_name)
@@ -107,6 +111,10 @@ void CardItem::goBack(bool kieru){
 
 const QPixmap &CardItem::getSuitPixmap() const{
     return suit_pixmap;
+}
+
+const QPixmap &CardItem::getNumberPixmap() const{
+    return number_pixmap;
 }
 
 const QPixmap &CardItem::getIconPixmap() const{
