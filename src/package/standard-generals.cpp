@@ -1535,9 +1535,9 @@ public:
     }
 };
 
-class WL: public TriggerSkill{
+class WLB: public TriggerSkill{
 public:
-    WL():TriggerSkill("wl"){
+    WLB():TriggerSkill("wlb"){
         events << HpChanged;
         frequency = Nirvana;
     }
@@ -1612,154 +1612,154 @@ public:
 };
 
 void StandardPackage::addGenerals(){
-    General *lufei = new General(this, "lufei", "red");
+    General *lufei = new General(this, "lufei", "Red");
     lufei->addSkill(new XJQ);
     lufei->addSkill(new JYT);
     lufei->addSkill(new WQ);
 
-    General *suolong = new General(this, "suolong", "red");
+    General *suolong = new General(this, "suolong", "Red");
     suolong->addSkill(new FNF);
     suolong->addSkill(new SQSJ);
 
-    General *weiwei = new General(this, "weiwei", "red", 3, false);
+    General *weiwei = new General(this, "weiwei", "Red", 3, false);
     weiwei->addSkill(new ZZ);
     weiwei->addSkill(new TM);
 
-    General *xiangji = new General(this, "xiangji", "red");
+    General *xiangji = new General(this, "xiangji", "Red");
     xiangji->addSkill(new SS);
     xiangji->addSkill(new EMFJ);
     xiangji->addSkill(new DC);
 
-    General *namei = new General(this, "namei", "red", 3, false);
+    General *namei = new General(this, "namei", "Red", 3, false);
     namei->addSkill(new XZM);
     namei->addSkill(new JM);
 
-    General *buluke = new General(this, "buluke", "red", 3);
+    General *buluke = new General(this, "buluke", "Red", 3);
     buluke->addSkill(new HQ);
     buluke->addSkill(new Skill("cs", Skill::Nirvana));
 
-    General *fulanqi = new General(this, "fulanqi", "red");
+    General *fulanqi = new General(this, "fulanqi", "Red");
     fulanqi->addSkill(new JT);
     fulanqi->addSkill(new Skill("lb"));
 
-    General *luobin = new General(this, "luobin", "red", 3, false);
+    General *luobin = new General(this, "luobin", "Red", 3, false);
     luobin->addSkill(new HK);
     luobin->addSkill(new TS);
 
-    General *qiaoba = new General(this, "qiaoba", "red", 3);
+    General *qiaoba = new General(this, "qiaoba", "Red", 3);
     qiaoba->addSkill(new YS);
     qiaoba->addSkill(new Skill("wny", Skill::Nirvana));
 
-    General *wusuopu = new General(this, "wusuopu", "red", 3);
+    General *wusuopu = new General(this, "wusuopu", "Red", 3);
     wusuopu->addSkill(new CN);
     wusuopu->addSkill(new JDXJ);
     wusuopu->addSkill(new SLX);
 
-    General *qingzhi = new General(this, "qingzhi", "blue", 3);
+    General *qingzhi = new General(this, "qingzhi", "Blue", 3);
     qingzhi->addSkill(new BD);
-    qiaoba->addSkill(new Skill("bhsd", Skill::Nirvana));
+    qingzhi->addSkill(new Skill("bhsd", Skill::Nirvana));
 
-    General *zhantaowan = new General(this, "zhantaowan", "blue", 3);
+    General *zhantaowan = new General(this, "zhantaowan", "Blue", 3);
     zhantaowan->addSkill(new HW);
     zhantaowan->addSkill(new BW);
 
-    General *maizelun = new General(this, "maizelun", "blue");
+    General *maizelun = new General(this, "maizelun", "Blue");
     maizelun->addSkill(new FX);
     maizelun->addSkill(new DLD);
 
-    General *chiquan = new General(this, "chiquan", "blue");
+    General *chiquan = new General(this, "chiquan", "Blue");
     chiquan->addSkill(new DPH);
     chiquan->addSkill(new LXHS);
 
-    General *dasiqi = new General(this, "dasiqi", "blue", 3, false);
+    General *dasiqi = new General(this, "dasiqi", "Blue", 3, false);
     dasiqi->addSkill(new DCC);
     dasiqi->addSkill(new JHZ);
     dasiqi->addSkill(new JD);
 
-    General *kebi = new General(this, "kebi", "blue", 3);
+    General *kebi = new General(this, "kebi", "Blue", 3);
     kebi->addSkill(new MX);
     kebi->addSkill(new YZ);
 
-    General *huangyuan = new General(this, "huangyuan", "blue");
+    General *huangyuan = new General(this, "huangyuan", "Blue");
     huangyuan->addSkill(new BCJ);
     huangyuan->addSkill(new GY);
 
-    General *simoge = new General(this, "simoge", "blue");
+    General *simoge = new General(this, "simoge", "Blue");
     simoge->addSkill(new Skill("bwn", Skill::Compulsory));
     simoge->addSkill(new Skill("yg", Skill::Compulsory));
     simoge->addSkill(new BSJF);
 
-    General *luqi = new General(this, "luqi", "blue");
+    General *luqi = new General(this, "luqi", "Blue");
     luqi->addSkill(new ZQ);
     luqi->addSkill(new TK);
 
-    General *yingyan = new General(this, "yingyan", "purple");
+    General *yingyan = new General(this, "yingyan", "Purple");
     yingyan->addSkill(new PZ);
     yingyan->addSkill(new HDY);
 
-    General *keluokedaer = new General(this, "keluokedaer", "purple");
+    General *keluokedaer = new General(this, "keluokedaer", "Purple");
     keluokedaer->addSkill(new QS);
     keluokedaer->addSkill(new SB);
 
-    General *xiong = new General(this, "xiong", "purple");
+    General *xiong = new General(this, "xiong", "Purple");
     xiong->addSkill(new YLP);
     xiong->addSkill(new YYSD);
 
-    General *duofulangminge = new General(this, "duofulangminge", "purple", 3);
+    General *duofulangminge = new General(this, "duofulangminge", "Purple", 3);
     duofulangminge->addSkill(new CK);
     duofulangminge->addSkill(new Skill("hm", Skill::Nirvana));
 
-    General *diqi = new General(this, "diqi", "purple", 3);
+    General *diqi = new General(this, "diqi", "Purple", 3);
     diqi->addSkill(new HD);
     diqi->addSkill(new SJ);
     diqi->addSkill(new Skill("as", Skill::Nirvana));
 
-    General *hankuke = new General(this, "hankuke", "purple", 3, false);
+    General *hankuke = new General(this, "hankuke", "Purple", 3, false);
     hankuke->addSkill(new WQQ);
     hankuke->addSkill(new TTGF);
 
-    General *shenping = new General(this, "shenping", "purple");
+    General *shenping = new General(this, "shenping", "Purple");
     shenping->addSkill(new KSD);
     shenping->addSkill(new XY);
 
-    General *moliya = new General(this, "moliya", "purple", 3);
+    General *moliya = new General(this, "moliya", "Purple", 3);
     moliya->addSkill(new MD);
     moliya->addSkill(new Skill("zs"));
     moliya->addSkill(new YTS);
 
-    General *lita = new General(this, "lita", "yellow", 4, false);
+    General *lita = new General(this, "lita", "Yellow", 4, false);
     lita->addSkill(new HH);
     lita->addSkill(new Skill("hll", Skill::Nirvana));
 
-    General *baji = new General(this, "baji", "yellow", 3);
+    General *baji = new General(this, "baji", "Yellow", 3);
     baji->addSkill(new SF);
-    baji->addSkill(new WL);
+    baji->addSkill(new WLB);
 
-    General *mrkr = new General(this, "mrkr", "yellow");
+    General *mrkr = new General(this, "mrkr", "Yellow");
     mrkr->addSkill(new Skill("ry"));
     mrkr->addSkill(new Skill("yr"));
     mrkr->addSkill(new Skill("yq"));
 
-    General *peiluola = new General(this, "peiluola", "yellow", 3, false);
+    General *peiluola = new General(this, "peiluola", "Yellow", 3, false);
     peiluola->addSkill(new XJ);
     peiluola->addSkill(new YLZR);
     peiluola->addSkill(new LH);
 
-    General *yiwankefu = new General(this, "yiwankefu", "yellow", 3);
+    General *yiwankefu = new General(this, "yiwankefu", "Yellow", 3);
     yiwankefu->addSkill(new Skill("ryw"));
     yiwankefu->addSkill(new Skill("js"));
     yiwankefu->addSkill(new Skill("qljs"));
 
-    General *jide = new General(this, "jide", "yellow");
+    General *jide = new General(this, "jide", "Yellow");
     //jide->addSkill(new JX);
     //jide->addSkill(new CL);
     //jide->addSkill(new JXH);
 
-    General *luo = new General(this, "luo", "yellow", 3);
+    General *luo = new General(this, "luo", "Yellow", 3);
     //luo->addSkill(new LY);
     //luo->addSkill(new MZ);
 
-    General *ainilu = new General(this, "ainilu", "yellow", 3);
+    General *ainilu = new General(this, "ainilu", "Yellow", 3);
     //ainilu->addSkill(new FD);
     //ainilu->addSkill(new DL);
     //ainilu->addSkill(new WL);

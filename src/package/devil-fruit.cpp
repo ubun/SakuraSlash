@@ -17,6 +17,7 @@ void CheatCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *
         room->obtainCard(source, subcards.first());
 }
 
+//attack-fruit
 class Orange: public TriggerSkill{
 public:
     Orange():TriggerSkill("orange$"){
@@ -28,8 +29,8 @@ public:
         if(damage.card && damage.card->inherits("Slash")){
             Room *room = zhurong->getRoom();
             QList<ServerPlayer *>targets;
-            foreach(ServerPlayer *tmp, room->getOtherPlayers(zhurong))
-                if(tmp->inMyAttackRange(damage.to) && tmp->getKingdom() == zhurong->getKingdom())
+            foreach(ServerPlayer *tmp, room->getLieges(zhurong->getKingdom(), zhurong))
+                if(tmp->inMyAttackRange(damage.to))
                     targets << tmp;
             if(!targets.isEmpty() && room->askForSkillInvoke(zhurong, objectName(), data)){
                 ServerPlayer *target = room->askForPlayerChosen(zhurong, targets, objectName());
@@ -44,11 +45,50 @@ public:
     }
 };
 
+//recovery-fruit
+class Papaya: public PhaseChangeSkill{
+public:
+    Papaya():PhaseChangeSkill("papaya$"){
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *mouri) const{
+        Room *room = mouri->getRoom();
+        if(mouri->getPhase() == Player::Start && mouri->isWounded() &&
+           room->askForSkillInvoke(mouri, objectName())){
+            JudgeStruct judge;
+            judge.pattern = QRegExp("(.*):(spade):(.*)");
+            judge.good = true;
+            judge.reason = objectName();
+            judge.who = mouri;
+
+            room->judge(judge);
+            if(judge.isGood()){
+                foreach(ServerPlayer *target, room->getLieges(mouri->getKingdom(), mouri)){
+                    if(room->askForCard(target, "..", "@papaya:" + mouri->objectName())){
+                        RecoverStruct r;
+                        r.who = target;
+                        room->recover(mouri, r);
+                        break;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+};
+
+//defense-fruit
+
+
 DevilFruitPackage::DevilFruitPackage()
     :Package("devil_fruit")
 {
     type = CardPack;
-    skills << new Orange;
+    skills
+            << new Orange
+            << new Papaya
+            << new Skill("grape$")
+            ;
 }
 
 TestPackage::TestPackage()

@@ -53,14 +53,14 @@ return {
 	["armor"] = "防具",
 	["disgusting_card"] = "恶心牌",
 
-	["red"] = "草帽团",
-	["blue"] = "海军团",
-	["purple"] = "七武海",
-	["yellow"] = "其他海贼",
+	["Red"] = "草帽团",
+	["Blue"] = "海军团",
+	["Purple"] = "七武海",
+	["Yellow"] = "其他海贼",
 
 	["test"] = "测试",
-	["sujiang"] = "素将",
-	["sujiangf"] = "素将(女)",
+	["uzumaki"] = "漩涡鸣人",
+	["haruno"] = "春野樱",
 
 	["#Murder"] = "%to【%arg】 挂了，凶手是 %from",
 	["#Suicide"] = "%to【%arg】 自杀身亡",

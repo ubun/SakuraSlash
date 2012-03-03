@@ -146,6 +146,26 @@ void GameRule::setGameProcess(Room *room) const{
     room->setTag("GameProcess", process);
 }
 
+QString GameRule::fruitTable(QString kind) const{
+    QMap<QString, QStringList> map;
+
+    QStringList attacks;
+    attacks << "orange";
+    map["attack"] = attacks;
+
+    QStringList defenso;
+    defenso << "papaya";
+    map["defense"] = defenso;
+
+    QStringList recover;
+    recover << "grape";
+    map["recovery"] = recover;
+
+    QStringList result = map.value(kind, QStringList());
+    qShuffle(result);
+    return result.first();
+}
+
 bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
     Room *room = player->getRoom();
 
@@ -157,7 +177,7 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
     switch(event){
     case GameStart: {
             QString ki = player->getGeneral()->getKingdom();
-            if(ki == "god" || ki == "za"){
+            if(ki == "god"){
                 QString new_kingdom = room->askForKingdom(player);
                 room->setPlayerProperty(player, "kingdom", new_kingdom);
 
@@ -168,8 +188,16 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
                 room->sendLog(log);
             }
 
-            if(player->isLord())
+            if(player->isLord()){
+                QString fruitkind = room->askForChoice(player, "devil_fruit", "attack+recovery+defense");
+                LogMessage log;
+                log.type = "#ChooseFruit";
+                log.from = player;
+                log.arg = fruitkind;
+                room->sendLog(log);
+                room->acquireSkill(player, fruitTable(fruitkind));
                 setGameProcess(room);
+            }
 
             player->drawCards(4, false);
 

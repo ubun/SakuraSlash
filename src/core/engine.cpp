@@ -321,7 +321,7 @@ QStringList Engine::getExtensions() const{
 QStringList Engine::getKingdoms() const{
     static QStringList kingdoms;
     if(kingdoms.isEmpty())
-        kingdoms << "red" << "blue" << "purple" << "yellow" << "god";
+        kingdoms << "Red" << "Blue" << "Purple" << "Yellow" << "god";
 
     return kingdoms;
 }
@@ -329,10 +329,10 @@ QStringList Engine::getKingdoms() const{
 QColor Engine::getKingdomColor(const QString &kingdom) const{
     static QMap<QString, QColor> color_map;
     if(color_map.isEmpty()){
-        color_map["blue"] = QColor(0x03, 0x01, 0xEE);
-        color_map["red"] = QColor(0xD0, 0x79, 0x6C);
-        color_map["purple"] = QColor(0x66, 0x00, 0x66);
-        color_map["yellow"] = QColor(0x96, 0x94, 0x3D);
+        color_map["Blue"] = QColor(0x03, 0x01, 0xEE);
+        color_map["Red"] = QColor(0xD0, 0x79, 0x6C);
+        color_map["Purple"] = QColor(0x66, 0x00, 0x66);
+        color_map["Yellow"] = QColor(0x96, 0x94, 0x3D);
     }
 
     return color_map.value(kingdom);

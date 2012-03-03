@@ -2457,7 +2457,7 @@ QString Room::askForKingdom(ServerPlayer *player){
         return askForKingdom(player);
 
     if(result == ".")
-        return "red";
+        return "Red";
     else
         return result;
 }

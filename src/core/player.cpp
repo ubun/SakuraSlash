@@ -470,11 +470,16 @@ int Player::getMaxCards() const{
 
     int heimu = hasSkill("hm") && isWeak() ? 3 : 0;
 
-    int shenwei = 0;
-    if(hasSkill("shenwei"))
-        shenwei = 2;
+    int grape = 0;
+    if(hasLordSkill("grape")){
+        QList<const Player *> players = getSiblings();
+        foreach(const Player *player, players){
+            if(player->isAlive() && player->getKingdom() == getKingdom())
+                grape ++;
+        }
+    }
 
-    return qMax(hp,0) + extra + heimu + shenwei;
+    return qMax(hp,0) + extra + heimu + grape;
 }
 
 QString Player::getKingdom() const{
