@@ -229,20 +229,16 @@ void CardItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event){
     }
 }
 
+
 void CardItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
     Pixmap::paint(painter, option, widget);
 
     if(card){
-        static QFont card_number_font("Times", 20, QFont::Bold);
-        painter->drawPixmap(8, 8, 18, 18, suit_pixmap);
-
-        painter->setFont(card_number_font);
-        if(card->isRed())
-            painter->setPen(Qt::red);
-        else
-            painter->setPen(Qt::black);
-        painter->drawText(8, 50, card->getNumberString());
+        painter->drawPixmap(0, 14, cardsuit_pixmap);
+        painter->drawPixmap(0, 2, number_pixmap);
+        if(owner_pixmap)painter->drawPixmap(0,0,*owner_pixmap);
     }
 }
+
 
 

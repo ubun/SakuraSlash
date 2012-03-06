@@ -430,13 +430,16 @@ public:
         return true;
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        if(player->getPhase() != Player::Play)
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &) const{
+        if(player->getPhase() != Player::Play || player->hasFlag("flower"))
             return false;
         Room *room = player->getRoom();
         ServerPlayer *nicole = room->findPlayerBySkillName(objectName());
-        if(nicole && nicole->askForSkillInvoke(objectName()))
+        if(nicole && nicole->askForSkillInvoke(objectName())){
+            nicole->setFlags("flower");
             nicole->drawCards(1);
+            nicole->setFlags("-flower");
+        }
         return false;
     }
 };

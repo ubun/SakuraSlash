@@ -25,6 +25,7 @@ public:
     QPointF homePos() const;
     void goBack(bool kieru = false);
     const QPixmap &getSuitPixmap() const;
+    const QPixmap &getNumberPixmap() const;
     const QPixmap &getIconPixmap() const;
     void setFrame(const QString &frame);
     void showAvatar(const General *general);
@@ -50,7 +51,7 @@ protected:
 
 private:
     const Card *card, *filtered_card;
-    QPixmap suit_pixmap, icon_pixmap;
+    QPixmap suit_pixmap, icon_pixmap, number_pixmap, cardsuit_pixmap, *owner_pixmap;
     QPointF home_pos;
     QGraphicsPixmapItem *frame, *avatar;
     bool auto_back;
