@@ -57,6 +57,7 @@ return {
 	["Blue"] = "海军团",
 	["Purple"] = "七武海",
 	["Yellow"] = "其他海贼",
+	["god"] = "神测",
 
 	["test"] = "测试",
 	["uzumaki"] = "漩涡鸣人",
