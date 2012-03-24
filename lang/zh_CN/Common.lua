@@ -1,8 +1,8 @@
 -- This is ConanSlash's Main translate file.
 
 return {
-	["conanslash"]="柯南杀",
-	["DefaultDesigner"] = "Ailue",
+	["chemistryslash"] = "化学杀",
+	["DefaultDesigner"] = "",
 	
 	["spade"] = "黑桃",
 	["club"] = "梅花",
@@ -11,6 +11,7 @@ return {
 	["basic"] = "基本牌",
 	["trick"] = "锦囊牌",
 	["equip"] = "装备牌",
+	["ndtrick"] = "非延时锦囊",
 
 	["lord"] = "主公",
 	["loyalist"] = "忠臣",
@@ -32,8 +33,12 @@ return {
 	["robot"] = "电脑",
 	["trust"] = "托管",
 	["cheat"] = "作弊",
+	["change"] = "变身",
+	["free-discard"] = "自由弃牌",
 	["yes"] = "是",
 	["no"] = "否",
+	["male"] = "男性",
+	["female"] = "女性",
 
 	["attack_card"] = "进攻牌",
 	["defense_card"] = "防御牌",
@@ -52,15 +57,8 @@ return {
 
 	["disgusting_card"] = "恶心牌",
 
-	["zhen"] = "侦",
-	["shao"] = "少",
-	["woo"] = "武",
-	["yi"] = "艺",
-	["jing"] = "警",
-	["guai"] = "怪",
-	["hei"] = "黑",
-	["te"] = "特",
-	["za"] = "杂",
+	["ches"] = "默认组",
+
 
 	["test"] = "测试",
 	["sujiang"] = "素将",
@@ -82,6 +80,7 @@ return {
 	["#SkillAvoid"] = "%from 的 %arg 技能被触发，这张 %arg2 不能指定其作为目标",
 	["#Transfigure"] = "%from 变身为 %arg",
 	["#AcquireSkill"] = "%from 获得了技能 【%arg】",
+	["#LoseSkill"] = "%from 失去了技能 【%arg】",
 	["$InitialJudge"] = "%from 最初的判定结果为 %card",
 	["$ChangedJudge"] = "%from 把 %to 的判定结果改判成了 %card",
 	["$MoveCard"] = "%to 从 %from 处得到了 %card",
