@@ -320,13 +320,16 @@ protected:
     DamageStruct::Nature nature;
 };
 
-class Jink: public BasicCard{
+class Jink: public Slash{
     Q_OBJECT
 
 public:
     Q_INVOKABLE Jink(Card::Suit suit, int number);
-    virtual QString getSubtype() const;
-    virtual bool isAvailable(const Player *player) const;
+    DamageStruct::Nature getNature() const;
+    void setNature(DamageStruct::Nature nature);
+
+protected:
+    DamageStruct::Nature nature;
 };
 
 class Peach: public BasicCard{

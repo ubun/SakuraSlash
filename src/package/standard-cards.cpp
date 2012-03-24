@@ -9,7 +9,7 @@
 Slash::Slash(Suit suit, int number): BasicCard(suit, number)
 {
     setObjectName("slash");
-    nature = DamageStruct::Normal;
+    nature = DamageStruct::Fire;
 }
 
 DamageStruct::Nature Slash::getNature() const{
@@ -92,18 +92,17 @@ bool Slash::targetFilter(const QList<const Player *> &targets, const Player *to_
     return Self->canSlash(to_select, distance_limit);
 }
 
-Jink::Jink(Suit suit, int number):BasicCard(suit, number){
+Jink::Jink(Suit suit, int number):Slash(suit, number){
     setObjectName("jink");
-
-    target_fixed = true;
+    nature = DamageStruct::Thunder;
 }
 
-QString Jink::getSubtype() const{
-    return "defense_card";
+DamageStruct::Nature Jink::getNature() const{
+    return nature;
 }
 
-bool Jink::isAvailable(const Player *) const{
-    return false;
+void Jink::setNature(DamageStruct::Nature nature){
+    this->nature = nature;
 }
 
 Peach::Peach(Suit suit, int number):BasicCard(suit, number){
