@@ -1069,6 +1069,33 @@ public:
         return new DiaobingCard;
     }
 };
+
+class Guilin: public MasochismSkill{
+public:
+    Guilin():MasochismSkill("guilin"){
+    }
+
+    virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
+        Room *room = player->getRoom();
+        const Card *card = damage.card;
+        if(room->obtainable(card, player) && card->getSubcards().length() < 2
+            && room->askForSkillInvoke(player, objectName())){
+            player->obtainCard(card);
+            QList<ServerPlayer *> targets;
+            if(damage.from && !damage.from->isNude())
+                targets << damage.from;
+            if(room->getCurrent() && !room->getCurrent()->isNude() && room->getCurrent() != damage.from)
+                targets << room->getCurrent();
+            if(!targets.isEmpty()){
+                ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName());
+                int card2_id = room->askForCardChosen(player, target, "he", objectName());
+                room->obtainCard(player, card2_id);
+                if(card->getSuit() != Sanguosha->getCard(card2_id)->getSuit())
+                    room->askForDiscard(player, objectName(), 1, false, true);
+            }
+        }
+    }
+};
 /*
 class Qinjian: public TriggerSkill{
 public:
@@ -2033,7 +2060,7 @@ void StandardPackage::addGenerals(){
     related_skills.insertMulti("yirong", "#@yaiba-1");
     sharon->addSkill(new Wuyu);
 
-    General *megurejyuuzou, *matsumotokiyonaka, *otagiritoshirou;
+    General *megurejyuuzou, *matsumotokiyonaka, *shiratorininzaburou;
     megurejyuuzou = new General(this, "megurejyuuzou", "jing");
     megurejyuuzou->addSkill(new Quzheng);
     megurejyuuzou->addSkill(new QuzhengSkip);
@@ -2044,8 +2071,8 @@ void StandardPackage::addGenerals(){
     matsumotokiyonaka->addSkill(new Shangchi);
     matsumotokiyonaka->addSkill(new Diaobing);
 
-    otagiritoshirou = new General(this, "otagiritoshirou", "jing");
-    otagiritoshirou->addSkill(new Skill("qinjian", Skill::Compulsory));
+    shiratorininzaburou = new General(this, "shiratorininzaburou", "jing");
+    shiratorininzaburou->addSkill(new Guilin);
 
     General *kurobakaitou, *nakamoriaoko;
     kurobakaitou = new General(this, "kurobakaitou", "guai");

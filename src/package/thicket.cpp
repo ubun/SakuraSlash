@@ -594,33 +594,6 @@ public:
 };
 */
 //conan
-class Guilin: public MasochismSkill{
-public:
-    Guilin():MasochismSkill("guilin"){
-    }
-
-    virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
-        Room *room = player->getRoom();
-        const Card *card = damage.card;
-        if(room->obtainable(card, player) && card->getSubcards().length() < 2
-            && room->askForSkillInvoke(player, objectName())){
-            player->obtainCard(card);
-            QList<ServerPlayer *> targets;
-            if(damage.from && !damage.from->isNude())
-                targets << damage.from;
-            if(room->getCurrent() && !room->getCurrent()->isNude() && room->getCurrent() != damage.from)
-                targets << room->getCurrent();
-            if(!targets.isEmpty()){
-                ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName());
-                int card2_id = room->askForCardChosen(player, target, "he", objectName());
-                room->obtainCard(player, card2_id);
-                if(card->getSuit() != Sanguosha->getCard(card2_id)->getSuit())
-                    room->askForDiscard(player, objectName(), 1, false, true);
-            }
-        }
-    }
-};
-
 class Mihu: public TriggerSkill{
 public:
     Mihu():TriggerSkill("mihu"){
@@ -722,16 +695,25 @@ ThicketPackage::ThicketPackage()
     tabuseharuna->addSkill(new Hongmeng);
     tabuseharuna->addSkill(new Loli);
 
-    General *hattorishizuka = new General(this, "hattorishizuka$", "yi", 4, false);
+    General *hattorishizuka = new General(this, "hattorishizuka$", "woo", 4, false);
     hattorishizuka->addSkill(new Tieshan);
     hattorishizuka->addSkill(new Cimu);
 
-    General *shiratorininzaburou = new General(this, "shiratorininzaburou", "jing");
-    shiratorininzaburou->addSkill(new Guilin);
+    General *kudouyukiko = new General(this, "kudouyukiko", "yi", 3, false);
+    General *kudouyuusaku = new General(this, "kudouyuusaku$", "yi", 3);
 
     General *yamamuramisao = new General(this, "yamamuramisao", "jing", 3);
     yamamuramisao->addSkill(new Ruoyu);
     yamamuramisao->addSkill(new Zilian);
+
+    General *otagiritoshirou = new General(this, "otagiritoshirou", "jing");
+    otagiritoshirou->addSkill(new Skill("qinjian", Skill::Compulsory));
+
+    General *suzukijirokichi = new General(this, "suzukijirokichi", "guai", 3);
+    General *jiikounosuke = new General(this, "jiikounosuke", "guai", 3);
+    General *chianti = new General(this, "chianti", "hei", 3, false);
+    General *korn = new General(this, "korn", "hei");
+    General *jamesblack = new General(this, "jamesblack$", "te");
 
     General *hondoueisuke = new General(this, "hondoueisuke", "za");
     hondoueisuke->addSkill(new Mihu);
