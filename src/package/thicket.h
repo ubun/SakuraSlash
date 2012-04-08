@@ -10,16 +10,16 @@ class ThicketPackage: public Package{
 public:
     ThicketPackage();
 };
-/*
-class YinghunCard: public SkillCard{
+
+class JulunCard: public SkillCard{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE YinghunCard();
+    Q_INVOKABLE JulunCard();
 
-    virtual void onEffect(const CardEffectStruct &effect) const;
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
-
+/*
 class HaoshiCard: public SkillCard{
     Q_OBJECT
 
@@ -50,13 +50,14 @@ public:
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
-
-class FangzhuCard: public SkillCard{
+*/
+class ChaidanCard: public SkillCard{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE FangzhuCard();
+    Q_INVOKABLE ChaidanCard();
     virtual void onEffect(const CardEffectStruct &effect) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
-*/
+
 #endif // THICKET_H
