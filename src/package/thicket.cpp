@@ -310,209 +310,108 @@ public:
         return false;
     }
 };
-/*
-HaoshiCard::HaoshiCard(){
-    will_throw = false;
-}
 
-bool HaoshiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    if(!targets.isEmpty())
-        return false;
-
-    if(to_select == Self)
-        return false;
-
-    return to_select->getHandcardNum() == Self->getMark("haoshi");
-}
-
-void HaoshiCard::use(Room *room, ServerPlayer *, const QList<ServerPlayer *> &targets) const{
-    ServerPlayer *beggar = targets.first();
-
-    room->moveCardTo(this, beggar, Player::Hand, false);
-    room->setEmotion(beggar, "draw-card");
-}
-
-class HaoshiViewAsSkill: public ViewAsSkill{
+class Tieshan:public TriggerSkill{
 public:
-    HaoshiViewAsSkill():ViewAsSkill("haoshi"){
-
-    }
-
-    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
-        if(to_select->isEquipped())
-            return false;
-
-        int length = Self->getHandcardNum() / 2;
-        return selected.length() < length;
-    }
-
-    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
-        if(cards.length() != Self->getHandcardNum() / 2)
-            return NULL;
-
-        HaoshiCard *card = new HaoshiCard;
-        card->addSubcards(cards);
-        return card;
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return false;
-    }
-
-    virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const{
-        return pattern == "@@haoshi!";
-    }
-};
-
-class HaoshiGive: public PhaseChangeSkill{
-public:
-    HaoshiGive():PhaseChangeSkill("#haoshi-give"){
-
+    Tieshan():TriggerSkill("tieshan"){
+        events << CardUsed;
+        frequency = Compulsory;
     }
 
     virtual int getPriority() const{
-        return -1;
+        return 2;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *lusu) const{
-        if(lusu->getPhase() == Player::Draw && lusu->hasFlag("haoshi")){
-            lusu->setFlags("-haoshi");
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
 
-            Room *room = lusu->getRoom();
-            if(lusu->getHandcardNum() <= 5){
-                room->playSkillEffect("haoshi");
-                return false;
-            }
-
-            QList<ServerPlayer *> other_players = room->getOtherPlayers(lusu);
-            int least = 1000;
-            foreach(ServerPlayer *player, other_players)
-                least = qMin(player->getHandcardNum(), least);
-            room->setPlayerMark(lusu, "haoshi", least);
-            bool used = room->askForUseCard(lusu, "@@haoshi!", "@haoshi");
-
-            if(!used){
-                // force lusu to give his half cards
-                ServerPlayer *beggar = NULL;
-                foreach(ServerPlayer *player, other_players){
-                    if(player->getHandcardNum() == least){
-                        beggar = player;
-                        break;
-                    }
-                }
-
-                int n = lusu->getHandcardNum()/2;
-                QList<int> to_give = lusu->handCards().mid(0, n);
-                HaoshiCard *haoshi_card = new HaoshiCard;
-                foreach(int card_id, to_give)
-                    haoshi_card->addSubcard(card_id);
-                QList<ServerPlayer *> targets;
-                targets << beggar;
-                haoshi_card->use(room, lusu, targets);
-                delete haoshi_card;
-            }
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        ServerPlayer *zou = room->findPlayerBySkillName(objectName());
+        if(!zou)
+            return false;
+        CardUseStruct effect = data.value<CardUseStruct>();
+        bool caninvoke = false;
+        if(effect.card->isNDTrick()){
+            if(effect.to.contains(zou))
+                caninvoke = true;
+            if(effect.from == zou && effect.to.isEmpty() && effect.card->inherits("ExNihilo"))
+                caninvoke = true;
         }
-
+        if(caninvoke){
+            LogMessage log;
+            log.type = "#TriggerSkill";
+            log.from = zou;
+            log.arg = objectName();
+            room->sendLog(log);
+            zou->drawCards(1);
+        }
         return false;
     }
 };
 
-class Haoshi: public DrawCardsSkill{
-public:
-    Haoshi():DrawCardsSkill("#haoshi"){
-
-    }
-
-    virtual int getDrawNum(ServerPlayer *lusu, int n) const{
-        Room *room = lusu->getRoom();
-        if(room->askForSkillInvoke(lusu, "haoshi")){
-            lusu->setFlags("haoshi");
-            return n + 2;
-        }else
-            return n;
-    }
-};
-
-DimengCard::DimengCard(){
+CimuCard::CimuCard(){
     once = true;
 }
 
-bool DimengCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool CimuCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     if(to_select == Self)
         return false;
 
     if(targets.isEmpty())
-        return true;
-
-    if(targets.length() == 1){
-        int max_diff = Self->getCardCount(true);
-        return max_diff >= qAbs(to_select->getHandcardNum() - targets.first()->getHandcardNum());
-    }
+        return to_select->getKingdom() == "zhen" || to_select->getKingdom() == "wu";
 
     return false;
 }
 
-bool DimengCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
-    return targets.length() == 2;
+void CimuCard::onEffect(const CardEffectStruct &effect) const{
+    effect.to->getRoom()->acquireSkill(effect.to, "tieshan");
+    effect.to->setMark("cimu", 1);
 }
 
-void DimengCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    ServerPlayer *a = targets.at(0);
-    ServerPlayer *b = targets.at(1);
-
-    int n1 = a->getHandcardNum();
-    int n2 = b->getHandcardNum();
-
-    // make sure a is front of b
-    if(room->getFront(a, b) != a){
-        qSwap(a, b);
-        qSwap(n1, n2);
-    }
-
-    int diff = qAbs(n1 - n2);
-    if(diff != 0){
-        room->askForDiscard(source, "dimeng", diff, false, true);
-    }
-
-    DummyCard *card1 = a->wholeHandCards();
-    DummyCard *card2 = b->wholeHandCards();
-
-    if(card1){
-        room->moveCardTo(card1, b, Player::Hand, false);
-        delete card1;
-    }
-
-    room->getThread()->delay();
-
-    if(card2){
-        room->moveCardTo(card2, a, Player::Hand, false);
-        delete card2;
-    }
-
-    LogMessage log;
-    log.type = "#Dimeng";
-    log.from = a;
-    log.to << b;
-    log.arg = QString::number(n1);
-    log.arg2 = QString::number(n2);
-    room->sendLog(log);
-}
-
-class Dimeng: public ZeroCardViewAsSkill{
+class CimuViewAsSkill: public OneCardViewAsSkill{
 public:
-    Dimeng():ZeroCardViewAsSkill("dimeng"){
-
+    CimuViewAsSkill():OneCardViewAsSkill("cimu"){
     }
 
-    virtual const Card *viewAs() const{
-        return new DimengCard;
+    virtual bool viewFilter(const CardItem *to_select) const{
+        QList<int> prime;
+        prime << 2 << 3 << 5 << 7 << 11 << 13;
+        return prime.contains(to_select->getFilteredCard()->getNumber());
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        Card *card = new CimuCard;
+        card->addSubcard(card_item->getFilteredCard());
+        return card;
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return ! player->hasUsed("DimengCard");
+        return ! player->hasUsed("CimuCard");
     }
 };
 
+class Cimu: public PhaseChangeSkill{
+public:
+    Cimu():PhaseChangeSkill("cimu$"){
+        view_as_skill = new CimuViewAsSkill;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        if(player->getPhase() == Player::Start){
+            Room *room = player->getRoom();
+            foreach(ServerPlayer *rtm, room->getAlivePlayers()){
+                if(rtm->getMark("cimu") > 0){
+                    room->detachSkillFromPlayer(rtm, "tieshan");
+                    rtm->setMark("cimu", 0);
+                }
+            }
+        }
+        return false;
+    }
+};
+/*
 class Luanwu: public ZeroCardViewAsSkill{
 public:
     Luanwu():ZeroCardViewAsSkill("luanwu"){
@@ -898,6 +797,10 @@ ThicketPackage::ThicketPackage()
     tabuseharuna->addSkill(new Hongmeng);
     tabuseharuna->addSkill(new Loli);
 
+    General *hattorishizuka = new General(this, "hattorishizuka$", "yi", 4, false);
+    hattorishizuka->addSkill(new Tieshan);
+    hattorishizuka->addSkill(new Cimu);
+
     General *shiratorininzaburou = new General(this, "shiratorininzaburou", "jing");
     shiratorininzaburou->addSkill(new Guilin);
 
@@ -909,6 +812,7 @@ ThicketPackage::ThicketPackage()
     addMetaObject<JulunCard>();
     addMetaObject<ConghuiCard>();
     addMetaObject<HongmengCard>();
+    addMetaObject<CimuCard>();
 }
 
 ADD_PACKAGE(Thicket)
