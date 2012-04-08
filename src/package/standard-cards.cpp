@@ -507,6 +507,9 @@ void AmazingGrace::use(Room *room, ServerPlayer *source, const QList<ServerPlaye
         ag_list << card_id;
     room->setTag("AmazingGrace", ag_list);
 
+    ServerPlayer *haruna = room->findPlayerBySkillName("hongmeng");
+    if(haruna)
+        Hongmeng(room, haruna);
     GlobalEffect::use(room, source, players);
 
     ag_list = room->getTag("AmazingGrace").toList();
@@ -532,6 +535,22 @@ void AmazingGrace::onEffect(const CardEffectStruct &effect) const{
     room->takeAG(effect.to, card_id);
     ag_list.removeOne(card_id);
 
+    room->setTag("AmazingGrace", ag_list);
+}
+
+void AmazingGrace::Hongmeng(Room *room, ServerPlayer *haruna) const{
+    QVariantList ag_list = room->getTag("AmazingGrace").toList();
+    QList<int> card_ids;
+    foreach(QVariant card_id, ag_list)
+        card_ids << card_id.toInt();
+    foreach(int card_id, card_ids){
+        const Card *card = Sanguosha->getCard(card_id);
+        if(card->getSuit() == Card::Heart){
+            room->takeAG(haruna, card_id);
+            ag_list.removeOne(card_id);
+        }
+    }
+    room->getThread()->delay();
     room->setTag("AmazingGrace", ag_list);
 }
 

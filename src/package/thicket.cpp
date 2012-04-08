@@ -261,9 +261,9 @@ void HongmengCard::onUse(Room *room, const CardUseStruct &card_use) const{
     room->useCard(use);
 }
 
-class HongmengViewAsSkill: public OneCardViewAsSkill{
+class Hongmeng: public OneCardViewAsSkill{
 public:
-    HongmengViewAsSkill():OneCardViewAsSkill("hongmeng"){
+    Hongmeng():OneCardViewAsSkill("hongmeng"){
 
     }
     virtual bool isEnabledAtPlay(const Player *player) const{
@@ -278,48 +278,6 @@ public:
         HongmengCard *card = new HongmengCard;
         card->addSubcard(card_item->getFilteredCard());
         return card;
-    }
-};
-
-class Hongmeng:public TriggerSkill{
-public:
-    Hongmeng():TriggerSkill("hongmeng"){
-        events << CardEffect;
-        view_as_skill = new HongmengViewAsSkill;
-    }
-
-    virtual int getPriority() const{
-        return 2;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return true;
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        Room *room = player->getRoom();
-        CardEffectStruct effect = data.value<CardEffectStruct>();
-        if(!effect.card->inherits("AmazingGrace"))
-            return false;
-        ServerPlayer *sq = room->findPlayerBySkillName(objectName());
-        if(!sq || !sq->askForSkillInvoke(objectName()))
-            return false;
-        QVariantList ag_list = room->getTag("AmazingGrace").toList();
-        int a = 0;
-        QVariantList ag_list_throw;
-        foreach(QVariant card_id, ag_list){
-            const Card *card = Sanguosha->getCard(card_id.toInt());
-            if(card->getSuit() == Card::Heart){
-                room->takeAG(sq, card_id);
-                ag_list_throw << card_id;
-            }
-        }
-        foreach(QVariant card_id, ag_list_throw){
-            ag_list.removeOne(card_id);
-        }
-        room->setTag("AmazingGrace", ag_list);
-
-        return false;
     }
 };
 

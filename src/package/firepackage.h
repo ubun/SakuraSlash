@@ -10,17 +10,18 @@ class FirePackage : public Package{
 public:
     FirePackage();
 };
-/*
-class QuhuCard: public SkillCard{
+
+class IentouCard: public SkillCard{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE QuhuCard();
+    Q_INVOKABLE IentouCard();
 
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
-
+/*
 class JiemingCard: public SkillCard{
     Q_OBJECT
 

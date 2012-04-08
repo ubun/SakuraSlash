@@ -6,70 +6,59 @@
 #include "carditem.h"
 #include "engine.h"
 #include "maneuvering.h"
-/*
-QuhuCard::QuhuCard(){
+
+IentouCard::IentouCard(){
     once = true;
-    mute = true;
-    will_throw = false;
 }
 
-bool QuhuCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    if(!targets.isEmpty())
+bool IentouCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(to_select->isLord())
         return false;
-
-    if(to_select->getHp() <= Self->getHp())
-        return false;
-
-    if(to_select->isKongcheng())
-        return false;
-
+    if(!targets.isEmpty()){
+        if(qAbs(to_select->getHp() - targets.first()->getHp()) > getSubcards().length())
+            return false;
+    }
     return true;
 }
 
-void QuhuCard::use(Room *room, ServerPlayer *xunyu, const QList<ServerPlayer *> &targets) const{
-    ServerPlayer *tiger = targets.first();
-
-    room->playSkillEffect("quhu", 1);
-
-    bool success = xunyu->pindian(tiger, "quhu", this);
-    if(success){
-        room->playSkillEffect("quhu", 2);
-
-        QList<ServerPlayer *> players = room->getOtherPlayers(tiger), wolves;
-        foreach(ServerPlayer *player, players){
-            if(tiger->inMyAttackRange(player))
-                wolves << player;
-        }
-
-        if(wolves.isEmpty()){
-            LogMessage log;
-            log.type = "#QuhuNoWolf";
-            log.from = xunyu;
-            log.to << tiger;
-            room->sendLog(log);
-
-            return;
-        }
-
-        room->playSkillEffect("#tunlang");
-        ServerPlayer *wolf = room->askForPlayerChosen(xunyu, wolves, "quhu");
-
-        DamageStruct damage;
-        damage.from = tiger;
-        damage.to = wolf;
-
-        room->damage(damage);
-
-    }else{
-        DamageStruct damage;
-        damage.card = NULL;
-        damage.from = tiger;
-        damage.to = xunyu;
-
-        room->damage(damage);
-    }
+bool IentouCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+    if(targets.length() != 2)
+        return false;
+    if(targets.first()->getHp() == targets.last()->getHp())
+        return false;
+    return qAbs(targets.first()->getHp() - targets.last()->getHp()) <= getSubcards().length();
 }
 
+void IentouCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    int x = targets.first()->getHp();
+    room->setPlayerProperty(targets.first(), "hp", qMin(targets.first()->getMaxHP(), targets.last()->getHp()));
+    room->setPlayerProperty(targets.last(), "hp", qMin(targets.last()->getMaxHP(), x));
+}
+
+class Ientou: public ViewAsSkill{
+public:
+    Ientou():ViewAsSkill("ientou"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return ! player->hasUsed("IentouCard") && !player->isKongcheng();
+    }
+
+    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
+        return !to_select->isEquipped();
+    }
+
+    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
+        if(cards.isEmpty())
+            return NULL;
+        IentouCard *card = new IentouCard;
+        card->addSubcards(cards);
+        return card;
+    }
+};
+
+/*
 JiemingCard::JiemingCard(){
 
 }
@@ -116,34 +105,13 @@ public:
         view_as_skill = new JiemingViewAsSkill;
     }
 
-    virtual void onDamaged(ServerPlayer *xunyu, const DamageStruct &damage) const{
-        Room *room = xunyu->getRoom();
+    virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
+        Room *room = player->getRoom();
         int x = damage.damage, i;
         for(i=0; i<x; i++){
-            if(!room->askForUseCard(xunyu, "@@jieming", "@jieming"))
+            if(!room->askForUseCard(player, "@@jieming", "@jieming"))
                 break;
         }
-    }
-};
-
-class Quhu: public OneCardViewAsSkill{
-public:
-    Quhu():OneCardViewAsSkill("quhu"){
-
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return ! player->hasUsed("QuhuCard") && !player->isKongcheng();
-    }
-
-    virtual bool viewFilter(const CardItem *to_select) const{
-        return !to_select->isEquipped();
-    }
-
-    virtual const Card *viewAs(CardItem *card_item) const{
-        QuhuCard *card = new QuhuCard;
-        card->addSubcard(card_item->getFilteredCard());
-        return card;
     }
 };
 
@@ -534,12 +502,15 @@ public:
 FirePackage::FirePackage()
     :Package("fire")
 {
+    General *amurotooru = new General(this, "amurotooru", "zhen");
+    amurotooru->addSkill(new Ientou);
+
     General *satomiwako = new General(this, "satomiwako", "jing", 4, false);
     satomiwako->addSkill(new Jiaoxie);
     satomiwako->addSkill(new Xianv);
     patterns[".equip"] = new EquipPattern;
-/*
-    addMetaObject<TianyiCard>();*/
+
+    addMetaObject<IentouCard>();
 }
 
 ADD_PACKAGE(Fire);

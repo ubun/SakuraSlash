@@ -105,6 +105,7 @@ public:
     Q_INVOKABLE AmazingGrace(Card::Suit suit, int number);
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const;
     virtual void onEffect(const CardEffectStruct &effect) const;
+    virtual void Hongmeng(Room *room, ServerPlayer *haruna) const;
 };
 
 class AOE:public TrickCard{
