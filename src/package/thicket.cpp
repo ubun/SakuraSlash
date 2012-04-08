@@ -154,8 +154,9 @@ public:
     }
 
     virtual QString getDefaultChoice(ServerPlayer *player) const{
-        int num = qrand() % 13 + 1;
-        return QString::number(num);
+        QStringList allnums = player->tag.value("Caidian").toStringList();
+        int i = qrand() % allnums.count() + 1;
+        return allnums.at(i);
     }
 
     virtual bool onPhaseChange(ServerPlayer *mitsu) const{
@@ -166,13 +167,17 @@ public:
                 QList<ServerPlayer *> chooses;
                 for(int i = 1; i <= 13; i++)
                     allnums << QString::number(i);
+                int card_id = mitsu->getPile("caidian").first();
                 QList<ServerPlayer *> players = room->getOtherPlayers(mitsu);
                 if(mitsu->hasSkill("qingyi") && mitsu->askForSkillInvoke("qingyi")){
                     ServerPlayer *extra = room->askForPlayerChosen(mitsu, room->getOtherPlayers(mitsu), objectName());
-                    if(extra->getKingdom() == "shao")
+                    if(extra->getKingdom() == "shao"){
                         players.removeOne(extra);
+                        extra->setFlags("ConghuiGet");
+                    }
                 }
                 foreach(ServerPlayer *target, players){
+                    target->tag["Caidian"] = QVariant::fromValue(allnums);
                     QString num = room->askForChoice(target, objectName(), allnums.join("+"));
                     LogMessage log;
                     log.type = "#Caidian";
@@ -183,11 +188,9 @@ public:
                     target->setMark("conghui", num.toInt());
                     chooses << target;
                     allnums.removeOne(num);
+                    target->tag.remove("Caidian");
                 }
-                int x = Sanguosha->getCard(mitsu->getPile("caidian").first())->getNumber();
-                //QMap<ServerPlayer *, int> delta;
-                //foreach(ServerPlayer *t, chooses)
-                //    delta[t] = qAbs(t->getMark("conghui") - x);
+                int x = Sanguosha->getCard(card_id)->getNumber();
                 bool jiangli = false;
                 QList<ServerPlayer *> chengfa;
                 for(int i = 0; i < 14; i++){
@@ -207,10 +210,19 @@ public:
                     }
                 }
                 foreach(ServerPlayer *t, chengfa){
-                    if(t != chengfa.at(qMax(0, chengfa.length() / 2 - 1)))
+                    int r = chengfa.indexOf(t);
+                    if(r > chengfa.length() / 2 - 1)
                         room->loseHp(t);
                 }
-                room->throwCard(mitsu->getPile("caidian").first());
+
+                room->throwCard(card_id);
+                foreach(ServerPlayer *tmp, room->getLieges("shao", mitsu)){
+                    if(tmp->hasFlag("ConghuiGet")){
+                        room->obtainCard(tmp, card_id);
+                        tmp->setFlags("-ConghuiGet");
+                        break;
+                    }
+                }
 
                 return true;
             }
