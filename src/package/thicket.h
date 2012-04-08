@@ -56,4 +56,21 @@ public:
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
 
+class RuoyuCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE RuoyuCard();
+    virtual void onUse(Room *room, const CardUseStruct &card_use) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+};
+
+class ZilianCard:public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE ZilianCard();
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
+
 #endif // THICKET_H

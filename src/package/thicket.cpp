@@ -314,7 +314,7 @@ public:
 class Tieshan:public TriggerSkill{
 public:
     Tieshan():TriggerSkill("tieshan"){
-        events << CardUsed;
+        events << CardEffected;
         frequency = Compulsory;
     }
 
@@ -322,30 +322,16 @@ public:
         return 2;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return true;
-    }
-
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
-        ServerPlayer *zou = room->findPlayerBySkillName(objectName());
-        if(!zou)
-            return false;
-        CardUseStruct effect = data.value<CardUseStruct>();
-        bool caninvoke = false;
+        CardEffectStruct effect = data.value<CardEffectStruct>();
         if(effect.card->isNDTrick()){
-            if(effect.to.contains(zou))
-                caninvoke = true;
-            if(effect.from == zou && effect.to.isEmpty() && effect.card->inherits("ExNihilo"))
-                caninvoke = true;
-        }
-        if(caninvoke){
             LogMessage log;
             log.type = "#TriggerSkill";
-            log.from = zou;
+            log.from = player;
             log.arg = objectName();
             room->sendLog(log);
-            zou->drawCards(1);
+            player->drawCards(1);
         }
         return false;
     }
@@ -360,7 +346,7 @@ bool CimuCard::targetFilter(const QList<const Player *> &targets, const Player *
         return false;
 
     if(targets.isEmpty())
-        return to_select->getKingdom() == "zhen" || to_select->getKingdom() == "wu";
+        return to_select->getKingdom() == "zhen" || to_select->getKingdom() == "woo";
 
     return false;
 }
@@ -411,168 +397,107 @@ public:
         return false;
     }
 };
-/*
-class Luanwu: public ZeroCardViewAsSkill{
-public:
-    Luanwu():ZeroCardViewAsSkill("luanwu"){
-        frequency = Limited;
-    }
 
-    virtual const Card *viewAs() const{
-        return new LuanwuCard;
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->getMark("@chaos") >= 1;
-    }
-};
-
-LuanwuCard::LuanwuCard(){
-    target_fixed = true;
+RuoyuCard::RuoyuCard(){
 }
 
-void LuanwuCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    source->loseMark("@chaos");
-    room->broadcastInvoke("animate", "lightbox:$luanwu");
-
-    QList<ServerPlayer *> players = room->getOtherPlayers(source);
-    foreach(ServerPlayer *player, players){
-        if(player->isAlive())
-            room->cardEffect(this, source, player);
-    }
+bool RuoyuCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(targets.length() >= 2)
+        return false;
+    if(to_select->isAllNude())
+        return false;
+    if(to_select == Self)
+        return false;
+    if(Self->distanceTo(to_select) > 1 &&
+       !Self->hasSkill("shentou") && !Self->hasSkill("qicai"))
+        return false;
+    return true;
 }
 
-void LuanwuCard::onEffect(const CardEffectStruct &effect) const{
-    Room *room = effect.to->getRoom();
+void RuoyuCard::onUse(Room *room, const CardUseStruct &card_use) const{
+    room->throwCard(this);
+    room->loseHp(card_use.from);
+    int card_id = getSubcards().first();
+    Card::Suit suit = Sanguosha->getCard(card_id)->getSuit();
+    int num = Sanguosha->getCard(card_id)->getNumber();
 
-    QList<ServerPlayer *> players = room->getOtherPlayers(effect.to);
-    QList<int> distance_list;
-    int nearest = 1000;
-    foreach(ServerPlayer *player, players){
-        int distance = effect.to->distanceTo(player);
-        distance_list << distance;
-
-        nearest = qMin(nearest, distance);
-    }
-
-    QList<ServerPlayer *> luanwu_targets;
-    int i;
-    for(i=0; i<distance_list.length(); i++){
-        if(distance_list.at(i) == nearest && effect.to->canSlash(players.at(i))){
-            luanwu_targets << players.at(i);
-        }
-    }
-
-    const Card *slash = NULL;
-    if(!luanwu_targets.isEmpty() && (slash = room->askForCard(effect.to, "slash", "@luanwu-slash"))){
-        ServerPlayer *to_slash;
-        if(luanwu_targets.length() == 1)
-            to_slash = luanwu_targets.first();
-        else
-            to_slash = room->askForPlayerChosen(effect.to, luanwu_targets, "luanwu");
-        room->cardEffect(slash, effect.to, to_slash);
-    }else
-        room->loseHp(effect.to);
+    CardUseStruct use;
+    use.from = card_use.from;
+    use.to = card_use.to;
+    Snatch *sna = new Snatch(suit, num);
+    sna->addSubcard(card_id);
+    sna->setSkillName("ruoyu");
+    use.card = sna;
+    room->useCard(use);
 }
 
-class Weimu: public ProhibitSkill{
+class Ruoyu: public OneCardViewAsSkill{
 public:
-    Weimu():ProhibitSkill("weimu"){
-
-    }
-
-    virtual bool isProhibited(const Player *from, const Player *to, const Card *card) const{
-        return card->inherits("TrickCard") && card->isBlack() && !card->inherits("Collateral");
-    }
-};
-
-class Jiuchi: public OneCardViewAsSkill{
-public:
-    Jiuchi():OneCardViewAsSkill("jiuchi"){
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return Analeptic::IsAvailable(player);
-    }
-
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return  pattern.contains("analeptic");
+    Ruoyu():OneCardViewAsSkill("ruoyu"){
     }
 
     virtual bool viewFilter(const CardItem *to_select) const{
-        return !to_select->isEquipped() && to_select->getFilteredCard()->getSuit() == Card::Spade;
+        return to_select->getCard()->inherits("BasicCard");
     }
 
     virtual const Card *viewAs(CardItem *card_item) const{
-        const Card *card = card_item->getCard();
-        Analeptic *analeptic = new Analeptic(card->getSuit(), card->getNumber());
-        analeptic->setSkillName(objectName());
-        analeptic->addSubcard(card->getId());
-
-        return analeptic;
+        RuoyuCard *card = new RuoyuCard;
+        card->addSubcard(card_item->getFilteredCard());
+        return card;
     }
 };
 
-class Roulin: public TriggerSkill{
+ZilianCard::ZilianCard(){
+    target_fixed = true;
+}
+
+void ZilianCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
+    room->throwCard(this);
+    if(source->isAlive())
+        room->drawCards(source, subcards.length() + 1);
+}
+
+class ZilianViewAsSkill: public ViewAsSkill{
 public:
-    Roulin():TriggerSkill("roulin"){
-        events << SlashProceed;
+    ZilianViewAsSkill():ViewAsSkill("zilian"){
 
-        frequency = Compulsory;
     }
 
-    const Card *askForDoubleJink(ServerPlayer *player, const QString &reason) const{
+    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
+        return selected.length() < Self->getHandcardNum();
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "@@zilian";
+    }
+
+    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
+        ZilianCard *card = new ZilianCard;
+        card->addSubcards(cards);
+        return card;
+    }
+};
+
+class Zilian: public TriggerSkill{
+public:
+    Zilian():TriggerSkill("zilian"){
+        events << Damaged << HpLost;
+        view_as_skill = new ZilianViewAsSkill;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
-
-        const Card *first_jink = NULL, *second_jink = NULL;
-        first_jink = room->askForCard(player, "jink", QString("@%1-jink-1").arg(reason));
-        if(first_jink)
-            second_jink = room->askForCard(player, "jink", QString("@%1-jink-2").arg(reason));
-
-        Card *jink = NULL;
-        if(first_jink && second_jink){
-            jink = new DummyCard;
-            jink->addSubcard(first_jink);
-            jink->addSubcard(second_jink);
-        }
-
-        return jink;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return target->hasSkill(objectName()) || target->getGeneral()->isFemale();
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *, QVariant &data) const{
-        SlashEffectStruct effect = data.value<SlashEffectStruct>();
-        if(effect.from->hasSkill(objectName()) && effect.to->getGeneral()->isFemale()){
-            // dongzhuo slash female
-            ServerPlayer *dongzhuo = effect.from;
-            ServerPlayer *female = effect.to;
-            Room *room = dongzhuo->getRoom();
-
-            room->playSkillEffect(objectName(), 1);
-
-            room->slashResult(effect, askForDoubleJink(female, "roulin1"));
-            return true;
-
-        }else if(effect.from->getGeneral()->isFemale() && effect.to->hasSkill(objectName())){
-            // female slash dongzhuo
-
-            ServerPlayer *female = effect.from;
-            ServerPlayer *dongzhuo = effect.to;
-            Room *room = female->getRoom();
-
-            room->playSkillEffect(objectName(), 2);
-            room->slashResult(effect, askForDoubleJink(dongzhuo, "roulin2"));
-
-            return true;
-        }
+        if(room->getCurrent() != player && !player->isNude())
+            room->askForUseCard(player, "@@zilian", "@zilian");
 
         return false;
     }
 };
-
+/*
 class Benghuai: public PhaseChangeSkill{
 public:
     Benghuai():PhaseChangeSkill("benghuai"){
@@ -804,6 +729,10 @@ ThicketPackage::ThicketPackage()
     General *shiratorininzaburou = new General(this, "shiratorininzaburou", "jing");
     shiratorininzaburou->addSkill(new Guilin);
 
+    General *yamamuramisao = new General(this, "yamamuramisao", "jing", 3);
+    yamamuramisao->addSkill(new Ruoyu);
+    yamamuramisao->addSkill(new Zilian);
+
     General *hondoueisuke = new General(this, "hondoueisuke", "za");
     hondoueisuke->addSkill(new Mihu);
     hondoueisuke->addSkill(new Zhizhuo);
@@ -813,6 +742,8 @@ ThicketPackage::ThicketPackage()
     addMetaObject<ConghuiCard>();
     addMetaObject<HongmengCard>();
     addMetaObject<CimuCard>();
+    addMetaObject<RuoyuCard>();
+    addMetaObject<ZilianCard>();
 }
 
 ADD_PACKAGE(Thicket)
