@@ -116,7 +116,7 @@ void FanjianCard::onEffect(const CardEffectStruct &effect) const{
 
     int card_id = zhouyu->getRandomHandCardId();
     const Card *card = Sanguosha->getCard(card_id);
-    Card::Suit suit = room->askForSuit(target);
+    Card::Suit suit = room->askForSuit(target, "fanjian");
 
     LogMessage log;
     log.type = "#ChooseSuit";
@@ -219,6 +219,7 @@ void QingnangCard::onEffect(const CardEffectStruct &effect) const{
 GuicaiCard::GuicaiCard(){
     target_fixed = true;
     will_throw = false;
+    can_jilei = true;
 }
 
 void GuicaiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
