@@ -28,6 +28,7 @@ class QGroupBox;
 #include <QGraphicsWidget>
 #include <QGraphicsProxyWidget>
 #include <QThread>
+#include <QHBoxLayout>
 
 class ScriptExecutor: public QDialog{
     Q_OBJECT
@@ -168,6 +169,7 @@ protected:
     virtual void timerEvent(QTimerEvent *event);
 
 private:
+    Button* add_robot, *fill_robots;
     QList<Photo*> photos;
     QMap<QString, Photo*> name2photo;
     Photo *focused;
@@ -185,7 +187,6 @@ private:
     Window *prompt_box;
     QGraphicsItem *control_panel;
     QMap<QGraphicsItem *, const ClientPlayer *> item2player;
-    QDockWidget *skill_dock;
     QComboBox *sort_combobox;
 
     QProgressBar *progress_bar;
@@ -281,6 +282,7 @@ private slots:
     void doCancelButton();
     void doDiscardButton();
     void doTimeout();
+    void startInXs();
     void hideAvatars();
     void changeHp(const QString &who, int delta, DamageStruct::Nature nature);
     void moveFocus(const QString &who);
@@ -304,12 +306,6 @@ private slots:
     void onGameStart();
     void onGameOver();
     void onStandoff();
-
-#ifdef AUDIO_SUPPORT
-#ifndef  Q_OS_WIN32
-    void onMusicFinish();
-#endif
-#endif
 
 #ifdef JOYSTICK_SUPPORT
     void onJoyButtonClicked(int bit);

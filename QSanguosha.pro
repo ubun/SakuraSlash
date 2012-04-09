@@ -2,13 +2,13 @@
 # Project created by QtCreator 2010-06-13T04:26:52
 # -------------------------------------------------
 TARGET = ConanSlash
-QT += network sql
+QT += network sql declarative
 TEMPLATE = app
-CONFIG += warn_on audio joystick qaxcontainer
+CONFIG += warn_on audio qaxcontainer
 
-macx {
-    CONFIG -= joystick # in Mac, we do not support joystick currently
-}
+# If you want to enable joystick support, please uncomment the following line:
+# CONFIG += joystick
+# However, joystick is not supported under Mac OS X temporarily
 
 SOURCES += src/main.cpp \
 	src/client/aux-skills.cpp \
@@ -90,6 +90,7 @@ HEADERS += src/client/aux-skills.h \
 	src/client/client.h \
 	src/client/clientplayer.h \
 	src/client/clientstruct.h \
+	src/core/audio.h \
 	src/core/card.h \
 	src/core/engine.h \
 	src/core/general.h \
@@ -193,18 +194,18 @@ macx {
 }
 
 CONFIG(audio){
-    DEFINES += AUDIO_SUPPORT
-    INCLUDEPATH += include/irrKlang
-    win32: LIBS += irrKlang.lib
-    unix: QT += phonon
+	DEFINES += AUDIO_SUPPORT
+	INCLUDEPATH += include/fmod
+	LIBS += -lfmodex
+	SOURCES += src/core/audio.cpp
 }
 
 CONFIG(joystick){
-    DEFINES += JOYSTICK_SUPPORT
-    HEADERS += src/ui/joystick.h
-    SOURCES += src/ui/joystick.cpp
-    win32: LIBS += -lplibjs -lplibul -lwinmm
-    unix: LIBS += -lplibjs -lplibul
+	DEFINES += JOYSTICK_SUPPORT
+	HEADERS += src/ui/joystick.h
+	SOURCES += src/ui/joystick.cpp
+	win32: LIBS += -lplibjs -lplibul -lwinmm
+	unix: LIBS += -lplibjs -lplibul
 }
 
 TRANSLATIONS += sanguosha.ts

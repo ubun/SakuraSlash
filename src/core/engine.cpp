@@ -7,18 +7,7 @@
 #include "challengemode.h"
 #include "lua.hpp"
 #include "banpairdialog.h"
-
-#ifdef AUDIO_SUPPORT
-
-#ifdef  Q_OS_WIN32
-    extern irrklang::ISoundEngine *SoundEngine;
-#else
-    #include <phonon/MediaObject>
-    #include <phonon/AudioOutput>
-    extern Phonon::MediaObject *SoundEngine;
-    extern Phonon::AudioOutput *SoundOutput;
-#endif
-#endif
+#include "audio.h"
 
 #include <QFile>
 #include <QStringList>
@@ -168,16 +157,10 @@ Engine::~Engine(){
     lua_close(lua);
 
 #ifdef AUDIO_SUPPORT
-    if(SoundEngine) {
-#ifdef  Q_OS_WIN32
-        SoundEngine->drop();
-        SoundEngine = NULL;
-#else
-        delete SoundEngine;
-#endif
-    }
-#endif
 
+    Audio::quit();
+
+#endif
 }
 
 QStringList Engine::getScenarioNames() const{
@@ -660,21 +643,7 @@ void Engine::playEffect(const QString &filename) const{
     if(filename.isNull())
         return;
 
-#ifdef  Q_OS_WIN32
-    if(SoundEngine == NULL)
-        return;
-
-    if(SoundEngine->isCurrentlyPlaying(filename.toAscii()))
-        return;
-    SoundEngine->play2D(filename.toAscii());
-#else
-    if(SoundEngine->currentSource().fileName() == filename.toAscii()) {
-        return;
-    }
-    SoundEngine->setCurrentSource(Phonon::MediaSource(filename));
-    SoundEngine->play();
-#endif
-
+    Audio::play(filename);
 
 #endif
 }

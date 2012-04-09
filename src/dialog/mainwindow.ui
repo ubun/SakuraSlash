@@ -61,7 +61,8 @@
     </property>
     <addaction name="actionAbout"/>
     <addaction name="actionAbout_Qt"/>
-    <addaction name="actionAbout_irrKlang"/>
+    <addaction name="actionAbout_Lua"/>
+    <addaction name="actionAbout_fmod"/>
     <addaction name="actionAcknowledgement"/>
     <addaction name="separator"/>
     <addaction name="actionRole_assign_table"/>
@@ -263,11 +264,6 @@
     <string>Scenario overview</string>
    </property>
   </action>
-  <action name="actionAbout_irrKlang">
-   <property name="text">
-    <string>About irrKlang</string>
-   </property>
-  </action>
   <action name="actionScript_editor">
    <property name="enabled">
     <bool>true</bool>
@@ -357,6 +353,16 @@
   <action name="actionSend_lowlevel_command">
    <property name="text">
     <string>Send lowlevel command ...</string>
+   </property>
+  </action>
+  <action name="actionAbout_fmod">
+   <property name="text">
+    <string>About fmod</string>
+   </property>
+  </action>
+  <action name="actionAbout_Lua">
+   <property name="text">
+    <string>About Lua</string>
    </property>
   </action>
   <action name="actionExecute_script_at_server_side">

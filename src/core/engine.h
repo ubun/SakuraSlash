@@ -7,16 +7,13 @@
 #include "package.h"
 #include "exppattern.h"
 
-#ifdef AUDIO_SUPPORT
-#include "irrKlang.h"
-#endif
-
 #include <QHash>
 #include <QStringList>
 #include <QMetaObject>
 
 class AI;
 class Scenario;
+class QLibrary;
 class ChallengeModeSet;
 class ChallengeMode;
 
@@ -115,6 +112,8 @@ private:
     QSet<QString> ban_package;
 
     lua_State *lua;
+
+    QLibrary *lib;
 };
 
 extern Engine *Sanguosha;

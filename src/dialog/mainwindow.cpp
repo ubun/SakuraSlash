@@ -216,7 +216,7 @@ void MainWindow::on_actionReplay_triggered()
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("Select a reply file"),
                                                     location,
-                                                    tr("Image replay file (*.png);; Pure text replay file (*.txt)"));
+                                                    tr("Pure text replay file (*.txt);; Image replay file (*.png)"));
 
     if(filename.isEmpty())
         return;
@@ -446,28 +446,6 @@ void MainWindow::on_actionShow_Hide_Menu_triggered()
 {
     QMenuBar *menu_bar = menuBar();
     menu_bar->setVisible(! menu_bar->isVisible());
-}
-
-void MainWindow::on_actionAbout_irrKlang_triggered()
-{
-    QString content = tr("irrKlang is a cross platform sound library for C++, C# and all .NET languages. <br />");
-    content.append("<p align='center'> <img src='image/system/irrklang.png' /> </p> <br/>");
-
-    QString address = "http://www.ambiera.com/irrklang/";
-    content.append(tr("Official site: <a href='%1'>%1</a> <br/>").arg(address));
-
-#ifdef AUDIO_SUPPORT
-    content.append(tr("Current versionn %1 <br/>").arg(IRR_KLANG_VERSION));
-#endif
-
-    Window *window = new Window(tr("About irrKlang"), QSize(500, 259));
-    scene->addItem(window);
-
-    window->addContent(content);
-    window->addCloseButton(tr("OK"));
-    window->shift();
-
-    window->appear();
 }
 
 void MainWindow::on_actionMinimize_to_system_tray_triggered()
@@ -889,7 +867,7 @@ void MainWindow::on_actionReplay_file_convert_triggered()
     QString filename = QFileDialog::getOpenFileName(
             this, tr("Please select a replay file"),
             Config.value("LastReplayDir").toString(),
-            tr("Image replay file (*.png);; Pure text replay file (*.txt)"));
+            tr("Pure text replay file (*.txt);; Image replay file (*.png)"));
 
     if(filename.isEmpty())
         return;
@@ -948,4 +926,51 @@ void MeleeDialog::updateResultBox(QString role, int win){
 
 void MainWindow::on_actionView_ban_list_triggered()
 {
+}
+
+#include "audio.h"
+
+void MainWindow::on_actionAbout_fmod_triggered()
+{
+    QString content = tr("FMOD is a proprietary audio library made by Firelight Technologies");
+    content.append("<p align='center'> <img src='image/system/fmod.png' /> </p> <br/>");
+
+    QString address = "http://www.fmod.org";
+    content.append(tr("Official site: <a href='%1' style = \"color:#0072c1; \">%1</a> <br/>").arg(address));
+
+#ifdef AUDIO_SUPPORT
+    content.append(tr("Current versionn %1 <br/>").arg(Audio::getVersion()));
+#endif
+
+    Window *window = new Window(tr("About fmod"), QSize(500, 259));
+    scene->addItem(window);
+
+    window->addContent(content);
+    window->addCloseButton(tr("OK"));
+    window->shift();
+
+    window->appear();
+}
+
+#include "lua.hpp"
+
+void MainWindow::on_actionAbout_Lua_triggered()
+{
+    QString content = tr("Lua is a powerful, fast, lightweight, embeddable scripting language.");
+    content.append("<p align='center'> <img src='image/system/lua.png' /> </p> <br/>");
+
+    QString address = "http://www.lua.org";
+    content.append(tr("Official site: <a href='%1' style = \"color:#0072c1; \">%1</a> <br/>").arg(address));
+
+    content.append(tr("Current versionn %1 <br/>").arg(LUA_RELEASE));
+    content.append(LUA_COPYRIGHT);
+
+    Window *window = new Window(tr("About Lua"), QSize(500, 500));
+    scene->addItem(window);
+
+    window->addContent(content);
+    window->addCloseButton(tr("OK"));
+    window->shift();
+
+    window->appear();
 }

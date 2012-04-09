@@ -10,6 +10,7 @@
 #include "cardcontainer.h"
 #include "recorder.h"
 #include "indicatoritem.h"
+#include "audio.h"
 
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
@@ -21,6 +22,7 @@
 #include <QKeyEvent>
 #include <QCheckBox>
 #include <QGraphicsLinearLayout>
+#include <QGraphicsDropShadowEffect>
 #include <QMenu>
 #include <QGroupBox>
 #include <QLineEdit>
@@ -34,6 +36,7 @@
 #include <QTimer>
 #include <QCommandLinkButton>
 #include <QFormLayout>
+#include <QStatusBar>
 
 #ifdef Q_OS_WIN32
 #include <QAxObject>
@@ -45,19 +48,6 @@
 
 #endif
 
-#ifdef AUDIO_SUPPORT
-#ifdef Q_OS_WIN32
-    #include "irrKlang.h"
-    extern irrklang::ISoundEngine *SoundEngine;
-    static irrklang::ISound *BackgroundMusic;
-#else
-    #include <phonon/MediaObject>
-    #include <phonon/AudioOutput>
-    static Phonon::MediaObject *BackgroundMusic;
-    static Phonon::AudioOutput *SoundOutput;
-#endif
-#endif
-
 static QPointF DiscardedPos(-6, -2);
 static QPointF DrawPilePos(-102, -2);
 
@@ -65,7 +55,7 @@ RoomScene *RoomSceneInstance;
 
 RoomScene::RoomScene(QMainWindow *main_window)
     :focused(NULL), special_card(NULL), viewing_discards(false),
-    main_window(main_window), skill_dock(NULL)
+    main_window(main_window)
 {
     RoomSceneInstance = this;
 
@@ -171,6 +161,7 @@ RoomScene::RoomScene(QMainWindow *main_window)
     connect(ClientInstance, SIGNAL(n_cards_drawed(ClientPlayer*,int)), SLOT(drawNCards(ClientPlayer*,int)));
 
     connect(ClientInstance, SIGNAL(assign_asked()), this, SLOT(startAssign()));
+    connect(ClientInstance, SIGNAL(start_in_xs()), this, SLOT(startInXs()));
 
     {
         guanxing_box = new GuanxingBox;
@@ -248,7 +239,7 @@ RoomScene::RoomScene(QMainWindow *main_window)
     {
         // chat box
         chat_box = new QTextEdit;
-        chat_box->resize(230 + widen_width, 195);
+        chat_box->resize(230 + widen_width, 175);
 
         QGraphicsProxyWidget *chat_box_widget = addWidget(chat_box);
         chat_box_widget->setPos(-343 - widen_width, -83);
@@ -343,11 +334,15 @@ RoomScene::RoomScene(QMainWindow *main_window)
 
 #endif
 
-    skill_dock = new QDockWidget(main_window);
-    skill_dock->setTitleBarWidget(new QWidget);
-    skill_dock->titleBarWidget()->hide();
-    main_window->addDockWidget(Qt::BottomDockWidgetArea, skill_dock);
+    QHBoxLayout* skill_dock_layout = new QHBoxLayout;
+    QMargins margins = skill_dock_layout->contentsMargins();
+    margins.setTop(0);
+    margins.setBottom(5);
+    skill_dock_layout->setContentsMargins(margins);
+    skill_dock_layout->addStretch();
 
+    main_window->statusBar()->setObjectName("skill_bar_container");
+    main_window->statusBar()->setLayout(skill_dock_layout);
     addWidgetToSkillDock(sort_combobox, true);
 
     createStateItem();
@@ -510,6 +505,12 @@ QList<QPointF> RoomScene::getPhotoPositions() const{
     case 9: nine = 1; break;
     }
 
+    if(ServerInfo.GameMode == "06_3v3" )
+    {
+        six   = 0;
+        nine = 1;
+    }
+
     if(Config.value("CircularView").toBool()){
         cxw=1;
         cxw2=0;
@@ -540,12 +541,12 @@ QList<QPointF> RoomScene::getPhotoPositions() const{
     };
 
     static int indices_table_3v3[][5] = {
-        {0, 3, 4, 5, 8}, // lord
-        {0, 1, 4, 5, 6}, // loyalist (right), same with rebel (right)
-        {2, 3, 4, 7, 8}, // rebel (left), same with loyalist (left)
-        {0, 3, 4, 5, 8}, // renegade, same with lord
-        {0, 1, 4, 5, 6}, // rebel (right)
-        {2, 3, 4, 7, 8}, // loyalist (left)
+        {0, 2, 4, 6, 8}, // lord
+        {0, 1, 5, 6, 7}, // loyalist (right), same with rebel (right)
+        {1, 2, 3, 7, 8}, // rebel (left), same with loyalist (left)
+        {0, 2, 4, 6, 8}, // renegade, same with lord
+        {0, 1, 5, 6, 7}, // rebel (right)
+        {1, 2, 3, 7, 8}, // loyalist (left)
     };
 
     QList<QPointF> positions;
@@ -565,10 +566,8 @@ QList<QPointF> RoomScene::getPhotoPositions() const{
 }
 
 void RoomScene::changeTextEditBackground(){
-    QPalette palette;
-    palette.setBrush(QPalette::Base, backgroundBrush());
-    chat_box->setPalette(palette);
-    log_box->setPalette(palette);
+    chat_box->setStyleSheet("background-color: rgba(0,0,0,50%);");
+    log_box->setStyleSheet("background-color: rgba(0,0,0,50%);");
 }
 
 void RoomScene::addPlayer(ClientPlayer *player){
@@ -914,6 +913,18 @@ void RoomScene::chooseGeneral(const QStringList &generals){
         dialog = new ChooseGeneralDialog(generals, main_window);
 
     dialog->exec();
+}
+
+
+void RoomScene::putToDiscard(CardItem *item)
+{
+    discarded_queue.enqueue(item);
+    item->setEnabled(true);
+    item->setFlag(QGraphicsItem::ItemIsFocusable, false);
+    item->setOpacity(1.0);
+    item->setZValue(0.0001*ClientInstance->discarded_list.length());
+
+    viewDiscards();
 }
 
 void RoomScene::viewDiscards(){
@@ -1322,6 +1333,25 @@ void RoomScene::removeWidgetFromSkillDock(QWidget *widget){
 }
 
 void RoomScene::acquireSkill(const ClientPlayer *player, const QString &skill_name){
+    QGraphicsObject *dest = getAnimationObject(player->objectName());
+    QGraphicsTextItem *item = new QGraphicsTextItem(Sanguosha->translate(skill_name), NULL, this);
+    item->setFont(Config.BigFont);
+
+    QGraphicsDropShadowEffect *drop = new QGraphicsDropShadowEffect;
+    drop->setBlurRadius(5);
+    drop->setOffset(0);
+    drop->setColor(Qt::yellow);
+    item->setGraphicsEffect(drop);
+
+    QPropertyAnimation *move = new QPropertyAnimation(item, "pos");
+    QRectF rect = item->boundingRect();
+    move->setStartValue(QPointF(- rect.width()/2, - rect.height()/2));
+    move->setEndValue(dest->scenePos());
+    move->setDuration(1500);
+
+    move->start(QAbstractAnimation::DeleteWhenStopped);
+    connect(move, SIGNAL(finished()), item, SLOT(deleteLater()));
+
     QString type = "#AcquireSkill";
     QString from_general = player->getGeneralName();
     QString arg = skill_name;
@@ -1778,6 +1808,7 @@ void RoomScene::doTimeout(){
             break;
         }
 
+    case Client::AskForSkillInvoke:
     case Client::AskForYiji:{
             cancel_button->click();
             break;
@@ -1899,7 +1930,18 @@ void RoomScene::updateStatus(Client::Status status){
             cancel_button->setEnabled(false);
             discard_button->setEnabled(false);
 
-            ClientInstance->getPromptDoc()->setHtml(tr("Please choose a player"));
+            QString description;
+            const Skill *skill = Sanguosha->getSkill(ClientInstance->skill_name);
+            if(skill)
+                description = skill->getDescription();
+            else
+                description = Sanguosha->translate(ClientInstance->skill_name);
+
+            if(!description.isEmpty() && description != ClientInstance->skill_name)
+                ClientInstance->getPromptDoc()->setHtml(tr("Please choose a player<br/> <b>Source</b>: %1<br/>").arg(description));
+            else
+                ClientInstance->getPromptDoc()->setHtml(tr("Please choose a player"));
+
 
             choose_skill->setPlayerNames(ClientInstance->players_to_choose);
             dashboard->startPending(choose_skill);
@@ -2160,6 +2202,10 @@ void RoomScene::hideAvatars(){
     dashboard->hideAvatar();
 }
 
+void RoomScene::startInXs(){
+    if(add_robot) add_robot->hide();
+    if(fill_robots) fill_robots->hide();
+}
 void RoomScene::changeHp(const QString &who, int delta, DamageStruct::Nature nature){
     // update
     Photo *photo = name2photo.value(who, NULL);
@@ -2353,7 +2399,7 @@ void RoomScene::saveReplayRecord(){
     QString filename = QFileDialog::getSaveFileName(main_window,
                                                     tr("Save replay record"),
                                                     location,
-                                                    tr("Image replay file (*.png);; Pure text replay file (*.txt)"));
+                                                    tr("Pure text replay file (*.txt);; Image replay file (*.png)"));
 
     if(!filename.isEmpty()){
         ClientInstance->save(filename);
@@ -2751,34 +2797,11 @@ void RoomScene::createStateItem(){
 
     QPixmap state("image/system/state.png");
 
-    QGraphicsItem *state_item = addPixmap(state);//QPixmap("image/system/state.png"));
+    state_item = addPixmap(state);//QPixmap("image/system/state.png"));
     state_item->setPos(-110, -90);
-    char roles[100] = {0}, *role;
+    char roles[100] = {0};
     Sanguosha->getRoles(ServerInfo.GameMode, roles);
-    for(role = roles; *role!='\0'; role++){
-        static QPixmap lord("image/system/roles/small-lord.png");
-        static QPixmap loyalist("image/system/roles/small-loyalist.png");
-        static QPixmap rebel("image/system/roles/small-rebel.png");
-        static QPixmap renegade("image/system/roles/small-renegade.png");
-
-        QPixmap *to_add = NULL;
-        switch(*role){
-        case 'Z': to_add = &lord; break;
-        case 'C': to_add = &loyalist; break;
-        case 'N': to_add = &renegade; break;
-        case 'F': to_add = &rebel; break;
-        default:
-            break;
-        }
-
-        if(to_add){
-            QGraphicsPixmapItem *item = addPixmap(*to_add);
-            item->setPos(21*role_items.length(), 6);
-            item->setParentItem(state_item);
-
-            role_items << item;
-        }
-    }
+    updateStateItem(roles);
 
     QGraphicsTextItem *text_item = addText("");
     text_item->setParentItem(state_item);
@@ -2790,6 +2813,8 @@ void RoomScene::createStateItem(){
     if(circular)
         state_item->setPos(367, -320);
 
+    add_robot = NULL;
+    fill_robots = NULL;
     if(ServerInfo.EnableAI){
         QRectF state_rect = state_item->boundingRect();
         control_panel = addRect(0, 0, state_rect.width(), 150, Qt::NoPen);
@@ -2797,11 +2822,11 @@ void RoomScene::createStateItem(){
         control_panel->setY(state_item->y() + state_rect.height() + 10);
         control_panel->hide();
 
-        Button *add_robot = new Button(tr("Add a robot"));
+        add_robot = new Button(tr("Add a robot"));
         add_robot->setParentItem(control_panel);
         add_robot->setPos(15, 5);
 
-        Button *fill_robots = new Button(tr("Fill robots"));
+        fill_robots = new Button(tr("Fill robots"));
         fill_robots->setParentItem(control_panel);
         fill_robots->setPos(15, 60);
 
@@ -2992,14 +3017,11 @@ void RoomScene::onGameStart(){
     foreach(Photo *photo, photos)
         photo->createRoleCombobox();
 
+
 #ifdef AUDIO_SUPPORT
+
     if(!Config.EnableBgMusic)
-#ifdef Q_OS_WIN32
-        if(SoundEngine == NULL)
-#else
-        if(BackgroundMusic == NULL)
-#endif
-            return;
+        return;
 
     bool play_music = false;
     if(memory->isAttached() || memory->attach()){
@@ -3026,39 +3048,15 @@ void RoomScene::onGameStart(){
         return;
 
     // start playing background music
-    QString bgmusic_path = !Config.EnableBgMusic ? "" :
-                           Config.value("BackgroundMusic", "audio/system/background.mp3").toString();
-#ifdef  Q_OS_WIN32
-    const char *filename = bgmusic_path.toLocal8Bit().data();
-    BackgroundMusic = SoundEngine->play2D(filename, true, false, true);
+    QString bgmusic_path = Config.value("BackgroundMusic", "audio/system/background.mp3").toString();
 
-    if(BackgroundMusic)
-        BackgroundMusic->setVolume(Config.Volume);
-#else
-    if (!BackgroundMusic) {
-        SoundOutput = new Phonon::AudioOutput(Phonon::GameCategory, this);
-        BackgroundMusic = new Phonon::MediaObject(this);
-        Phonon::createPath(BackgroundMusic, SoundOutput);
-        BackgroundMusic->setCurrentSource(Phonon::MediaSource(bgmusic_path));
-        BackgroundMusic->play();
-        connect(BackgroundMusic, SIGNAL(aboutToFinish()), SLOT(onMusicFinish()));
-    }
-#endif
+    Audio::playBGM(bgmusic_path);
+    Audio::setBGMVolume(Config.BGMVolume);
 
 #endif
 }
 
-#ifdef AUDIO_SUPPORT
-#ifndef  Q_OS_WIN32
-void RoomScene::onMusicFinish(){
-    BackgroundMusic->seek(0);
-}
-#endif
-#endif
 void RoomScene::freeze(){
-    main_window->removeDockWidget(skill_dock);
-    delete skill_dock;
-    skill_dock = NULL;
 
     ClientInstance->disconnectFromHost();
     dashboard->setEnabled(false);
@@ -3073,8 +3071,9 @@ void RoomScene::freeze(){
     chat_edit->setEnabled(false);
 
 #ifdef AUDIO_SUPPORT
-    if(BackgroundMusic)
-        BackgroundMusic->stop();
+
+    Audio::stopBGM();
+
 #endif
 
     progress_bar->hide();
@@ -3162,6 +3161,7 @@ void RoomScene::doMovingAnimation(const QString &name, const QStringList &args){
 }
 
 void RoomScene::doAppearingAnimation(const QString &name, const QStringList &args){
+
     Pixmap *item = new Pixmap(QString("image/system/animation/%1.png").arg(name));
     addItem(item);
 
