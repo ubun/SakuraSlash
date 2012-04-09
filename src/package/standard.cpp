@@ -435,11 +435,11 @@ StandardPackage::StandardPackage()
 {
     addGenerals();
 
-    patterns["."] = new HandcardPattern;
-    patterns[".S"] = new SuitPattern(Card::Spade);
-    patterns[".C"] = new SuitPattern(Card::Club);
-    patterns[".H"] = new SuitPattern(Card::Heart);
-    patterns[".D"] = new SuitPattern(Card::Diamond);
+    patterns["."] = new ExpPattern(".|.|.|hand");
+    patterns[".S"] = new ExpPattern(".|spade|.|hand");
+    patterns[".C"] = new ExpPattern(".|club|.|hand");
+    patterns[".H"] = new ExpPattern(".|heart|.|hand");
+    patterns[".D"] = new ExpPattern(".|diamond|.|hand");
 
     patterns[".."] = new AllcardPattern;
     patterns["..S"] = new AllsuitPattern(Card::Spade);
@@ -447,11 +447,11 @@ StandardPackage::StandardPackage()
     patterns["..H"] = new AllsuitPattern(Card::Heart);
     patterns["..D"] = new AllsuitPattern(Card::Diamond);
 
-    patterns["slash"] = new SlashPattern;
-    patterns["jink"] = new NamePattern("jink");
-    patterns["peach"] = new NamePattern("peach");
+    patterns["slash"] = new ExpPattern("Slash");
+    patterns["jink"] = new ExpPattern("Jink");
+    patterns["peach"] = new ExpPattern("Peach");
     patterns["nullification"] = new NamePattern("nullification");
-    patterns["peach+analeptic"] = new PAPattern;
+    patterns["peach+analeptic"] = new ExpPattern("Peach,Analeptic");
     patterns["trick"] = new TrickPattern;
 }
 

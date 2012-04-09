@@ -35,7 +35,7 @@ public:
     QList<ServerPlayer *> getFriends() const;
 
     virtual void activate(CardUseStruct &card_use) = 0;
-    virtual Card::Suit askForSuit() = 0;
+    virtual Card::Suit askForSuit(const QString& reason) = 0;
     virtual QString askForKingdom() = 0;
     virtual bool askForSkillInvoke(const QString &skill_name, const QVariant &data) = 0;
     virtual QString askForChoice(const QString &skill_name, const QString &choices) = 0;
@@ -65,7 +65,7 @@ public:
     TrustAI(ServerPlayer *player);
 
     virtual void activate(CardUseStruct &card_use) ;
-    virtual Card::Suit askForSuit() ;
+    virtual Card::Suit askForSuit(const QString&) ;
     virtual QString askForKingdom() ;
     virtual bool askForSkillInvoke(const QString &skill_name, const QVariant &data) ;
     virtual QString askForChoice(const QString &skill_name, const QString &choices);
@@ -106,6 +106,8 @@ public:
     virtual ServerPlayer *askForPlayerChosen(const QList<ServerPlayer *> &targets, const QString &reason);
     virtual int askForAG(const QList<int> &card_ids, bool refusable, const QString &reason);
     virtual const Card *askForSinglePeach(ServerPlayer *dying);
+    virtual const Card *askForPindian(ServerPlayer *requestor, const QString &reason);
+    virtual Card::Suit askForSuit(const QString &reason);
 
     virtual ServerPlayer *askForYiji(const QList<int> &cards, int &card_id);
     virtual void askForGuanxing(const QList<int> &cards, QList<int> &up, QList<int> &bottom, bool up_only);
