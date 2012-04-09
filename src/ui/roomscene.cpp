@@ -1298,38 +1298,18 @@ void RoomScene::addSkillButton(const Skill *skill, bool from_left){
 }
 
 void RoomScene::addWidgetToSkillDock(QWidget *widget, bool from_left){
-    widget->setFixedHeight(30);
+    if(widget->inherits("QComboBox"))widget->setFixedHeight(20);
+    else widget->setFixedHeight(26);
 
-    QWidget *container = skill_dock->widget();
-    QHBoxLayout *container_layout = NULL;
-    if(container == NULL){
-        container = new QWidget;
-        QHBoxLayout *layout = new QHBoxLayout;
-        QMargins margins = layout->contentsMargins();
-        margins.setTop(0);
-        margins.setBottom(5);
-        layout->setContentsMargins(margins);
-        container->setLayout(layout);
-        layout->addStretch();
-
-        skill_dock->setWidget(container);
-
-        container_layout = layout;
-    }else{
-        QLayout *layout = container->layout();
-        container_layout = qobject_cast<QHBoxLayout *>(layout);
-    }
-
-    if(from_left)
-        container_layout->insertWidget(0, widget);
+    if(!from_left)
+        main_window->statusBar()->addPermanentWidget(widget);
     else
-        container_layout->addWidget(widget);
+        main_window->statusBar()->addWidget(widget);
 }
 
 void RoomScene::removeWidgetFromSkillDock(QWidget *widget){
-    QWidget *container = skill_dock->widget();
-    if(container)
-        container->layout()->removeWidget(widget);
+    QStatusBar * bar = main_window->statusBar();
+    bar->removeWidget(widget);
 }
 
 void RoomScene::acquireSkill(const ClientPlayer *player, const QString &skill_name){
