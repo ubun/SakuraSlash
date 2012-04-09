@@ -210,6 +210,28 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             room->setPlayerProperty(player, "hp", new_hp);
             room->broadcastInvoke("hpChange", QString("%1:%2").arg(player->objectName()).arg(recover));
 
+            if(player->isChained() && recover_struct.card->inherits("JuicePeach")){
+                room->setPlayerProperty(player, "chained", false);
+
+                QList<ServerPlayer *> chained_players = room->getOtherPlayers(player);
+                foreach(ServerPlayer *chained_player, chained_players){
+                    if(chained_player->isChained() && chained_player->isWounded()){
+                        room->setPlayerProperty(chained_player, "chained", false);
+
+                        LogMessage log;
+                        log.type = "#IronChainRecover";
+                        log.from = chained_player;
+                        room->sendLog(log);
+
+                        RecoverStruct recover;
+                        recover.who = recover_struct.who;
+                        recover.card = recover_struct.card;
+                        room->recover(chained_player, recover);
+
+                        //break;
+                    }
+                 }
+            }
             break;
         }
 

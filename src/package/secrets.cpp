@@ -973,8 +973,8 @@ SecretsPackage::SecretsPackage()
             << new Tips(Card::Spade, 9)
             << new Tips(Card::Diamond, 8)
             << new Tips(Card::Club, 7)
-            /*<< new Tips(Card::Heart, 6)
-            << new Tips(Card::Spade, 5)
+            << new Tips(Card::Heart, 6)
+            /*<< new Tips(Card::Spade, 5)
             << new Tips(Card::Diamond, 4)
             << new Tips(Card::Club, 3)
             << new Tips(Card::Heart, 2)
@@ -987,8 +987,8 @@ SecretsPackage::SecretsPackage()
     tips.at(4)->setObjectName("nvyanyuan");
     tips.at(5)->setObjectName("dikaer");
     tips.at(6)->setObjectName("zuanshi");
-    /*tips.at(7)->setObjectName("zifahuxi");
-    tips.at(8)->setObjectName("jiban");
+    tips.at(7)->setObjectName("zifahuxi");
+    /*tips.at(8)->setObjectName("jiban");
     tips.at(9)->setObjectName("shipinliaotian");
     tips.at(10)->setObjectName("dianti");
     tips.at(11)->setObjectName("shengri");

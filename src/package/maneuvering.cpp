@@ -46,7 +46,7 @@ QString Analeptic::getEffectPath(bool ) const{
 }
 
 bool Analeptic::IsAvailable(const Player *player){
-    return !player->hasUsed("Analeptic") && !player->hasUsed("WeidaiCard");
+    return !player->hasUsed("Analeptic");
 }
 
 bool Analeptic::isAvailable(const Player *player) const{
@@ -84,6 +84,19 @@ void Analeptic::onEffect(const CardEffectStruct &effect) const{
 
         room->setPlayerFlag(effect.to, "drank");
     }
+}
+
+JuicePeach::JuicePeach(Suit suit, int number):Peach(suit, number){
+    setObjectName("juice_peach");
+    target_fixed = false;
+}
+
+bool JuicePeach::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && to_select->isWounded();
+}
+
+bool JuicePeach::isAvailable(const Player *player) const{
+    return true;
 }
 
 class FanSkill: public WeaponSkill{
@@ -213,6 +226,7 @@ public:
             log.type = "#SilverLion";
             log.from = player;
             log.arg = QString::number(damage.damage);
+            log.arg2 = objectName();
             player->getRoom()->sendLog(log);
 
             damage.damage = 1;
@@ -421,7 +435,7 @@ BlackDragonPackage::BlackDragonPackage()
     // diamond
     cards
             << new Fan(Card::Diamond, 1)
-            << new Peach(Card::Diamond, 2)
+            << new JuicePeach(Card::Diamond, 2)
             << new Peach(Card::Diamond, 3)
             << new FireSlash(Card::Diamond, 4)
             << new FireSlash(Card::Diamond, 5)
@@ -441,6 +455,18 @@ BlackDragonPackage::BlackDragonPackage()
         card->setParent(this);
 
     type = CardPack;
+}
+
+WindJink::WindJink(Suit suit, int number)
+    :Jink(suit, number)
+{
+    setObjectName("wind_jink");
+}
+
+SoilJink::SoilJink(Suit suit, int number)
+    :Jink(suit, number)
+{
+    setObjectName("soil_jink");
 }
 
 class RenwangShieldSkill: public ArmorSkill{
@@ -792,7 +818,7 @@ ThunderBirdPackage::ThunderBirdPackage()
 
     // club
     cards
-            << new Jink(Card::Club, 1)
+            << new WindJink(Card::Club, 1)
             << new Emigration(Card::Club, 2)
             << new Turnover(Card::Club, 3)
             << new ThunderSlash(Card::Club, 4)
@@ -809,17 +835,17 @@ ThunderBirdPackage::ThunderBirdPackage()
 
     // heart
     cards
-            << new Emigration(Card::Heart, 1)
+            //<< new Emigration(Card::Heart, 1)
             << new Sacrifice(Card::Heart, 2)
             << new Slash(Card::Heart, 3)
             << new Collateral(Card::Heart, 4)
             << new FireSlash(Card::Heart, 5)
-            << new Jink(Card::Heart, 6)
+            << new WindJink(Card::Heart, 6)
             << new GaleShell(Card::Heart, 7)
             << new FireSlash(Card::Heart, 8)
             << new Snatch(Card::Heart, 9)
-            << new Peach(Card::Heart, 10)
-            << new Jink(Card::Heart, 11)
+            << new JuicePeach(Card::Heart, 10)
+            << new SoilJink(Card::Heart, 11)
             << new Lightning(Card::Heart, 12)
             << new Nullification(Card::Heart, 13);
 
@@ -833,10 +859,10 @@ ThunderBirdPackage::ThunderBirdPackage()
             << new RedAlert(Card::Diamond, 6)
             << new Analeptic(Card::Diamond, 7)
             << new YajiaoSpear(Card::Diamond, 8)
-            << new Jink(Card::Diamond, 9)
+            << new WindJink(Card::Diamond, 9)
             << new FireSlash(Card::Diamond, 10)
             << new IronChain(Card::Diamond, 11)
-            << new Jink(Card::Diamond, 12)
+            << new SoilJink(Card::Diamond, 12)
             << new Sacrifice(Card::Diamond, 13);
 
     foreach(Card *card, cards)
