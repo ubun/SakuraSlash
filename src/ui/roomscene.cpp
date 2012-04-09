@@ -157,6 +157,7 @@ RoomScene::RoomScene(QMainWindow *main_window)
     connect(ClientInstance, SIGNAL(skill_acquired(const ClientPlayer*,QString)), this, SLOT(acquireSkill(const ClientPlayer*,QString)));
     connect(ClientInstance, SIGNAL(animated(QString,QStringList)), this, SLOT(doAnimation(QString,QStringList)));
     connect(ClientInstance, SIGNAL(judge_result(QString,QString)), this, SLOT(showJudgeResult(QString,QString)));
+    connect(ClientInstance, SIGNAL(role_state_changed(QString)),this, SLOT(updateStateItem(QString)));
 
     connect(ClientInstance, SIGNAL(game_started()), this, SLOT(onGameStart()));
     connect(ClientInstance, SIGNAL(game_over()), this, SLOT(onGameOver()));
@@ -2306,21 +2307,28 @@ void RoomScene::onGameOver(){
 void RoomScene::addRestartButton(QDialog *dialog){
     dialog->resize(main_window->width()/2, dialog->height());
 
-    QPushButton *restart_button = new QPushButton(tr("Restart Game"));
+
+    QPushButton *restart_button;
+      restart_button = new QPushButton(goto_next ? tr("Next Stage") : tr("Restart Game"));
+    //restart_button->setFocus();
+    QPushButton *return_button = new QPushButton(tr("Return to main menu"));
     QHBoxLayout *hlayout = new QHBoxLayout;
     hlayout->addStretch();
     hlayout->addWidget(restart_button);
 
     QPushButton *save_button = new QPushButton(tr("Save record"));
     hlayout->addWidget(save_button);
+    hlayout->addWidget(return_button);
 
     QVBoxLayout *layout = qobject_cast<QVBoxLayout *>(dialog->layout());
     if(layout)
         layout->addLayout(hlayout);
 
     connect(restart_button, SIGNAL(clicked()), dialog, SLOT(accept()));
+    connect(return_button, SIGNAL(clicked()), dialog, SLOT(accept()));
     connect(save_button, SIGNAL(clicked()), this, SLOT(saveReplayRecord()));
     connect(dialog, SIGNAL(accepted()), this, SIGNAL(restart()));
+    connect(return_button, SIGNAL(clicked()), this, SIGNAL(return_to_start()));
 }
 
 void RoomScene::saveReplayRecord(){
@@ -2333,6 +2341,46 @@ void RoomScene::saveReplayRecord(){
     if(!filename.isEmpty()){
         ClientInstance->save(filename);
     }
+}
+
+ScriptExecutor::ScriptExecutor(QWidget *parent)
+    :QDialog(parent)
+{
+    setWindowTitle(tr("Script execution"));
+
+    QVBoxLayout *vlayout = new QVBoxLayout;
+
+    vlayout->addWidget(new QLabel(tr("Please input the script that should be executed at server side:\n P = you, R = your room")));
+
+    QTextEdit *box = new QTextEdit;
+    box->setObjectName("scriptBox");
+    vlayout->addWidget(box);
+
+    QHBoxLayout *hlayout = new QHBoxLayout;
+    hlayout->addStretch();
+
+    QPushButton *ok_button = new QPushButton(tr("OK"));
+    hlayout->addWidget(ok_button);
+
+    vlayout->addLayout(hlayout);
+
+    connect(ok_button, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(this, SIGNAL(accepted()), this, SLOT(doScript()));
+
+    setLayout(vlayout);
+}
+
+void ScriptExecutor::doScript(){
+    QTextEdit *box = findChild<QTextEdit *>("scriptBox");
+    if(box == NULL)
+        return;
+
+    QString script = box->toPlainText();
+    QByteArray data = script.toAscii();
+    data = qCompress(data);
+    script = data.toBase64();
+
+    ClientInstance->request("useCard :SCRIPT:" + script);
 }
 
 DeathNoteDialog::DeathNoteDialog(QWidget *parent)
@@ -2488,6 +2536,11 @@ void RoomScene::makeReviving(){
         int index = items.indexOf(item);
         ClientInstance->request("useCard :REVIVE:" + victims.at(index)->objectName());
     }
+}
+
+void RoomScene::doScript(){
+    ScriptExecutor *dialog = new ScriptExecutor(main_window);
+    dialog->exec();
 }
 
 void RoomScene::fillTable(QTableWidget *table, const QList<const ClientPlayer *> &players){
@@ -2757,6 +2810,9 @@ void RoomScene::showJudgeResult(const QString &who, const QString &result){
         const ClientPlayer *player = ClientInstance->getPlayer(who);
 
         special_card->showAvatar(player->getGeneral());
+        QString desc = QString(tr("%1's judge")).arg(Sanguosha->translate(player->getGeneralName()));
+        special_card->writeCardDesc(desc);
+
         special_card->setFrame(result);
     }
 }
@@ -3557,4 +3613,37 @@ void RoomScene::finishArrange(){
     ClientInstance->request("arrange " + names.join("+"));
 }
 
+static inline void AddRoleIcon(QMap<QChar, QPixmap> &map, char c, const QString &role){
+    QPixmap pixmap(QString("image/system/roles/small-%1.png").arg(role));
 
+    QChar qc(c);
+    map[qc.toUpper()] = pixmap;
+
+    Pixmap::MakeGray(pixmap);
+    map[qc.toLower()] = pixmap;
+}
+
+void RoomScene::updateStateItem(const QString &roles)
+{
+    foreach(QGraphicsItem *item, role_items)
+        removeItem(item);
+    role_items.clear();
+
+    static QMap<QChar, QPixmap> map;
+    if(map.isEmpty()){
+        AddRoleIcon(map, 'Z', "lord");
+        AddRoleIcon(map, 'C', "loyalist");
+        AddRoleIcon(map, 'F', "rebel");
+        AddRoleIcon(map, 'N', "renegade");
+    }
+
+    foreach(QChar c, roles){
+        if(map.contains(c)){
+            QGraphicsPixmapItem *item = addPixmap(map.value(c));
+            item->setPos(21*role_items.length(), 6);
+            item->setParentItem(state_item);
+
+            role_items << item;
+        }
+    }
+}

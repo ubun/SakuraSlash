@@ -26,6 +26,16 @@ private:
     bool cancelable;
 };
 
+class DelayedTrick:public TrickCard{
+
+public:
+	DelayedTrick(Suit suit, int number, bool movable = false);
+	static const DelayedTrick *CastFrom(const Card *card);
+
+private:
+	bool movable;
+};
+
 class EquipCard:public Card{
 public:
     enum Location {
@@ -56,18 +66,19 @@ protected:
 
 class Weapon:public EquipCard{
 public:
-    Weapon(Suit suit, int number, int range);
-    virtual QString getSubtype() const;
+	Weapon(Suit suit, int number, int range);
+	int getRange();
+	virtual QString getSubtype() const;
 
-    virtual Location location() const;
-    virtual QString label() const;
+	virtual Location location() const;
+	virtual QString label() const;
 
-    virtual void onInstall(ServerPlayer *player) const;
-    virtual void onUninstall(ServerPlayer *player) const;
+	virtual void onInstall(ServerPlayer *player) const;
+	virtual void onUninstall(ServerPlayer *player) const;
 
 protected:
-    int range;
-    bool attach_skill;
+	int range;
+	bool attach_skill;
 };
 
 class Armor:public EquipCard{
@@ -104,4 +115,17 @@ class DefensiveCar: public Car{
 public:
     DefensiveCar(Card::Suit suit, int number, int correct = +1);
     virtual QString getSubtype() const;
+};
+
+class Slash: public BasicCard{
+
+public:
+	Slash(Card::Suit suit, int number);
+	DamageStruct::Nature getNature() const;
+	void setNature(DamageStruct::Nature nature);
+
+	static bool IsAvailable(const Player *player);
+	
+protected:
+	DamageStruct::Nature nature;
 };

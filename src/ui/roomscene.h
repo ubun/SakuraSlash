@@ -29,6 +29,16 @@ class QGroupBox;
 #include <QGraphicsProxyWidget>
 #include <QThread>
 
+class ScriptExecutor: public QDialog{
+    Q_OBJECT
+
+public:
+    ScriptExecutor(QWidget *parent);
+
+public slots:
+    void doScript();
+};
+
 class DeathNoteDialog: public QDialog{
     Q_OBJECT
 
@@ -148,6 +158,7 @@ public slots:
     void makeDamage();
     void makeKilling();
     void makeReviving();
+    void doScript();
 
 protected:
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -278,6 +289,7 @@ private slots:
     void showOwnerButtons(bool owner);
     void showJudgeResult(const QString &who, const QString &result);
     void showPlayerCards();
+    void updateStateItem(const QString &roles);
 
     void clearPile();
     void removeLightBox();
