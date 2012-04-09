@@ -698,12 +698,10 @@ ThicketPackage::ThicketPackage()
     General *hattorishizuka = new General(this, "hattorishizuka$", "woo", 4, false);
     hattorishizuka->addSkill(new Tieshan);
     hattorishizuka->addSkill(new Cimu);
-
+/*
     General *kudouyukiko = new General(this, "kudouyukiko", "yi", 3, false);
-    kudouyukiko->addSkill(new Skill("zhinang"));
     General *kudouyuusaku = new General(this, "kudouyuusaku$", "yi", 3);
-    kudouyuusaku->addSkill(new Skill("zhinang"));
-
+*/
     General *yamamuramisao = new General(this, "yamamuramisao", "jing", 3);
     yamamuramisao->addSkill(new Ruoyu);
     yamamuramisao->addSkill(new Zilian);

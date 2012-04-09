@@ -29,70 +29,68 @@
 
 Engine *Sanguosha = NULL;
 
-QString Engine::getVersion() const{
-    return "1.0";
-}
-
-QString Engine::getVersionName() const{
-    return tr("Happy New Year");
-}
-
-extern "C" {
-    Package *NewStandard();
-    Package *NewWind();
-    Package *NewThicket();
-    Package *NewFire();
-//    Package *NewMountain();
-    Package *NewStandardCard();
-    Package *NewBlackDragon();
-    Package *NewThunderBird();
-    //Package *NewWhiteTiger();
-    //Package *NewIronDino();
-//    Package *NewGod();
-    Package *NewNostalgia();
-    Package *NewJoy();
-    Package *NewDisaster();
-    Package *NewJoyEquip();
-    Package *NewSecrets();
-    Package *NewWisdom();
-    Package *NewTest();
-
-    Scenario *NewCoupleScenario();
-    Scenario *NewZombieScenario();
-    Scenario *NewLegendScenario();
-    Scenario *NewImpasseScenario();
-}
-
 extern "C" {
     int luaopen_sgs(lua_State *);
+}
+
+void Engine::addPackage(const QString &name){
+    Package *pack = PackageAdder::packages()[name];
+    if(pack)
+        addPackage(pack);
+    else
+        qWarning("Package %s cannot be loaded!", qPrintable(name));
+}
+
+void Engine::addScenario(const QString &name){
+    Scenario *scenario = ScenarioAdder::scenarios()[name];
+    if(scenario)
+        addScenario(scenario);
+    else
+        qWarning("Scenario %s cannot be loaded!", qPrintable(name));
 }
 
 Engine::Engine()
 {
     Sanguosha = this;
 
-    addPackage(NewStandard());
-    addPackage(NewWind());
-    addPackage(NewThicket());
-    addPackage(NewFire());
-    //addPackage(NewMountain());
-    //addPackage(NewGod());
-    //addPackage(NewWisdom());
-    addPackage(NewTest());
+    QStringList package_names;
+    package_names
+            << "Standard"
+            << "Wind"
+            << "Thicket"
+            << "Fire"
+            //<< "Mountain"
+            << "Test"
 
-    addPackage(NewStandardCard());
-    addPackage(NewBlackDragon());
-    addPackage(NewThunderBird());
-    addPackage(NewNostalgia());
-    addPackage(NewJoy());
-    addPackage(NewDisaster());
-    addPackage(NewJoyEquip());
-    addPackage(NewSecrets());
+            << "StandardCard"
+            << "BlackDragon"
+            << "ThunderBird"
+            << "WhiteTiger"
+            //<< "IronDino"
+			<< "Secrets"
+            << "Nostalgia"
+            << "Joy"
+			<< "Disaster"
+			<< "JoyEquip"
+            ;
 
-    addScenario(NewCoupleScenario());
-    addScenario(NewZombieScenario());
-    addScenario(NewLegendScenario());
-    addScenario(NewImpasseScenario());
+    foreach(QString name, package_names)
+        addPackage(name);
+
+    QStringList scene_names;
+    scene_names
+            << "Couple"
+            << "Zombie"
+            << "Legend"
+            << "Impasse";
+
+    foreach(QString name, scene_names)
+        addScenario(name);
+
+    foreach(const Skill *skill, skills.values()){
+        Skill *mutable_skill = const_cast<Skill *>(skill);
+        mutable_skill->initMediaSource();
+    }
 
     // available game modes
     modes["02p"] = tr("2 players");
@@ -128,6 +126,10 @@ Engine::Engine()
     if(lua == NULL){
         QMessageBox::warning(NULL, tr("Lua script error"), error_msg);
         exit(1);
+    }
+
+    foreach(QString ban, getBanPackages()){
+        addBanPackage(ban);
     }
 }
 
@@ -354,6 +356,13 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const{
         return NULL;
 }
 
+QString Engine::getVersion() const{
+    return "1.0";
+}
+
+QString Engine::getVersionName() const{
+    return tr("Happy New Year");
+}
 QStringList Engine::getExtensions() const{
     QStringList extensions;
     QList<const Package *> packages = findChildren<const Package *>();

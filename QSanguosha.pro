@@ -31,13 +31,13 @@ SOURCES += src/main.cpp \
 	src/dialog/connectiondialog.cpp \
 	src/dialog/distanceviewdialog.cpp \
 	src/dialog/generaloverview.cpp \
-	src/dialog/generalselector.cpp \
 	src/dialog/mainwindow.cpp \
 	src/dialog/packagingeditor.cpp \
 	src/dialog/playercarddialog.cpp \
 	src/dialog/roleassigndialog.cpp \
 	src/dialog/scenario-overview.cpp \
-        src/dialog/halldialog.cpp \
+	src/dialog/halldialog.cpp \
+	src/package/package.cpp \
 	src/package/exppattern.cpp \
 	src/package/firepackage.cpp \
 	src/package/god.cpp \
@@ -62,6 +62,7 @@ SOURCES += src/main.cpp \
 	src/server/ai.cpp \
 	src/server/contestdb.cpp \
 	src/server/gamerule.cpp \
+        src/server/generalselector.cpp \
 	src/server/room.cpp \
 	src/server/roomthread.cpp \
 	src/server/roomthread1v1.cpp \

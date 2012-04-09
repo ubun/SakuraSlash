@@ -139,10 +139,16 @@ QWidget *ServerDialog::createAdvancedTab(){
     contest_mode_checkbox->setToolTip(tr("Requires password to login, hide screen name and disable kicking"));
 
     free_choose_checkbox = new QCheckBox(tr("Choose generals and cards freely"));
+    free_choose_checkbox->setToolTip(tr("This option enables the cheat menu"));
     free_choose_checkbox->setChecked(Config.FreeChoose);
 
     free_assign_checkbox = new QCheckBox(tr("Assign role and seat freely"));
     free_assign_checkbox->setChecked(Config.value("FreeAssign").toBool());
+
+    free_assign_self_checkbox = new QCheckBox(tr("Assign only your own role"));
+    free_assign_self_checkbox->setChecked(Config.FreeAssignSelf);
+    free_assign_self_checkbox->setEnabled(free_assign_checkbox->isChecked());
+    connect(free_assign_checkbox,SIGNAL(toggled(bool)), free_assign_self_checkbox, SLOT(setEnabled(bool)));
 
     maxchoice_spinbox = new QSpinBox;
     maxchoice_spinbox->setRange(3, 10);
@@ -155,10 +161,9 @@ QWidget *ServerDialog::createAdvancedTab(){
     disable_chat_checkbox->setChecked(Config.DisableChat);
 
     second_general_checkbox = new QCheckBox(tr("Enable second general"));
-	second_general_checkbox->setEnabled(false);
 
-    scene_checkbox  = new QCheckBox(tr("Enable Scene"));
-    //changjing
+    scene_checkbox  = new QCheckBox(tr("Enable Scene"));//changjing
+    scene_checkbox->setChecked(Config.EnableScene);	//changjing
 
     max_hp_scheme_combobox = new QComboBox;
     max_hp_scheme_combobox->addItem(tr("Sum - 3"));
@@ -170,7 +175,6 @@ QWidget *ServerDialog::createAdvancedTab(){
 
     second_general_checkbox->setChecked(Config.Enable2ndGeneral);
 
-    scene_checkbox->setChecked(Config.EnableScene);	//changjing
 
     QPushButton *banpair_button = new QPushButton(tr("Ban pairs table ..."));
     BanPairDialog *banpair_dialog = new BanPairDialog(this);
@@ -200,10 +204,9 @@ QWidget *ServerDialog::createAdvancedTab(){
     port_edit->setValidator(new QIntValidator(1, 9999, port_edit));
 
     layout->addWidget(contest_mode_checkbox);
-    layout->addWidget(forbid_same_ip_checkbox);
-    layout->addWidget(disable_chat_checkbox);
+    layout->addLayout(HLay(forbid_same_ip_checkbox, disable_chat_checkbox));
     layout->addWidget(free_choose_checkbox);
-    layout->addWidget(free_assign_checkbox);
+    layout->addLayout(HLay(free_assign_checkbox, free_assign_self_checkbox));
     layout->addLayout(HLay(new QLabel(tr("Upperlimit for general")), maxchoice_spinbox));
     layout->addLayout(HLay(second_general_checkbox, banpair_button));
     layout->addLayout(HLay(new QLabel(tr("Max HP scheme")), max_hp_scheme_combobox));
@@ -795,6 +798,9 @@ Server::Server(QObject *parent)
     server = new NativeServerSocket;
     server->setParent(this);
 
+    //synchronize ServerInfo on the server side to avoid ambiguous usage of Config and ServerInfo
+    ServerInfo.parse(Sanguosha->getSetupString());
+
     createNewRoom();
 
     connect(server, SIGNAL(new_connection(ClientSocket*)), this, SLOT(processNewConnection(ClientSocket*)));
@@ -931,4 +937,10 @@ void Server::gameOver(){
         name2objname.remove(player->screenName(), player->objectName());
         players.remove(player->objectName());
     }
+}
+
+void Server::gamesOver(){
+    name2objname.clear();
+    players.clear();
+    rooms.clear();
 }

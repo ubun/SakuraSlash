@@ -11,7 +11,7 @@ int Scenario::getPlayerCount() const{
     return 1 + loyalists.length() + rebels.length() + renegades.length();
 }
 
-const ScenarioRule *Scenario::getRule() const{
+ScenarioRule *Scenario::getRule() const{
     return rule;
 }
 
@@ -55,4 +55,9 @@ bool Scenario::generalSelection() const{
 
 AI::Relation Scenario::relationTo(const ServerPlayer *a, const ServerPlayer *b) const{
     return AI::GetRelation(a, b);
+}
+
+Q_GLOBAL_STATIC(ScenarioHash, Scenarios)
+ScenarioHash& ScenarioAdder::scenarios(){
+    return *(::Scenarios());
 }

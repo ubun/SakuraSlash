@@ -15,7 +15,7 @@ class Scenario : public Package
 
 public:
     explicit Scenario(const QString &name);    
-    const ScenarioRule *getRule() const;    
+    ScenarioRule *getRule() const;
 
     virtual bool exposeRoles() const;
     virtual int getPlayerCount() const;
@@ -28,9 +28,20 @@ public:
 protected:
     QString lord;
     QStringList loyalists, rebels, renegades;
-    const ScenarioRule *rule;
+    ScenarioRule *rule;
 };
 
-#define ADD_SCENARIO(name) extern "C" { Q_DECL_EXPORT Scenario *New##name##Scenario() { return new name##Scenario; } }
+typedef QHash<QString, Scenario *> ScenarioHash;
+
+class ScenarioAdder{
+public:
+    ScenarioAdder(const QString &name, Scenario *scenario){
+        scenarios()[name] = scenario;
+    }
+
+    static ScenarioHash& scenarios(void);
+};
+
+#define ADD_SCENARIO(name) static ScenarioAdder name##ScenarioAdder(#name, new name##Scenario);
 
 #endif // SCENARIO_H

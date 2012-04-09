@@ -8,6 +8,7 @@ class QRadioButton;
 
 #include "socket.h"
 #include "detector.h"
+#include "clientstruct.h"
 
 #include <QDialog>
 #include <QLineEdit>
@@ -127,6 +128,7 @@ public:
     void daemonize();
     Room *createNewRoom();
     void signupPlayer(ServerPlayer *player);
+    void gamesOver();
 
 private:
     ServerSocket *server;

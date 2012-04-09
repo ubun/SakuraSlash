@@ -473,6 +473,25 @@
       <bool>true</bool>
      </property>
     </widget>
+    <widget class="QCheckBox" name="minimizecCheckBox">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>80</y>
+       <width>241</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Minimize the dialog when server runs</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab">
     <attribute name="title">

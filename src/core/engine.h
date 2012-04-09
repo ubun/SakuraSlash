@@ -62,6 +62,8 @@ public:
     void addScenario(Scenario *scenario);
     const Scenario *getScenario(const QString &name) const;
 
+    void addPackage(const QString &name);
+    void addScenario(const QString &name);
     const ChallengeModeSet *getChallengeModeSet() const;
     const ChallengeMode *getChallengeMode(const QString &name) const;
 

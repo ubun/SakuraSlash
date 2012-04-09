@@ -120,12 +120,7 @@ void Photo::createRoleCombobox(){
 
 void Photo::updateRoleComboboxPos()
 {
-    int i, n = pile_buttons.length();
-    for(i=0; i<n; i++){
-        QGraphicsProxyWidget *button_widget = pile_buttons.at(i);
-        button_widget->setPos(pos());
-        button_widget->moveBy(5, 15 + i * 10);
-    }
+    //if(pile_button)pile_button->setPos(46, 48);
 }
 
 void Photo::showProcessBar(){

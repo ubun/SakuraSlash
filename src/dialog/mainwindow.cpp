@@ -165,6 +165,8 @@ void MainWindow::on_actionStart_Server_triggered()
     StartScene *start_scene = qobject_cast<StartScene *>(scene);
     if(start_scene){
         start_scene->switchToServer(server);
+        if(Config.value("EnableMinimizeDialog", false).toBool())
+            this->on_actionMinimize_to_system_tray_triggered();
     }
 }
 
@@ -270,11 +272,61 @@ void MainWindow::enterRoom(){
         connect(ui->actionDeath_note, SIGNAL(triggered()), room_scene, SLOT(makeKilling()));
         connect(ui->actionDamage_maker, SIGNAL(triggered()), room_scene, SLOT(makeDamage()));
         connect(ui->actionRevive_wand, SIGNAL(triggered()), room_scene, SLOT(makeReviving()));
+        connect(ui->actionSend_lowlevel_command, SIGNAL(triggered()), this, SLOT(sendLowLevelCommand()));
+        connect(ui->actionExecute_script_at_server_side, SIGNAL(triggered()), room_scene, SLOT(doScript()));
+    }
+    else{
+        ui->menuCheat->setEnabled(false);
+        ui->actionGet_card->disconnect();
+        ui->actionDeath_note->disconnect();
+        ui->actionDamage_maker->disconnect();
+        ui->actionRevive_wand->disconnect();
+        ui->actionSend_lowlevel_command->disconnect();
+        ui->actionExecute_script_at_server_side->disconnect();
     }
 
     connect(room_scene, SIGNAL(restart()), this, SLOT(startConnection()));
+    connect(room_scene, SIGNAL(return_to_start()), this, SLOT(gotoStartScene()));
 
     gotoScene(room_scene);
+}
+
+void MainWindow::gotoStartScene(){
+    StartScene *start_scene = new StartScene;
+
+    QList<QAction*> actions;
+    actions << ui->actionStart_Game
+            << ui->actionStart_Server
+            << ui->actionPC_Console_Start
+            << ui->actionReplay
+            << ui->actionConfigure
+            << ui->actionGeneral_Overview
+            << ui->actionCard_Overview
+            << ui->actionScenario_Overview
+            << ui->actionAbout
+            << ui->actionAcknowledgement;
+
+    foreach(QAction *action, actions)
+        start_scene->addButton(action);
+
+    setCentralWidget(view);
+    restoreFromConfig();
+
+    ui->menuCheat->setEnabled(false);
+    ui->actionGet_card->disconnect();
+    ui->actionDeath_note->disconnect();
+    ui->actionDamage_maker->disconnect();
+    ui->actionRevive_wand->disconnect();
+    ui->actionSend_lowlevel_command->disconnect();
+    ui->actionExecute_script_at_server_side->disconnect();
+    gotoScene(start_scene);
+
+    addAction(ui->actionShow_Hide_Menu);
+    addAction(ui->actionFullscreen);
+    addAction(ui->actionMinimize_to_system_tray);
+
+    systray = NULL;
+    delete ClientInstance;
 }
 
 void MainWindow::startGameInAnotherInstance(){
@@ -575,10 +627,16 @@ void MainWindow::on_actionScript_editor_triggered()
 MeleeDialog::MeleeDialog(QWidget *parent)
     :QDialog(parent)
 {
+    server=NULL;    
+    room_count=0;
+
     setWindowTitle(tr("AI Melee"));
 
-    QGroupBox *general_box = createGeneralBox();
-    QGroupBox *result_box = createResultBox();
+//    QGroupBox *general_box = createGeneralBox();
+//    QGroupBox *result_box = createResultBox();
+    general_box = createGeneralBox();
+    result_box = createResultBox();
+    server_log = new QTextEdit;
     QGraphicsView *record_view = new QGraphicsView;
     record_view->setMinimumWidth(500);
 
@@ -587,6 +645,11 @@ MeleeDialog::MeleeDialog(QWidget *parent)
 
     general_box->setMaximumWidth(250);
     result_box->setMaximumWidth(250);
+    server_log->setMinimumWidth(400);
+    server_log->setReadOnly(true);
+    server_log->setFrameStyle(QFrame::Box);
+    server_log->setProperty("description", true);
+    server_log->setFont(QFont("Verdana", 12));
 
     QVBoxLayout *vlayout = new QVBoxLayout;
     vlayout->addWidget(general_box);
@@ -595,9 +658,10 @@ MeleeDialog::MeleeDialog(QWidget *parent)
     QHBoxLayout *layout = new QHBoxLayout;
     layout->addLayout(vlayout);
     layout->addWidget(record_view);
+    layout->addWidget(server_log);
     setLayout(layout);
 
-    setGeneral(Config.value("MeleeGeneral", "zhangliao").toString());
+    setGeneral(Config.value("MeleeGeneral", "wusong").toString());
 }
 
 QGroupBox *MeleeDialog::createGeneralBox(){
@@ -610,15 +674,21 @@ QGroupBox *MeleeDialog::createGeneralBox(){
     connect(avatar_button, SIGNAL(clicked()), this, SLOT(selectGeneral()));
 
     QFormLayout *form_layout = new QFormLayout;
-    QSpinBox *spinbox = new QSpinBox;
-    spinbox->setRange(1, 2000);
-    spinbox->setValue(10);
+    spinbox = new QSpinBox;
+    spinbox->setRange(1, 50);
+    spinbox->setValue(4);
 
-    QPushButton *start_button = new QPushButton(tr("Start"));
+    start_button = new QPushButton(tr("Start"));
     connect(start_button, SIGNAL(clicked()), this, SLOT(startTest()));
 
-    form_layout->addRow(tr("Test times"), spinbox);
-    form_layout->addWidget(start_button);
+    loop_checkbox = new QCheckBox(tr("LOOP"));
+    loop_checkbox->setObjectName("loop_checkbox");
+    loop_checkbox->setChecked(true);
+
+    form_layout->addRow(tr("Num of rooms"), spinbox);
+    form_layout->addRow(loop_checkbox, start_button);
+    // form_layout->addWidget(start_button);
+    // form_layout->addWidget(loop_checkbox);
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(avatar_button);
@@ -627,19 +697,6 @@ QGroupBox *MeleeDialog::createGeneralBox(){
     box->setLayout(layout);
 
     return box;
-}
-
-void MeleeDialog::startTest(){
-    Server *server = new Server(this);
-    server->listen();
-
-    Config.AIDelay = 0;
-
-    Room *room = server->createNewRoom();
-    connect(room, SIGNAL(game_start()), this, SLOT(onGameStart()));
-    connect(room, SIGNAL(game_over(QString)), this, SLOT(onGameOver(QString)));
-
-    room->startTest(avatar_button->property("to_test").toString());
 }
 
 class RoomItem: public Pixmap{
@@ -684,12 +741,38 @@ public:
 typedef RoomItem *RoomItemStar;
 Q_DECLARE_METATYPE(RoomItemStar);
 
+void MeleeDialog::startTest(){
+    foreach(RoomItemStar room_item, room_items){
+        if(room_item) delete room_item;
+    }
+    room_items.clear();
+
+    if(server){
+        server->gamesOver();
+    }else{
+        server = new Server(this->parentWidget());
+        server->listen();
+        connect(server, SIGNAL(server_message(QString)), server_log,SLOT(append(QString)));
+    }
+    Config.AIDelay = 0;
+    room_count = spinbox->value();
+    for(int i=0;i<room_count;i++){
+        Room *room = server->createNewRoom();
+        connect(room, SIGNAL(game_start()), this, SLOT(onGameStart()));
+        connect(room, SIGNAL(game_over(QString)), this, SLOT(onGameOver(QString)));
+
+        room->startTest(avatar_button->property("to_test").toString());
+    }
+}
+
 void MeleeDialog::onGameStart(){
+    if(room_count>10) return;
     Room *room = qobject_cast<Room *>(sender());
 
     RoomItemStar room_item = new RoomItem(room);
     room->setTag("RoomItem", QVariant::fromValue(room_item));
 
+    room_items << room_item;
     record_scene->addItem(room_item);
 }
 
@@ -710,10 +793,14 @@ void MeleeDialog::onGameOver(const QString &winner){
 
         if(p->getGeneralName() == to_test){
 
-            if(won)
-                room_item->changePixmap("image/system/frog/good.png");
-            else
-                room_item->changePixmap("image/system/frog/bad.png");
+            if(won){
+                if(room_item) room_item->changePixmap("image/system/frog/good.png");
+                updateResultBox(p->getRole(),1);
+            }
+            else{
+                if(room_item) room_item->changePixmap("image/system/frog/bad.png");
+                updateResultBox(p->getRole(),0);
+            }
         }
     }
 
@@ -722,7 +809,18 @@ void MeleeDialog::onGameOver(const QString &winner){
                       .arg(losers.join(","))
                       .arg(room->getTag("SwapPile").toInt());
 
-    room_item->setToolTip(tooltip);
+    if(room_item) room_item->setToolTip(tooltip);
+    if(loop_checkbox->isChecked()){
+        if(room_item){
+            room_items.removeOne(room_item);
+            delete room_item;
+        }
+        Room *room = server->createNewRoom();
+        connect(room, SIGNAL(game_start()), this, SLOT(onGameStart()));
+        connect(room, SIGNAL(game_over(QString)), this, SLOT(onGameOver(QString)));
+
+        room->startTest(avatar_button->property("to_test").toString());
+    }
 }
 
 QGroupBox *MeleeDialog::createResultBox(){
@@ -741,6 +839,12 @@ QGroupBox *MeleeDialog::createResultBox(){
     rebel_edit->setReadOnly(true);
     renegade_edit->setReadOnly(true);
     total_edit->setReadOnly(true);
+
+    lord_edit->setObjectName("lord_edit");;
+    loyalist_edit->setObjectName("loyalist_edit");
+    rebel_edit->setObjectName("rebel_edit");
+    renegade_edit->setObjectName("renegade_edit");
+    total_edit->setObjectName("total_edit");
 
     layout->addRow(tr("Lord"), lord_edit);
     layout->addRow(tr("Loyalist"), loyalist_edit);
@@ -814,9 +918,34 @@ void MainWindow::on_actionReplay_file_convert_triggered()
     }
 }
 
-void MainWindow::on_actionSend_lowlevel_command_triggered()
+void MainWindow::sendLowLevelCommand()
 {
     QString command = QInputDialog::getText(this, tr("Send low level command"), tr("Please input the raw low level command"));
     if(!command.isEmpty())
         ClientInstance->request(command);
+}
+
+void MeleeDialog::updateResultBox(QString role, int win){    
+    QLineEdit *edit = result_box->findChild<QLineEdit *>(role + "_edit");
+    double roleCount = ++(this->roleCount[role]);
+    double winCount = (this->winCount[role] += win);
+    double rate = winCount / roleCount * 100;
+    edit->setText(QString("%1 / %2 = %3 %").arg(winCount).arg(roleCount).arg(rate));
+
+    double totalCount = 0, totalWinCount = 0;
+
+    foreach(int count, this->roleCount.values())
+        totalCount += count;
+
+    foreach(int count, this->winCount.values())
+        totalWinCount += count;
+
+    QLineEdit *total_edit = result_box->findChild<QLineEdit *>("total_edit");
+    total_edit->setText(QString("%1 / %2 = %3 %").arg(totalWinCount).arg(totalCount).arg(totalWinCount/totalCount*100));
+
+    server_log->append(tr("End of game %1").arg(totalCount));
+}
+
+void MainWindow::on_actionView_ban_list_triggered()
+{
 }

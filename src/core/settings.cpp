@@ -68,7 +68,7 @@ void Settings::init(){
     MaxHpScheme = value("MaxHpScheme", 0).toInt();
     AnnounceIP = value("AnnounceIP", false).toBool();
     Address = value("Address", QString()).toString();
-    EnableAI = value("EnableAI", false).toBool();
+    EnableAI = value("EnableAI", true).toBool();
     AIDelay = value("AIDelay", 1000).toInt();
     ServerPort = value("ServerPort", 9527u).toUInt();
 
@@ -91,6 +91,7 @@ void Settings::init(){
     FitInView = value("FitInView", false).toBool();
     EnableHotKey = value("EnableHotKey", true).toBool();
     NeverNullifyMyTrick = value("NeverNullifyMyTrick", true).toBool();
+    EnableMinimizeDialog = value("EnableMinimizeDialog", false).toBool();
     EnableAutoTarget = value("EnableAutoTarget", false).toBool();
     NullificationCountDown = value("NullificationCountDown", 8).toInt();
     OperationTimeout = value("OperationTimeout", 15).toInt();

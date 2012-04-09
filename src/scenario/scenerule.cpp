@@ -250,8 +250,12 @@ bool SceneRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data
 
                 case 18:
                     foreach(ServerPlayer *p, room->getAlivePlayers()) {
-                        if(!p->isKongcheng())
-                            room->askForDiscard(p, "", 1);
+                        if(!p->isKongcheng()) {
+                            if(p->getHandcardNum() == 1)
+                                p->throwAllHandCards();
+                            else
+                                room->askForDiscard(p, "scene_18_eff", 1);
+                        }
                     }
                     break;
 

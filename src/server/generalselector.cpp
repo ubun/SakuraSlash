@@ -47,18 +47,12 @@ QString GeneralSelector::selectFirst(ServerPlayer *player, const QStringList &ca
 
     ServerPlayer *lord = player->getRoom()->getLord();
     QString lord_kingdom;
-    if(lord->getGeneral()->isLord())
+    if(lord->getGeneral() && lord->getGeneral()->isLord())
         lord_kingdom = lord->getKingdom();
 
     foreach(QString candidate, candidates){
         QString key = QString("%1:%2:%3").arg(candidate).arg(role).arg(index);
         qreal value = first_general_table.value(key, default_value);
-
-        if(!lord_kingdom.isNull() && (role == "loyalist" || role == "renegade")){
-            const General *general = Sanguosha->getGeneral(candidate);
-            if(general->getKingdom() == lord_kingdom)
-                value += 0.5;
-        }
 
         if(value > max){
             max = value;

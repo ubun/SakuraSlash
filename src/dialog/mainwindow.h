@@ -8,6 +8,11 @@
 #include <QMainWindow>
 #include <QSettings>
 #include <QComboBox>
+#include <QCheckBox>
+#include <QSpinBox>
+
+#include <QtDeclarative/QDeclarativeView>
+#include <QtDeclarative/QDeclarativeContext>
 
 namespace Ui {
     class MainWindow;
@@ -20,6 +25,7 @@ class Server;
 class QTextEdit;
 class QToolButton;
 class QGroupBox;
+class RoomItem;
 
 class BroadcastBox: public QDialog{
     Q_OBJECT
@@ -48,12 +54,24 @@ private slots:
     void onGameStart();
     void onGameOver(const QString &winner);
 
-private:
+private:    
+    QMap<QString, int> roleCount, winCount;
+
     QGroupBox *createGeneralBox();
     QGroupBox *createResultBox();
+    void updateResultBox(QString role, int win);
 
     QToolButton *avatar_button;
+    QPushButton *start_button;
+    QCheckBox *loop_checkbox;
     QGraphicsScene *record_scene;
+    QGroupBox *general_box;
+    QGroupBox *result_box;
+    QTextEdit *server_log;
+    QSpinBox *spinbox;
+    Server *server;
+    int room_count;
+    QList<RoomItem*> room_items;
 };
 
 class MainWindow : public QMainWindow {
@@ -76,7 +94,6 @@ private:
     void restoreFromConfig();
 
 private slots:
-    void on_actionSend_lowlevel_command_triggered();
     void on_actionReplay_file_convert_triggered();
     void on_actionAI_Melee_triggered();
     void on_actionPackaging_triggered();
@@ -104,8 +121,11 @@ private slots:
     void networkError(const QString &error_msg);
     void enterRoom();
     void gotoScene(QGraphicsScene *scene);
+    void gotoStartScene();
+    void sendLowLevelCommand();
     void startGameInAnotherInstance();
     void changeBackground();
+    void on_actionView_ban_list_triggered();
 };
 
 #endif // MAINWINDOW_H

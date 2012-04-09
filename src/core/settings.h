@@ -53,6 +53,7 @@ public:
 
     bool FitInView;
     bool EnableHotKey;
+    bool EnableMinimizeDialog;
     bool NeverNullifyMyTrick;
     bool EnableAutoTarget;
     int NullificationCountDown;

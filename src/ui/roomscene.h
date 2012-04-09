@@ -192,6 +192,7 @@ private:
     int timer_id;
     int tick;
 
+    QGraphicsItem *state_item;
     QList<QGraphicsPixmapItem *> role_items;
 
     CardContainer *card_container;
@@ -228,13 +229,14 @@ private:
     KOFOrderBox *enemy_box, *self_box;
 
     CardItem *takeCardItem(ClientPlayer *src, Player::Place src_place, int card_id);
-    void putCardItem(const ClientPlayer *dest, Player::Place dest_place, CardItem *card_item);
+    void putCardItem(const ClientPlayer *dest, Player::Place dest_place, CardItem *card_item, QString show_name = "");
     void useCard(const Card *card);
     void fillTable(QTableWidget *table, const QList<const ClientPlayer *> &players);
     void chooseSkillButton();
 
     void viewDiscards();
     void hideDiscards();
+    void putToDiscard(CardItem* item);
 
     void selectTarget(int order, bool multiple);
     void selectNextTarget(bool multiple);
@@ -340,6 +342,7 @@ private slots:
 
 signals:
     void restart();
+    void return_to_start();
 };
 
 extern RoomScene *RoomSceneInstance;
