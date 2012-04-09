@@ -441,6 +441,32 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             SlashEffectStruct effect = data.value<SlashEffectStruct>();
             effect.to->removeMark("qinggang");
 
+            if(effect.jink->objectName() == "soil_jink" && effect.slash && effect.slash->inherits("NatureSlash")){
+                DamageStruct::Nature nature = effect.slash->getNature();
+                room->setPlayerProperty(player, "chained", false);
+
+                // iron chain effect
+                QList<ServerPlayer *> chained_players = room->getOtherPlayers(player);
+                foreach(ServerPlayer *chained_player, chained_players){
+                    if(chained_player->isChained()){
+                        room->getThread()->delay();
+                        room->setPlayerProperty(chained_player, "chained", false);
+
+                        LogMessage log;
+                        log.type = "#IronChainDamage";
+                        log.from = chained_player;
+                        room->sendLog(log);
+
+                        DamageStruct chain_damage;
+                        chain_damage.from = player;
+                        chain_damage.to = chained_player;
+                        chain_damage.nature = nature;
+                        chain_damage.chain = true;
+
+                        room->damage(chain_damage);
+                    }
+                }
+            }
             break;
         }
 

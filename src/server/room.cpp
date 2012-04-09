@@ -405,6 +405,8 @@ void Room::slashResult(const SlashEffectStruct &effect, const Card *jink){
         thread->trigger(SlashHit, effect.from, data);
     else{
         setEmotion(effect.to, "jink");
+        if(jink->objectName() == "wind_jink" && effect.slash && effect.slash->inherits("NatureSlash"))
+            effect.to->obtainCard(effect.slash);
         thread->trigger(SlashMissed, effect.from, data);
     }
 }
