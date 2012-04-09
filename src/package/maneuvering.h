@@ -40,6 +40,15 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
+class JuicePeach: public Peach{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE JuicePeach(Card::Suit suit, int number);
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual bool isAvailable(const Player *player) const;
+};
+
 class Fan: public Weapon{
     Q_OBJECT
 
@@ -112,6 +121,22 @@ class BlackDragonPackage: public Package{
 
 public:
     BlackDragonPackage();
+};
+
+//
+
+class WindJink: public Jink{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE WindJink(Card::Suit suit, int number);
+};
+
+class SoilJink: public Jink{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE SoilJink(Card::Suit suit, int number);
 };
 
 class RenwangShield: public Armor{
