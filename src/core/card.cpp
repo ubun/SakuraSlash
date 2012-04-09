@@ -115,7 +115,18 @@ void Card::setSuit(Suit suit){
 }
 
 bool Card::sameColorWith(const Card *other) const{
-    return isBlack() == other->isBlack();
+    return getColor() == other->getColor();
+}
+
+Card::Color Card::getColor() const{
+    switch(suit){
+    case Spade:
+    case Club: return Black;
+    case Heart:
+    case Diamond: return Red;
+    default:
+        return Colorless;
+    }
 }
 
 bool Card::isEquipped() const{
@@ -155,10 +166,7 @@ bool Card::CompareByType(const Card *a, const Card *b){
 
 QString Card::getPixmapPath() const{
     QString path = QString("image/card/%1.jpg").arg(objectName());
-    if(QFile::exists(path))
-        return path;
-    else
-        return "image/card/unknown.jpg";
+    return QFile::exists(path) ? path : "image/card/unknown.jpg";
 }
 
 QString Card::getIconPath() const{
@@ -536,7 +544,7 @@ QString SkillCard::toString() const{
 
 // ---------- Dummy card      -------------------
 
-DummyCard::DummyCard()
+DummyCard::DummyCard():SkillCard()
 {
     target_fixed = true;
     setObjectName("dummy");

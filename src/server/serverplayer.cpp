@@ -20,17 +20,31 @@ Room *ServerPlayer::getRoom() const{
     return room;
 }
 
-void ServerPlayer::playCardEffect(const Card *card){
-    if(card->isVirtualCard() && !card->isMute()){
-        QString skill_name = card->getSkillName();
-        const Skill *skill = Sanguosha->getSkill(skill_name);
-        int index = -1;
-        if(skill)
-            index = skill->getEffectIndex(this, card);
+void ServerPlayer::playCardEffect(const QString &card_name) const{
+    QString gender = getGender() == General::Male ? "M" : "F";
+    room->broadcastInvoke("playCardEffect", QString("%1:%2").arg(card_name).arg(gender));
+}
 
+void ServerPlayer::playCardEffect(const Card *card) const{
+    if(card->isMute())
+        return;
+
+    if(!card->isVirtualCard())
+        playCardEffect(card->objectName());
+
+    QString skill_name = card->getSkillName();
+    const Skill *skill = Sanguosha->getSkill(skill_name);
+    if(skill == NULL)
+        return;
+
+    int index = skill->getEffectIndex(this, card);
+    if(index == 0)
+        return;
+
+    if(index == -1 && skill->getSources().isEmpty())
+        playCardEffect(card->objectName());
+    else
         room->playSkillEffect(skill_name, index);
-    }else
-        room->playCardEffect(card->objectName(), getGeneral()->isMale());
 }
 
 int ServerPlayer::getRandomHandCardId() const{
@@ -189,6 +203,15 @@ void ServerPlayer::unicast(const QString &message) const{
 
     if(recorder)
         recorder->recordLine(message);
+}
+
+void ServerPlayer::startNetworkDelayTest(){
+    test_time = QDateTime::currentDateTime();
+    invoke("networkDelayTest");
+}
+
+qint64 ServerPlayer::endNetworkDelayTest(){
+    return test_time.msecsTo(QDateTime::currentDateTime());
 }
 
 void ServerPlayer::startRecord(){
@@ -473,16 +496,20 @@ void ServerPlayer::turnOver(){
     log.from = this;
     log.arg = faceUp() ? "face_up" : "face_down";
     room->sendLog(log);
+
+    room->getThread()->trigger(TurnedOver, this);
 }
 
-void ServerPlayer::play(){
-    static QList<Phase> all_phases;
-    if(all_phases.isEmpty()){
-        all_phases << Start << Judge << Draw << Play
-                << Discard << Finish << NotActive;
+void ServerPlayer::play(QList<Player::Phase> set_phases){
+    if(!set_phases.isEmpty()){
+        if(!set_phases.contains(NotActive))
+            set_phases << NotActive;
     }
+    else
+        set_phases << RoundStart << Start << Judge << Draw << Play
+                << Discard << Finish << NotActive;
 
-    phases = all_phases;
+    phases = set_phases;
     while(!phases.isEmpty()){
         Phase phase = phases.takeFirst();
         setPhase(phase);
@@ -505,7 +532,7 @@ void ServerPlayer::skip(Player::Phase phase){
 
     static QStringList phase_strings;
     if(phase_strings.isEmpty()){
-        phase_strings << "start" << "judge" << "draw"
+        phase_strings << "round_start" << "start" << "judge" << "draw"
                 << "play" << "discard" << "finish" << "not_active";
     }
 
@@ -630,6 +657,9 @@ int ServerPlayer::getGeneralMaxHP() const{
     return max_hp;
 }
 
+int ServerPlayer::getGeneralMaxHp() const{
+    return getGeneralMaxHP();
+}
 QString ServerPlayer::getGameMode() const{
     return room->getMode();
 }
@@ -748,11 +778,16 @@ void ServerPlayer::addToPile(const QString &pile_name, int card_id, bool open){
     room->moveCardTo(Sanguosha->getCard(card_id), this, Player::Special, open);
 }
 
-void ServerPlayer::gainAnExtraTurn(){
+void ServerPlayer::gainAnExtraTurn(ServerPlayer *clearflag){
     ServerPlayer *current = room->getCurrent();
 
     room->setCurrent(this);
+    //room->removeTag("Shudan");
+    if(clearflag)
+        clearflag->clearFlags();
     room->getThread()->trigger(TurnStart, this);
+    if(clearflag)
+        clearflag->clearHistory();
     room->setCurrent(current);
 }
 

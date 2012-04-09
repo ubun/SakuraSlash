@@ -36,6 +36,7 @@ Client::Client(QObject *parent, const QString &filename)
     callbacks["hallEntered"] = &Client::hallEntered;
 
     callbacks["setup"] = &Client::setup;
+    callbacks["networkDelayTest"] = &Client::networkDelayTest;
     callbacks["addPlayer"] = &Client::addPlayer;
     callbacks["removePlayer"] = &Client::removePlayer;
     callbacks["startInXs"] = &Client::startInXs;
@@ -65,6 +66,7 @@ Client::Client(QObject *parent, const QString &filename)
     callbacks["setFixedDistance"] = &Client::setFixedDistance;
     callbacks["transfigure"] = &Client::transfigure;
     callbacks["jilei"] = &Client::jilei;
+    callbacks["cardLock"] = &Client::cardLock;
     callbacks["pile"] = &Client::pile;
 
     callbacks["updateStateItem"] = &Client::updateStateItem;
@@ -79,6 +81,7 @@ Client::Client(QObject *parent, const QString &filename)
     callbacks["drawCards"] = &Client::drawCards;
     callbacks["clearPile"] = &Client::clearPile;
     callbacks["setPileNumber"] = &Client::setPileNumber;
+    callbacks["setStatistics"] = &Client::setStatistics;
 
     // interactive methods
     callbacks["activate"] = &Client::activate;
@@ -174,6 +177,10 @@ void Client::signup(){
         }
         request(signup_str);
     }
+}
+
+void Client::networkDelayTest(const QString &){
+    request("networkDelayTest .");
 }
 
 void Client::request(const QString &message){
@@ -537,6 +544,10 @@ void Client::jilei(const QString &jilei_str){
     Self->jilei(jilei_str);
 }
 
+void Client::cardLock(const QString &card_str){
+    Self->setCardLocked(card_str);
+}
+
 void Client::judgeResult(const QString &result_str){
     QStringList texts = result_str.split(":");
     QString who = texts.at(0);
@@ -747,7 +758,7 @@ void Client::askForNullification(const QString &ask_str){
         source = getPlayer(source_name);
 
     if(Config.NeverNullifyMyTrick && source == Self){
-        if(trick_card->inherits("SingleTargetTrick")){
+        if(trick_card->inherits("SingleTargetTrick") || trick_card->objectName() == "iron_chain"){
             responseCard(NULL);
             return;
         }
@@ -862,6 +873,12 @@ void Client::speakToServer(const QString &text){
 }
 
 void Client::addHistory(const QString &add_str){
+    if(add_str == "pushPile")
+    {
+        emit card_used();
+        return;
+    }
+
     QRegExp rx("(.+)(#\\d+)?");
     if(rx.exactMatch(add_str)){
         QStringList texts = rx.capturedTexts();
@@ -947,6 +964,26 @@ void Client::setPileNumber(const QString &pile_str){
     pile_num = pile_str.toInt();
 
     updatePileNum();
+}
+
+void Client::setStatistics(const QString &property_str){
+    QRegExp rx("(\\w+):(\\w+)");
+    if(!rx.exactMatch(property_str))
+        return;
+
+    QStringList texts = rx.capturedTexts();
+    QString property_name = texts.at(1);
+    QString value_str = texts.at(2);
+
+    StatisticsStruct *statistics = Self->getStatistics();
+    bool ok;
+    value_str.toInt(&ok);
+    if(ok)
+        statistics->setStatistics(property_name, value_str.toInt());
+    else
+        statistics->setStatistics(property_name, value_str);
+
+    Self->setStatistics(statistics);
 }
 
 void Client::updatePileNum(){
@@ -1404,7 +1441,9 @@ void Client::askForYiji(const QString &card_list){
 }
 
 void Client::askForPlayerChosen(const QString &players){
-    players_to_choose = players.split("+");
+    skill_name = players.split(":").at(1);
+    QString player_list = players.split(":").at(0);
+    players_to_choose = player_list.split("+");
 
     Q_ASSERT(!players_to_choose.isEmpty());
 

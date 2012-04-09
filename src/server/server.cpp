@@ -719,6 +719,7 @@ bool ServerDialog::config(){
     Config.OperationNoLimit = nolimit_checkbox->isChecked();
     Config.ContestMode = contest_mode_checkbox->isChecked();
     Config.FreeChoose = free_choose_checkbox->isChecked();
+    Config.FreeAssignSelf = free_assign_self_checkbox->isChecked() && free_assign_checkbox->isEnabled();
     Config.ForbidSIMC = forbid_same_ip_checkbox->isChecked();
     Config.DisableChat = disable_chat_checkbox->isChecked();
     Config.Enable2ndGeneral = second_general_checkbox->isChecked();
@@ -746,6 +747,7 @@ bool ServerDialog::config(){
     Config.setValue("ContestMode", Config.ContestMode);
     Config.setValue("FreeChoose", Config.FreeChoose);
     Config.setValue("FreeAssign", free_assign_checkbox->isChecked());
+    Config.setValue("FreeAssignSelf", Config.FreeAssignSelf);
     Config.setValue("MaxChoice", maxchoice_spinbox->value());
     Config.setValue("ForbidSIMC", Config.ForbidSIMC);
     Config.setValue("DisableChat", Config.DisableChat);

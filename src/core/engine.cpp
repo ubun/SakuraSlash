@@ -287,7 +287,10 @@ int Engine::getRoleIndex() const{
 }
 
 const CardPattern *Engine::getPattern(const QString &name) const{
-    return patterns.value(name, NULL);
+    const CardPattern * ptn = patterns.value(name, NULL);
+    if(ptn)return ptn;
+
+    return new ExpPattern(name);
 }
 
 QList<const Skill *> Engine::getRelatedSkills(const QString &skill_name) const{
@@ -689,6 +692,10 @@ void Engine::playCardEffect(const QString &card_name, bool is_male) const{
 
 const Skill *Engine::getSkill(const QString &skill_name) const{
     return skills.value(skill_name, NULL);
+}
+
+QStringList Engine::getSkillNames() const{
+    return skills.keys();
 }
 
 const TriggerSkill *Engine::getTriggerSkill(const QString &skill_name) const{

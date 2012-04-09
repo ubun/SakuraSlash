@@ -47,9 +47,10 @@ void GameRule::onPhaseChange(ServerPlayer *player) const{
         }
     case Player::Draw: {
             QVariant num = 2;
-            if(room->getTag("FirstRound").toBool() && room->getMode() == "02_1v1"){
+            if(room->getTag("FirstRound").toBool()){
                 room->setTag("FirstRound", false);
-                num = 1;
+                if(room->getMode() == "02_1v1")
+                    num = 1;
             }
 
             room->getThread()->trigger(DrawNCards, player, num);
@@ -206,6 +207,8 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             RecoverStruct recover_struct = data.value<RecoverStruct>();
             int recover = recover_struct.recover;
 
+            room->setPlayerStatistics(player, "recover", recover);
+
             int new_hp = qMin(player->getHp() + recover, player->getMaxHP());
             room->setPlayerProperty(player, "hp", new_hp);
             room->broadcastInvoke("hpChange", QString("%1:%2").arg(player->objectName()).arg(recover));
@@ -320,15 +323,21 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
                     use.to << dying.who;
 
                 room->useCard(use, false);
+
+                if(player != dying.who && dying.who->getHp() > 0)
+                    room->setPlayerStatistics(player, "save", 1);
             }
 
             break;
         }
 
     case AskForPeachesDone:{
-            if(player->getHp() <= 0){
+            if(player->getHp() <= 0 && player->isAlive()){
                 DyingStruct dying = data.value<DyingStruct>();
                 room->killPlayer(player, dying.damage);
+
+                if(dying.damage && dying.damage->from)
+                    room->setPlayerStatistics(dying.damage->from, "kill", 1);
             }
 
             break;
@@ -337,6 +346,8 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
     case DamageDone:{
             DamageStruct damage = data.value<DamageStruct>();
             room->sendDamageLog(damage);
+            if(damage.from)
+                room->setPlayerStatistics(damage.from, "damage", damage.damage);
 
             room->applyDamage(player, damage);
             if(player->getHp() <= 0){
@@ -410,7 +421,7 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
             QString slasher = effect.from->objectName();
-            const Card *jink = room->askForCard(effect.to, "jink", "slash-jink:" + slasher);
+            const Card *jink = room->askForCard(effect.to, "jink", "slash-jink:" + slasher, data);
             room->slashResult(effect, jink);
 
             break;
@@ -535,7 +546,10 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
 
             room->sendJudgeResult(judge);
 
-            room->getThread()->delay();
+            int delay = Config.AIDelay;
+            if(judge->time_consuming)
+                delay /= 4;
+            room->getThread()->delay(delay);
 
             break;
         }
@@ -745,6 +759,7 @@ HulaoPassMode::HulaoPassMode(QObject *parent)
     setObjectName("hulaopass_mode");
 
     events << HpChanged;
+    default_choice = "recover";
 }
 
 static int Transfiguration = 1;

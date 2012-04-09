@@ -1,6 +1,7 @@
 #include "settings.h"
 #include "photo.h"
 #include "card.h"
+#include "engine.h"
 
 #include <QFontDatabase>
 #include <QStringList>
@@ -61,6 +62,7 @@ void Settings::init(){
     FreeChoose = value("FreeChoose", false).toBool();
     ForbidSIMC = value("ForbidSIMC", false).toBool();
     DisableChat = value("DisableChat", false).toBool();
+    FreeAssignSelf = value("FreeAssignSelf", false).toBool();
     Enable2ndGeneral = value("Enable2ndGeneral", false).toBool();
     EnableScene = value("EnableScene", false).toBool();	//changjing
     MaxHpScheme = value("MaxHpScheme", 0).toInt();

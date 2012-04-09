@@ -121,6 +121,7 @@ struct JudgeStruct{
     JudgeStructPattern pattern;
     bool good;
     QString reason;
+    bool time_consuming;
 };
 
 enum TriggerEvent{
@@ -137,6 +138,7 @@ enum TriggerEvent{
     FinishJudge,
 
     Pindian,
+    TurnedOver,
 
     Predamage,
     Predamaged,
@@ -163,6 +165,10 @@ enum TriggerEvent{
     CardDiscarded,
     CardLost,
     CardLostDone,
+    CardGot,
+    CardGotDone,
+    CardDrawing,
+    CardDrawnDone,
 
     CardEffect,
     CardEffected,
@@ -180,17 +186,18 @@ typedef DamageStruct *DamageStar;
 typedef PindianStruct *PindianStar;
 typedef const CardMoveStruct *CardMoveStar;
 
-Q_DECLARE_METATYPE(DamageStruct);
-Q_DECLARE_METATYPE(CardEffectStruct);
-Q_DECLARE_METATYPE(SlashEffectStruct);
-Q_DECLARE_METATYPE(CardUseStruct);
-Q_DECLARE_METATYPE(CardMoveStar);
-Q_DECLARE_METATYPE(CardStar);
-Q_DECLARE_METATYPE(PlayerStar);
-Q_DECLARE_METATYPE(DyingStruct);
-Q_DECLARE_METATYPE(RecoverStruct);
-Q_DECLARE_METATYPE(JudgeStar);
-Q_DECLARE_METATYPE(DamageStar);
-Q_DECLARE_METATYPE(PindianStar);
+Q_DECLARE_METATYPE(DamageStruct)
+Q_DECLARE_METATYPE(CardEffectStruct)
+Q_DECLARE_METATYPE(SlashEffectStruct)
+Q_DECLARE_METATYPE(CardUseStruct)
+Q_DECLARE_METATYPE(CardMoveStar)
+Q_DECLARE_METATYPE(CardStar)
+Q_DECLARE_METATYPE(PlayerStar)
+Q_DECLARE_METATYPE(DyingStruct)
+Q_DECLARE_METATYPE(RecoverStruct)
+Q_DECLARE_METATYPE(JudgeStar)
+Q_DECLARE_METATYPE(DamageStar)
+Q_DECLARE_METATYPE(PindianStar)
+Q_DECLARE_METATYPE(QList<int>)
 
 #endif // STRUCTS_H
