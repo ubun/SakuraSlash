@@ -54,13 +54,13 @@ Engine::Engine()
             << "StandardCard"
             << "BlackDragon"
             << "ThunderBird"
-            << "WhiteTiger"
+            //<< "WhiteTiger"
             //<< "IronDino"
-			<< "Secrets"
+            << "Secrets"
             << "Nostalgia"
             << "Joy"
-			<< "Disaster"
-			<< "JoyEquip"
+            << "Disaster"
+            << "JoyEquip"
             ;
 
     foreach(QString name, package_names)
