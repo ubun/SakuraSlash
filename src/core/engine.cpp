@@ -10,6 +10,7 @@
 #include "audio.h"
 
 #include <QFile>
+#include <QTextStream>
 #include <QStringList>
 #include <QMessageBox>
 #include <QDir>
@@ -339,13 +340,27 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const{
         return NULL;
 }
 
+QString Engine::getVersionNumber() const{
+    return "20120410";
+}
+
 QString Engine::getVersion() const{
-    return "1.0";
+    QString version_number = getVersionNumber();
+    QString mod_name = getMODName();
+    if(mod_name == "official")
+        return version_number;
+    else
+        return QString("%1:%2").arg(version_number).arg(mod_name);
 }
 
 QString Engine::getVersionName() const{
-    return tr("Happy New Year");
+    return "V1.5.0";
 }
+
+QString Engine::getMODName() const{
+    return "ConanSlash";
+}
+
 QStringList Engine::getExtensions() const{
     QStringList extensions;
     QList<const Package *> packages = findChildren<const Package *>();

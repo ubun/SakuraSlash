@@ -170,9 +170,15 @@ void MainWindow::on_actionStart_Server_triggered()
     }
 }
 
-void MainWindow::checkVersion(const QString &server_version){
+void MainWindow::checkVersion(const QString &server_version, const QString &server_mod){
+    QString client_mod = Sanguosha->getMODName();
+    if(client_mod != server_mod){
+        QMessageBox::warning(this, tr("Warning"), tr("Client MOD name is not same as the server!"));
+        return;
+    }
+
     Client *client = qobject_cast<Client *>(sender());
-    QString client_version = Sanguosha->getVersion();
+    QString client_version = Sanguosha->getVersionNumber();
 
     if(server_version == client_version){
         client->signup();
@@ -202,7 +208,7 @@ void MainWindow::checkVersion(const QString &server_version){
 void MainWindow::startConnection(){
     Client *client = new Client(this);
 
-    connect(client, SIGNAL(version_checked(QString)), SLOT(checkVersion(QString)));
+    connect(client, SIGNAL(version_checked(QString,QString)), SLOT(checkVersion(QString,QString)));
     connect(client, SIGNAL(error_message(QString)), SLOT(networkError(QString)));
 }
 

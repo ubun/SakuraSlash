@@ -1367,21 +1367,13 @@ void RoomScene::updateRoleComboBox(const QString &new_role){
     normal_mode["rebel"] = tr("Rebel");
     normal_mode["renegade"] = tr("Renegade");
 
-    boss_mode["lord"] = tr("Boss");
-    boss_mode["loyalist"] = tr("Hero");
-    boss_mode["rebel"] = tr("Citizen");
-    boss_mode["renegade"] = tr("Guard");
-
-    challenge_mode["lord"] = challenge_mode["loyalist"] = tr("Defense");
-    challenge_mode["rebel"] = challenge_mode["renegade"] = tr("Attack");
-
     threeV3_mode["lord"] = threeV3_mode["renegade"] = tr("Marshal");
     threeV3_mode["loyalist"] = threeV3_mode["rebel"] = tr("Vanguard");
 
     QMap<QString, QString> *map = NULL;
     switch(Sanguosha->getRoleIndex()){
-    case 2: map = &boss_mode; break;
-    case 3: map = &challenge_mode; break;
+    case 2: break;
+    case 3: break;
     case 4: map = &threeV3_mode; break;
     default:
         map = &normal_mode;
@@ -2282,20 +2274,14 @@ void RoomScene::onGameOver(){
     QString win_effect;
     if(victory){
         win_effect = "win";
-        /*
-        foreach(const Player *player, ClientInstance->getPlayers()){
+        /*foreach(const Player *player, ClientInstance->getPlayers()){
             if(player->property("win").toBool() && player->isCaoCao()){
-
-#ifdef Q_OS_WIN
-                if(SoundEngine)
-                    SoundEngine->stopAllSounds();
-#endif
+                Audio::stop();
 
                 win_effect = "win-cc";
                 break;
             }
-        }
-        */
+        }*/
     }else
         win_effect = "lose";
 

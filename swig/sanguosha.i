@@ -98,6 +98,7 @@ public:
 	QString getRole() const;    
 	Role getRoleEnum() const;
 
+	void setGeneral(const General *general);
 	void setGeneralName(const char *general_name);
 	QString getGeneralName() const;    
 
@@ -233,6 +234,7 @@ public:
 class ServerPlayer : public Player
 {
 public:
+	ServerPlayer(Room *room);
 
 	void setSocket(ClientSocket *socket);
 	void invoke(const char *method, const char *arg = ".");
