@@ -731,7 +731,7 @@ RedAlert::RedAlert(Suit suit, int number)
 
 void RedAlert::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.to->getRoom();
-    const Card *trick = room->askForCard(effect.to, "trick", "redalert-trick:" + effect.from->getGeneralName());
+    const Card *trick = room->askForCard(effect.to, "TrickCard", "redalert-trick:" + effect.from->getGeneralName());
     if(!trick)
         room->loseHp(effect.to);
 }

@@ -447,13 +447,6 @@ public:
     }
 };
 
-class EquipPattern: public CardPattern{
-public:
-    virtual bool match(const Player *player, const Card *card) const{
-        return card->getTypeId() == Card::Equip;
-    }
-};
-
 class Xianv: public TriggerSkill{
 public:
     Xianv():TriggerSkill("xianv"){
@@ -480,7 +473,7 @@ public:
                 }
             }
             if(caninvoke){
-                const Card *card = room->askForCard(jiuwenlong, ".equip", "@xianv", data);
+                const Card *card = room->askForCard(jiuwenlong, "EquipCard", "@xianv", data);
                 if(card){
                     LogMessage log;
                     log.type = "$Xianv";
@@ -508,7 +501,6 @@ FirePackage::FirePackage()
     General *satomiwako = new General(this, "satomiwako", "jing", 4, false);
     satomiwako->addSkill(new Jiaoxie);
     satomiwako->addSkill(new Xianv);
-    patterns[".equip"] = new EquipPattern;
 
     addMetaObject<IentouCard>();
 }

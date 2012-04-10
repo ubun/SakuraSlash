@@ -752,13 +752,6 @@ public:
     }
 };
 
-class EquipPattern: public CardPattern{
-public:
-    virtual bool match(const Player *player, const Card *card) const{
-        return card->inherits("EquipCard");
-    }
-};
-
 class Yinsi: public TriggerSkill{
 public:
     Yinsi():TriggerSkill("yinsi"){
@@ -810,7 +803,7 @@ public:
             }
         }
         else{
-            const Card *equip = room->askForCard(toyama, ".Ep", "@yinsi-enemy:" + damage.to->objectName(), data);
+            const Card *equip = room->askForCard(toyama, "EquipCard", "@yinsi-enemy:" + damage.to->objectName(), data);
             if(equip){
                 FireSlash *slash = new FireSlash(equip->getSuit(), equip->getNumber());
                 slash->setSkillName(objectName());
@@ -1375,11 +1368,9 @@ WindPackage::WindPackage()
     related_skills.insertMulti("yunchou", "#yunchou_clear");
     hattoriheizou->addSkill(new Weiwo);
     hattoriheizou->addSkill(new Lingjia);
-    patterns[".Lj"] = new LingjiaPattern;
 
     General *touyamaginshirou = new General(this, "touyamaginshirou", "jing");
     touyamaginshirou->addSkill(new Yinsi);
-    patterns[".Ep"] = new EquipPattern;
 
     General *nakamoriginzou = new General(this, "nakamoriginzou", "guai");
     nakamoriginzou->addSkill(new Weijiao);

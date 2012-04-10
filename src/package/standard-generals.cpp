@@ -1036,7 +1036,7 @@ void DiaobingCard::use(Room *room, ServerPlayer *matsu, const QList<ServerPlayer
     QList<ServerPlayer *> lieges = room->getLieges("jing", matsu);
     const Card *slash = NULL;
     foreach(ServerPlayer *liege, lieges){
-        slash = room->askForCard(liege, ".At", "@diaobing-slash", QVariant::fromValue((PlayerStar)matsu));
+        slash = room->askForCard(liege, "Slash,FireAttack,Duel", "@diaobing-slash", QVariant::fromValue((PlayerStar)matsu));
         if(slash && (!targets.first()->isKongcheng() || !slash->inherits("FireAttack"))){
             CardUseStruct card_use;
             card_use.card = slash;
@@ -1046,15 +1046,6 @@ void DiaobingCard::use(Room *room, ServerPlayer *matsu, const QList<ServerPlayer
         }
     }
 }
-
-class AttackPattern: public CardPattern{
-public:
-    virtual bool match(const Player *player, const Card *card) const{
-        return card->inherits("Slash") ||
-                card->inherits("FireAttack") ||
-                card->inherits("Duel");
-    }
-};
 
 class Diaobing: public ZeroCardViewAsSkill{
 public:
@@ -2141,7 +2132,6 @@ void StandardPackage::addGenerals(){
     addMetaObject<JingshenCard>();
 
     skills << new RexueEffect;
-    patterns[".At"] = new AttackPattern;
 
     addMetaObject<CheatCard>();
 }

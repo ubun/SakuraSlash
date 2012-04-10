@@ -348,57 +348,6 @@ EquipCard::Location Car::location() const{
         return OffensiveCarLocation;
 }
 
-class HandcardPattern: public CardPattern{
-public:
-    virtual bool match(const Player *player, const Card *card) const{
-        return ! player->hasEquip(card);
-    }
-};
-
-class AllcardPattern: public CardPattern{
-public:
-    virtual bool match(const Player *player, const Card *card) const{
-        return true;
-    }
-};
-
-class SuitPattern: public CardPattern{
-public:
-    SuitPattern(Card::Suit suit)
-        :suit(suit)
-    {
-    }
-
-    virtual bool match(const Player *player, const Card *card) const{
-        return ! player->hasEquip(card) && card->getSuit() == suit;
-    }
-
-private:
-    Card::Suit suit;
-};
-
-class AllsuitPattern: public CardPattern{
-public:
-    AllsuitPattern(Card::Suit suit)
-        :suit(suit)
-    {
-    }
-
-    virtual bool match(const Player *player, const Card *card) const{
-        return card->getSuit() == suit;
-    }
-
-private:
-    Card::Suit suit;
-};
-
-class SlashPattern: public CardPattern{
-public:
-    virtual bool match(const Player *player, const Card *card) const{
-        return ! player->hasEquip(card) && card->inherits("Slash");
-    }
-};
-
 class NamePattern: public CardPattern{
 public:
     NamePattern(const QString &name)
@@ -415,21 +364,6 @@ private:
     QString name;
 };
 
-class PAPattern: public CardPattern{
-public:
-    virtual bool match(const Player *player, const Card *card) const{
-        return ! player->hasEquip(card) &&
-                (card->inherits("Peach") || card->inherits("Analeptic"));
-    }
-};
-
-class TrickPattern: public CardPattern{
-public:
-    virtual bool match(const Player *player, const Card *card) const{
-        return card->inherits("TrickCard");
-    }
-};
-
 StandardPackage::StandardPackage()
     :Package("standard")
 {
@@ -441,18 +375,18 @@ StandardPackage::StandardPackage()
     patterns[".H"] = new ExpPattern(".|heart|.|hand");
     patterns[".D"] = new ExpPattern(".|diamond|.|hand");
 
-    patterns[".."] = new AllcardPattern;
-    patterns["..S"] = new AllsuitPattern(Card::Spade);
-    patterns["..C"] = new AllsuitPattern(Card::Club);
-    patterns["..H"] = new AllsuitPattern(Card::Heart);
-    patterns["..D"] = new AllsuitPattern(Card::Diamond);
+    patterns[".red"] = new ExpPattern(".|.|.|hand|red");
+    patterns[".."] = new ExpPattern(".");
+    patterns["..S"] = new ExpPattern(".|spade");
+    patterns["..C"] = new ExpPattern(".|club");
+    patterns["..H"] = new ExpPattern(".|heart");
+    patterns["..D"] = new ExpPattern(".|diamond");
 
     patterns["slash"] = new ExpPattern("Slash");
     patterns["jink"] = new ExpPattern("Jink");
     patterns["peach"] = new ExpPattern("Peach");
     patterns["nullification"] = new NamePattern("nullification");
     patterns["peach+analeptic"] = new ExpPattern("Peach,Analeptic");
-    patterns["trick"] = new TrickPattern;
 }
 
 ADD_PACKAGE(Standard)
