@@ -1155,6 +1155,8 @@ function SmartAI:useBasicCard(card, use, no_distance)
 	and self.player:getWeapon():inherits("Halberd"))
 	or (self.player:hasSkill("shenji") and not self.player:getWeapon()) then
 		self.slash_targets = 3
+	elseif self.player:hasSkill("shenyong") and self.player:getPhase() == sgs.Player_Play then
+		self.slash_targets = 2
 	end
 
 	self.predictedRange = self.player:getAttackRange()

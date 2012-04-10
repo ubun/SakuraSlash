@@ -760,47 +760,29 @@ public:
     }
 };
 
-class Shenyong: public TriggerSkill{
+class Shenyong: public OneCardViewAsSkill{
 public:
-    Shenyong():TriggerSkill("shenyong"){
-        events << Damage << DamageComplete;
+    Shenyong():OneCardViewAsSkill("shenyong"){
     }
 
-    virtual bool trigger(TriggerEvent event, ServerPlayer *kyo, QVariant &data) const{
-        if(kyo->getPhase() != Player::Play)
-            return false;
-        DamageStruct damage = data.value<DamageStruct>();
-        if(!damage.card || !damage.card->inherits("Slash")){
-            return false;
-        }
-        Room *room = kyo->getRoom();
-        if(event == DamageComplete){
-            foreach(ServerPlayer *tmp, room->getAllPlayers())
-                tmp->setFlags("-shenyong");
-            return false;
-        }
-        damage.to->setFlags("shenyong");
-        QList<ServerPlayer *>players = room->getOtherPlayers(damage.to);
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return Slash::IsAvailable(player);
+    }
 
-        QMutableListIterator<ServerPlayer *> itor(players);
-        while(itor.hasNext()){
-            itor.next();
-            if(!damage.to->inMyAttackRange(itor.value()) || itor.value()->hasFlag("shenyong"))
-                itor.remove();
-        }
-        if(players.isEmpty() || !room->askForSkillInvoke(kyo, objectName(), data))
-            return false;
-        ServerPlayer *target = room->askForPlayerChosen(kyo, players, objectName());
-        if(target){
-            CardEffectStruct effect;
-            Slash *slash = new Slash(damage.card->getSuit(), damage.card->getNumber());
-            slash->setSkillName("shenyong_slash");
-            effect.card = slash;
-            effect.from = kyo;
-            effect.to = target;
-            room->cardEffect(effect);
-        }
-        return false;
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "slash";
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return to_select->getFilteredCard()->inherits("EquipCard");
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        const Card *card = card_item->getCard();
+        Card *slash = new Slash(card->getSuit(), card->getNumber());
+        slash->addSubcard(card->getId());
+        slash->setSkillName(objectName());
+        return slash;
     }
 };
 

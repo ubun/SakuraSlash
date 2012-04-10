@@ -179,21 +179,31 @@ sgs.ai_skill_invoke["@shouqiu"]=function(self,prompt,judge)
 end
 
 -- shenyong
-sgs.ai_skill_invoke["shenyong"] = function(self, data)
-	local damage = data:toDamage()
-	local players = sgs.QList2Table(self.room:getOtherPlayers(damage.to))
-	for _, player in ipairs(players) do
-		if self:isEnemy(player) and damage.to:canSlash(player) and not player:hasFlag("shenyong") then
-			return true
+local shenyong_skill={}
+shenyong_skill.name = "shenyong"
+table.insert(sgs.ai_skills,shenyong_skill)
+shenyong_skill.getTurnUseCard = function(self,inclusive)
+	local cards = self.player:getCards("he")
+	cards=sgs.QList2Table(cards)
+	local final_card
+
+	self:sortByUseValue(cards,true)
+	for _,card in ipairs(cards)  do
+		if card:inherits("EquipCard") and ((self:getUseValue(card)<sgs.ai_use_value["Slash"]) or inclusive) then
+			final_card = card
+			break
 		end
 	end
-	return false
-end
-sgs.ai_skill_playerchosen["shenyong"] = function(self, targets)
-	for _, player in sgs.qlist(targets) do
-		if self:isEnemy(player) then
-			return player
-		end
+
+	if final_card then
+		local suit = final_card:getSuitString()
+		local number = final_card:getNumberString()
+		local card_id = final_card:getEffectiveId()
+		local card_str = ("slash:shenyong[%s:%s]=%d"):format(suit, number, card_id)
+		local slash = sgs.Card_Parse(card_str)
+
+		assert(slash)
+        return slash
 	end
 end
 

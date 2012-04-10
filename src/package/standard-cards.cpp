@@ -74,13 +74,11 @@ bool Slash::targetFilter(const QList<const Player *> &targets, const Player *to_
 
     bool distance_limit = true;
 
-    if(Self->hasFlag("tianyi_success")){
-        distance_limit = false;
-        slash_targets ++;
-    }
-
     if(Self->hasSkill("shenji") && Self->getWeapon() == NULL)
         slash_targets = 3;
+
+    if(Self->hasSkill("shenyong") && Self->getPhase() == Player::Play)
+        slash_targets ++;
 
     if(targets.length() >= slash_targets)
         return false;
