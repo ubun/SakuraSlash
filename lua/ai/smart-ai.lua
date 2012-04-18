@@ -3290,6 +3290,37 @@ function SmartAI:cardNeed(card)
 	return self:getUseValue(card)
 end
 
+sgs.ai_skill_pindian = 		{}
+function SmartAI:askForPindian(requestor, reason)
+	local cards = sgs.QList2Table(self.player:getHandcards())
+	local compare_func = function(a, b)
+		return a:getNumber() < b:getNumber()
+	end
+	table.sort(cards, compare_func)
+	local maxcard, mincard, minusecard
+	for _, card in ipairs(cards) do
+		if self:getUseValue(card) < 6 then mincard = card break end
+	end
+	for _, card in ipairs(sgs.reverse(cards)) do
+		if self.player:hasSkill("changsheng") and card:getSuit() == sgs.Card_Spade then
+			maxcard = card
+			break
+		end
+	end
+	for _, card in ipairs(sgs.reverse(cards)) do
+		if self:getUseValue(card) < 6 then maxcard = card break	end
+	end
+	self:sortByUseValue(cards, true)
+	minusecard = cards[1]
+	maxcard = maxcard or minusecard
+	mincard = mincard or minusecard
+	if self:isFriend(requestor) then return mincard end
+	if ("dalei|suocai|taolue"):match(reason) then
+		if requestor:getHandcardNum() > 2 then return maxcard else return minusecard end
+	end
+	return maxcard
+end
+
 sgs.ai_cardshow = {}
 function SmartAI:askForCardShow(requestor, reason)
 	local func = sgs.ai_cardshow[reason]

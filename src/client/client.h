@@ -179,6 +179,7 @@ public slots:
     void choosePlayer(const Player *player);
     void trust();
     void requestCard(int card_id);
+    void changeGeneral(QString name);
     void addRobot();
     void fillRobots();
     void arrange(const QStringList &order);

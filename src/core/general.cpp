@@ -123,6 +123,14 @@ QSet<const TriggerSkill *> General::getTriggerSkills() const{
     return skills;
 }
 
+void General::addRelateSkill(const QString &skill_name){
+    related_skills << skill_name;
+}
+
+QStringList General::getRelatedSkillNames() const{
+    return related_skills;
+}
+
 QString General::getPackage() const{
     QObject *p = parent();
     if(p)

@@ -4,7 +4,6 @@
 #include "ai.h"
 #include "settings.h"
 #include "scenario.h"
-#include "challengemode.h"
 #include "lua.hpp"
 #include "banpairdialog.h"
 #include "audio.h"
@@ -96,18 +95,13 @@ Engine::Engine()
     modes["07p"] = tr("7 players");
     modes["08p"] = tr("8 players");
     modes["08pd"] = tr("8 players (2 renegades)");
-    modes["08boss"] = tr("8 players (boss mode)");
+    modes["08pz"] = tr("8 players (0 renegade)");
     modes["08same"] = tr("8 players (same mode)");
     modes["08raw"] = tr("8 players (runaway mode)");
     modes["09p"] = tr("9 players");
-    modes["10p"] = tr("10 players");
-
-    //challenge_mode_set = NULL;
-    challenge_mode_set = new ChallengeModeSet(this);
-    //addPackage(challenge_mode_set);
-
-    translations.insert("bossmode", tr("Boss mode"));
-    translations.insert("runaway", tr("Runaway mode"));
+    modes["10pd"] = tr("10 players");
+    modes["10p"] = tr("10 players (1 renegade)");
+    modes["10pz"] = tr("10 players (0 renegade)");
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 
@@ -176,14 +170,6 @@ void Engine::addScenario(Scenario *scenario){
 
 const Scenario *Engine::getScenario(const QString &name) const{
     return scenarios.value(name, NULL);
-}
-
-const ChallengeModeSet *Engine::getChallengeModeSet() const{
-    return challenge_mode_set;
-}
-
-const ChallengeMode *Engine::getChallengeMode(const QString &name) const{
-    return challenge_mode_set->getMode(name);
 }
 
 void Engine::addSkills(const QList<const Skill *> &all_skills){
@@ -262,11 +248,7 @@ QString Engine::translate(const QString &to_translate) const{
 }
 
 int Engine::getRoleIndex() const{
-    if(ServerInfo.GameMode == "08boss"){
-        return 2;
-    }else if(ServerInfo.GameMode.startsWith("@")){
-        return 3;
-    }else if(ServerInfo.GameMode == "06_3v3"){
+    if(ServerInfo.GameMode == "06_3v3"){
         return 4;
     }else
         return 1;
@@ -341,7 +323,7 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const{
 }
 
 QString Engine::getVersionNumber() const{
-    return "20120410";
+    return "20120418";
 }
 
 QString Engine::getVersion() const{
@@ -354,7 +336,7 @@ QString Engine::getVersion() const{
 }
 
 QString Engine::getVersionName() const{
-    return "V1.5.0";
+    return "V1.7.0";
 }
 
 QString Engine::getMODName() const{
@@ -370,9 +352,6 @@ QStringList Engine::getExtensions() const{
 
         extensions << package->objectName();
     }
-
-    extensions.removeOne("challenge_modes");
-
     return extensions;
 }
 
@@ -440,8 +419,6 @@ QMap<QString, QString> Engine::getAvailableModes() const{
 QString Engine::getModeName(const QString &mode) const{
     if(modes.contains(mode))
         return modes.value(mode);
-    else if(mode.startsWith("@"))
-        return tr("%1 [Challenge mode]").arg(translate(mode));
     else
         return tr("%1 [Scenario mode]").arg(translate(mode));
 
@@ -454,11 +431,6 @@ int Engine::getPlayerCount(const QString &mode) const{
         int index = rx.indexIn(mode);
         if(index != -1)
             return rx.capturedTexts().first().toInt();
-    }else if(mode.startsWith("@")){
-        // challenge mode
-        const ChallengeMode *cmode = challenge_mode_set->getMode(mode);
-        if(cmode)
-            return cmode->getGenerals().length() * 2;
     }else{
         // scenario mode
         const Scenario *scenario = scenarios.value(mode, NULL);
@@ -493,7 +465,7 @@ void Engine::getRoles(const QString &mode, char *roles) const{
             "ZCCFFFN", // 7
             "ZCCFFFFN", // 8
             "ZCCCFFFFN", // 9
-            "ZCCCFFFFNN" // 10
+            "ZCCCFFFFFN" // 10
         };
 
         static const char *table2[] = {
@@ -512,7 +484,15 @@ void Engine::getRoles(const QString &mode, char *roles) const{
         };
 
         const char **table = mode.endsWith("d") ? table2 : table1;
-        qstrcpy(roles, table[n]);
+        QString rolechar = table[n];
+        if(mode.endsWith("z"))
+            rolechar.replace("N", "C");
+        /*else if(Config.EnableHegemony){
+            rolechar.replace("F", "N");
+            rolechar.replace("C", "N");
+        }*/
+
+        qstrcpy(roles, rolechar.toStdString().c_str());
     }else if(mode.startsWith("@")){
         if(n == 8)
             qstrcpy(roles, "ZCCCNFFF");

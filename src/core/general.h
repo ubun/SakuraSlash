@@ -9,11 +9,12 @@ class QSize;
 #include <QObject>
 #include <QSet>
 #include <QMap>
+#include <QStringList>
 
 class General : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Gender);
+    Q_ENUMS(Gender)
     Q_PROPERTY(QString kingdom READ getKingdom CONSTANT)
     Q_PROPERTY(int maxhp READ getMaxHp CONSTANT)
     Q_PROPERTY(bool male READ isMale STORED false CONSTANT)
@@ -45,6 +46,9 @@ public:
     QSet<const Skill *> getVisibleSkills() const;
     QSet<const TriggerSkill *> getTriggerSkills() const;
 
+    void addRelateSkill(const QString &skill_name);
+    QStringList getRelatedSkillNames() const;
+
     QString getPixmapPath(const QString &category) const;
     QString getPackage() const;
     QString getSkillDescription() const;
@@ -63,6 +67,7 @@ private:
     bool lord;
     QSet<QString> skill_set;
     QSet<QString> extra_set;
+    QStringList related_skills;
     bool hidden;
 };
 

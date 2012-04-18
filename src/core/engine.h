@@ -14,8 +14,6 @@
 class AI;
 class Scenario;
 class QLibrary;
-class ChallengeModeSet;
-class ChallengeMode;
 
 struct lua_State;
 
@@ -63,8 +61,6 @@ public:
 
     void addPackage(const QString &name);
     void addScenario(const QString &name);
-    const ChallengeModeSet *getChallengeModeSet() const;
-    const ChallengeMode *getChallengeMode(const QString &name) const;
 
     const General *getGeneral(const QString &name) const;
     int getGeneralCount(bool include_banned = false) const;
@@ -107,7 +103,6 @@ private:
     QList<const DistanceSkill *> distance_skills;
 
     QHash<QString, const Scenario *> scenarios;
-    ChallengeModeSet *challenge_mode_set;
 
     QList<Card*> cards;
     QStringList lord_list, nonlord_list;
