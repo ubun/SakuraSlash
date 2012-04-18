@@ -1234,7 +1234,7 @@ bool RenxingCard::targetFilter(const QList<const Player *> &targets, const Playe
 
 void RenxingCard::use(Room *room, ServerPlayer *aoko, const QList<ServerPlayer *> &targets) const{
     ServerPlayer *target = targets.first();
-    bool success = aoko->pindian(target, objectName(), this);
+    bool success = aoko->pindian(target, "renxing", this);
     if(success){
         if(target->isNude())
             return;

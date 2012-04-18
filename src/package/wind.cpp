@@ -840,7 +840,6 @@ void WeijiaoCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer
 
     bool success = from->pindian(to, "weijiao", room->askForCardShow(from, source, "@weijiao-ask:" + to->objectName()));
     DamageStruct damage;
-    damage.card = NULL;
     if(success){
         damage.from = from;
         damage.to = to;
