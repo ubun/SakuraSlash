@@ -25,10 +25,7 @@ public:
                 if(target->getCards("he").length() == 0)
                     continue;
                 int card_id = room->askForCardChosen(player, target, "he", objectName());
-                if(room->getCardPlace(card_id) == Player::Hand)
-                    room->moveCardTo(Sanguosha->getCard(card_id), player, Player::Hand, false);
-                else
-                    room->obtainCard(player, card_id);
+                room->obtainCard(player, card_id, room->getCardPlace(card_id) != Player::Hand);
             }
             return true;
         }
@@ -90,11 +87,13 @@ public:
                 if(target->getHandcardNum()<=target->getHp())
                     invoke_skill = true;
             }
-            if(!invoke_skill)   return false;
+            if(!invoke_skill)
+                return false;
 
             LogMessage log;
-            log.type = "#Jishi";
+            log.type = "#TriggerSkill";
             log.from = target;
+            log.arg = objectName();
             room->sendLog(log);
 
             foreach(ServerPlayer *player, others){
@@ -106,7 +105,7 @@ public:
                 }
                 else{
                     int card_id = room->askForCardChosen(target, player, "h", objectName());
-                    room->moveCardTo(Sanguosha->getCard(card_id), target, Player::Hand, false);
+                    room->obtainCard(target, card_id, false);
                 }
             }
         }
@@ -152,6 +151,7 @@ public:
                     log.from = effect.from;
                     log.to << player;
                     log.arg = effect.card->objectName();
+                    log.arg2 = objectName();
 
                     room->sendLog(log);
 
@@ -167,8 +167,9 @@ public:
                 data = QVariant::fromValue(damage);
 
                 LogMessage log;
-                log.type = "#DajiSpec";
+                log.type = "#TriggerSkill";
                 log.from = player;
+                log.arg = objectName();
                 room->sendLog(log);
                 return false;
             }
@@ -192,14 +193,8 @@ public:
                     room->acquireSkill(player, "paoxiao");
             }
             else{
-                if(player->hasSkill("paoxiao")){
+                if(player->hasSkill("paoxiao"))
                     room->detachSkillFromPlayer(player, "paoxiao");
-
-                    LogMessage log;
-                    log.type = "#PaoxiaoLose";
-                    log.from = player;
-                    room->sendLog(log);
-                }
             }
 
             QList<ServerPlayer *> players = room->getAllPlayers();

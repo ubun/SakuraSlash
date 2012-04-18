@@ -177,6 +177,31 @@ void Room::enterDying(ServerPlayer *player, DamageStruct *reason){
     }
     broadcastInvoke("playAudio", sos_filename);
 
+    QList<ServerPlayer *> savers;
+    ServerPlayer *current = getCurrent();
+    if(current->hasSkill("wansha") && current->isAlive()){
+        playSkillEffect("wansha");
+
+        savers << current;
+
+        LogMessage log;
+        log.from = current;
+        log.arg = "wansha";
+        if(current != player){
+            savers << player;
+            log.type = "#WanshaTwo";
+            log.to << player;
+        }else{
+            log.type = "#WanshaOne";
+        }
+
+        sendLog(log);
+
+    }else
+        savers = getAllPlayers();
+
+    dying.savers = savers;
+
     QVariant dying_data = QVariant::fromValue(dying);
     thread->trigger(Dying, player, dying_data);
 }
@@ -393,6 +418,7 @@ void Room::slashEffect(const SlashEffectStruct &effect){
     setEmotion(effect.from, "killer");
     setEmotion(effect.to, "victim");
 
+    setTag("LastSlashEffect", data);
     bool broken = thread->trigger(SlashEffect, effect.from, data);
     if(!broken)
         thread->trigger(SlashEffected, effect.to, data);
@@ -515,20 +541,20 @@ QString Room::askForChoice(ServerPlayer *player, const QString &skill_name, cons
     return answer;
 }
 
-void Room::obtainCard(ServerPlayer *target, const Card *card){
+void Room::obtainCard(ServerPlayer *target, const Card *card, bool unhide){
     if(card == NULL)
         return;
 
     if(card->isVirtualCard()){
         QList<int> subcards = card->getSubcards();
         foreach(int card_id, subcards)
-            obtainCard(target, card_id);
+            obtainCard(target, card_id, unhide);
     }else
-        obtainCard(target, card->getId());
+        obtainCard(target, card->getId(), unhide);
 }
 
-void Room::obtainCard(ServerPlayer *target, int card_id){
-    moveCardTo(Sanguosha->getCard(card_id), target, Player::Hand, true);
+void Room::obtainCard(ServerPlayer *target, int card_id, bool unhide){
+    moveCardTo(Sanguosha->getCard(card_id), target, Player::Hand, unhide);
 }
 
 bool Room::isCanceled(const CardEffectStruct &effect){
@@ -2073,7 +2099,7 @@ void Room::startGame(){
         }
     }
 
-    if((Config.Enable2ndGeneral || mode == "08boss") && mode != "02_1v1" && mode != "06_3v3" && mode != "04_1v3"){
+    if((Config.Enable2ndGeneral) && mode != "02_1v1" && mode != "06_3v3" && mode != "04_1v3"){
         foreach(ServerPlayer *player, players)
             broadcastProperty(player, "general2");
     }
@@ -2121,9 +2147,7 @@ void Room::startGame(){
     connect(thread, SIGNAL(started()), this, SIGNAL(game_start()));
 
     GameRule *game_rule;
-    if(mode == "08boss")
-        game_rule = new BossMode(this);
-    else if(mode == "04_1v3")
+    if(mode == "04_1v3")
         game_rule = new HulaoPassMode(this);
     else if(mode == "08raw")
         game_rule = new RunawayMode(this);

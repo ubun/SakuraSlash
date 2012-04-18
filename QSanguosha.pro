@@ -53,7 +53,6 @@ SOURCES += src/main.cpp \
 	src/package/wind.cpp \
 	src/package/secrets.cpp \
 	src/scenario/boss-mode-scenario.cpp \
-	src/scenario/challengemode.cpp \
 	src/scenario/couple-scenario.cpp \
 	src/scenario/legend-mode-scenario.cpp \
 	src/scenario/scenario.cpp \
@@ -160,7 +159,6 @@ HEADERS += src/client/aux-skills.h \
 	src/package/wind.h \
 	src/package/secrets.h \
 	src/scenario/boss-mode-scenario.h \
-	src/scenario/challengemode.h \
 	src/scenario/couple-scenario.h \
 	src/scenario/legend-mode-scenario.h \
 	src/scenario/scenario.h \

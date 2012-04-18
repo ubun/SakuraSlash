@@ -159,6 +159,13 @@ void GeneralOverview::on_tableWidget_itemSelectionChanged()
     const General *general = Sanguosha->getGeneral(general_name);
     ui->generalPhoto->setPixmap(QPixmap(general->getPixmapPath("card")));
     QList<const Skill *> skills = general->getVisibleSkillList();
+
+    foreach(QString skill_name, general->getRelatedSkillNames()){
+        const Skill *skill = Sanguosha->getSkill(skill_name);
+        if(skill)
+            skills << skill;
+    }
+
     ui->skillTextEdit->clear();
 
     resetButtons();
@@ -200,5 +207,20 @@ void GeneralOverview::playEffect()
         QString source = button->objectName();
         if(!source.isEmpty())
             Sanguosha->playEffect(source);
+    }
+}
+
+#include "clientstruct.h"
+#include "client.h"
+void GeneralOverview::on_tableWidget_itemDoubleClicked(QTableWidgetItem* item)
+{
+    if(!ServerInfo.FreeChoose)
+        return;
+    if(Self){
+        int row = ui->tableWidget->currentRow();
+        if(row >= 0){
+            QString general_name = ui->tableWidget->item(row, 0)->data(Qt::UserRole).toString();
+            ClientInstance->changeGeneral(general_name);
+        }
     }
 }

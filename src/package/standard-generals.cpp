@@ -1978,6 +1978,17 @@ void CheatCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *
         room->obtainCard(source, subcards.first());
 }
 
+ChangeCard::ChangeCard(){
+    target_fixed = true;
+}
+
+void ChangeCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    if(Config.FreeChoose){
+        QString name = Self->tag["GeneralName"].toString();
+        room->transfigure(source, name, false, true);
+    }
+}
+
 void StandardPackage::addGenerals(){
     General *kudoushinichi, *hattoriheiji, *mourikogorou;
 
@@ -2116,6 +2127,7 @@ void StandardPackage::addGenerals(){
     skills << new RexueEffect;
 
     addMetaObject<CheatCard>();
+    addMetaObject<ChangeCard>();
 }
 
 TestPackage::TestPackage()

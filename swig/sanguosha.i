@@ -247,7 +247,7 @@ public:
 	void playCardEffect(const char *card_name) const;
 	int getRandomHandCardId() const;
 	const Card *getRandomHandCard() const;
-	void obtainCard(const Card *card);
+	void obtainCard(const Card *card, bool unhide = true);
 	void throwAllEquips();
 	void throwAllHandCards();
 	void throwAllCards();
@@ -654,9 +654,6 @@ public:
 	void addScenario(Scenario *scenario);
 	const Scenario *getScenario(const char *name) const;
 
-	const ChallengeModeSet *getChallengeModeSet() const;
-	const ChallengeMode *getChallengeMode(const char *name) const;
-
 	const General *getGeneral(const char *name) const;
 	int getGeneralCount(bool include_banned = false) const;
 	const Skill *getSkill(const char *skill_name) const;
@@ -699,7 +696,7 @@ public:
 	explicit Skill(const char *name, Frequency frequent = NotFrequent);
 	bool isLordSkill() const;
 	QString getDescription() const;
-	QString getText() const;
+	QString getText(const bool full = true) const;
 	bool isVisible() const;
 
 	virtual QString getDefaultChoice(ServerPlayer *player) const;
@@ -856,8 +853,8 @@ public:
 	void setCardMapping(int card_id, ServerPlayer *owner, Player::Place place);
 
 	void drawCards(ServerPlayer *player, int n);
-	void obtainCard(ServerPlayer *target, const Card *card);
-	void obtainCard(ServerPlayer *target, int card_id);
+	void obtainCard(ServerPlayer *target, const Card *card, bool unhide = true);
+	void obtainCard(ServerPlayer *target, int card_id, bool unhide = true);
 
 	void throwCard(const Card *card);
 	void throwCard(int card_id);

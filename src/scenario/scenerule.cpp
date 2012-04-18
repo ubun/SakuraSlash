@@ -91,10 +91,7 @@ public:
         Room *room = effect.to->getRoom();
         int card_id = room->askForCardChosen(effect.from, effect.to, "hej", "scene_27_effect");
 
-        if(room->getCardPlace(card_id) == Player::Hand)
-            room->moveCardTo(Sanguosha->getCard(card_id), effect.from, Player::Hand, false);
-        else
-            room->obtainCard(effect.from, card_id);
+        room->obtainCard(effect.from, card_id, room->getCardPlace(card_id) != Player::Hand);
     }
 };
 
@@ -332,8 +329,12 @@ bool SceneRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data
                                 } else {
                                     if(nextAlivePlayer->isKongcheng())
                                         room->loseHp(nextAlivePlayer);
-                                    else
-                                        room->askForDiscard(nextAlivePlayer, "Scene29", 1);
+                                    else {
+                                        if(p->getHandcardNum() == 1)
+                                            p->throwAllHandCards();
+                                        else
+                                            room->askForDiscard(nextAlivePlayer, "Scene29", 1);
+                                    }
                                 }
                             } else {
                                 if(room->askForChoice(nextAlivePlayer, "scene_29_eff", "dscorlose+recover") == "recover")
@@ -344,8 +345,12 @@ bool SceneRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data
                                 } else {
                                     if(p->isKongcheng())
                                         room->loseHp(p);
-                                    else
-                                        room->askForDiscard(p, "Scene29", 1);
+                                    else {
+                                        if(p->getHandcardNum() == 1)
+                                            p->throwAllHandCards();
+                                        else
+                                            room->askForDiscard(p, "Scene29", 1);
+                                    }
                                 }
                             }
                         }
@@ -448,6 +453,7 @@ bool SceneRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data
             }
             break;
         }
+        break;
     }
 
     case Predamaged:
@@ -468,11 +474,13 @@ bool SceneRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data
             if(damage.nature == DamageStruct::Fire) {
                 const Card *card;
                 foreach(ServerPlayer *p, room->getOtherPlayers(player)) {
-                    while((card = room->askForCard(p, "fire_slash", "scene_14_prompt_fs")) != NULL)
+                    while(!p->isKongcheng() &&
+                          (card = room->askForCard(p, "fire_slash", "scene_14_prompt_fs")) != NULL)
                         damage.damage++;
                 }
                 foreach(ServerPlayer *p, room->getOtherPlayers(player)) {
-                    while((card = room->askForCard(p, "fire_attack", "scene_14_prompt_fa")) != NULL)
+                    while(!p->isKongcheng() &&
+                          (card = room->askForCard(p, "fire_attack", "scene_14_prompt_fa")) != NULL)
                         damage.damage++;
                 }
             }
@@ -567,7 +575,10 @@ bool SceneRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data
                     log.to << damage.to;
                     room->sendLog(log);
 
-                    room->askForDiscard(player, "", 1);
+                    if(player->getHandcardNum() == 1)
+                        player->throwAllHandCards();
+                    else
+                        room->askForDiscard(player, "scene_15_eff", 1);
                 }
             break;
         }

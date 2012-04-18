@@ -176,10 +176,9 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             if(player->isLord())
                 setGameProcess(room);
 
-            player->drawCards(4, false);
+            room->setTag("FirstRound", true);
 
-            if(room->getMode() == "02_1v1")
-                room->setTag("FirstRound", true);
+            player->drawCards(4, false);
 
             break;
         }
@@ -269,37 +268,17 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
                 break;
             }
 
-            QList<ServerPlayer *> savers;
-            ServerPlayer *current = room->getCurrent();
-            if(current->hasSkill("wansha") && current->isAlive()){
-                room->playSkillEffect("wansha");
-
-                savers << current;
-
-                LogMessage log;
-                log.from = current;
-                if(current != player){
-                    savers << player;
-                    log.type = "#WanshaTwo";
-                    log.to << player;
-                }else{
-                    log.type = "#WanshaOne";
-                }
-
-                room->sendLog(log);
-
-            }else
-                savers = room->getAllPlayers();
+            DyingStruct dying = data.value<DyingStruct>();
 
             LogMessage log;
             log.type = "#AskForPeaches";
             log.from = player;
-            log.to = savers;
+            log.to = dying.savers;
             log.arg = QString::number(1 - player->getHp());
             room->sendLog(log);
 
             RoomThread *thread = room->getThread();
-            foreach(ServerPlayer *saver, savers){
+            foreach(ServerPlayer *saver, dying.savers){
                 if(player->getHp() > 0)
                     break;
 
@@ -684,77 +663,6 @@ QString GameRule::getWinner(ServerPlayer *victim) const{
     }
 
     return winner;
-}
-
-
-static const int LoseHpTo1 = 1;
-static const int ThrowAllCard = 2;
-
-BossMode::BossMode(QObject *parent)
-    :GameRule(parent)
-{
-    setObjectName("boss_mode");
-}
-
-bool BossMode::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-    Room *room = player->getRoom();
-
-    switch(event)
-    {
-
-    case GameOverJudge:{
-            const static QString evil = "lord+renegade";
-            const static QString justice = "rebel+loyalist";
-
-            QStringList alive_roles = room->aliveRoles(player);
-            if(!alive_roles.contains("rebel") && !alive_roles.contains("loyalist")){
-                room->gameOver(evil);
-                return true;
-            }
-
-            DamageStar damage = data.value<DamageStar>();
-            ServerPlayer *killer = NULL;
-            if(damage)
-                killer = damage->from;
-
-            if(player->isLord()){
-                QString winner;
-                if(!alive_roles.contains("renegade"))
-                    winner = justice;
-                else{
-                    if(killer == NULL || evil.contains(killer->getRole()))
-                        winner = justice;
-                    else
-                        winner = evil;
-                }
-
-                room->gameOver(winner);
-                return true;
-            }
-
-            break;
-        }
-
-    case GameStart:{
-            if(player->isLord()){
-                // find guard
-                QList<ServerPlayer *> players = room->getOtherPlayers(player);
-                foreach(ServerPlayer *player, players){
-                    if(player->getRoleEnum() == Player::Renegade){
-                        room->broadcastProperty(player, "role");
-                        break;
-                    }
-                }
-            }
-
-            break;
-        }
-
-    default:
-        break;
-    }
-
-    return GameRule::trigger(event, player, data);
 }
 
 HulaoPassMode::HulaoPassMode(QObject *parent)
