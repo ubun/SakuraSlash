@@ -555,6 +555,24 @@ void ServerPlayer::skip(){
     room->sendLog(log);
 }
 
+void ServerPlayer::swap2Phases(Player::Phase phase1, Player::Phase phase2){
+    static QStringList phase_strings;
+    if(phase_strings.isEmpty()){
+        phase_strings << "round_start" << "start" << "judge" << "draw"
+                << "play" << "discard" << "finish" << "not_active";
+    }
+    int i = static_cast<int>(phase1);
+    int j = static_cast<int>(phase2);
+    phases.swap(i, j);
+
+    LogMessage log;
+    log.type = "#SwapPhases";
+    log.from = this;
+    log.arg = phase_strings.at(j);
+    log.arg2 = phase_strings.at(i);
+    room->sendLog(log);
+}
+
 void ServerPlayer::gainMark(const QString &mark, int n){
     int value = getMark(mark) + n;
 

@@ -647,6 +647,82 @@ public:
     }
 };
 
+class Anyong: public PhaseChangeSkill{
+public:
+    Anyong():PhaseChangeSkill("anyong"){
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        if(player->getMark("@anyong") > 0 && player->getPhase() == Player::RoundStart){
+            player->swap2Phases(Player::Judge, Player::Discard);
+            player->loseAllMarks("@anyong");
+            return false;
+        }
+        if(player->hasSkill(objectName()) && player->getPhase() == Player::Start){
+            Room *eroom = player->getRoom();
+            ServerPlayer *target = eroom->askForPlayerChosen(player, eroom->getAlivePlayers(), objectName());
+            JudgeStruct judge;
+            judge.pattern = QRegExp("(.*):(heart|diamond):(.*)");
+            judge.good = false;
+            judge.reason = objectName();
+            judge.who = target;
+
+            eroom->judge(judge);
+            if(judge.isGood())
+                target->gainMark("@anyong");
+        }
+        return false;
+    }
+};
+
+class Panda: public TriggerSkill{
+public:
+    Panda():TriggerSkill("panda$"){
+        events << AskForRetrial;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        JudgeStar judge = data.value<JudgeStar>();
+        if(!judge->who->hasLordSkill(objectName()))
+            return false;
+
+        if(player->askForSkillInvoke(objectName(), data)){
+            QList<ServerPlayer *> lieges = room->getLieges("te", player);
+            const Card *jud = NULL;
+            ServerPlayer *who = NULL;
+            foreach(ServerPlayer *liege, lieges){
+                const Card *judo = room->askForCard(liege, ".", "@panda:" + player->objectName(), QVariant::fromValue((PlayerStar)player));
+                if(judo){
+                    who = liege;
+                    jud = judo;
+                }
+            }
+            if(!jud)
+                return false;
+            room->getThread()->delay();
+            room->throwCard(judge->card);
+
+            judge->card = jud;
+            room->moveCardTo(judge->card, NULL, Player::Special);
+
+            LogMessage log;
+            log.type = "$ChangedJudge";
+            log.from = who;
+            log.to << judge->who;
+            log.card_str = judge->card->getEffectIdString();
+            room->sendLog(log);
+
+            room->sendJudgeResult(judge);
+        }
+        return false;
+    }
+};
+
 class Mihu: public TriggerSkill{
 public:
     Mihu():TriggerSkill("mihu"){
@@ -771,12 +847,14 @@ ThicketPackage::ThicketPackage()
     jiikounosuke->addSkill(new ZhongpuEffect);
     related_skills.insertMulti("zhongpu", "#zhongpu-effect");
     jiikounosuke->addSkill(new Zhiqu);
-
 /*
     General *chianti = new General(this, "chianti", "hei", 3, false);
     General *korn = new General(this, "korn", "hei");
-    General *jamesblack = new General(this, "jamesblack$", "te");
 */
+    General *jamesblack = new General(this, "jamesblack$", "te");
+    jamesblack->addSkill(new Anyong);
+    jamesblack->addSkill(new Panda);
+
     General *hondoueisuke = new General(this, "hondoueisuke", "za");
     hondoueisuke->addSkill(new Mihu);
     hondoueisuke->addSkill(new Zhizhuo);

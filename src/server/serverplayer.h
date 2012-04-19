@@ -55,6 +55,7 @@ public:
     QList<Player::Phase> &getPhases();
     void skip(Player::Phase phase);
     void skip();
+    void swap2Phases(Player::Phase phase1, Player::Phase phase2);
 
     void gainMark(const QString &mark, int n = 1);
     void loseMark(const QString &mark, int n = 1);
