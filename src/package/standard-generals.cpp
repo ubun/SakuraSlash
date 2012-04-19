@@ -1118,19 +1118,20 @@ public:
             return false;
 
         Room *room = kaitou->getRoom();
-        if(kaitou->askForSkillInvoke(objectName(), data)){
-            JudgeStruct judge;
-            judge.pattern = QRegExp("(.*):(club):(.*)");
-            judge.good = true;
-            judge.reason = objectName();
-            judge.who = kaitou;
-
-            room->judge(judge);
-
-            if(judge.isGood()){
+        QList<ServerPlayer *> targets;
+        foreach(ServerPlayer *tmp, room->getOtherPlayers(kaitou)){
+            if(!tmp->isKongcheng()){
+                targets << tmp;
+            }
+        }
+        if(!targets.isEmpty() && kaitou->askForSkillInvoke(objectName(), data)){
+            ServerPlayer *target = room->askForPlayerChosen(kaitou, targets, objectName());
+            const Card *card = target->getRandomHandCard();
+            room->obtainCard(kaitou, card);
+            if(card->inherits("BasicCard")){
                 room->broadcastInvoke("animate", "lightbox:$tishen");
                 kaitou->loseMark("@fake");
-                room->setPlayerProperty(kaitou, "hp", 3);
+                room->setPlayerProperty(kaitou, "hp", qMin(3, kaitou->getMaxHP()));
                 return true;
             }
         }
@@ -1682,19 +1683,6 @@ public:
                 break;
             }
         }
-        /*
-        QList<ServerPlayer *> targets;
-        if(player->hasEquip())
-            targets << player;
-        foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
-            if(tmp->hasEquip()){
-                targets << tmp;
-            }
-        }
-        if(!targets.isEmpty() && room->askForSkillInvoke(player, objectName())){
-            ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName());
-
-        }*/
         return false;
     }
 };

@@ -250,6 +250,15 @@ end
 -- yirong&tishen
 sgs.ai_skill_invoke["yirong"] = true
 sgs.ai_skill_invoke["tishen"] = true
+sgs.ai_skill_playerchosen["tishen"] = function(self, targets)
+	self:sort(self.enemies, "handcard")
+	for _, enemy in ipairs(self.enemies) do
+		if not enemy:isKongcheng() then
+			return enemy
+		end
+	end
+	return targets[1]
+end
 
 -- shangchi
 sgs.ai_skill_choice["shangchi"] = function(self, choices)
@@ -374,129 +383,9 @@ sgs.ai_skill_playerchosen["qiniao"] = function(self, targets)
 end
 
 -- long
-sgs.ai_skill_invoke["long"] = true
-
-
-
--- $$$$$$$$$$$$$###############
--- jianxiong
-sgs.ai_skill_invoke.jianxiong = function(self, data)
-		return not sgs.Shit_HasShit(data:toCard())
+sgs.ai_skill_invoke["long"] = function(self, data)
+	local r = math.random(0, 1)
+	return r == 0
 end
 
-sgs.ai_skill_invoke.jijiang = function(self, data)
-	if self:getCardsNum("Slash")<=0 then
-		return true
-	end
-	return false
-end
-
-sgs.ai_skill_choice.jijiang = function(self , choices)
-	if not self.player:hasLordSkill("jijiang") then
-		if self:getCardsNum("Slash") <= 0 then return "ignore" end
-	end
-
-	if self.player:isLord() then
-		local target
-		for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-			if player:hasSkill("weidi") then
-				target = player
-				break
-			end
-		end
-		if target and self:isEnemy(target) then return "ignore" end
-	elseif self:isFriend(self.room:getLord()) then return "accept" end
-	return "ignore"
-end
-
-sgs.ai_skill_choice.hujia = function(self , choices)
-	if not self.player:hasLordSkill("hujia") then
-		if self:getCardsNum("Jink") <= 0 then return "ignore" end
-	end
-	if self.player:isLord() then
-		local target
-		for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-			if player:hasSkill("weidi") then
-				target = player
-				break
-			end
-		end
-		if target and self:isEnemy(target) then return "ignore" end
-	elseif self:isFriend(self.room:getLord()) then return "accept" end
-	return "ignore"
-end
-
--- hujia
-sgs.ai_skill_invoke.hujia = function(self, data)
-	local cards = self.player:getHandcards()
-	for _, friend in ipairs(self.friends_noself) do
-		if friend:getKingdom() == "zhen" and self:isEquip("EightDiagram", friend) then return true end
-	end
-	for _, card in sgs.qlist(cards) do
-		if card:inherits("Jink") then
-			return false
-		end
-	end
-	return true
-end
-
--- yiji (frequent)
-sgs.ai_skill_invoke.tiandu = sgs.ai_skill_invoke.jianxiong
-
--- ganglie
-sgs.ai_skill_invoke.ganglie = function(self, data)
-	return not self:isFriend(data:toPlayer())
-end
-
--- fankui
-sgs.ai_skill_invoke.fankui = function(self, data)
-	local target = data:toPlayer()
-	if self:isFriend(target) then
-		return (target:hasSkill("xiaoji") and not target:getEquips():isEmpty()) or (self:isEquip("SilverLion",target) and target:isWounded())
-	end
-	if self:isEnemy(target) then				---fankui without zhugeliang and luxun
-			if (target:hasSkill("kongcheng") or target:hasSkill("lianying")) and target:getHandcardNum() == 1 then
-				if not target:getEquips():isEmpty() then return true
-				else return false
-				end
-			end
-	end
-				--self:updateRoyalty(-0.8*sgs.ai_royalty[target:objectName()],self.player:objectName())
-	return true
-end
-
--- tieji
-sgs.ai_skill_invoke.tieji = function(self, data)
-	local effect = data:toSlashEffect()
-	return not self:isFriend(effect.to) and (not effect.to:isKongcheng() or effect.to:getArmor())
-end
-
-sgs.ai_skill_use["@@liuli"] = function(self, prompt)
-
-	local others=self.room:getOtherPlayers(self.player)
-	others=sgs.QList2Table(others)
-	local source
-	for _, player in ipairs(others) do
-		if player:hasFlag("slash_source") then
-			source = player
-			 break
-		end
-	end
-	for _, enemy in ipairs(self.enemies) do
-		if self.player:canSlash(enemy,true) and not (source:objectName() == enemy:objectName()) then
-			local cards = self.player:getCards("he")
-			cards=sgs.QList2Table(cards)
-			for _,card in ipairs(cards) do
-				if (self.player:getWeapon() and card:getId() == self.player:getWeapon():getId()) and self.player:distanceTo(enemy)>1 then local bullshit
-				elseif card:inherits("OffensiveCar") and self.player:getAttackRange()==self.player:distanceTo(enemy)
-					and self.player:distanceTo(enemy)>1 then
-					local bullshit
-				else
-					return "@LiuliCard="..card:getEffectiveId().."->"..enemy:objectName()
-				end
-			end
-		end
-	end
-	return "."
-end
 
