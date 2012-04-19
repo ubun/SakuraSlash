@@ -783,7 +783,7 @@ void ServerPlayer::gainAnExtraTurn(ServerPlayer *clearflag){
     ServerPlayer *current = room->getCurrent();
 
     room->setCurrent(this);
-    //room->removeTag("Shudan");
+    room->removeTag("ZProject");
     if(clearflag)
         clearflag->clearFlags();
     room->getThread()->trigger(TurnStart, this);

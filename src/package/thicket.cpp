@@ -551,6 +551,102 @@ public:
     }
 };
 
+class Zhongpu:public MasochismSkill{
+public:
+    Zhongpu():MasochismSkill("zhongpu"){
+    }
+
+    virtual void onDamaged(ServerPlayer *jii, const DamageStruct &damage) const{
+        Room *room = jii->getRoom();
+        if(damage.damage < 1)
+            return;
+        if(jii->askForSkillInvoke(objectName())){
+            ServerPlayer *target = room->askForPlayerChosen(jii, room->getOtherPlayers(jii), objectName());
+            QString to = room->askForChoice(jii, objectName(), "draw+recover");
+            if(to == "draw")
+                target->drawCards(2);
+            else{
+                RecoverStruct r;
+                r.who = jii;
+                room->recover(target, r);
+            }
+            room->setTag("ZProject", jii->objectName());
+        }
+    }
+};
+
+class ZhongpuEffect: public TriggerSkill{
+public:
+    ZhongpuEffect():TriggerSkill("#zhongpu-effect"){
+        events << PhaseChange << Predamaged;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &) const{
+        Room *room = player->getRoom();
+        if(event == Predamaged){
+            if(player->hasSkill(objectName()))
+                if(room->getTag("ZProject").toString() == player->objectName())
+                    return true;
+            return false;
+        }
+        if(player->getPhase() == Player::NotActive)
+            room->setTag("ZProject", QVariant());
+
+        return false;
+    }
+};
+
+ZhiquCard::ZhiquCard(){
+    once = true;
+}
+
+bool ZhiquCard::targetFilter(const QList<const Player *> &targets, const Player *to_select) const{
+    return targets.isEmpty() && !to_select->isAllNude();
+}
+
+void ZhiquCard::use(Room *room, ServerPlayer *jii, const QList<ServerPlayer *> &targets) const{
+    ServerPlayer *target = targets.first();
+    int card_id = room->askForCardChosen(jii, target, "hej", "zhiqu");
+    room->throwCard(card_id);
+    jii->gainMark("@zhiqu");
+}
+
+class ZhiquViewAsSkill: public ZeroCardViewAsSkill{
+public:
+    ZhiquViewAsSkill():ZeroCardViewAsSkill("zhiqu"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return !player->hasUsed("ZhiquCard");
+    }
+
+    virtual const Card *viewAs() const{
+        return new ZhiquCard;
+    }
+};
+
+class Zhiqu: public PhaseChangeSkill{
+public:
+    Zhiqu():PhaseChangeSkill("zhiqu"){
+        view_as_skill = new ZhiquViewAsSkill;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        if(player->getPhase() == Player::RoundStart){
+            if(player->getMark("@zhiqu") > 0){
+                player->skip(Player::Play);
+                player->skip(Player::Discard);
+                player->loseAllMarks("@zhiqu");
+            }
+        }
+        return false;
+    }
+};
+
 class Mihu: public TriggerSkill{
 public:
     Mihu():TriggerSkill("mihu"){
@@ -669,8 +765,14 @@ ThicketPackage::ThicketPackage()
     General *suzukijirokichi = new General(this, "suzukijirokichi", "guai", 3);
     suzukijirokichi->addSkill(new Lvbai);
     suzukijirokichi->addSkill(new Lvzhan);
-/*
+
     General *jiikounosuke = new General(this, "jiikounosuke", "guai", 3);
+    jiikounosuke->addSkill(new Zhongpu);
+    jiikounosuke->addSkill(new ZhongpuEffect);
+    related_skills.insertMulti("zhongpu", "#zhongpu-effect");
+    jiikounosuke->addSkill(new Zhiqu);
+
+/*
     General *chianti = new General(this, "chianti", "hei", 3, false);
     General *korn = new General(this, "korn", "hei");
     General *jamesblack = new General(this, "jamesblack$", "te");
@@ -686,6 +788,7 @@ ThicketPackage::ThicketPackage()
     addMetaObject<CimuCard>();
     addMetaObject<RuoyuCard>();
     addMetaObject<ZilianCard>();
+    addMetaObject<ZhiquCard>();
 }
 
 ADD_PACKAGE(Thicket)
