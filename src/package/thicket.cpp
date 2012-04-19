@@ -497,103 +497,60 @@ public:
         return false;
     }
 };
-/*
-class Benghuai: public PhaseChangeSkill{
+
+class Lvbai: public TriggerSkill{
 public:
-    Benghuai():PhaseChangeSkill("benghuai"){
-        frequency = Compulsory;
+    Lvbai():TriggerSkill("lvbai"){
+        events << Predamaged;
     }
 
-    virtual QString getDefaultChoice(ServerPlayer *player) const{
-        if(player->getMaxHP() >= player->getHp() + 2)
-            return "maxhp";
-        else
-            return "hp";
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *dongzhuo) const{
-        bool trigger_this = false;
-        Room *room = dongzhuo->getRoom();
-
-        if(dongzhuo->getPhase() == Player::Finish){
-            QList<ServerPlayer *> players = room->getOtherPlayers(dongzhuo);
-            foreach(ServerPlayer *player, players){
-                if(dongzhuo->getHp() > player->getHp()){
-                    trigger_this = true;
-                    break;
-                }
-            }
-        }
-
-        if(trigger_this){
-            QString result = room->askForChoice(dongzhuo, "benghuai", "hp+max_hp");
-
-            room->playSkillEffect(objectName());
-            room->setEmotion(dongzhuo, "bad");
-
-            LogMessage log;
-            log.from = dongzhuo;
-            if(result == "hp"){
-                log.type = "#BenghuaiLoseHp";
-                room->sendLog(log);
-                room->loseHp(dongzhuo);
-            }else{
-                log.type = "#BenghuaiLoseMaxHp";
-                room->sendLog(log);
-                room->loseMaxHp(dongzhuo);
-            }
-        }
-
-        return false;
-    }
-};
-
-class Baonue: public TriggerSkill{
-public:
-    Baonue():TriggerSkill("baonue$"){
-        events << Damage;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return target->getKingdom() == "qun";
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &) const{
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        if(player->isKongcheng())
+            return false;
         Room *room = player->getRoom();
-        QList<ServerPlayer *> dongzhuos;
-        QList<ServerPlayer *> players = room->getOtherPlayers(player);
-        foreach(ServerPlayer *p, players){
-            if(p->hasLordSkill("baonue")){
-                dongzhuos << p;
+        QList<ServerPlayer *> targets;
+        foreach(ServerPlayer *p, room->getOtherPlayers(player)){
+            if(!p->isKongcheng()){
+                targets << p;
             }
         }
-
-        foreach(ServerPlayer *dongzhuo, dongzhuos){
-            QVariant who = QVariant::fromValue(dongzhuo);
-            if(player->askForSkillInvoke(objectName(), who)){
-                JudgeStruct judge;
-                judge.pattern = QRegExp("(.*):(spade):(.*)");
-                judge.good = true;
-                judge.reason = "baonue";
-                judge.who = player;
-
-                room->judge(judge);
-
-                if(judge.isGood()){
-                    room->playSkillEffect(objectName());
-
-                    RecoverStruct recover;
-                    recover.who = player;
-                    room->recover(dongzhuo, recover);
-                }
+        if(!targets.isEmpty() && room->askForSkillInvoke(player, objectName())){
+            ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName());
+            const Card *card = room->askForCard(player, ".", "@lvbai:" + target->objectName() + ":" + objectName());
+            if(player->pindian(target, objectName(), card)){
+                DamageStruct damage = data.value<DamageStruct>();
+                damage.to = target;
+                room->damage(damage);
+                return true;
             }
         }
-
         return false;
     }
 };
-*/
-//conan
+
+class Lvzhan: public TriggerSkill{
+public:
+    Lvzhan():TriggerSkill("lvzhan"){
+        events << Predamage;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        if(player->isKongcheng() || damage.to == player || damage.to->isKongcheng())
+            return false;
+        Room *room = player->getRoom();
+
+        if(room->askForSkillInvoke(player, objectName())){
+            const Card *card = room->askForCard(player, ".", "@lvbai:" + damage.to->objectName() + ":" + objectName());
+            if(player->pindian(damage.to, objectName(), card)){
+                damage.damage ++;
+                data = QVariant::fromValue(damage);
+            }
+        }
+        return false;
+    }
+};
+
 class Mihu: public TriggerSkill{
 public:
     Mihu():TriggerSkill("mihu"){
@@ -708,8 +665,11 @@ ThicketPackage::ThicketPackage()
 
     General *otagiritoshirou = new General(this, "otagiritoshirou", "jing");
     otagiritoshirou->addSkill(new Skill("qinjian", Skill::Compulsory));
-/*
+
     General *suzukijirokichi = new General(this, "suzukijirokichi", "guai", 3);
+    suzukijirokichi->addSkill(new Lvbai);
+    suzukijirokichi->addSkill(new Lvzhan);
+/*
     General *jiikounosuke = new General(this, "jiikounosuke", "guai", 3);
     General *chianti = new General(this, "chianti", "hei", 3, false);
     General *korn = new General(this, "korn", "hei");
