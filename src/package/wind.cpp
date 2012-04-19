@@ -339,6 +339,8 @@ public:
 
     virtual bool trigger(TriggerEvent, ServerPlayer *heiji, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
+        if(!damage.card)
+            return false;
         const Card *card = damage.card;
         if(!card->inherits("Slash") && !card->inherits("Duel") && !card->inherits("FireAttack"))
             return false;

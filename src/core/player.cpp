@@ -169,6 +169,9 @@ void Player::setFixedDistance(const Player *player, int distance){
 int Player::distanceTo(const Player *other) const{
     if(this == other)
         return 0;
+    if((this->hasSkill("weiju") && !this->getWeapon()) ||
+       (other->hasSkill("weiju") && !other->getWeapon()))
+        return 1;
 
     if(fixed_distance.contains(other))
         return fixed_distance.value(other);

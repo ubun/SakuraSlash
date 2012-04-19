@@ -1001,6 +1001,8 @@ public:
 
     virtual int getCorrect(const Player *from, const Player *to) const{
         int correct = 0;
+        if(from->hasSkill("mangju"))
+            return correct;
         if(from->getOffensiveCar())
             correct += from->getOffensiveCar()->getCorrect();
         if(to->getDefensiveCar())

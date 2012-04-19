@@ -563,7 +563,7 @@ void ServerPlayer::swap2Phases(Player::Phase phase1, Player::Phase phase2){
     }
     int i = static_cast<int>(phase1);
     int j = static_cast<int>(phase2);
-    phases.swap(i, j);
+    phases.swap(i-1, j-1);
 
     LogMessage log;
     log.type = "#SwapPhases";

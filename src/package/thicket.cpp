@@ -669,7 +669,7 @@ public:
             judge.pattern = QRegExp("(.*):(heart|diamond):(.*)");
             judge.good = false;
             judge.reason = objectName();
-            judge.who = target;
+            judge.who = player;
 
             eroom->judge(judge);
             if(judge.isGood())
@@ -688,11 +688,15 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         JudgeStar judge = data.value<JudgeStar>();
-        if(!judge->who->hasLordSkill(objectName()))
+        if(!judge->who->hasLordSkill(objectName()) && judge->who->getKingdom() != "hei")
             return false;
 
         if(player->askForSkillInvoke(objectName(), data)){
-            QList<ServerPlayer *> lieges = room->getLieges("te", player);
+            QList<ServerPlayer *> lieges;
+            foreach(ServerPlayer *liege, room->getAllPlayers()){
+                if(liege->getKingdom() == "te")
+                    lieges << liege;
+            }
             const Card *jud = NULL;
             ServerPlayer *who = NULL;
             foreach(ServerPlayer *liege, lieges){
@@ -847,10 +851,13 @@ ThicketPackage::ThicketPackage()
     jiikounosuke->addSkill(new ZhongpuEffect);
     related_skills.insertMulti("zhongpu", "#zhongpu-effect");
     jiikounosuke->addSkill(new Zhiqu);
-/*
-    General *chianti = new General(this, "chianti", "hei", 3, false);
+
+    General *chianti = new General(this, "chianti", "hei", 4, false);
+    chianti->addSkill(new Skill("weiju", Skill::Compulsory));
+
     General *korn = new General(this, "korn", "hei");
-*/
+    korn->addSkill(new Skill("mangju", Skill::Compulsory));
+
     General *jamesblack = new General(this, "jamesblack$", "te");
     jamesblack->addSkill(new Anyong);
     jamesblack->addSkill(new Panda);
