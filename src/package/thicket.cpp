@@ -742,8 +742,9 @@ public:
             player->loseAllMarks("@anyong");
             return false;
         }
-        if(player->hasSkill(objectName()) && player->getPhase() == Player::Start){
+        if(player->hasSkill(objectName()) && player->getPhase() == Player::Start && player->askForSkillInvoke(objectName())){
             Room *eroom = player->getRoom();
+            clk:
             ServerPlayer *target = eroom->askForPlayerChosen(player, eroom->getAlivePlayers(), objectName());
             JudgeStruct judge;
             judge.pattern = QRegExp("(.*):(heart|diamond):(.*)");
@@ -754,6 +755,10 @@ public:
             eroom->judge(judge);
             if(judge.isGood())
                 target->gainMark("@anyong");
+            if(player->hasSkill("benzCLK") && !player->hasFlag("CLK") && player->askForSkillInvoke("benzCLK")){
+                player->setFlags("CLK");
+                goto clk;
+            }
         }
         return false;
     }

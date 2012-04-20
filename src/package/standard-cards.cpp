@@ -1142,7 +1142,8 @@ StandardCardPackage::StandardCardPackage()
         cards << cars;
 
         skills << new CarSkill;
-        skills << new Porsche365A << new Skill("chevyCK") << new Skill("beetle");
+        skills << new Porsche365A << new Skill("chevyCK") << new Skill("beetle")
+                << new Skill("mazdaRX7") << new Skill("benzCLK");
     }
 
     cards << new AmazingGrace(Card::Heart, 3)
