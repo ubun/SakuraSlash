@@ -672,7 +672,18 @@ public:
             room->judge(judge);
 
             if(me != judge.card->getNumberString() && ichi != judge.card->getSuitString()){
+                LogMessage log;
+                log.type = "#Shanjing";
+                log.from = chianti;
+                log.to << effect.to;
+                log.arg = objectName();
+                room->sendLog(log);
+
                 room->slashResult(effect, NULL);
+                return true;
+            }
+            else{
+                room->slashResult(effect, effect.slash);
                 return true;
             }
         }
@@ -701,6 +712,13 @@ public:
             room->judge(judge);
 
             if(judge.isGood()){
+                LogMessage log;
+                log.type = "#Shanjing";
+                log.from = korn;
+                log.to << effect.to;
+                log.arg = objectName();
+                room->sendLog(log);
+
                 room->slashResult(effect, NULL);
                 return true;
             }

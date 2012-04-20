@@ -223,7 +223,7 @@ return {
 	["~sharon"] = "纵然容貌千变，终难逃一劫",
 	["~megurejyuuzou"] = "小绿，等我……",
 	["~matsumotokiyonaka"] = "赌上东京警视厅的尊严！",
-	["~otagiritoshirou"] = "我是谁？",
+	["~shiratorininzaburou"] = "生亦何欢，死亦何苦……",
 	["~kurobakaitou"] = "可恶，竟然输在这里……",
 	["~nakamoriaoko"] = "快斗，你就是……基德吧……",
 	["~gin"] = "下次一定杀了你！",
