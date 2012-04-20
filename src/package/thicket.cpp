@@ -647,6 +647,68 @@ public:
     }
 };
 
+class Shanjing:public SlashBuffSkill{
+public:
+    Shanjing():SlashBuffSkill("shanjing"){
+
+    }
+
+    virtual bool buff(const SlashEffectStruct &effect) const{
+        ServerPlayer *chianti = effect.from;
+
+        Room *room = chianti->getRoom();
+        if(chianti->askForSkillInvoke(objectName(), QVariant::fromValue(effect))){
+            room->playSkillEffect(objectName());
+            QString ichi, me;
+
+            JudgeStruct judge;
+            judge.reason = "shanjing1";
+            judge.who = chianti;
+            room->judge(judge);
+            ichi = judge.card->getSuitString();
+            me = judge.card->getNumberString();
+
+            judge.reason = "shanjing2";
+            room->judge(judge);
+
+            if(me != judge.card->getNumberString() && ichi != judge.card->getSuitString()){
+                room->slashResult(effect, NULL);
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
+class Mangju:public SlashBuffSkill{
+public:
+    Mangju():SlashBuffSkill("mangju"){
+
+    }
+
+    virtual bool buff(const SlashEffectStruct &effect) const{
+        ServerPlayer *korn = effect.from;
+
+        Room *room = korn->getRoom();
+        if(korn->askForSkillInvoke(objectName(), QVariant::fromValue(effect))){
+            room->playSkillEffect(objectName());
+
+            JudgeStruct judge;
+            judge.reason = objectName();
+            judge.pattern = "BasicCard|.|.|.|black";
+            judge.good = true;
+            judge.who = korn;
+            room->judge(judge);
+
+            if(judge.isGood()){
+                room->slashResult(effect, NULL);
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
 class Anyong: public PhaseChangeSkill{
 public:
     Anyong():PhaseChangeSkill("anyong"){
@@ -854,9 +916,11 @@ ThicketPackage::ThicketPackage()
 
     General *chianti = new General(this, "chianti", "hei", 4, false);
     chianti->addSkill(new Skill("weiju", Skill::Compulsory));
+    chianti->addSkill(new Shanjing);
 
     General *korn = new General(this, "korn", "hei");
-    korn->addSkill(new Skill("mangju", Skill::Compulsory));
+    korn->addSkill(new Skill("baotai", Skill::Compulsory));
+    korn->addSkill(new Mangju);
 
     General *jamesblack = new General(this, "jamesblack$", "te");
     jamesblack->addSkill(new Anyong);
