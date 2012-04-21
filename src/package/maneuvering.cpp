@@ -505,7 +505,7 @@ Inspiration::Inspiration(Suit suit, int number)
 }
 
 void Inspiration::onEffect(const CardEffectStruct &effect) const{
-    effect.to->drawCards(1);
+    effect.to->drawCards(qMax(1, effect.to->getLostHp()));
 }
 
 class GaleShellSkill: public ArmorSkill{
