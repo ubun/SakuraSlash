@@ -498,30 +498,14 @@ RenwangShield::RenwangShield(Suit suit, int number)
     skill = new RenwangShieldSkill;
 }
 
-Emigration::Emigration(Suit suit, int number)
-    :DelayedTrick(suit, number)
+Inspiration::Inspiration(Suit suit, int number)
+    :GlobalEffect(suit, number)
 {
-    setObjectName("emigration");
-    target_fixed = false;
-
-    judge.pattern = QRegExp("(.*):(spade|club):(.*)");
-    judge.good = true;
-    judge.reason = objectName();
+    setObjectName("inspiration");
 }
 
-bool Emigration::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
-{
-    if(!targets.isEmpty())
-        return false;
-
-    if(to_select->containsTrick(objectName()))
-        return false;
-
-    return true;
-}
-
-void Emigration::takeEffect(ServerPlayer *target) const{
-    target->skip(Player::Discard);
+void Inspiration::onEffect(const CardEffectStruct &effect) const{
+    effect.to->drawCards(1);
 }
 
 class GaleShellSkill: public ArmorSkill{
@@ -765,6 +749,53 @@ public:
     }
 };
 
+Locust::Locust(Card::Suit suit, int number)
+    :Disaster(suit, number)
+{
+    setObjectName("locust");
+
+    judge.pattern = QRegExp("(.*):(.*):([JQ])");
+    judge.good = true;
+    judge.reason = objectName();
+}
+
+void Locust::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
+    room->moveCardTo(this, source->getNextAlive(), Player::Judging);
+}
+
+void Locust::takeEffect(ServerPlayer *target) const{
+    Room *room = target->getRoom();
+    if(target->isKongcheng())
+        room->loseHp(target);
+    else room->askForDiscard(target,objectName(),1);
+    onNullified(target);
+//    room->moveCardTo(this, target->getNextAlive(), Player::Judging);
+}
+
+void Locust::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.to->getRoom();
+
+    LogMessage log;
+    log.from = effect.to;
+    log.type = "#DelayedTrick";
+    log.arg = effect.card->objectName();
+    room->sendLog(log);
+
+    JudgeStruct judge_struct = judge;
+    judge_struct.who = effect.to;
+    room->judge(judge_struct);
+
+    if(judge_struct.isBad()){
+        takeEffect(effect.to);
+    }else {
+        if(room->askForChoice(effect.to,objectName(),"move+throw")=="throw")
+            room->throwCard(this);
+        else
+//        room->moveCardTo(this, effect.to->getNextAlive(), Player::Judging);
+        onNullified(effect.to);
+    }
+}
+
 YajiaoSpear::YajiaoSpear(Suit suit, int number)
     :Weapon(suit, number, 2)
 {
@@ -810,7 +841,7 @@ ThunderBirdPackage::ThunderBirdPackage()
             << new YitianSword(Card::Spade, 8)
             << new SavageAssault(Card::Spade, 9)
             << new Snatch(Card::Spade,10)
-            << new Emigration(Card::Spade, 11)
+            << new Inspiration(Card::Spade, 11)
             << new ThunderSlash(Card::Spade, 12);
     OffensiveCar *jaguarE = new OffensiveCar(Card::Spade, 13);
     jaguarE->setObjectName("jaguarE");
@@ -819,7 +850,7 @@ ThunderBirdPackage::ThunderBirdPackage()
     // club
     cards
             << new WindJink(Card::Club, 1)
-            << new Emigration(Card::Club, 2)
+            << new Locust(Card::Club, 2)
             << new Turnover(Card::Club, 3)
             << new ThunderSlash(Card::Club, 4)
             //<< new napoliun(Card::Club, 5) armor

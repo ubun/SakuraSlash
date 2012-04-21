@@ -834,9 +834,6 @@ bool Snatch::targetFilter(const QList<const Player *> &targets, const Player *to
     if(to_select->isAllNude())
         return false;
 
-    if(to_select == Self)
-        return false;
-
     if(Self->distanceTo(to_select) > 1 &&
        !Self->hasSkill("shentou") && !Self->hasSkill("qicai"))
         return false;
