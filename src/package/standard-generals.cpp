@@ -2024,6 +2024,8 @@ void StandardPackage::addGenerals(){
     kaitoukid = new General(this, "kaitoukid", "yi", 3);
     kaitoukid->addSkill(new Shentou);
     kaitoukid->addSkill(new Baiyi);
+    kaitoukid->addSkill(new MarkAssignSkill("@wolf", 1));
+    related_skills.insertMulti("baiyi", "#@wolf-1");
     kaitoukid->addSkill(new Feixing);
 
     sharon = new General(this, "sharon", "yi", 3, false);

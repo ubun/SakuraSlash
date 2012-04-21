@@ -524,17 +524,20 @@ void AmazingGrace::use(Room *room, ServerPlayer *source, const QList<ServerPlaye
 void AmazingGrace::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.from->getRoom();
     QVariantList ag_list = room->getTag("AmazingGrace").toList();
-    QList<int> card_ids;
-    foreach(QVariant card_id, ag_list)
-        card_ids << card_id.toInt();
 
-    int card_id = room->askForAG(effect.to, card_ids, false, objectName());
-    card_ids.removeOne(card_id);
+    if(!ag_list.isEmpty()){
+        QList<int> card_ids;
+        foreach(QVariant card_id, ag_list)
+            card_ids << card_id.toInt();
 
-    room->takeAG(effect.to, card_id);
-    ag_list.removeOne(card_id);
+        int card_id = room->askForAG(effect.to, card_ids, false, objectName());
+        card_ids.removeOne(card_id);
 
-    room->setTag("AmazingGrace", ag_list);
+        room->takeAG(effect.to, card_id);
+        ag_list.removeOne(card_id);
+
+        room->setTag("AmazingGrace", ag_list);
+    }
 }
 
 void AmazingGrace::Hongmeng(Room *room, ServerPlayer *haruna) const{
