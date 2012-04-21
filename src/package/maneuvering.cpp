@@ -704,8 +704,16 @@ Potential::Potential(Suit suit, int number)
     target_fixed = true;
 }
 
+bool Potential::IsAvailable(const Player *player){
+    return !player->hasUsed("Potential");
+}
+
+bool Potential::isAvailable(const Player *player) const{
+    return IsAvailable(player);
+}
+
 void Potential::onEffect(const CardEffectStruct &effect) const{
-    effect.to->setFlags("NewTurn");
+    effect.from->getRoom()->setPlayerFlag(effect.to, "NewTurn");
 }
 
 RedAlert::RedAlert(Suit suit, int number)

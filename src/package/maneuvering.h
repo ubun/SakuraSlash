@@ -197,6 +197,9 @@ class Potential: public SingleTargetTrick{
 
 public:
     Q_INVOKABLE Potential(Card::Suit suit, int number);
+    static bool IsAvailable(const Player *player);
+
+    virtual bool isAvailable(const Player *player) const;
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
