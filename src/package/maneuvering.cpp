@@ -766,7 +766,7 @@ void Wolf::onEffect(const CardEffectStruct &effect) const{
 class TanteiSkill: public ArmorSkill{
 public:
     TanteiSkill():ArmorSkill("tantei"){
-        events << CardAsked << Damaged;
+        events << CardAsked << Damaged << CardFinished;
     }
 
     virtual bool triggerable(const ServerPlayer *) const{
@@ -776,13 +776,18 @@ public:
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         if(event == Damaged){
-            QList<ServerPlayer *> pls = room->findPlayersBySkillName(objectName());
+            QList<ServerPlayer *> pls;
+            foreach(ServerPlayer *tmp, room->getAllPlayers())
+                if(tmp->getArmor() && tmp->getArmor()->objectName() == objectName())
+                    pls << tmp;
             DamageStruct damage = data.value<DamageStruct>();
             foreach(ServerPlayer *tmp, pls)
                 if(tmp->distanceTo(damage.to) <= 1)
                     tmp->drawCards(1);
             return false;
         }
+        if(event == CardFinished)
+            room->removeTag("Tantei");
         if(!player->getArmor() || player->getArmor()->objectName() != objectName())
             return false;
 
@@ -790,20 +795,23 @@ public:
         if(pattern != "slash" && pattern != "jink")
             return false;
 
+        if(room->getTag("Tantei").toBool())
+            return false;
         QList<ServerPlayer *> friends;
         foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
             if(tmp->getArmor() && tmp->getArmor()->objectName() == objectName())
                 friends << tmp;
         }
-        if(friends.isEmpty() || !room->askForSkillInvoke(player, objectName()))
-            return false;
-
-        QVariant tohelp = QVariant::fromValue((PlayerStar)player);
-        foreach(ServerPlayer *fri, friends){
-            const Card *slash = room->askForCard(fri, pattern, "@tantei:" + player->objectName() + ":" + pattern, tohelp);
-            if(slash){
-                room->provide(slash);
-                return true;
+        if(!friends.isEmpty() && room->askForSkillInvoke(player, objectName())){
+            room->setTag("Tantei", true);
+            QVariant tohelp = QVariant::fromValue((PlayerStar)player);
+            foreach(ServerPlayer *fri, friends){
+                const Card *slash = room->askForCard(fri, pattern, "@tantei:" + player->objectName() + ":" + pattern, tohelp);
+                if(slash){
+                    room->provide(slash);
+                    room->removeTag("Tantei");
+                    return true;
+                }
             }
         }
         return false;
