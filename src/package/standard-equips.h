@@ -10,11 +10,11 @@ public:
     Q_INVOKABLE Crossbow(Card::Suit suit, int number = 1);
 };
 
-class DoubleSword:public Weapon{
+class Watch:public Weapon{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE DoubleSword(Card::Suit suit = Spade, int number = 2);
+    Q_INVOKABLE Watch(Card::Suit suit = Spade, int number = 2);
 };
 
 class QinggangSword:public Weapon{
@@ -45,11 +45,11 @@ public:
     Q_INVOKABLE Axe(Card::Suit suit = Diamond, int number = 5);
 };
 
-class Halberd:public Weapon{
+class Psg:public Weapon{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE Halberd(Card::Suit suit = Diamond, int number = 12);
+    Q_INVOKABLE Psg(Card::Suit suit = Diamond, int number = 12);
 };
 
 class KylinBow:public Weapon{

@@ -469,6 +469,28 @@ SoilJink::SoilJink(Suit suit, int number)
     setObjectName("soil_jink");
 }
 
+class BowSkill: public ArmorSkill{
+public:
+    BowSkill():ArmorSkill("bow"){
+        events << HpChanged;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        int x = (qrand() % 3) + 1;
+        if(player->isAlive() && player->askForSkillInvoke(objectName())){
+            player->drawCards(x);
+        }
+        return false;
+    }
+};
+
+Bow::Bow(Suit suit, int number)
+    :Armor(suit, number)
+{
+    setObjectName("bow");
+    skill = new BowSkill;
+}
+
 class RenwangShieldSkill: public ArmorSkill{
 public:
     RenwangShieldSkill():ArmorSkill("renwang_shield"){
@@ -496,54 +518,6 @@ RenwangShield::RenwangShield(Suit suit, int number)
 {
     setObjectName("renwang_shield");
     skill = new RenwangShieldSkill;
-}
-
-Inspiration::Inspiration(Suit suit, int number)
-    :GlobalEffect(suit, number)
-{
-    setObjectName("inspiration");
-}
-
-void Inspiration::onEffect(const CardEffectStruct &effect) const{
-    effect.to->drawCards(qMax(1, effect.to->getLostHp()));
-}
-
-class GaleShellSkill: public ArmorSkill{
-public:
-    GaleShellSkill():ArmorSkill("gale-shell"){
-        events << Predamaged;
-    }
-
-    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
-        DamageStruct damage = data.value<DamageStruct>();
-        if(damage.nature == DamageStruct::Fire){
-            LogMessage log;
-            log.type = "#GaleShellDamage";
-            log.from = player;
-            log.arg = QString::number(damage.damage);
-            log.arg2 = QString::number(damage.damage + 1);
-            player->getRoom()->sendLog(log);
-
-            damage.damage ++;
-            data = QVariant::fromValue(damage);
-        }
-        return false;
-    }
-};
-
-GaleShell::GaleShell(Suit suit, int number) :Armor(suit, number){
-    setObjectName("gale_shell");
-    skill = new GaleShellSkill;
-
-    target_fixed = false;
-}
-
-bool GaleShell::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty() && Self->distanceTo(to_select) <= 1;
-}
-
-void GaleShell::onUse(Room *room, const CardUseStruct &card_use) const{
-    Card::onUse(room, card_use);
 }
 
 class YxSwordSkill: public WeaponSkill{
@@ -586,6 +560,66 @@ YxSword::YxSword(Suit suit, int number)
     skill = new YxSwordSkill;
 }
 
+class BatSkill: public WeaponSkill{
+public:
+    BatSkill():WeaponSkill("bat"){
+        events << SlashMissed;
+    }
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        if(player->getRoom()->obtainable(effect.jink, player))
+            player->obtainCard(effect.jink);
+        return false;
+    }
+};
+
+Bat::Bat(Suit suit, int number)
+    :Weapon(suit, number, 2)
+{
+    setObjectName("bat");
+    skill = new BatSkill;
+}
+
+class RailgunSkill: public WeaponSkill{
+public:
+    RailgunSkill():WeaponSkill("railgun"){
+        events << SlashEffect << SlashHit;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        if(event == SlashHit){
+            Room *room = player->getRoom();
+            if(effect.to->getWeapon())
+                room->throwCard(effect.to->getWeapon());
+            if(effect.to->getArmor())
+                room->throwCard(effect.to->getArmor());
+            return false;
+        }
+        if(effect.nature == DamageStruct::Normal){
+            effect.nature = DamageStruct::Thunder;
+            data = QVariant::fromValue(effect);
+        }
+
+        return false;
+    }
+};
+
+Railgun::Railgun(Suit suit, int number):Weapon(suit, number, 5){
+    setObjectName("railgun");
+    skill = new RailgunSkill;
+}
+
+Inspiration::Inspiration(Suit suit, int number)
+    :GlobalEffect(suit, number)
+{
+    setObjectName("inspiration");
+}
+
+void Inspiration::onEffect(const CardEffectStruct &effect) const{
+    effect.to->drawCards(qMax(1, effect.to->getLostHp()));
+}
+
 Sacrifice::Sacrifice(Suit suit, int number)
     :SingleTargetTrick(suit, number, false) {
     setObjectName("sacrifice");
@@ -612,89 +646,6 @@ void Sacrifice::onEffect(const CardEffectStruct &effect) const{
     recover.card = this;
     recover.who = effect.from;
     room->recover(effect.to, recover, true);
-}
-
-class YitianSwordSkill : public WeaponSkill{
-public:
-    YitianSwordSkill():WeaponSkill("yitian_sword"){
-        events << DamageComplete;
-    }
-
-    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &) const{
-        if(player->getPhase() != Player::NotActive)
-           return false;
-
-        if(player->askForSkillInvoke("yitian_sword"))
-            player->getRoom()->askForUseCard(player, "slash", "@askforslash");
-
-        return false;
-    }
-};
-
-class YitianSword: public Weapon{
-public:
-    YitianSword(Suit suit, int number): Weapon(suit, number, 2){
-        setObjectName("yitian_sword");
-        skill = new YitianSwordSkill;
-    }
-    virtual void onMove(const CardMoveStruct &move) const;
-};
-
-void YitianSword::onMove(const CardMoveStruct &move) const{
-    if(move.from_place == Player::Equip && move.from->isAlive()){
-        Room *room = move.from->getRoom();
-
-        bool invoke = move.from->askForSkillInvoke("yitian-lost");
-        if(!invoke)
-            return;
-
-        ServerPlayer *target = room->askForPlayerChosen(move.from, room->getAllPlayers(), "yitian-lost");
-        DamageStruct damage;
-        damage.from = move.from;
-        damage.to = target;
-        damage.card = this;
-
-        room->damage(damage);
-    }
-}
-
-class ThunderShellSkill: public ArmorSkill{
-public:
-    ThunderShellSkill():ArmorSkill("thunder-shell"){
-        events << Predamaged;
-    }
-
-    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
-        DamageStruct damage = data.value<DamageStruct>();
-        if(damage.nature != DamageStruct::Thunder){
-            LogMessage log;
-            log.type = "#ThunSheProtect";
-            log.from = player;
-            log.arg = QString::number(damage.damage);
-            if(damage.nature == DamageStruct::Normal)
-                log.arg2 = "normal_nature";
-            else
-                log.arg2 = damage.nature == DamageStruct::Fire ? "fire_nature" : "thunder_nature";
-            player->getRoom()->sendLog(log);
-            return true;
-        }
-        return false;
-    }
-};
-
-ThunderShell::ThunderShell(Suit suit, int number) :Armor(suit, number){
-    setObjectName("thunder_shell");
-    skill = new ThunderShellSkill;
-
-    target_fixed = false;
-}
-
-bool ThunderShell::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty() && Self->distanceTo(to_select) <= 1;
-}
-
-void ThunderShell::onUse(Room *room, const CardUseStruct &card_use) const{
-    Card::onUse(room, card_use);
 }
 
 Potential::Potential(Suit suit, int number)
@@ -744,19 +695,6 @@ void Turnover::onEffect(const CardEffectStruct &effect) const{
         effect.to->turnOver();
 }
 
-class YajiaoSpearSkill: public WeaponSkill{
-public:
-    YajiaoSpearSkill():WeaponSkill("yajiao_spear"){
-        events << SlashMissed;
-    }
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        SlashEffectStruct effect = data.value<SlashEffectStruct>();
-        if(player->getRoom()->obtainable(effect.jink, player))
-            player->obtainCard(effect.jink);
-        return false;
-    }
-};
-
 Locust::Locust(Card::Suit suit, int number)
     :Disaster(suit, number)
 {
@@ -804,13 +742,6 @@ void Locust::onEffect(const CardEffectStruct &effect) const{
     }
 }
 
-YajiaoSpear::YajiaoSpear(Suit suit, int number)
-    :Weapon(suit, number, 2)
-{
-    setObjectName("yajiao_spear");
-    skill = new YajiaoSpearSkill;
-}
-
 Wolf::Wolf(Suit suit, int number)
     :SingleTargetTrick(suit, number, false) {
     setObjectName("wolf");
@@ -832,6 +763,80 @@ void Wolf::onEffect(const CardEffectStruct &effect) const{
     }
 }
 
+class TanteiSkill: public ArmorSkill{
+public:
+    TanteiSkill():ArmorSkill("tantei"){
+        events << CardAsked << Damaged;
+    }
+
+    virtual bool triggerable(const ServerPlayer *) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
+        if(event == Damaged){
+            QList<ServerPlayer *> pls = room->findPlayersBySkillName(objectName());
+            DamageStruct damage = data.value<DamageStruct>();
+            foreach(ServerPlayer *tmp, pls)
+                if(tmp->distanceTo(damage.to) <= 1)
+                    tmp->drawCards(1);
+            return false;
+        }
+        if(!player->getArmor() || player->getArmor()->objectName() != objectName())
+            return false;
+
+        const QString pattern = data.toString();
+        if(pattern != "slash" && pattern != "jink")
+            return false;
+
+        QList<ServerPlayer *> friends;
+        foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
+            if(tmp->getArmor() && tmp->getArmor()->objectName() == objectName())
+                friends << tmp;
+        }
+        if(friends.isEmpty() || !room->askForSkillInvoke(player, objectName()))
+            return false;
+
+        QVariant tohelp = QVariant::fromValue((PlayerStar)player);
+        foreach(ServerPlayer *fri, friends){
+            const Card *slash = room->askForCard(fri, pattern, "@tantei:" + player->objectName() + ":" + pattern, tohelp);
+            if(slash){
+                room->provide(slash);
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
+Tantei::Tantei(Suit suit, int number)
+    :Armor(suit, number)
+{
+    setObjectName("tantei");
+    skill = new TanteiSkill;
+}
+
+class InjectorSkill: public ZeroCardViewAsSkill{
+public:
+    InjectorSkill():ZeroCardViewAsSkill("injector"){
+    }
+
+    virtual const Card *viewAs() const{
+        Duel *d = new Duel(Card::NoSuit, 0);
+        d->setSkillName(objectName());
+
+        return d;
+    }
+};
+
+Injector::Injector(Suit suit, int number)
+    :Weapon(suit, number, 13)
+{
+    setObjectName("injector");
+    attach_skill = true;
+}
+
 ThunderBirdPackage::ThunderBirdPackage()
     :Package("thunder_bird")
 {
@@ -843,10 +848,10 @@ ThunderBirdPackage::ThunderBirdPackage()
             << new Dismantlement(Card::Spade, 2)
             << new ThunderSlash(Card::Spade, 3)
             << new Peach(Card::Spade, 4)
-            << new ThunderShell(Card::Spade, 5)
+            << new Railgun(Card::Spade, 5)
             << new Slash(Card::Spade, 6)
             << new Potential(Card::Spade, 7)
-            << new YitianSword(Card::Spade, 8)
+            << new Tantei(Card::Spade, 8)
             << new SavageAssault(Card::Spade, 9)
             << new Snatch(Card::Spade,10)
             << new Inspiration(Card::Spade, 11)
@@ -861,7 +866,7 @@ ThunderBirdPackage::ThunderBirdPackage()
             << new Locust(Card::Club, 2)
             << new Turnover(Card::Club, 3)
             << new ThunderSlash(Card::Club, 4)
-            //<< new napoliun(Card::Club, 5) armor
+            << new Injector(Card::Club, 5)
             << new Slash(Card::Club, 6)
             << new Nullification(Card::Club, 7)
             << new Wolf(Card::Club, 8)
@@ -869,18 +874,18 @@ ThunderBirdPackage::ThunderBirdPackage()
             << new ThunderSlash(Card::Club, 10)
             << new RenwangShield(Card::Club, 11)
             << new ExNihilo(Card::Club, 12)
-            //<< new Moshenqi(Card::Club, 13) armor
+            << new Tantei(Card::Club, 13)
                         ;
 
     // heart
     cards
-            //<< new Emigration(Card::Heart, 1)
+            << new Bow(Card::Heart, 1)
             << new Sacrifice(Card::Heart, 2)
             << new Slash(Card::Heart, 3)
             << new Collateral(Card::Heart, 4)
             << new FireSlash(Card::Heart, 5)
             << new WindJink(Card::Heart, 6)
-            << new GaleShell(Card::Heart, 7)
+            << new Tantei(Card::Heart, 7)
             << new FireSlash(Card::Heart, 8)
             << new Snatch(Card::Heart, 9)
             << new JuicePeach(Card::Heart, 10)
@@ -897,7 +902,7 @@ ThunderBirdPackage::ThunderBirdPackage()
             << new Potential(Card::Diamond, 5)
             << new RedAlert(Card::Diamond, 6)
             << new Analeptic(Card::Diamond, 7)
-            << new YajiaoSpear(Card::Diamond, 8)
+            << new Bat(Card::Diamond, 8)
             << new WindJink(Card::Diamond, 9)
             << new FireSlash(Card::Diamond, 10)
             << new IronChain(Card::Diamond, 11)
