@@ -182,10 +182,7 @@ public:
     }
 
     virtual void onDamaged(ServerPlayer *dengshizai, const DamageStruct &) const{
-        if(dengshizai->faceUp())
-            return;
-
-        if(dengshizai->isKongcheng())
+        if(dengshizai->faceUp() || dengshizai->isKongcheng())
             return;
 
         if(!dengshizai->askForSkillInvoke("toudu"))
@@ -1257,7 +1254,7 @@ public:
 class Getitps: public TriggerSkill{
 public:
     Getitps():TriggerSkill("getitps"){
-//当你指定一名角色成为杀的目标时，该角色可以选择让你莫两张牌，终止杀的结算
+//锟斤拷锟斤拷指锟斤拷一锟斤拷锟斤拷色锟斤拷为杀锟斤拷目锟斤拷时锟斤拷锟矫斤拷色锟斤拷锟斤拷选锟斤拷锟斤拷锟斤拷莫锟斤拷锟斤拷锟狡ｏ拷锟斤拷止杀锟侥斤拷锟斤拷
         events << SlashEffect;
         default_choice = "yes";
     }
@@ -1361,7 +1358,7 @@ public:
 class Nono1: public OneCardViewAsSkill{
 public:
     Nono1():OneCardViewAsSkill("nono1"){
-//装备牌当五谷丰登
+//装锟斤拷锟狡碉拷锟斤拷锟饺凤拷锟斤拷
     }
     virtual bool viewFilter(const CardItem *to_select) const{
         return to_select->isEquipped();
@@ -1380,7 +1377,7 @@ class Nono2:public OneCardViewAsSkill{
 public:
     Nono2():OneCardViewAsSkill("nono2"){
     }
-//无懈和闪互用
+//锟斤拷懈锟斤拷锟斤拷锟斤拷锟斤拷
     virtual bool viewFilter(const CardItem *to_select) const{
         const Card *card = to_select->getCard();
 
@@ -1389,7 +1386,7 @@ public:
                 if(pattern == "nullification")
                     return card->inherits("Jink");
                 else if(pattern == "jink")
-                    return card->inherits("Nullification");//无懈当闪
+                    return card->inherits("Nullification");//锟斤拷懈锟斤拷锟斤拷
             }
         return false;
     }
@@ -1424,43 +1421,43 @@ public:
 OthePackage::OthePackage()
     :Package("othe")
 {
-    //暗处支持华击团的家伙们
+    //锟斤拷锟斤拷支锟街伙拷锟斤拷锟脚的家伙拷锟斤拷
     General *kayama, *tsubaki, *kasumi, *yuri, *nonomura, *sb1, *sb2, *sb3;
-/*加山雄一 6血
-鬼才、英姿、攻心*/
+/*锟斤拷山锟斤拷一 6血
+锟斤拷锟脚★拷英锟剿★拷锟斤拷锟斤拷*/
     kayama = new General(this, "kayama$", "yin", 5, true);
     kayama->addSkill(new Guicai);
     kayama->addSkill(new Yingzi);
     kayama->addSkill(new Gongxin);
     kayama->addSkill(new Jiuyuan);
-/*高村椿
-胡笳，偷渡，乐学*/
+/*锟竭村椿
+锟斤拷锟秸ｏ拷偷锟缴ｏ拷锟斤拷学*/
     tsubaki = new General(this, "tsubaki", "yin");
         tsubaki->addSkill(new Hujia2);;
         tsubaki->addSkill(new Toudu);
         tsubaki->addSkill(new Lexue);
-/*藤井霞
-乱击，天妒，光荣*/
+/*锟劫撅拷霞
+锟揭伙拷锟斤拷锟斤拷锟绞ｏ拷锟斤拷锟斤拷*/
     kasumi = new General(this, "kasumi", "yin");
     kasumi->addSkill(new Luanji);
     kasumi->addSkill(new Tiandu);
     kasumi->addSkill(new Guangrong);
-/*神原由里
-仁德，红颜，空城*/
+/*锟斤拷原锟斤拷锟斤拷
+锟绞德ｏ拷锟斤拷锟秸ｏ拷锟秸筹拷*/
     yuri = new General(this, "yuri", "yin");
     yuri->addSkill(new Rende);
     yuri->addSkill(new Kongcheng);
     yuri->addSkill(new KongchengEffect);
     yuri->addSkill(new Hongyan);
     yuri->addSkill(new HongyanRetrial);
-/*清流院琴音
-归心，狂骨，聪慧，早夭*/
+/*锟斤拷锟斤拷院锟斤拷锟斤拷
+锟斤拷锟侥ｏ拷锟斤拷锟角ｏ拷锟较慧ｏ拷锟斤拷夭*/
         sb1 = new General(this, "sb1", "yin",4,true);
         sb1->addSkill(new Guixin);
         sb1->addSkill(new Kuanggu);
 	sb1->addSkill(new Zaoyao);
-/*太田斧彦
-神君，双雄，制衡*/
+/*太锟斤斧锟斤拷
+锟斤拷锟斤拷锟斤拷双锟桔ｏ拷锟狡猴拷*/
         sb2 = new General(this, "sb2", "yin",4,true);
         sb2->addSkill(new Shenjun);
 	sb2->addSkill(new Shuangxiong);
@@ -1469,33 +1466,33 @@ OthePackage::OthePackage()
     sb2f->addSkill("shenjun");
     sb2f->addSkill("shuangxiong");
     sb2f->addSkill("zhiheng");
-/*丘菊之丞
-猛进，天义，樵采*/
+/*锟斤拷锟斤拷之丞
+锟酵斤拷锟斤拷锟斤拷锟藉，锟皆诧拷*/
         sb3 = new General(this, "sb3", "yin",4,true);
 	sb3->addSkill(new Tianyi);
 	sb3->addSkill(new Mengjin);
         sb3->addSkill(new Qiaocai);
 
         General *mell, *ci, *poshui;
-/*茜
-完杀，毒士，看破*/
+/*锟斤拷
+锟斤拷杀锟斤拷锟斤拷士锟斤拷锟斤拷锟斤拷*/
         ci = new General(this, "ci", "ba");
         ci->addSkill(new Dimeng);
         ci->addSkill(new Naughty);
         ci->addSkill(new Guiding);
-/*梅尔
-挥泪，龙胆，甘露*/
+/*梅锟斤拷
+锟斤拷锟结，锟斤拷锟斤拷锟斤拷锟斤拷露*/
         mell = new General(this, "mell", "ba");
         mell->addSkill(new Ganlu);
         mell->addSkill(new Getitps);
         mell->addSkill(new Faner);
-/*迫水典通
-义从、神速、争功*/
+/*锟斤拷水锟斤拷通
+锟斤拷锟接★拷锟斤拷锟劫★拷锟斤拷锟斤拷*/
         poshui = new General(this, "poshui", "god",4,true);
         poshui->addSkill(new Skill("yicong", Skill::Compulsory));
         poshui->addSkill(new Shensu);
         poshui->addSkill(new Zhenggong);
-/*野野村蕾 围堰*/
+/*野野锟斤拷锟斤拷 围锟斤拷*/
         nonomura = new General(this, "nonomura", "yin");
         nonomura->addSkill(new Nono1);
         nonomura->addSkill(new Nono2);
