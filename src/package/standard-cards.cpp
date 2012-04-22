@@ -68,9 +68,6 @@ bool Slash::targetsFeasible(const QList<const Player *> &targets, const Player *
 
 bool Slash::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     int slash_targets = 1;
-    if(Self->hasWeapon("halberd") && Self->isLastHandCard(this)){
-        slash_targets = 3;
-    }
 
     bool distance_limit = true;
 
@@ -153,45 +150,34 @@ Crossbow::Crossbow(Suit suit, int number)
     setObjectName("crossbow");
 }
 
-class DoubleSwordSkill: public WeaponSkill{
+class WatchSkill: public WeaponSkill{
 public:
-    DoubleSwordSkill():WeaponSkill("double_sword"){
-        events << SlashEffect;
+    WatchSkill():WeaponSkill("watch"){
+        events << SlashHit;
     }
 
     virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
         Room *room = player->getRoom();
 
-        if(effect.from->getGeneral()->isMale() != effect.to->getGeneral()->isMale()){
+        if(!effect.from->isKongcheng() && !effect.to->isKongcheng()){
             if(effect.from->askForSkillInvoke(objectName())){
-                bool draw_card = false;
-
-                if(effect.to->isKongcheng())
-                    draw_card = true;
-                else{
-                    QString prompt = "double-sword-card:" + effect.from->getGeneralName();
-                    const Card *card = room->askForCard(effect.to, ".", prompt);
-                    if(card){
-                        room->throwCard(card);
-                    }else
-                        draw_card = true;
-                }
-
-                if(draw_card)
-                    effect.from->drawCards(1);
+                const Card *card = room->askForCard(player, ".", "@lvbai:" + effect.to->objectName() + ":" + objectName());
+                if(player->pindian(effect.to, objectName(), card))
+                    effect.to->turnOver();
+                else if(player->getWeapon())
+                    effect.to->obtainCard(player->getWeapon());
             }
         }
-
         return false;
     }
 };
 
-DoubleSword::DoubleSword(Suit suit, int number)
+Watch::Watch(Suit suit, int number)
     :Weapon(suit, number, 2)
 {
-    setObjectName("double_sword");
-    skill = new DoubleSwordSkill;
+    setObjectName("watch");
+    skill = new WatchSkill;
 }
 
 class QinggangSwordSkill: public WeaponSkill{
@@ -272,7 +258,7 @@ public:
     }
 
     virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
-        return selected.length() < 2 && !to_select->isEquipped();
+        return selected.length() < 2 && !to_select->getCard()->inherits("Spear");
     }
 
     virtual const Card *viewAs(const QList<CardItem *> &cards) const{
@@ -383,10 +369,27 @@ Axe::Axe(Suit suit, int number)
     attach_skill = true;
 }
 
-Halberd::Halberd(Suit suit, int number)
+class PsgSkill: public WeaponSkill{
+public:
+    PsgSkill():WeaponSkill("psg"){
+        events << SlashProceed;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        if(!effect.slash->isVirtualCard() && player->isLastHandCard(effect.slash)){
+            player->getRoom()->slashResult(effect, NULL);
+            return true;
+        }
+        return false;
+    }
+};
+
+Psg::Psg(Suit suit, int number)
     :Weapon(suit, number, 4)
 {
-    setObjectName("halberd");
+    setObjectName("psg");
+    skill = new PsgSkill;
 }
 
 class KylinBowSkill: public WeaponSkill{
@@ -411,15 +414,9 @@ public:
         if(!player->askForSkillInvoke(objectName(), data))
             return false;
 
-        QString car_type;
-        if(cars.length() == 2)
-            car_type = room->askForChoice(player, objectName(), cars.join("+"));
-        else
-            car_type = cars.first();
-
-        if(car_type == "dcar")
+        if(effect.to->getDefensiveCar())
             room->throwCard(effect.to->getDefensiveCar());
-        else if(car_type == "ocar")
+        if(effect.to->getOffensiveCar())
             room->throwCard(effect.to->getOffensiveCar());
 
         return false;
@@ -524,17 +521,20 @@ void AmazingGrace::use(Room *room, ServerPlayer *source, const QList<ServerPlaye
 void AmazingGrace::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.from->getRoom();
     QVariantList ag_list = room->getTag("AmazingGrace").toList();
-    QList<int> card_ids;
-    foreach(QVariant card_id, ag_list)
-        card_ids << card_id.toInt();
 
-    int card_id = room->askForAG(effect.to, card_ids, false, objectName());
-    card_ids.removeOne(card_id);
+    if(!ag_list.isEmpty()){
+        QList<int> card_ids;
+        foreach(QVariant card_id, ag_list)
+            card_ids << card_id.toInt();
 
-    room->takeAG(effect.to, card_id);
-    ag_list.removeOne(card_id);
+        int card_id = room->askForAG(effect.to, card_ids, false, objectName());
+        card_ids.removeOne(card_id);
 
-    room->setTag("AmazingGrace", ag_list);
+        room->takeAG(effect.to, card_id);
+        ag_list.removeOne(card_id);
+
+        room->setTag("AmazingGrace", ag_list);
+    }
 }
 
 void AmazingGrace::Hongmeng(Room *room, ServerPlayer *haruna) const{
@@ -788,6 +788,10 @@ void Duel::onEffect(const CardEffectStruct &effect) const{
     ServerPlayer *first = effect.to;
     ServerPlayer *second = effect.from;
     Room *room = first->getRoom();
+    if(getSkillName() == "injector")
+        room->loseMaxHp(second);
+    if(second->isDead())
+        return;
 
     room->setEmotion(first, "duel-a");
     room->setEmotion(second, "duel-b");
@@ -832,9 +836,6 @@ bool Snatch::targetFilter(const QList<const Player *> &targets, const Player *to
         return false;
 
     if(to_select->isAllNude())
-        return false;
-
-    if(to_select == Self)
         return false;
 
     if(Self->distanceTo(to_select) > 1 &&
@@ -1110,12 +1111,12 @@ StandardCardPackage::StandardCardPackage()
           << new Crossbow(Card::Club)
           << new Crossbow(Card::Diamond)
           << new IceSword
-          << new DoubleSword
+          << new Watch
           << new QinggangSword
           << new Blade
           << new Spear
           << new Axe
-          << new Halberd
+          << new Psg
           << new KylinBow
 
           << new EightDiagram(Card::Spade)
@@ -1142,7 +1143,8 @@ StandardCardPackage::StandardCardPackage()
         cards << cars;
 
         skills << new CarSkill;
-        skills << new Porsche365A << new Skill("chevyCK") << new Skill("beetle");
+        skills << new Porsche365A << new Skill("chevyCK") << new Skill("beetle")
+                << new Skill("mazdaRX7") << new Skill("benzCLK");
     }
 
     cards << new AmazingGrace(Card::Heart, 3)

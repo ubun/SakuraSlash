@@ -3743,26 +3743,29 @@ function SmartAI:log(outString)
 end
 
 -- load other ai scripts
-dofile "lua/ai/standard-ai.lua"
-dofile "lua/ai/wind-ai.lua"
-dofile "lua/ai/thicket-ai.lua"
-dofile "lua/ai/fire-ai.lua"
-dofile "lua/ai/mountain-ai.lua"
-dofile "lua/ai/god-ai.lua"
-dofile "lua/ai/nostalgia-ai.lua"
-dofile "lua/ai/secrets-ai.lua"
--- dofile "lua/ai/sp-ai.lua"
-dofile "lua/ai/joy-ai.lua"
-
 dofile "lua/ai/general_config.lua"
-dofile "lua/ai/intention-ai.lua"
-dofile "lua/ai/chat-ai.lua"
 dofile "lua/ai/value_config.lua"
-
+dofile "lua/ai/standard-ai.lua"
 dofile "lua/ai/standard-skill-ai.lua"
-dofile "lua/ai/thicket-skill-ai.lua"
-dofile "lua/ai/fire-skill-ai.lua"
-dofile "lua/ai/yjcm-skill-ai.lua"
+dofile "lua/ai/secrets-ai.lua"
+dofile "lua/ai/chat-ai.lua"
 -- dofile "lua/ai/hulaoguan-ai.lua"
-
 dofile "lua/ai/guanxing-ai.lua"
+dofile "lua/ai/intention-ai.lua"
+
+local loaded = "standard|standard_cards|secrets"
+
+local files = table.concat(sgs.GetFileNames("lua/ai"), " ")
+
+for _, aextension in ipairs(sgs.Sanguosha:getExtensions()) do
+	if not loaded:match(aextension) and files:match(string.lower(aextension)) then
+		dofile("lua/ai/" .. string.lower(aextension) .. "-ai.lua")
+	end
+end
+
+for _, ascenario in ipairs(sgs.Sanguosha:getScenarioNames()) do
+	if not loaded:match(ascenario) and files:match(string.lower(ascenario)) then
+		dofile("lua/ai/" .. string.lower(ascenario) .. "-ai.lua")
+	end
+end
+

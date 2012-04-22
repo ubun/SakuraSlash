@@ -228,25 +228,6 @@ shentou_skill.getTurnUseCard=function(self,inclusive)
 end
 sgs.ai_skill_invoke["shentou"] = true
 
--- baiyi
-local baiyi_skill={}
-baiyi_skill.name = "baiyi"
-table.insert(sgs.ai_skills, baiyi_skill)
-baiyi_skill.getTurnUseCard=function(self)
-	if not self.player:hasUsed("BaiyiCard") then
-		if self.player:getEquips():length() == 1 then
-			local equip = self.player:getEquips():first()
-			return sgs.Card_Parse("@BaiyiCard=" .. equip:getEffectiveId())
-		end
-		return nil
-	end
-end
-sgs.ai_skill_use_func["BaiyiCard"] = function(card, use, self)
-	if use.to then use.to:append(self.friends_noself[1]) end
-	use.card = card
-	return
-end
-
 -- yirong&tishen
 sgs.ai_skill_invoke["yirong"] = true
 sgs.ai_skill_invoke["tishen"] = true

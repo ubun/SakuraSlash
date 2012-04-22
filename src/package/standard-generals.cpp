@@ -822,37 +822,37 @@ public:
     }
 };
 
+#include "maneuvering.h"
 BaiyiCard::BaiyiCard(){
     once = true;
+    target_fixed = true;
 }
 
-bool BaiyiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty() && to_select != Self;
+void BaiyiCard::onUse(Room *room, const CardUseStruct &card_use) const{
+    card_use.from->throwAllCards();
+    Wolf *wolf = new Wolf(Card::NoSuit, 0);
+    wolf->setSkillName("baiyi");
+
+    CardUseStruct use;
+    use.card = wolf;
+    use.from = card_use.from;
+    card_use.from->loseMark("@wolf");
+
+    room->useCard(use);
 }
 
-void BaiyiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    room->throwCard(this);
-    room->showAllCards(source, targets.first());
-}
-
-class Baiyi: public OneCardViewAsSkill{
+class Baiyi: public ZeroCardViewAsSkill{
 public:
-    Baiyi():OneCardViewAsSkill("baiyi"){
+    Baiyi():ZeroCardViewAsSkill("baiyi"){
+        frequency = Limited;
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return ! player->hasUsed("BaiyiCard");
+        return player->getMark("@wolf") > 0;
     }
 
-    virtual bool viewFilter(const CardItem *to_select) const{
-        return to_select->isEquipped();
-    }
-
-    virtual const Card *viewAs(CardItem *card_item) const{
-        BaiyiCard *card = new BaiyiCard;
-        card->addSubcard(card_item->getCard()->getId());
-
-        return card;
+    virtual const Card *viewAs() const{
+        return new BaiyiCard;
     }
 };
 
@@ -2024,6 +2024,8 @@ void StandardPackage::addGenerals(){
     kaitoukid = new General(this, "kaitoukid", "yi", 3);
     kaitoukid->addSkill(new Shentou);
     kaitoukid->addSkill(new Baiyi);
+    kaitoukid->addSkill(new MarkAssignSkill("@wolf", 1));
+    related_skills.insertMulti("baiyi", "#@wolf-1");
     kaitoukid->addSkill(new Feixing);
 
     sharon = new General(this, "sharon", "yi", 3, false);

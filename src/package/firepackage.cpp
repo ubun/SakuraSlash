@@ -464,8 +464,9 @@ public:
             return false;
         DamageStruct damage = data.value<DamageStruct>();
 
-        if(damage.nature == DamageStruct::Normal && damage.to->isAlive() && damage.damage > 0){
-            bool caninvoke = false;
+        bool caninvoke = jiuwenlong->hasSkill("mazdaRX7") ? true : damage.nature == DamageStruct::Normal;
+        if(caninvoke && damage.to->isAlive() && damage.damage > 0){
+            caninvoke = false;
             foreach(const Card *cd, jiuwenlong->getCards("he")){
                 if(cd->getTypeId() == Card::Equip){
                     caninvoke = true;

@@ -328,6 +328,127 @@ QString Monkey::getEffectPath(bool ) const{
     return "audio/card/common/monkey.ogg";
 }
 
+class GaleShellSkill: public ArmorSkill{
+public:
+    GaleShellSkill():ArmorSkill("gale-shell"){
+        events << Predamaged;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        if(damage.nature == DamageStruct::Fire){
+            LogMessage log;
+            log.type = "#GaleShellDamage";
+            log.from = player;
+            log.arg = QString::number(damage.damage);
+            log.arg2 = QString::number(damage.damage + 1);
+            player->getRoom()->sendLog(log);
+
+            damage.damage ++;
+            data = QVariant::fromValue(damage);
+        }
+        return false;
+    }
+};
+
+GaleShell::GaleShell(Suit suit, int number) :Armor(suit, number){
+    setObjectName("gale_shell");
+    skill = new GaleShellSkill;
+
+    target_fixed = false;
+}
+
+bool GaleShell::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && Self->distanceTo(to_select) <= 1;
+}
+
+void GaleShell::onUse(Room *room, const CardUseStruct &card_use) const{
+    Card::onUse(room, card_use);
+}
+
+class ThunderShellSkill: public ArmorSkill{
+public:
+    ThunderShellSkill():ArmorSkill("thunder-shell"){
+        events << Predamaged;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        if(damage.nature != DamageStruct::Thunder){
+            LogMessage log;
+            log.type = "#ThunSheProtect";
+            log.from = player;
+            log.arg = QString::number(damage.damage);
+            if(damage.nature == DamageStruct::Normal)
+                log.arg2 = "normal_nature";
+            else
+                log.arg2 = damage.nature == DamageStruct::Fire ? "fire_nature" : "thunder_nature";
+            player->getRoom()->sendLog(log);
+            return true;
+        }
+        return false;
+    }
+};
+
+ThunderShell::ThunderShell(Suit suit, int number) :Armor(suit, number){
+    setObjectName("thunder_shell");
+    skill = new ThunderShellSkill;
+
+    target_fixed = false;
+}
+
+bool ThunderShell::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && Self->distanceTo(to_select) <= 1;
+}
+
+void ThunderShell::onUse(Room *room, const CardUseStruct &card_use) const{
+    Card::onUse(room, card_use);
+}
+
+class YitianSwordSkill : public WeaponSkill{
+public:
+    YitianSwordSkill():WeaponSkill("yitian_sword"){
+        events << DamageComplete;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &) const{
+        if(player->getPhase() != Player::NotActive)
+           return false;
+
+        if(player->askForSkillInvoke("yitian_sword"))
+            player->getRoom()->askForUseCard(player, "slash", "@askforslash");
+
+        return false;
+    }
+};
+
+class YitianSword: public Weapon{
+public:
+    YitianSword(Suit suit, int number): Weapon(suit, number, 2){
+        setObjectName("yitian_sword");
+        skill = new YitianSwordSkill;
+    }
+    virtual void onMove(const CardMoveStruct &move) const;
+};
+
+void YitianSword::onMove(const CardMoveStruct &move) const{
+    if(move.from_place == Player::Equip && move.from->isAlive()){
+        Room *room = move.from->getRoom();
+
+        bool invoke = move.from->askForSkillInvoke("yitian-lost");
+        if(!invoke)
+            return;
+
+        ServerPlayer *target = room->askForPlayerChosen(move.from, room->getAllPlayers(), "yitian-lost");
+        DamageStruct damage;
+        damage.from = move.from;
+        damage.to = target;
+        damage.card = this;
+
+        room->damage(damage);
+    }
+}
+
 DisasterPackage::DisasterPackage()
     :Package("disaster")
 {
@@ -366,6 +487,9 @@ JoyEquipPackage::JoyEquipPackage()
     :Package("joy_equip")
 {
     (new Monkey(Card::Diamond, 5))->setParent(this);
+    (new GaleShell(Card::Heart, 5))->setParent(this);
+    (new ThunderShell(Card::Club, 5))->setParent(this);
+    (new YitianSword(Card::Spade, 5))->setParent(this);
 
     type = CardPack;
 }

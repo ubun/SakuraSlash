@@ -22,7 +22,7 @@ return {
 
 	["tabuseharuna"] = "田布施阳菜",
 	["hongmeng"] = "虹梦",
-	[":hongmeng"] = "单发技，你可以将红桃手牌当【五谷丰登】使用。每当有人使用【五谷丰登】时，你可以先拿走所有的红桃牌",
+	[":hongmeng"] = "单发技，你可以将红桃手牌当【雨后彩虹】使用。每当有人使用【雨后彩虹】时，你可以先拿走所有的红桃牌",
 	["loli"] = "萝莉",
 	[":loli"] = "锁定技，红色的【杀】对你无效",
 
@@ -85,7 +85,10 @@ return {
 	["weiju"] = "微距",
 	[":weiju"] = "锁定技，在你未装备武器时，你和其他角色的距离锁定为1",
 	["shanjing"] = "闪镜",
-	[":shanjing"] = "当你对目标使用【杀】时，可做两次判定，若花色和点数均不相同，该【杀】不能被闪避",
+	[":shanjing"] = "当你对目标使用【杀】时，可做两次判定，若花色和点数均不相同，该【杀】不能被闪避，否则视为该角色打出了【闪】",
+	["#Shanjing"] = "%from 的【%arg】技能生效，%to 无法闪避",
+	["shanjing1"] = "闪镜1",
+	["shanjing2"] = "闪镜2",
 
 	["korn"] = "科恩",
 	["baotai"] = "爆胎",
@@ -111,6 +114,18 @@ return {
 	["#Mihu_cup"] = "%from 的锁定技【%arg】被触发，结算被终止",
 
 -- last words
-	["~shiratorininzaburou"] = "生亦何欢，死亦何苦……",
+	["~matsudajinpei"] = "其实……我挺喜欢你的……",
+	["~tsuburayamitsuhiko"] = "我可是要成为福尔摩斯的男人，怎么能轻易死在这里？",
+	["~tabuseharuna"] = "呜呜……",
+	["~hattorishizuka"] = "等我！",
+	["~kudouyukiko"] = "- -",
+	["~kudouyuusaku"] = "= =",
+	["~yamamuramisao"] = "嘿，哥们，我是山村~",
+	["~otagiritoshirou"] = "我是谁？",
+	["~suzukijirokichi"] = "我不会认输的！基德！",
+	["~jiikounosuke"] = "少爷，千万不要忘了给老爷报仇……",
+	["~chianti"] = "糟了，目标暴露了！",
+	["~korn"] = "撤。",
+	["~jamesblack"] = "少年，我记下你了。",
 	["~hondoueisuke"] = "姐姐……不要扔下我……",
 }

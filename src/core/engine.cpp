@@ -57,9 +57,9 @@ Engine::Engine()
             //<< "WhiteTiger"
             //<< "IronDino"
             << "Secrets"
-            << "Nostalgia"
+            //<< "Nostalgia"
             << "Joy"
-            << "Disaster"
+            //<< "Disaster"
             << "JoyEquip"
             ;
 

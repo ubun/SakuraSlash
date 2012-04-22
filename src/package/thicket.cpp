@@ -672,7 +672,18 @@ public:
             room->judge(judge);
 
             if(me != judge.card->getNumberString() && ichi != judge.card->getSuitString()){
+                LogMessage log;
+                log.type = "#Shanjing";
+                log.from = chianti;
+                log.to << effect.to;
+                log.arg = objectName();
+                room->sendLog(log);
+
                 room->slashResult(effect, NULL);
+                return true;
+            }
+            else{
+                room->slashResult(effect, effect.slash);
                 return true;
             }
         }
@@ -701,6 +712,13 @@ public:
             room->judge(judge);
 
             if(judge.isGood()){
+                LogMessage log;
+                log.type = "#Shanjing";
+                log.from = korn;
+                log.to << effect.to;
+                log.arg = objectName();
+                room->sendLog(log);
+
                 room->slashResult(effect, NULL);
                 return true;
             }
@@ -724,8 +742,9 @@ public:
             player->loseAllMarks("@anyong");
             return false;
         }
-        if(player->hasSkill(objectName()) && player->getPhase() == Player::Start){
+        if(player->hasSkill(objectName()) && player->getPhase() == Player::Start && player->askForSkillInvoke(objectName())){
             Room *eroom = player->getRoom();
+            clk:
             ServerPlayer *target = eroom->askForPlayerChosen(player, eroom->getAlivePlayers(), objectName());
             JudgeStruct judge;
             judge.pattern = QRegExp("(.*):(heart|diamond):(.*)");
@@ -736,6 +755,10 @@ public:
             eroom->judge(judge);
             if(judge.isGood())
                 target->gainMark("@anyong");
+            if(player->hasSkill("benzCLK") && !player->hasFlag("CLK") && player->askForSkillInvoke("benzCLK")){
+                player->setFlags("CLK");
+                goto clk;
+            }
         }
         return false;
     }
