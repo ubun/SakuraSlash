@@ -288,6 +288,9 @@ sgs.ai_skill_use_func["DiaobingCard"] = function(card, use, self)
 	return
 end
 
+-- guilin
+sgs.ai_skill_invoke["guilin"] = true
+
 -- moshu
 sgs.ai_skill_invoke["moshu"] = function(self, data)
 	local player = data:toPlayer()

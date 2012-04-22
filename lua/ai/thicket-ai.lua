@@ -1,176 +1,118 @@
--- guilin
-sgs.ai_skill_invoke["guilin"] = true
-
-
-
--- zaiqi
-sgs.ai_skill_invoke["zaiqi"] = function(self, data)
-	return self.player:getLostHp() >= 2
-end
-
--- Sunjian's AI
-sgs.ai_skill_choice.yinghun = function(self, choices)
-	return self.yinghunchoice
-end
-
-sgs.ai_skill_use["@@yinghun"] = function(self, prompt)
-	local x = self.player:getLostHp()
-	if x == 1 and #self.friends == 1 then
-		return "."
+-- chaidan
+local chaidan_skill={}
+chaidan_skill.name = "chaidan"
+table.insert(sgs.ai_skills, chaidan_skill)
+chaidan_skill.getTurnUseCard = function(self)
+	if not self.player:hasUsed("ChaidanCard") then
+		return sgs.Card_Parse("@ChaidanCard=.")
 	end
-
-	if #self.friends > 1 then
-		for _, friend in ipairs(self.friends_noself) do
-			if self:hasSkills(sgs.lose_equip_skill, friend) and friend:getEquips():length()>x/2 then
-				self.yinghun = friend
-				self.yinghunchoice = "d1tx"
-				break
-			end
-		end
-		self:sort(self.friends, "chaofeng")
-		self.yinghun = self.friends_noself[1]
-		self.yinghunchoice = "dxt1"
-	else
-		self:sort(self.enemies, "chaofeng")
-		for _, enemy in ipairs(self.enemies) do
-			if not self:hasSkills(sgs.lose_equip_skill, enemy) or enemy:getEquips():length()<x/2 then
-				self.yinghun = enemy
-				self.yinghunchoice = "d1tx"
-				break
-			end
+end
+sgs.ai_skill_use_func["ChaidanCard"] = function(card, use, self)
+	self:sort(self.friends, "hp")
+	for _, friend in ipairs(self.friends) do
+		if not friend:getJudgingArea():isEmpty() then
+			if use.to then use.to:append(friend) end
+			use.card = card
+			return
 		end
 	end
-
-	if self.yinghun then
-		return "@YinghunCard=.->" .. self.yinghun:objectName()
-	else
-		return "."
-	end
+	return
 end
 
--- xingshang
-sgs.ai_skill_invoke.xingshang = function(self, data)
-	local damage = data:toDamageStar()
-	if not damage then return true end
-	local cards = damage.to:getHandcards()
-	local shit_num = 0
-	for _, card in sgs.qlist(cards) do
-		if card:inherits("Shit") then
-			shit_num = shit_num + 1
-			if card:getSuit() == sgs.Card_Spade then
-				shit_num = shit_num + 1
-			end
-		end
+-- conghui
+sgs.ai_skill_use["@@conghui"] = function(self, prompt)
+	if self.player:getHandcardNum() > self.player:getHp() then return "." end
+	if not self.player:isKongcheng() then
+		return "@ConghuiCard=" .. self.player:getRandomHandCardId()
 	end
-	if shit_num > 1 then return false end
-	return true
+	return "."
 end
 
--- fangzhu, fangzhu
-sgs.ai_skill_use["@@fangzhu"] = function(self, prompt)
-	self:sort(self.friends_noself)
-	local target
+-- qingyi
+sgs.ai_skill_invoke["qingyi"] = function(self, data)
+	local shao
 	for _, friend in ipairs(self.friends_noself) do
-		if not friend:faceUp() then
-			target = friend
-			break
-		end
-
-		if friend:hasSkill("jushou") and friend:getPhase() == sgs.Player_Play then
-			target = friend
+		if friend:getKingdom() == "shao" then
+			shao = friend
+			self.qingyitarget = shao
 			break
 		end
 	end
+	return shao
+end
+sgs.ai_skill_playerchosen["qingyi"] = function(self, targets)
+	return self.qingyitarget
+end
 
-	if not target then
-		local x = self.player:getLostHp()
-		if x >= 3 then
-			target = self.friends_noself[1]
-		else
-			self:sort(self.enemies)
-			for _, enemy in ipairs(self.enemies) do
-				if enemy:faceUp() then
-					target = enemy
-					break
-				end
-			end
+-- hongmeng
+local hongmeng_skill = {}
+hongmeng_skill.name = "hongmeng"
+table.insert(sgs.ai_skills, hongmeng_skill)
+hongmeng_skill.getTurnUseCard = function(self)
+	if self.player:hasUsed("HongmengCard") then return end
+	local cards = self.player:getCards("h")
+	cards=sgs.QList2Table(cards)
+	local card
+	self:sortByUseValue(cards, true)
+	for _, acard in ipairs(cards) do
+		if acard:getSuit() == sgs.Card_Heart then
+			card = acard
+			break
 		end
 	end
-
-	if target then
-		return "@FangzhuCard=.->" .. target:objectName()
-	else
-		return "."
+	if card then
+		return sgs.Card_Parse("@HongmengCard=" .. card:getEffectiveId())
 	end
 end
-
-sgs.ai_skill_invoke.songwei = function(self, data)
-	return self:isFriend(self.room:getLord())
+sgs.ai_skill_use_func["HongmengCard"] = function(card,use,self)
+    use.card=card
 end
 
--- baonue
-sgs.ai_skill_invoke.baonue = function(self, data)
-	return self.player:getRole() == "loyalist"
-end
-
-local function getLowerBoundOfHandcard(self)
-	local least = math.huge
-	local players = self.room:getOtherPlayers(self.player)
-	for _, player in sgs.qlist(players) do
-		least = math.min(player:getHandcardNum(), least)
-	end
-
-	return least
-end
-
-local function getBeggar(self)
-	local least = getLowerBoundOfHandcard(self)
-
-	self:sort(self.friends_noself)
-	for _, friend in ipairs(self.friends_noself) do
-		if friend:getHandcardNum() == least then
-			return friend
-		end
-	end
-
-	for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-		if player:getHandcardNum() == least then
-			return player
-		end
-	end
-end
-
--- haoshi
-sgs.ai_skill_invoke.haoshi = function(self, data)
-	if self.player:getHandcardNum() <= 1 then
-		return true
-	end
-
-	local beggar = getBeggar(self)
-	return self:isFriend(beggar)
-end
-
-sgs.ai_skill_use["@@haoshi!"] = function(self, prompt)
-	local beggar = getBeggar(self)
-
-	local cards = self.player:getHandcards()
-	cards = sgs.QList2Table(cards)
-	self:sortByUseValue(cards,true)
+-- zilian
+sgs.ai_skill_use["@@zilian"] = function(self, prompt)
+	local cards = self.player:getCards("h")
+	cards=sgs.QList2Table(cards)
 	local card_ids = {}
-	for i=1, math.floor(#cards/2) do
-		table.insert(card_ids, cards[i]:getEffectiveId())
-	end
-
-	return "@HaoshiCard=" .. table.concat(card_ids, "+") .. "->" .. beggar:objectName()
-end
-
-sgs.ai_skill_invoke.lieren = function(self, data)
-	local damage = data:toDamage()
-	if self:isEnemy(damage.to) then
-		if self.player:getHandcardNum()>=self.player:getHp() then return true
-		else return false
+	for i = 1, num do
+		if not cards[i]:inherits("Peach") and not cards[i]:inherits("Jink") then
+			table.insert(card_ids, cards[i]:getEffectiveId())
 		end
 	end
+	return "@ZilianCard=" .. table.concat(card_ids, "+")
+end
 
+-- zhongpu
+sgs.ai_skill_invoke["zhongpu"] = function(self, data)
+	return #self.friends_noself > 0
+end
+sgs.ai_skill_playerchosen["zhongpu"] = function(self, targets)
+	self:sort(self.friends_noself, "handcard")
+	self.zhongputarget = self.friends_noself[1]
+	return self.zhongputarget
+end
+sgs.ai_skill_choice["zhongpu"] = function(self, choices)
+	if self.zhongputarget:isWounded() then
+		return "recover"
+	else
+		return "draw"
+	end
+end
+
+-- shanjing & mangju
+sgs.ai_skill_invoke["shanjing"] = true
+sgs.ai_skill_invoke["mangju"] = true
+
+-- anyong
+sgs.ai_skill_invoke["anyong"] = function(self, data)
+	self:sort(self.enemies, "hp")
+	for _, enemy in ipairs(self.enemies) do
+		if enemy:getHandcardNum() > enemy:getHp() then
+			self.anyongtarget = shao
+			return true
+		end
+	end
 	return false
+end
+sgs.ai_skill_playerchosen["qingyi"] = function(self, targets)
+	return self.anyongtarget
 end

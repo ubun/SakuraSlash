@@ -170,7 +170,7 @@ public:
                 int card_id = mitsu->getPile("caidian").first();
                 QList<ServerPlayer *> players = room->getOtherPlayers(mitsu);
                 if(mitsu->hasSkill("qingyi") && mitsu->askForSkillInvoke("qingyi")){
-                    ServerPlayer *extra = room->askForPlayerChosen(mitsu, room->getOtherPlayers(mitsu), objectName());
+                    ServerPlayer *extra = room->askForPlayerChosen(mitsu, room->getOtherPlayers(mitsu), "qingyi");
                     if(extra->getKingdom() == "shao"){
                         players.removeOne(extra);
                         extra->setFlags("ConghuiGet");
