@@ -605,7 +605,9 @@ public:
     }
 };
 
-Railgun::Railgun(Suit suit, int number):Weapon(suit, number, 5){
+Railgun::Railgun(Suit suit, int number)
+    :Weapon(suit, number, 5)
+{
     setObjectName("railgun");
     skill = new RailgunSkill;
 }
@@ -839,7 +841,7 @@ public:
 };
 
 Injector::Injector(Suit suit, int number)
-    :Weapon(suit, number, 13)
+    :Weapon(suit, number, 1)
 {
     setObjectName("injector");
     attach_skill = true;
@@ -919,6 +921,7 @@ ThunderBirdPackage::ThunderBirdPackage()
 
     foreach(Card *card, cards)
         card->setParent(this);
+    skills << new InjectorSkill;
 
     type = CardPack;
 }
