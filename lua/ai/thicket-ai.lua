@@ -21,9 +21,12 @@ end
 
 -- conghui
 sgs.ai_skill_use["@@conghui"] = function(self, prompt)
-	if self.player:getHandcardNum() > self.player:getHp() then return "." end
+	if self.player:getHandcardNum() - self.player:getHp() > 1 then return end
 	if not self.player:isKongcheng() then
-		return "@ConghuiCard=" .. self.player:getRandomHandCardId()
+		local cards = self.player:getHandcards()
+		cards = sgs.QList2Table(cards)
+		self:sortByUseValue(cards, true)
+		return "@ConghuiCard=" .. cards[1]:getEffectiveId() .. "->."
 	end
 	return "."
 end

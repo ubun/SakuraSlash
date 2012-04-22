@@ -1252,6 +1252,11 @@
         <translation>8 人局 [无内奸]</translation>
     </message>
     <message>
+        <location filename="src/core/engine.cpp" line="103"/>
+        <source>10 players (1 renegade)</source>
+        <translation>10 人局 [单内奸]</translation>
+    </message>
+    <message>
         <location filename="src/core/engine.cpp" line="104"/>
         <source>10 players (0 renegade)</source>
         <translation>10 人局 [无内奸]</translation>
