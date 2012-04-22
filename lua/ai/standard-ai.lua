@@ -269,13 +269,17 @@ sgs.ai_skill_use_func["DiaobingCard"] = function(card, use, self)
 	return
 end
 
+-- guilin
+sgs.ai_skill_invoke["guilin"] = function(self, data)
+	local player = data:toPlayer()
+	return player and self:isEnemy(player)
+end
+
 -- moshu
 sgs.ai_skill_invoke["moshu"] = function(self, data)
 	local player = data:toPlayer()
-	if self:isEnemy(player) then
-		return true
-	end
-	return false
+	local r = math.random(0, 1)
+	return r == 1 and self:isEnemy(player)
 end
 
 -- renxing
