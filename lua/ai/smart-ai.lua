@@ -13,6 +13,10 @@ sgs.ai_compare_funcs = {
 		return a:getHp() < b:getHp()
 	end,
 
+	hp2 = function(a, b)
+		return a:getHp() > b:getHp()
+	end,
+
 	handcard = function(a, b)
 		return a:getHandcardNum() < b:getHandcardNum()
 	end,
@@ -1895,18 +1899,22 @@ sgs.weapon_range  =
 	Crossbow = 1,
 	Blade = 3,
 	Spear = 3,
-	DoubleSword  = 2,
+	Watch  = 2,
 	QinggangSword = 2,
 	Axe = 3,
 	KylinBow = 5,
-	Halberd = 4,
+	Psg = 4,
 	IceSword = 2,
 	Fan = 4,
 	MoonSpear = 3,
 	GudingBlade = 2,
 	YitianSword = 2,
 	SPMoonSpear = 3,
-	YxSword = 3
+-- bird
+	YxSword = 3,
+	Bat = 3,
+	Railgun = 5,
+	Injector = 1
 }
 
 function SmartAI:evaluateEquip(card)
@@ -1964,7 +1972,10 @@ function SmartAI:evaluateArmor(card, player)
 		RenwangShield = 3,
 		SilverLion = 1,
 		GaleShell = -10,
-		ThunderShell = 5
+		ThunderShell = 5,
+	--bird
+		Tantei = 5,
+		Bow = 4,
 	}
 	if ecard:inherits("EightDiagram") and (self:hasWizard(self:getFriends(player),true) or player:hasSkill("tiandu")) then return 5 end
 	if ecard:inherits("EightDiagram") and self:hasWizard(self:getEnemies(player),true) then return 2 end
@@ -3743,26 +3754,30 @@ function SmartAI:log(outString)
 end
 
 -- load other ai scripts
-dofile "lua/ai/standard-ai.lua"
-dofile "lua/ai/wind-ai.lua"
-dofile "lua/ai/thicket-ai.lua"
-dofile "lua/ai/fire-ai.lua"
-dofile "lua/ai/mountain-ai.lua"
-dofile "lua/ai/god-ai.lua"
-dofile "lua/ai/nostalgia-ai.lua"
-dofile "lua/ai/secrets-ai.lua"
--- dofile "lua/ai/sp-ai.lua"
-dofile "lua/ai/joy-ai.lua"
-
 dofile "lua/ai/general_config.lua"
-dofile "lua/ai/intention-ai.lua"
-dofile "lua/ai/chat-ai.lua"
 dofile "lua/ai/value_config.lua"
-
+dofile "lua/ai/standard-ai.lua"
 dofile "lua/ai/standard-skill-ai.lua"
-dofile "lua/ai/thicket-skill-ai.lua"
-dofile "lua/ai/fire-skill-ai.lua"
-dofile "lua/ai/yjcm-skill-ai.lua"
+dofile "lua/ai/thunder_bird-ai.lua"
+dofile "lua/ai/secrets-ai.lua"
+dofile "lua/ai/chat-ai.lua"
 -- dofile "lua/ai/hulaoguan-ai.lua"
-
 dofile "lua/ai/guanxing-ai.lua"
+dofile "lua/ai/intention-ai.lua"
+
+local loaded = "standard|standard_cards|thunder_bird|secrets"
+
+local files = table.concat(sgs.GetFileNames("lua/ai"), " ")
+
+for _, aextension in ipairs(sgs.Sanguosha:getExtensions()) do
+	if not loaded:match(aextension) and files:match(string.lower(aextension)) then
+		dofile("lua/ai/" .. string.lower(aextension) .. "-ai.lua")
+	end
+end
+
+for _, ascenario in ipairs(sgs.Sanguosha:getScenarioNames()) do
+	if not loaded:match(ascenario) and files:match(string.lower(ascenario)) then
+		dofile("lua/ai/" .. string.lower(ascenario) .. "-ai.lua")
+	end
+end
+

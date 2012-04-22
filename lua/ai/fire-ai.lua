@@ -1,85 +1,54 @@
 -- this scripts contains the AI classes for generals of fire package
 
--- bazhen
-sgs.ai_skill_invoke.bazhen = true
+-- jiaoxie
+sgs.ai_skill_invoke["jiaoxie"] = true
 
--- niepan
-sgs.ai_skill_invoke.niepan = function(self, data)
-	local dying = data:toDying()
-	local peaches = 1 - dying.who:getHp()
-
-	local cards = self.player:getHandcards()
-	local n = 0
-	for _, card in sgs.qlist(cards) do
-		if card:inherits "Peach" or card:inherits "Analeptic" then
-			n = n + 1
-		end
-	end
-
-	return n < peaches
-end
-
-local quhu_skill={}
-quhu_skill.name="quhu"
-table.insert(sgs.ai_skills,quhu_skill)
-quhu_skill.getTurnUseCard=function(self)
-	if not self.player:hasUsed("QuhuCard") and not self.player:isKongcheng() then
-		local max_card = self:getMaxCard()
-		return sgs.Card_Parse("@QuhuCard=" .. max_card:getEffectiveId())
-	end
-end
-
-sgs.ai_skill_use_func["QuhuCard"] = function(card, use, self)
-	local max_card = self:getMaxCard()
-	local max_point = max_card:getNumber()
-	self:sort(self.enemies, "handcard")
-
-	for _, enemy in ipairs(self.enemies) do
-		if enemy:getHp() > self.player:getHp() then
-			local enemy_max_card = self:getMaxCard(enemy)
-			if enemy_max_card and max_point > enemy_max_card:getNumber() then
-				for _, enemy2 in ipairs(self.enemies) do
-					if (enemy:objectName() ~= enemy2:objectName()) and enemy:inMyAttackRange(enemy2) then
-						local card_id = max_card:getEffectiveId()
-						local card_str = "@QuhuCard=" .. card_id
-						if use.to then
-							use.to:append(enemy)
-						end
-						use.card = sgs.Card_Parse(card_str)
-						return
-					end
-				end
-			end
-		end
-	end
-	if not self.player:isWounded() or (self.player:getHp() == 1 and self:getCardsNum("Analeptic") > 0) then
-		local use_quhu
+-- shentou (anshitou's skill)
+local ientou_skill = {}
+ientou_skill.name = "ientou"
+table.insert(sgs.ai_skills,ientou_skill)
+ientou_skill.getTurnUseCard = function(self)
+	if not self.player:hasUsed("IentouCard") and not self.player:isKongcheng() then
+		local fri, ene
+		local x
+		self:sort(self.friends, "hp")
 		for _, friend in ipairs(self.friends) do
-			if math.min(5, friend:getMaxHP()) - friend:getHandcardNum() >= 2 then
-				self:sort(self.enemies, "handcard")
-				if self.enemies[#self.enemies]:getHandcardNum() > 0 then use_quhu = true break end
+			if not friend:isLord() then
+				fri = friend
+				break
 			end
 		end
-		if use_quhu then
-			for _, enemy in ipairs(self.enemies) do
-				if not enemy:isKongcheng() and self.player:getHp() < enemy:getHp() then
-					local cards = self.player:getHandcards()
-					cards = sgs.QList2Table(cards)
-					self:sortByUseValue(cards, true)
-					local card_id = cards[1]:getEffectiveId()
-					local card_str = "@QuhuCard=" .. card_id
-					if use.to then
-						use.to:append(enemy)
-					end
-					use.card = sgs.Card_Parse(card_str)
-					return
+		self:sort(self.enemies, "hp2")
+		for _, enemy in ipairs(self.enemies) do
+			if not enemy:isLord() then
+				x = enemy:getHp() - fri:getHp()
+				if x < self.player:getHandcardNum() then
+					ene = enemy
+					break
 				end
 			end
 		end
+		if fri and ene then
+			local cards = self.player:getCards("h")
+			cards=sgs.QList2Table(cards)
+			self:sortByUseValue(cards, true)
+			local card_ids = {}
+			for i = 1, x do
+				table.insert(card_ids, cards[i]:getEffectiveId())
+			end
+			self.ientoua = fri
+			self.ientoub = ene
+			return sgs.Card_Parse("@IentouCard=" .. table.concat(card_ids, "+"))
+		end
 	end
 end
-
-sgs.ai_skill_playerchosen.quhu = sgs.ai_skill_playerchosen.damage
+sgs.ai_skill_use_func["IentouCard"] = function(card, use, self)
+	if use.to then
+		use.to:append(self.ientoua)
+		use.to:append(self.ientoub)
+	end
+    use.card = card
+end
 
 sgs.ai_skill_use["@@jieming"] = function(self, prompt)
 	self:sort(self.friends)
