@@ -119,7 +119,7 @@ ConghuiCard::ConghuiCard(){
 }
 
 void ConghuiCard::use(Room *, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    source->addToPile("caidian", this->getSubcards().first(), false);
+    source->addToPile("caidian", getSubcards().first(), false);
 }
 
 class ConghuiViewAsSkill: public OneCardViewAsSkill{
