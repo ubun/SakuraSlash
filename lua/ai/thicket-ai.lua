@@ -76,7 +76,7 @@ sgs.ai_skill_use["@@zilian"] = function(self, prompt)
 	local cards = self.player:getCards("h")
 	cards=sgs.QList2Table(cards)
 	local card_ids = {}
-	for i = 1, num do
+	for i = 1, #cards do
 		if not cards[i]:inherits("Peach") and not cards[i]:inherits("Jink") then
 			table.insert(card_ids, cards[i]:getEffectiveId())
 		end

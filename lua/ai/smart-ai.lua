@@ -2897,8 +2897,8 @@ function SmartAI:askForCard(pattern, prompt, data)
 	elseif parsedPrompt[1] == "@tantei" then
 		local target = data:toPlayer()
 		if self:isEnemy(target) then return "." end
-		if pattern == "slash" then return self:getCardId("Slash") end
-		if pattern == "jink" then return self:getCardId("Jink") end
+		if pattern == "slash" and self:getCardsNum("Slash") ~= 0 then return self:getCardId("Slash") end
+		if pattern == "jink" and self:getCardsNum("Jink") ~= 0 then return self:getCardId("Jink") end
 		return "."
 	elseif parsedPrompt[1] == "@wuwei-slash" then
 		local damage = data:toDamage()
