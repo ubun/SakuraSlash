@@ -2894,9 +2894,12 @@ function SmartAI:askForCard(pattern, prompt, data)
 	--		return true
 	--	end
 		return "."
-	elseif parsedPrompt[1] == "@hujia-jink" then
-		if not self:isFriend(sgs.hujiasource) then return "." end
-		return self:getCardId("Jink") or "."
+	elseif parsedPrompt[1] == "@tantei" then
+		local target = data:toPlayer()
+		if self:isEnemy(target) then return "." end
+		if pattern == "slash" then return self:getCardId("Slash") end
+		if pattern == "jink" then return self:getCardId("Jink") end
+		return "."
 	elseif parsedPrompt[1] == "@wuwei-slash" then
 		local damage = data:toDamage()
 		if self:isEnemy(damage.from) and self:getCardsNum("Slash") ~= 0 then
@@ -2949,19 +2952,13 @@ function SmartAI:askForCard(pattern, prompt, data)
 			end
 		end
 		return "."
+	elseif parsedPrompt[1] == "@lvbai" then
+		if self.largest then return self.largest end
+		local card = self:getMaxCard()
+		return card:getEffectiveId()
 	end
 
-	if parsedPrompt[1] == "double-sword-card" then
-		if target and self:isFriend(target) then return "." end
-		local cards = self.player:getHandcards()
-		for _, card in sgs.qlist(cards) do
-			if card:inherits("Slash") or card:inherits("Shit") or card:inherits("Collateral") or card:inherits("GodSalvation")
-			or card:inherits("Lightning") or card:inherits("EquipCard") or card:inherits("AmazingGrace") then
-				return "$"..card:getEffectiveId()
-			end
-		end
-		return "."
-	elseif parsedPrompt[1] == "@axe" then
+	if parsedPrompt[1] == "@axe" then
 		if target and self:isFriend(target) then return "." end
 
 		local allcards = self.player:getCards("he")

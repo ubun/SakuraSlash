@@ -161,7 +161,7 @@ public:
         Room *room = player->getRoom();
 
         if(!effect.from->isKongcheng() && !effect.to->isKongcheng()){
-            if(effect.from->askForSkillInvoke(objectName())){
+            if(effect.from->askForSkillInvoke(objectName(), data)){
                 const Card *card = room->askForCard(player, ".", "@lvbai:" + effect.to->objectName() + ":" + objectName());
                 if(player->pindian(effect.to, objectName(), card))
                     effect.to->turnOver();

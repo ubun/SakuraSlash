@@ -1529,6 +1529,8 @@ public:
         Room *room = player->getRoom();
         if(player->getPhase() == Player::Finish && player->askForSkillInvoke(objectName(), data)){
             foreach(ServerPlayer *other, room->getOtherPlayers(player)){
+                if(other->isKongcheng())
+                    continue;
                 const Card *card = room->askForCard(other, ".", "@dashou-get:" + player->objectName(), QVariant::fromValue((PlayerStar)player));
                 if(card){
                     player->obtainCard(card);

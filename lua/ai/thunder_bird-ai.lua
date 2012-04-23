@@ -1,6 +1,7 @@
 -- this scripts contains the AI classes for cards of thunder bird package
 
 sgs.ai_skill_invoke.bow = true
+sgs.ai_skill_invoke.tantei = true
 
 -- lizhigushi
 function SmartAI:useCardInspiration(inspiration, use)
@@ -70,4 +71,15 @@ end
 -- chongzai
 function SmartAI:useCardLocust(card, use)
 	use.card = card
+end
+
+-- watch
+sgs.ai_skill_invoke["watch"] = function(self, data)
+	local effect = data:toSlashEffect()
+	local card = self:getMaxCard()
+	if card:getNumber() == 13 then
+		self.largest = card:getEffectiveId()
+		return self:isEnemy(effect.to)
+	end
+	return false
 end
