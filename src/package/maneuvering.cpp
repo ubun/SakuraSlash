@@ -785,7 +785,7 @@ public:
             DamageStruct damage = data.value<DamageStruct>();
             foreach(ServerPlayer *tmp, pls)
                 if(tmp->distanceTo(damage.to) <= 1)
-                    tmp->drawCards(1);
+                    tmp->drawCards(damage.damage);
             return false;
         }
         if(event == CardFinished)
