@@ -42,7 +42,7 @@ QString Analeptic::getSubtype() const{
 }
 
 QString Analeptic::getEffectPath(bool ) const{
-    return Card::getEffectPath();
+    return QString("audio/card/common/%1.ogg").arg("analeptic");
 }
 
 bool Analeptic::IsAvailable(const Player *player){
@@ -378,14 +378,20 @@ BlackDragonPackage::BlackDragonPackage()
     // spade
     cards
             << new GudingBlade(Card::Spade, 1)
-            << new Vine(Card::Spade, 2)
-            << new Analeptic(Card::Spade, 3)
+            << new Vine(Card::Spade, 2);
+    Card *ana = new Analeptic(Card::Spade, 3);
+    ana->setObjectName("ana_gin");
+    cards
+            << ana
             << new ThunderSlash(Card::Spade, 4)
             << new ThunderSlash(Card::Spade, 5)
             << new ThunderSlash(Card::Spade, 6)
             << new ThunderSlash(Card::Spade, 7)
-            << new ThunderSlash(Card::Spade, 8)
-            << new Analeptic(Card::Spade, 9)
+            << new ThunderSlash(Card::Spade, 8);
+    ana = new Analeptic(Card::Spade, 9);
+    ana->setObjectName("ana_vodka");
+    cards
+            << ana
             << new SupplyShortage(Card::Spade,10)
             << new IronChain(Card::Spade, 11)
             << new IronChain(Card::Spade, 12)
@@ -394,14 +400,20 @@ BlackDragonPackage::BlackDragonPackage()
     // club
     cards
             << new SilverLion(Card::Club, 1)
-            << new Vine(Card::Club, 2)
-            << new Analeptic(Card::Club, 3)
+            << new Vine(Card::Club, 2);
+    ana = new Analeptic(Card::Club, 3);
+    ana->setObjectName("ana_vermouth");
+    cards
+            << ana
             << new SupplyShortage(Card::Club, 4)
             << new ThunderSlash(Card::Club, 5)
             << new ThunderSlash(Card::Club, 6)
             << new ThunderSlash(Card::Club, 7)
-            << new ThunderSlash(Card::Club, 8)
-            << new Analeptic(Card::Club, 9)
+            << new ThunderSlash(Card::Club, 8);
+    ana = new Analeptic(Card::Club, 9);
+    ana->setObjectName("ana_sherry");
+    cards
+            << ana
             << new IronChain(Card::Club, 10)
             << new IronChain(Card::Club, 11)
             << new IronChain(Card::Club, 12)
@@ -432,15 +444,17 @@ BlackDragonPackage::BlackDragonPackage()
             << new FireSlash(Card::Diamond, 5)
             << new Jink(Card::Diamond, 6)
             << new Jink(Card::Diamond, 7)
-            << new Jink(Card::Diamond, 8)
-            << new Analeptic(Card::Diamond, 9)
+            << new Jink(Card::Diamond, 8);
+    ana = new Analeptic(Card::Diamond, 9);
+    ana->setObjectName("ana_chianti");
+    cards
+            << ana
             << new Jink(Card::Diamond, 10)
             << new Jink(Card::Diamond, 11)
             << new FireAttack(Card::Diamond, 12);
-
-    DefensiveCar *citroBX = new DefensiveCar(Card::Diamond, 13);
-    citroBX->setObjectName("citroBX");
-    cards << citroBX;
+    ana = new DefensiveCar(Card::Diamond, 13);
+    ana->setObjectName("citroBX");
+    cards << ana;
 
     foreach(Card *card, cards)
         card->setParent(this);
@@ -858,9 +872,9 @@ ThunderBirdPackage::ThunderBirdPackage()
             << new Snatch(Card::Spade,10)
             << new Inspiration(Card::Spade, 11)
             << new ThunderSlash(Card::Spade, 12);
-    OffensiveCar *jaguarE = new OffensiveCar(Card::Spade, 13);
-    jaguarE->setObjectName("jaguarE");
-    cards << jaguarE;
+    Card *ana = new OffensiveCar(Card::Spade, 13);
+    ana->setObjectName("jaguarE");
+    cards << ana;
 
     // club
     cards
@@ -902,8 +916,11 @@ ThunderBirdPackage::ThunderBirdPackage()
             << new Turnover(Card::Diamond, 3)
             << new FireSlash(Card::Diamond, 4)
             << new Potential(Card::Diamond, 5)
-            << new RedAlert(Card::Diamond, 6)
-            << new Analeptic(Card::Diamond, 7)
+            << new RedAlert(Card::Diamond, 6);
+    ana = new Analeptic(Card::Diamond, 7);
+    ana->setObjectName("ana_korn");
+    cards
+            << ana
             << new Bat(Card::Diamond, 8)
             << new WindJink(Card::Diamond, 9)
             << new FireSlash(Card::Diamond, 10)
