@@ -81,7 +81,7 @@ sgs.ai_skill_use["@@zilian"] = function(self, prompt)
 			table.insert(card_ids, cards[i]:getEffectiveId())
 		end
 	end
-	return "@ZilianCard=" .. table.concat(card_ids, "+")
+	return "@ZilianCard=" .. table.concat(card_ids, "+") .. "->."
 end
 
 -- zhongpu

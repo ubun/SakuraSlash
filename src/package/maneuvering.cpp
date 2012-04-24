@@ -304,10 +304,6 @@ QString IronChain::getSubtype() const{
     return "damage_spread";
 }
 
-QString IronChain::getEffectPath(bool is_male) const{
-    return QString();
-}
-
 bool IronChain::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     if(targets.length() >= 2)
         return false;
@@ -316,16 +312,13 @@ bool IronChain::targetFilter(const QList<const Player *> &targets, const Player 
 }
 
 bool IronChain::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
-    if(getSkillName() == "guhuo")
-        return targets.length() == 1 || targets.length() == 2;
-    else
-        return targets.length() <= 2;
+    return targets.length() <= 2;
 }
 
 void IronChain::onUse(Room *room, const CardUseStruct &card_use) const{
     if(card_use.to.isEmpty()){
         room->throwCard(this);
-        card_use.from->playCardEffect("@recast");
+        card_use.from->playCardEffect(objectName());
         card_use.from->drawCards(1);
     }else
         TrickCard::onUse(room, card_use);
@@ -333,8 +326,6 @@ void IronChain::onUse(Room *room, const CardUseStruct &card_use) const{
 
 void IronChain::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
     room->throwCard(this);
-
-    source->playCardEffect("@tiesuo");
     TrickCard::use(room, source, targets);
 }
 
@@ -619,6 +610,7 @@ Inspiration::Inspiration(Suit suit, int number)
 }
 
 void Inspiration::onEffect(const CardEffectStruct &effect) const{
+    effect.to->getRoom()->getThread()->delay();
     effect.to->drawCards(qMax(1, effect.to->getLostHp()));
 }
 
