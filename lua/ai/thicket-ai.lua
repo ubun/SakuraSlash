@@ -84,6 +84,36 @@ sgs.ai_skill_use["@@zilian"] = function(self, prompt)
 	return "@ZilianCard=" .. table.concat(card_ids, "+") .. "->."
 end
 
+-- lvbai
+sgs.ai_skill_invoke["lvbai"] = function(self, data)
+	local card = self:getMaxCard()
+	if card:getNumber() > 10 then
+		self:sort(self.enemies, "handcard")
+		for _, enemy in ipairs(self.enemies) do
+			if not enemy:isKongcheng() then
+				self.largest = card:getEffectiveId()
+				self.lvbaitarget = enemy
+				return true
+			end
+		end
+	end
+	return false
+end
+sgs.ai_skill_playerchosen["lvbai"] = function(self, targets)
+	return self.lvbaitarget
+end
+
+-- lvzhan
+sgs.ai_skill_invoke["lvzhan"] = function(self, data)
+	local damage = data:toDamage()
+	local card = self:getMaxCard()
+	if card:getNumber() > 10 and self:isEnemy(damage.to) then
+		self.largest = card:getEffectiveId()
+		return true
+	end
+	return false
+end
+
 -- zhongpu
 sgs.ai_skill_invoke["zhongpu"] = function(self, data)
 	return #self.friends_noself > 0

@@ -369,8 +369,7 @@ end
 
 -- long
 sgs.ai_skill_invoke["long"] = function(self, data)
-	local r = math.random(0, 1)
-	return r == 0
+	return math.random(0, 1) == 0
 end
 
 

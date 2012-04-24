@@ -540,7 +540,7 @@ public:
             return false;
         Room *room = player->getRoom();
 
-        if(room->askForSkillInvoke(player, objectName())){
+        if(room->askForSkillInvoke(player, objectName(), data)){
             const Card *card = room->askForCard(player, ".", "@lvbai:" + damage.to->objectName() + ":" + objectName());
             if(player->pindian(damage.to, objectName(), card)){
                 damage.damage ++;

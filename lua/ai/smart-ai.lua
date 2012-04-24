@@ -2955,6 +2955,7 @@ function SmartAI:askForCard(pattern, prompt, data)
 	elseif parsedPrompt[1] == "@lvbai" then
 		if self.largest then return self.largest end
 		local card = self:getMaxCard()
+		self.largest = nil
 		return card:getEffectiveId()
 	end
 
