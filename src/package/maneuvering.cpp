@@ -80,6 +80,7 @@ void Analeptic::onEffect(const CardEffectStruct &effect) const{
         LogMessage log;
         log.type = "#Drank";
         log.from = effect.to;
+        log.arg = objectName();
         room->sendLog(log);
 
         room->setPlayerFlag(effect.to, "drank");
