@@ -2207,7 +2207,7 @@ void Room::drawCards(ServerPlayer *player, int n){
     QString draw_str = QString("%1:%2").arg(player->objectName()).arg(n);
 
     ServerPlayer *dongchaer = findPlayerBySkillName("zhenxiang");
-    if(dongchaer){
+    if(dongchaer && dongchaer != player){
         CardMoveStruct move;
         foreach(int card_id, card_ids){
             move.card_id = card_id;

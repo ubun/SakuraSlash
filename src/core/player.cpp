@@ -485,11 +485,9 @@ int Player::getMaxCards() const{
         }
     }
 
-    int shenwei = 0;
-    if(hasSkill("shenwei"))
-        shenwei = 2;
+    int cry = getMark("CryMaxCards") > 0 ? 2 : 0;
 
-    return qMax(hp,0) + extra + juejing + xueyi + shenwei;
+    return qMax(hp,0) + extra + juejing + xueyi + cry;
 }
 
 QString Player::getKingdom() const{

@@ -527,15 +527,21 @@ public:
                 //room->playSkillEffect(objectName());
                 return true;
         }else if(ayumi->getPhase() == Player::Finish){
-            if(ayumi->getMark("cry") == 2 && ayumi->isAlive()){
-                room->setPlayerProperty(ayumi, "maxhp", ayumi->getMaxHP()+1);
-                room->broadcastInvoke("animate", "lightbox:$dontcry");
-                room->setPlayerProperty(ayumi, "hp", ayumi->getMaxHP());
-
+            if(ayumi->getMark("cry") == 2){
                 LogMessage log;
                 log.type = "#BukuWake";
                 log.from = ayumi;
                 log.arg = objectName();
+                log.arg2 = room->askForChoice(ayumi, objectName(), "hpc+mxc");
+                if(log.arg2 == "hpc"){
+                    room->setPlayerProperty(ayumi, "maxhp", ayumi->getMaxHP() + 1);
+                    room->setPlayerProperty(ayumi, "hp", ayumi->getHp() + 1);
+                }
+                else{
+                    room->setPlayerMark(ayumi, "CryMaxCards", 1);
+                }
+                room->broadcastInvoke("animate", "lightbox:$dontcry");
+
                 room->sendLog(log);
             }
         }
@@ -852,11 +858,13 @@ public:
             QStringList genlist = Sanguosha->getLimitedGeneralNames();
             foreach(ServerPlayer *player, room->getAllPlayers()){
                 genlist.removeOne(player->getGeneralName());
+                if(player->getGeneral2())
+                    genlist.removeOne(player->getGeneral2Name());
             }
-
-            QString general = room->askForGeneral(sharon, genlist);
+            qShuffle(genlist);
+            QStringList choices = genlist.mid(0, 3);
+            QString general = room->askForGeneral(sharon, choices);
             room->transfigure(sharon, general, false, false);
-            //room->acquireSkill(sharon, "yirong", false);
             sharon->getRoom()->setPlayerProperty(sharon, "hp", 3);
             return true;
         }
