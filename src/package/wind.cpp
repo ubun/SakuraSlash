@@ -354,7 +354,7 @@ public:
             judge.who = heiji;
 
             room->judge(judge);
-            if(judge.isGood()){
+            if(judge.isGood() && room->askForCard(heiji, ".red", "@nijian", data)){
                 damage.to = damage.from;
                 LogMessage log;
                 log.type = "#Nijian";
@@ -1053,7 +1053,7 @@ public:
         ServerPlayer *ver = room->getLord();
         if(!ver || !ver->hasLordSkill(objectName()))
             return false;
-        if(ver->askForSkillInvoke(objectName())){
+        if(ver->inMyAttackRange(player) && ver->askForSkillInvoke(objectName())){
             DamageStruct damage = data.value<DamageStruct>();
             ver->drawCards(damage.damage);
         }
@@ -1069,8 +1069,10 @@ public:
 
     virtual int getDrawNum(ServerPlayer *jodie, int n) const{
         Room *room = jodie->getRoom();
-        if(jodie->isWounded() && room->askForSkillInvoke(jodie, objectName()))
-            return n + 1;
+        if(room->askForSkillInvoke(jodie, objectName())){
+            int x = jodie->getEquips().length();
+            return n + qMax(x, 1);
+        }
         else
             return n;
     }
