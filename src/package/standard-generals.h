@@ -128,16 +128,6 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class JingshenCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE JingshenCard();
-
-    virtual bool targetsFeasible(const QList<const ClientPlayer *> &targets) const;
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-};
-
 class CheatCard: public SkillCard{
     Q_OBJECT
 

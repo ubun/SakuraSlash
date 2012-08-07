@@ -1068,6 +1068,61 @@ public:
     }
 };
 */
+
+class Biaoche: public DistanceSkill{
+public:
+    Biaoche():DistanceSkill("biaoche"){
+
+    }
+
+    virtual int getCorrect(const Player *from, const Player *to) const{
+        int correct = 0;
+        //from->parent()->findChildren<const Player *>()
+        if(from->hasSkill(objectName()) && to->getHp() > from->getHp())
+            correct --;
+        if(to->hasSkill(objectName()) && to->getHp() < from->getHp())
+            correct ++;
+        return correct;
+    }
+};
+
+JingshenCard::JingshenCard(){
+    once = true;
+    target_fixed = true;
+}
+
+bool JingshenCard::targetsFeasible(const QList<const ClientPlayer *> &targets) const{
+    return targets.length() < 2;
+}
+
+void JingshenCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    const QList<int> &jipin = source->getPile("jipin");
+    source->addToPile("jipin", this->getSubcards().first(), false);
+    if(jipin.length() >= room->getAlivePlayers().length() - 1){
+        ServerPlayer *target = room->askForPlayerChosen(source, room->getAlivePlayers(), "jingshen");
+        if(!target) target = source;
+        foreach(int card_id, source->getPile("jipin"))
+            room->obtainCard(target, card_id);
+    }
+}
+
+class Jingshen: public OneCardViewAsSkill{
+public:
+    Jingshen():OneCardViewAsSkill("jingshen"){
+    }
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return ! player->hasUsed("JingshenCard");
+    }
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return !to_select->isEquipped();
+    }
+    virtual const Card *viewAs(CardItem *card_item) const{
+        JingshenCard *card = new JingshenCard;
+        card->addSubcard(card_item->getCard()->getId());
+        return card;
+    }
+};
+
 MountainPackage::MountainPackage()
     :Package("mountain")
 {/*
@@ -1135,6 +1190,10 @@ MountainPackage::MountainPackage()
     skills << new ZhibaPindian << new Jixi;
 
     patterns[".basic"] = new BasicPattern;*/
+    General *yamamuramisae = new General(this, "yamamuramisae", "za", 3, false);
+    yamamuramisae->addSkill(new Biaoche);
+    yamamuramisae->addSkill(new Jingshen);
+    addMetaObject<JingshenCard>();
 }
 
 ADD_PACKAGE(Mountain);

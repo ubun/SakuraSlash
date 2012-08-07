@@ -853,7 +853,6 @@ public:
         Room *room = sharon->getRoom();
         if(sharon->getHp() <= 0 && sharon->askForSkillInvoke(objectName())){
             sharon->loseMark("@yaiba");
-            room->broadcastInvoke("animate", "lightbox:$yirong");
 
             QStringList genlist = Sanguosha->getLimitedGeneralNames();
             foreach(ServerPlayer *player, room->getAllPlayers()){
@@ -866,6 +865,7 @@ public:
             QString general = room->askForGeneral(sharon, choices);
             room->transfigure(sharon, general, false, false);
             sharon->getRoom()->setPlayerProperty(sharon, "hp", 3);
+            room->broadcastInvoke("animate", "lightbox:$yirong");
             return true;
         }
         return false;
@@ -1736,6 +1736,69 @@ public:
     }
 };
 
+class Shanliang: public TriggerSkill{
+public:
+    Shanliang():TriggerSkill("shanliang"){
+        events << Predamaged;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        Room *room = player->getRoom();
+        QList<ServerPlayer *> ducks = room->findPlayersBySkillName(objectName());
+        if(ducks.isEmpty())
+            return false;
+        foreach(ServerPlayer *duck, ducks){
+            if(duck != player && damage.damage > 0 && duck->distanceTo(player) <= 2 &&
+               duck->askForSkillInvoke(objectName())){
+                room->loseHp(duck);
+                if(duck->isAlive())
+                    duck->drawCards(player->getHp());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    virtual int getPriority() const{
+        return 2;
+    }
+};
+
+class Qingshang: public TriggerSkill{
+public:
+    Qingshang():TriggerSkill("qingshang"){
+        events << Predamaged;
+    }
+
+    virtual int getPriority() const{
+        return 2;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        if(player->getPhase() != Player::NotActive)
+            return false;
+        DamageStruct damage = data.value<DamageStruct>();
+        if(player->getHp() == 1){
+            Room *room = player->getRoom();
+
+            LogMessage log;
+            log.type = "#QSProtect";
+            log.from = damage.from;
+            log.to << player;
+            log.arg = objectName();
+            room->sendLog(log);
+
+            return true;
+        }else
+            return false;
+    }
+};
+
 YuandingCard::YuandingCard(){
     will_throw = false;
 }
@@ -1821,72 +1884,6 @@ public:
             player->loseMark("@bird");
         }
         return false;
-    }
-};
-
-class Biaoche: public DistanceSkill{
-public:
-    Biaoche():DistanceSkill("biaoche"){
-
-    }
-
-    virtual int getCorrect(const Player *from, const Player *to) const{
-        int correct = 0;
-        //from->parent()->findChildren<const Player *>()
-        if(from->hasSkill(objectName()) && to->getHp() > from->getHp())
-            correct --;
-        if(to->hasSkill(objectName()) && to->getHp() < from->getHp())
-            correct ++;
-        return correct;
-    }
-};
-
-JingshenCard::JingshenCard(){
-    once = true;
-    target_fixed = true;
-}
-
-bool JingshenCard::targetsFeasible(const QList<const ClientPlayer *> &targets) const{
-    return targets.length() < 2;
-}
-
-void JingshenCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    const QList<int> &jipin = source->getPile("jipin");
-    source->addToPile("jipin", this->getSubcards().first(), false);
-    if(jipin.length() >= room->getAlivePlayers().length() - 1){
-        ServerPlayer *target = room->askForPlayerChosen(source, room->getAlivePlayers(), "jingshen");
-        if(!target) target = source;
-        foreach(int card_id, source->getPile("jipin"))
-            room->obtainCard(target, card_id);
-/*        room->fillAG(jipin);
-        QList<ServerPlayer *> players;
-        players << source;
-        players << room->getOtherPlayers(source);
-        players = players.mid(0, room->getAlivePlayers().length());
-        foreach(ServerPlayer *player, players){
-           int card_id = room->askForAG(player, jipin, false, objectName());
-           //source->removeCardFromPile("jipin", card_id);
-           room->throwCard(card_id);
-           room->takeAG(player, card_id);
-        }
-        room->broadcastInvoke("clearAG");
-*/    }
-}
-
-class Jingshen: public OneCardViewAsSkill{
-public:
-    Jingshen():OneCardViewAsSkill("jingshen"){
-    }
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return ! player->hasUsed("JingshenCard");
-    }
-    virtual bool viewFilter(const CardItem *to_select) const{
-        return !to_select->isEquipped();
-    }
-    virtual const Card *viewAs(CardItem *card_item) const{
-        JingshenCard *card = new JingshenCard;
-        card->addSubcard(card_item->getCard()->getId());
-        return card;
     }
 };
 
@@ -2052,22 +2049,22 @@ void StandardPackage::addGenerals(){
     akaishuichi->addSkill(new Xunzhiresult);
     related_skills.insertMulti("xunzhi", "#xunzhiresult");
 
-    General *agasahiroshi, *kobayashisumiko, *yamamuramisae, *aoyamagoushou;
+    General *agasahiroshi, *miyanoagemi, *kobayashisumiko, *aoyamagoushou;
 
     agasahiroshi = new General(this, "agasahiroshi$", "za");
     agasahiroshi->addSkill(new Gaizao);
     agasahiroshi->addSkill(new Suyuan);
     agasahiroshi->addSkill(new Baomu);
 
+    miyanoagemi = new General(this, "miyanoagemi", "za", 3, false);
+    miyanoagemi->addSkill(new Shanliang);
+    miyanoagemi->addSkill(new Qingshang);
+
     kobayashisumiko = new General(this, "kobayashisumiko", "za", 4, false);
     kobayashisumiko->addSkill(new Yuanding);
     kobayashisumiko->addSkill(new Qiniao);
     kobayashisumiko->addSkill(new QiniaoSkip);
     related_skills.insertMulti("qiniao", "#qiniaoskip");
-
-    yamamuramisae = new General(this, "yamamuramisae", "za", 3, false);
-    yamamuramisae->addSkill(new Biaoche);
-    yamamuramisae->addSkill(new Jingshen);
 
     aoyamagoushou = new General(this, "aoyamagoushou", "god");
     aoyamagoushou->addSkill(new Long);
@@ -2086,7 +2083,6 @@ void StandardPackage::addGenerals(){
     addMetaObject<MaixiongCard>();
     addMetaObject<GaizaoCard>();
     addMetaObject<YuandingCard>();
-    addMetaObject<JingshenCard>();
 
     skills << new RexueEffect;
 

@@ -30,6 +30,7 @@ bool IentouCard::targetsFeasible(const QList<const Player *> &targets, const Pla
 }
 
 void IentouCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    room->throwCard(this);
     int x = targets.first()->getHp();
     room->setPlayerProperty(targets.first(), "hp", qMin(targets.first()->getMaxHP(), targets.last()->getHp()));
     room->setPlayerProperty(targets.last(), "hp", qMin(targets.last()->getMaxHP(), x));
