@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 
     QTranslator qt_translator, translator;
     qt_translator.load("qt_zh_CN.qm");
-    translator.load("sanguosha.qm");
+    translator.load("conanslash.qm");
 
     qApp->installTranslator(&qt_translator);
     qApp->installTranslator(&translator);

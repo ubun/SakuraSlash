@@ -4,7 +4,7 @@ ui_*
 Makefile*
 object_script*
 *.pro.user
-sanguosha.qm
+conanslash.qm
 config.*
 swig/sanguosha_wrap.cxx
 records/*

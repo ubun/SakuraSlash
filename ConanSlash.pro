@@ -253,4 +253,4 @@ CONFIG(joystick){
 	unix: LIBS += -lplibjs -lplibul
 }
 
-TRANSLATIONS += sanguosha.ts
+TRANSLATIONS += conanslash.ts

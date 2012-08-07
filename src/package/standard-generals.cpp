@@ -1783,7 +1783,7 @@ public:
         if(player->getPhase() != Player::NotActive)
             return false;
         DamageStruct damage = data.value<DamageStruct>();
-        if(player->getHp() == 1){
+        if(damage.from && player->getHp() == 1){
             Room *room = player->getRoom();
 
             LogMessage log;

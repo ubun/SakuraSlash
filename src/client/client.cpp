@@ -1180,11 +1180,13 @@ void Client::askForKingdom(const QString &){
     QDialog *dialog = new QDialog;
     ask_dialog = dialog;
 
-    QVBoxLayout *layout = new QVBoxLayout;
+    QGridLayout *layout = new QGridLayout;
 
     QStringList kingdoms = Sanguosha->getKingdoms();
     kingdoms.removeOne("god"); // god kingdom does not really exist
 
+    const int columns = 2;
+    int i = 0;
     foreach(QString kingdom, kingdoms){
         QCommandLinkButton *button = new QCommandLinkButton;
         QPixmap kingdom_pixmap(QString("image/kingdom/icon/%1.png").arg(kingdom));
@@ -1195,10 +1197,13 @@ void Client::askForKingdom(const QString &){
         button->setText(Sanguosha->translate(kingdom));
         button->setObjectName(kingdom);
 
-        layout->addWidget(button);
+        int row = i / columns;
+        int column = i % columns;
+        layout->addWidget(button, row, column);
 
         connect(button, SIGNAL(clicked()), this, SLOT(chooseKingdom()));
         connect(button, SIGNAL(clicked()), dialog, SLOT(accept()));
+        i++;
     }
 
     dialog->setObjectName(".");
