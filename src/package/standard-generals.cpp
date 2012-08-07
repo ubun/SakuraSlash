@@ -11,7 +11,6 @@
 #include "ai.h"
 
 ZhenxiangCard::ZhenxiangCard(){
-    once = true;
 }
 
 bool ZhenxiangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select) const{
@@ -20,11 +19,6 @@ bool ZhenxiangCard::targetFilter(const QList<const Player *> &targets, const Pla
 
 void ZhenxiangCard::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.from->getRoom();
-
-    room->setPlayerFlag(effect.to, "dongchaee");
-    room->setTag("Dongchaee", effect.to->objectName());
-    room->setTag("Dongchaer", effect.from->objectName());
-
     room->showAllCards(effect.to, effect.from);
 
     LogMessage log;
@@ -34,45 +28,14 @@ void ZhenxiangCard::onEffect(const CardEffectStruct &effect) const{
     room->sendLog(log);
 }
 
-class ZhenxiangViewAsSkill: public ZeroCardViewAsSkill{
+class Zhenxiang: public ZeroCardViewAsSkill{
 public:
-    ZhenxiangViewAsSkill():ZeroCardViewAsSkill("zhenxiang"){
+    Zhenxiang():ZeroCardViewAsSkill("zhenxiang"){
+        frequency = Compulsory;
     }
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return !player->hasUsed("ZhenxiangCard");
-    }
+
     virtual const Card *viewAs() const{
         return new ZhenxiangCard;
-    }
-};
-
-class Zhenxiang: public TriggerSkill{
-public:
-    Zhenxiang():TriggerSkill("zhenxiang"){
-        events << CardEffected << PhaseChange;
-        view_as_skill = new ZhenxiangViewAsSkill;
-    }
-    virtual bool trigger(TriggerEvent event, ServerPlayer *kudou, QVariant &data) const{
-        Room *room = kudou->getRoom();
-        if(event == PhaseChange && kudou->getPhase() == Player::Finish){
-            QString dongchaee_name = room->getTag("Dongchaee").toString();
-            if(!dongchaee_name.isEmpty()){
-                ServerPlayer *dongchaee = room->findChild<ServerPlayer *>(dongchaee_name);
-                room->setPlayerFlag(dongchaee, "-dongchaee");
-
-                room->setTag("Dongchaee", QVariant());
-                room->setTag("Dongchaer", QVariant());
-            }
-        }
-        else if(event == CardEffected && kudou->getPhase() == Player::NotActive){
-            CardEffectStruct effect = data.value<CardEffectStruct>();
-            if(effect.from != kudou && effect.card->isNDTrick()
-                && !effect.card->inherits("AmazingGrace")
-                && room->askForSkillInvoke(kudou, objectName(), data)){
-                room->showAllCards(effect.from, effect.to);
-            }
-        }
-        return false;
     }
 };
 

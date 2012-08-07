@@ -651,7 +651,7 @@ bool Room::askForNullification(const TrickCard *trick, ServerPlayer *from, Serve
 }
 
 int Room::askForCardChosen(ServerPlayer *player, ServerPlayer *who, const QString &flags, const QString &reason){
-    if(!who->hasFlag("dongchaee") && who != player){
+    if(!player->hasSkill("zhenxiang") && who != player){
         if(flags == "h" || (flags == "he" && !who->hasEquip()))
             return who->getRandomHandCardId();
     }
@@ -2206,11 +2206,8 @@ void Room::drawCards(ServerPlayer *player, int n){
 
     QString draw_str = QString("%1:%2").arg(player->objectName()).arg(n);
 
-    QString dongchaee = tag.value("Dongchaee").toString();
-    if(player->objectName() == dongchaee){
-        QString dongchaer_name = tag.value("Dongchaer").toString();
-        ServerPlayer *dongchaer = findChild<ServerPlayer *>(dongchaer_name);
-
+    ServerPlayer *dongchaer = findPlayerBySkillName("zhenxiang");
+    if(dongchaer){
         CardMoveStruct move;
         foreach(int card_id, card_ids){
             move.card_id = card_id;
@@ -2264,21 +2261,9 @@ void Room::moveCardTo(const Card *card, ServerPlayer *to, Player::Place place, b
         scope.insert(from);
         scope.insert(to);
 
-        QString dongchaee_name = tag.value("Dongchaee").toString();
-        if(!dongchaee_name.isEmpty()){
-            ServerPlayer *dongchaee = findChild<ServerPlayer *>(dongchaee_name);
-            bool invoke_dongcha = false;
-            if(dongchaee == from)
-                invoke_dongcha = (from_place == Player::Hand);
-            else if(dongchaee == to)
-                invoke_dongcha = (place == Player::Hand);
-
-            if(invoke_dongcha){
-                QString dongchaer_name = tag.value("Dongchaer").toString();
-                ServerPlayer *dongchaer = findChild<ServerPlayer *>(dongchaer_name);
-                scope.insert(dongchaer);
-            }
-        }
+        ServerPlayer *dongchaer = findPlayerBySkillName("zhenxiang");
+        if(dongchaer)
+            scope.insert(dongchaer);
 
         QString from_str = from->objectName();
         if(from_place == Player::Special)
