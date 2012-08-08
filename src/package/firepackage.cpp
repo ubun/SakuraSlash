@@ -494,6 +494,69 @@ public:
     }
 };
 
+class Shanliang: public TriggerSkill{
+public:
+    Shanliang():TriggerSkill("shanliang"){
+        events << Predamaged;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        Room *room = player->getRoom();
+        QList<ServerPlayer *> ducks = room->findPlayersBySkillName(objectName());
+        if(ducks.isEmpty())
+            return false;
+        foreach(ServerPlayer *duck, ducks){
+            if(duck != player && damage.damage > 0 && duck->distanceTo(player) <= 2 &&
+               duck->askForSkillInvoke(objectName())){
+                room->loseHp(duck);
+                if(duck->isAlive())
+                    duck->drawCards(player->getHp());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    virtual int getPriority() const{
+        return 2;
+    }
+};
+
+class Qingshang: public TriggerSkill{
+public:
+    Qingshang():TriggerSkill("qingshang"){
+        events << Predamaged;
+    }
+
+    virtual int getPriority() const{
+        return 2;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        if(player->getPhase() != Player::NotActive)
+            return false;
+        DamageStruct damage = data.value<DamageStruct>();
+        if(damage.from && player->getHp() == 1){
+            Room *room = player->getRoom();
+
+            LogMessage log;
+            log.type = "#QSProtect";
+            log.from = damage.from;
+            log.to << player;
+            log.arg = objectName();
+            room->sendLog(log);
+
+            return true;
+        }else
+            return false;
+    }
+};
+
 FirePackage::FirePackage()
     :Package("fire")
 {
@@ -503,6 +566,10 @@ FirePackage::FirePackage()
     General *satomiwako = new General(this, "satomiwako", "jing", 4, false);
     satomiwako->addSkill(new Jiaoxie);
     satomiwako->addSkill(new Xianv);
+
+    General *miyanoagemi = new General(this, "miyanoagemi", "te", 3, false);
+    miyanoagemi->addSkill(new Shanliang);
+    miyanoagemi->addSkill(new Qingshang);
 
     addMetaObject<IentouCard>();
 }

@@ -1736,69 +1736,6 @@ public:
     }
 };
 
-class Shanliang: public TriggerSkill{
-public:
-    Shanliang():TriggerSkill("shanliang"){
-        events << Predamaged;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return true;
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        DamageStruct damage = data.value<DamageStruct>();
-        Room *room = player->getRoom();
-        QList<ServerPlayer *> ducks = room->findPlayersBySkillName(objectName());
-        if(ducks.isEmpty())
-            return false;
-        foreach(ServerPlayer *duck, ducks){
-            if(duck != player && damage.damage > 0 && duck->distanceTo(player) <= 2 &&
-               duck->askForSkillInvoke(objectName())){
-                room->loseHp(duck);
-                if(duck->isAlive())
-                    duck->drawCards(player->getHp());
-                return true;
-            }
-        }
-        return false;
-    }
-
-    virtual int getPriority() const{
-        return 2;
-    }
-};
-
-class Qingshang: public TriggerSkill{
-public:
-    Qingshang():TriggerSkill("qingshang"){
-        events << Predamaged;
-    }
-
-    virtual int getPriority() const{
-        return 2;
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        if(player->getPhase() != Player::NotActive)
-            return false;
-        DamageStruct damage = data.value<DamageStruct>();
-        if(damage.from && player->getHp() == 1){
-            Room *room = player->getRoom();
-
-            LogMessage log;
-            log.type = "#QSProtect";
-            log.from = damage.from;
-            log.to << player;
-            log.arg = objectName();
-            room->sendLog(log);
-
-            return true;
-        }else
-            return false;
-    }
-};
-
 YuandingCard::YuandingCard(){
     will_throw = false;
 }
@@ -1884,6 +1821,55 @@ public:
             player->loseMark("@bird");
         }
         return false;
+    }
+};
+
+class Shexian: public PhaseChangeSkill{
+public:
+    Shexian():PhaseChangeSkill("shexian"){
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *midori) const{
+        if(midori->getPhase() == Player::Discard){
+            if(midori->askForSkillInvoke(objectName())){
+                midori->getRoom()->askForDiscard(midori, "gamerule", midori->getHandcardNum());
+                RedAlert *ra = new RedAlert(Card::NoSuit, 0);
+                ra->setSkillName(objectName());
+                CardUseStruct use;
+                use.card = ra;
+                use.from = midori;
+                midori->getRoom()->useCard(use);
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
+class Qingzui:public OneCardViewAsSkill{
+public:
+    Qingzui():OneCardViewAsSkill("qingzui"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return Analeptic::IsAvailable(player);
+    }
+
+    virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const{
+        return pattern.contains("analeptic");
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return to_select->getFilteredCard()->objectName() == "jink";
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        const Card *card = card_item->getCard();
+        Card *analeptic = new Analeptic(card->getSuit(), card->getNumber());
+        analeptic->setSkillName(objectName());
+        analeptic->addSubcard(card);
+
+        return analeptic;
     }
 };
 
@@ -2049,22 +2035,22 @@ void StandardPackage::addGenerals(){
     akaishuichi->addSkill(new Xunzhiresult);
     related_skills.insertMulti("xunzhi", "#xunzhiresult");
 
-    General *agasahiroshi, *miyanoagemi, *kobayashisumiko, *aoyamagoushou;
+    General *agasahiroshi, *kobayashisumiko, *meguremidori, *aoyamagoushou;
 
     agasahiroshi = new General(this, "agasahiroshi$", "za");
     agasahiroshi->addSkill(new Gaizao);
     agasahiroshi->addSkill(new Suyuan);
     agasahiroshi->addSkill(new Baomu);
 
-    miyanoagemi = new General(this, "miyanoagemi", "za", 3, false);
-    miyanoagemi->addSkill(new Shanliang);
-    miyanoagemi->addSkill(new Qingshang);
-
     kobayashisumiko = new General(this, "kobayashisumiko", "za", 4, false);
     kobayashisumiko->addSkill(new Yuanding);
     kobayashisumiko->addSkill(new Qiniao);
     kobayashisumiko->addSkill(new QiniaoSkip);
     related_skills.insertMulti("qiniao", "#qiniaoskip");
+
+    meguremidori = new General(this, "meguremidori", "za", 3, false);
+    meguremidori->addSkill(new Shexian);
+    meguremidori->addSkill(new Qingzui);
 
     aoyamagoushou = new General(this, "aoyamagoushou", "god");
     aoyamagoushou->addSkill(new Long);
