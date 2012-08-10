@@ -1020,9 +1020,6 @@ ThicketPackage::ThicketPackage()
     yamamuramisao->addSkill(new Ruoyu);
     yamamuramisao->addSkill(new Zilian);
 
-    General *otagiritoshirou = new General(this, "otagiritoshirou", "jing");
-    otagiritoshirou->addSkill(new Skill("qinjian", Skill::Compulsory));
-
     General *suzukijirokichi = new General(this, "suzukijirokichi", "guai", 3);
     suzukijirokichi->addSkill(new Lvbai);
     suzukijirokichi->addSkill(new Lvzhan);
@@ -1045,9 +1042,13 @@ ThicketPackage::ThicketPackage()
     jamesblack->addSkill(new Anyong);
     jamesblack->addSkill(new Panda);
 
-    General *hondoueisuke = new General(this, "hondoueisuke", "za");
+    General *hondoueisuke = new General(this, "hondoueisuke", "te");
     hondoueisuke->addSkill(new Mihu);
     hondoueisuke->addSkill(new Zhizhuo);
+
+    General *miyamotoyumi = new General(this, "miyamotoyumi", "za", 3, false);
+    miyamotoyumi->addSkill(new Skill("xuncha", Skill::Compulsory));
+    miyamotoyumi->addSkill(new Skill("chuanyao", Skill::Compulsory));
 
     addMetaObject<ChaidanCard>();
     addMetaObject<JulunCard>();

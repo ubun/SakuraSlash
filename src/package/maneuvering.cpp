@@ -357,7 +357,7 @@ bool SupplyShortage::targetFilter(const QList<const Player *> &targets, const Pl
     if(to_select->containsTrick(objectName()))
         return false;
 
-    if(Self->hasSkill("qicai"))
+    if(Self->hasSkill("qicai") || Self->hasSkill("chuanyao"))
         return true;
 
     int distance = Self->distanceTo(to_select);
@@ -696,6 +696,8 @@ Turnover::Turnover(Suit suit, int number)
 bool Turnover::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     if(!targets.isEmpty())
         return false;
+    if(Self->hasSkill("chuanyao"))
+        return true;
     return Self->inMyAttackRange(to_select);
 }
 

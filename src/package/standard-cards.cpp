@@ -80,7 +80,7 @@ bool Slash::targetFilter(const QList<const Player *> &targets, const Player *to_
     if(targets.length() >= slash_targets)
         return false;
 
-    if(inherits("WushenSlash")){
+    if(Self->hasSkill("chuanyao")){
         distance_limit = false;
     }
 
@@ -839,7 +839,7 @@ bool Snatch::targetFilter(const QList<const Player *> &targets, const Player *to
         return false;
 
     if(Self->distanceTo(to_select) > 1 &&
-       !Self->hasSkill("shentou") && !Self->hasSkill("qicai"))
+       !Self->hasSkill("shentou") && !Self->hasSkill("qicai") && !Self->hasSkill("chuanyao"))
         return false;
 
     return true;

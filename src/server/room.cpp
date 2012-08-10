@@ -629,11 +629,11 @@ bool Room::askForNullification(const TrickCard *trick, ServerPlayer *from, Serve
 
             broadcastInvoke("animate", QString("nullification:%1:%2")
                             .arg(player->objectName()).arg(to->objectName()));
-            ServerPlayer *ok = findPlayerBySkillName("qinjian");
+            ServerPlayer *ok = findPlayerBySkillName("xuncha");
             if(ok){
                 log.type = "#TriggerSkill";
                 log.from = ok;
-                log.arg = "qinjian";
+                log.arg = "xuncha";
                 sendLog(log);
                 ok->obtainCard(trick);
             }
