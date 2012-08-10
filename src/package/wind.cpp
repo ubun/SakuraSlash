@@ -16,11 +16,11 @@ public:
     virtual bool triggerable(const ServerPlayer *target) const{
         return true;
     }
-
+/*
     virtual int getPriority() const{
         return 2;
     }
-
+*/
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         CardUseStruct use = data.value<CardUseStruct>();
         Room *room = player->getRoom();

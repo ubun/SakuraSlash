@@ -60,62 +60,6 @@ public:
 };
 
 /*
-JiemingCard::JiemingCard(){
-
-}
-
-bool JiemingCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    if(!targets.isEmpty())
-        return false;
-
-    int upper = qMin(5, to_select->getMaxHP());
-    return to_select->getHandcardNum() < upper;
-}
-
-void JiemingCard::onEffect(const CardEffectStruct &effect) const{
-    int upper = qMin(5, effect.to->getMaxHP());
-    int x = upper - effect.to->getHandcardNum();
-    if(x <= 0)
-        return;
-
-    effect.to->drawCards(x);
-}
-
-class JiemingViewAsSkill: public ZeroCardViewAsSkill{
-public:
-    JiemingViewAsSkill():ZeroCardViewAsSkill("jieming"){
-
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return false;
-    }
-
-    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return pattern == "@@jieming";
-    }
-
-    virtual const Card *viewAs() const{
-        return new JiemingCard;
-    }
-};
-
-class Jieming: public MasochismSkill{
-public:
-    Jieming():MasochismSkill("jieming"){
-        view_as_skill = new JiemingViewAsSkill;
-    }
-
-    virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
-        Room *room = player->getRoom();
-        int x = damage.damage, i;
-        for(i=0; i<x; i++){
-            if(!room->askForUseCard(player, "@@jieming", "@jieming"))
-                break;
-        }
-    }
-};
-
 QiangxiCard::QiangxiCard(){
     once = true;
 }

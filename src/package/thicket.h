@@ -39,6 +39,17 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
+typedef Skill SkillClass;
+class LuanzhenCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE LuanzhenCard();
+
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
 class HongmengCard: public SkillCard{
     Q_OBJECT
 

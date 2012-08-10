@@ -123,6 +123,7 @@ CoupleScenario::CoupleScenario()
     map["kyougokumakoto"] = "suzukisonoko";
     map["kurobakaitou"] = "nakamoriaoko";
     map["shiratorininzaburou"] = "kobayashisumiko";
+    map["megurejyuuzou"] = "meguremidori";
 
     full_map = map;
     full_map["haibaraai"] = "yoshidaayumi";

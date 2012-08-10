@@ -398,6 +398,99 @@ public:
     }
 };
 
+LuanzhenCard::LuanzhenCard(){
+}
+
+bool LuanzhenCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(!targets.isEmpty())
+        return false;
+    return to_select != Self;
+}
+
+void LuanzhenCard::onEffect(const CardEffectStruct &effect) const{
+    QStringList skillist;
+    Room *room = effect.from->getRoom();
+    foreach(const SkillClass *skill, effect.to->getVisibleSkillList()){
+        if(skill->getLocation() == Skill::Right &&
+           skill->getFrequency() != Skill::Limited &&
+           skill->getFrequency() != Skill::Wake &&
+           !skill->isLordSkill()){
+            skillist << skill->objectName();
+        }
+    }
+    if(!skillist.isEmpty()){
+        QString ski = room->askForChoice(effect.from, "luanzhen", skillist.join("+"));
+        room->acquireSkill(effect.from, ski);
+        effect.from->tag["Luanzhen"] = QVariant::fromValue(ski);
+    }
+}
+
+class LuanzhenViewAsSkill: public ZeroCardViewAsSkill{
+public:
+    LuanzhenViewAsSkill():ZeroCardViewAsSkill("luanzhen"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "@@luanzhen";
+    }
+
+    virtual const Card *viewAs() const{
+        return new LuanzhenCard;
+    }
+};
+
+class Luanzhen: public PhaseChangeSkill{
+public:
+    Luanzhen():PhaseChangeSkill("luanzhen"){
+        view_as_skill = new LuanzhenViewAsSkill;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        if(player->getPhase() == Player::Start){
+            Room *room = player->getRoom();
+            QString lzskill = player->tag["Luanzhen"].toString();
+            room->detachSkillFromPlayer(player, lzskill);
+            room->askForUseCard(player, "@@luanzhen", "@luanzhen");
+        }
+        return false;
+    }
+};
+
+class Yinv:public TriggerSkill{
+public:
+    Yinv():TriggerSkill("yinv"){
+        events << CardUsed;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *yinv, QVariant &data) const{
+        CardUseStruct use = data.value<CardUseStruct>();
+        Room *room = yinv->getRoom();
+        if(use.card->inherits("SingleTargetTrick") && !use.card->inherits("Collateral")){
+            if(use.to.isEmpty())
+                use.to << use.from;
+
+            QList<ServerPlayer *> extras;
+            foreach(ServerPlayer *tmp, room->getOtherPlayers(use.to.first())){
+                if(use.from->inMyAttackRange(tmp))
+                    extras << tmp;
+            }
+
+            if(extras.isEmpty() || use.to.length() != 1 || !yinv->askForSkillInvoke(objectName()))
+                return false;
+            ServerPlayer *extra = room->askForPlayerChosen(yinv, extras, objectName());
+            use.to << extra;
+
+            data = QVariant::fromValue(use);
+            return false;
+        }
+        return false;
+    }
+};
+
 RuoyuCard::RuoyuCard(){
 }
 
@@ -916,8 +1009,11 @@ ThicketPackage::ThicketPackage()
     General *hattorishizuka = new General(this, "hattorishizuka$", "woo", 4, false);
     hattorishizuka->addSkill(new Tieshan);
     hattorishizuka->addSkill(new Cimu);
-/*
+
     General *kudouyukiko = new General(this, "kudouyukiko", "yi", 3, false);
+    kudouyukiko->addSkill(new Luanzhen);
+    kudouyukiko->addSkill(new Yinv);
+/*
     General *kudouyuusaku = new General(this, "kudouyuusaku$", "yi", 3);
 */
     General *yamamuramisao = new General(this, "yamamuramisao", "jing", 3);
@@ -958,6 +1054,7 @@ ThicketPackage::ThicketPackage()
     addMetaObject<ConghuiCard>();
     addMetaObject<HongmengCard>();
     addMetaObject<CimuCard>();
+    addMetaObject<LuanzhenCard>();
     addMetaObject<RuoyuCard>();
     addMetaObject<ZilianCard>();
     addMetaObject<ZhiquCard>();
