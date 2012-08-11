@@ -491,6 +491,121 @@ public:
     }
 };
 
+class Anye: public ProhibitSkill{
+public:
+    Anye():ProhibitSkill("anye"){
+
+    }
+
+    virtual bool isProhibited(const Player *from, const Player *to, const Card *card) const{
+        return to->getPhase() == Player::NotActive && card->inherits("TrickCard") && card->isRed() && !card->inherits("Collateral");
+    }
+};
+
+class Panguan: public TriggerSkill{
+public:
+    Panguan():TriggerSkill("panguan"){
+        events << AskForRetrial;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return TriggerSkill::triggerable(target);
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        JudgeStar judge = data.value<JudgeStar>();
+
+        if(player->askForSkillInvoke(objectName(), data)){
+            Room *room = player->getRoom();
+            room->throwCard(judge->card);
+            room->playSkillEffect(objectName());
+            int card_id = room->drawCard();
+            room->moveCardTo(Sanguosha->getCard(card_id), NULL, Player::Special, true);
+            room->getThread()->delay();
+
+            judge->card = Sanguosha->getCard(card_id);
+            room->moveCardTo(judge->card, NULL, Player::Special);
+
+            LogMessage log;
+            log.type = "$ChangedJudge";
+            log.from = player;
+            log.to << judge->who;
+            log.card_str = QString::number(card_id);
+            room->sendLog(log);
+
+            room->sendJudgeResult(judge);
+            return true;
+        }
+        return false;
+    }
+};
+
+FenbiCard::FenbiCard(){
+    once = true;
+    target_fixed = true;
+}
+
+void FenbiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
+    source->loseMark("@pen");
+    QString name = Sanguosha->getCard(getSubcards().first())->objectName();
+    room->throwCard(this);
+    foreach(ServerPlayer *tmp, room->getOtherPlayers(source)){
+        const Card *card = room->askForCard(tmp, "..", "@fenbi:" + source->objectName() + ":" + name);
+        if(!card || card->objectName() != name)
+            room->loseHp(tmp);
+    }
+}
+
+class Fenbi: public OneCardViewAsSkill{
+public:
+    Fenbi():OneCardViewAsSkill("fenbi"){
+        frequency = Limited;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return player->getMark("@pen") > 0;
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return !to_select->isEquipped();
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        FenbiCard *card = new FenbiCard;
+        card->addSubcard(card_item->getFilteredCard());
+        return card;
+    }
+};
+
+class Wuji: public TriggerSkill{
+public:
+    Wuji():TriggerSkill("wuji$"){
+        events << Predamaged;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
+        if(damage.damage < 1 || !player->hasLordSkill(objectName()))
+            return false;
+        Room *room = player->getRoom();
+        QList<ServerPlayer *> kudous;
+        QStringList names;
+        names << "kudoushinichi" << "edogawaconan" << "kudouyuusaku" << "kudouyukiko";
+        foreach(ServerPlayer *kudou, room->getOtherPlayers(player)){
+            if(kudou->getKingdom() == "yi" || names.contains(kudou->getGeneralName()))
+                kudous << kudou;
+        }
+
+        if(kudous.isEmpty() || !player->askForSkillInvoke(objectName()))
+            return false;
+        foreach(ServerPlayer *kudou, kudous){
+            if(room->askForCard(kudou, "Slash", "@wuji:" + player->objectName(), data))
+                return true;
+        }
+        return false;
+    }
+};
+
 RuoyuCard::RuoyuCard(){
 }
 
@@ -1013,9 +1128,15 @@ ThicketPackage::ThicketPackage()
     General *kudouyukiko = new General(this, "kudouyukiko", "yi", 3, false);
     kudouyukiko->addSkill(new Luanzhen);
     kudouyukiko->addSkill(new Yinv);
-/*
+
     General *kudouyuusaku = new General(this, "kudouyuusaku$", "yi", 3);
-*/
+    kudouyuusaku->addSkill(new Anye);
+    kudouyuusaku->addSkill(new Panguan);
+    kudouyuusaku->addSkill(new Fenbi);
+    kudouyuusaku->addSkill(new Wuji);
+    kudouyuusaku->addSkill(new MarkAssignSkill("@pen", 1));
+    related_skills.insertMulti("fenbi", "#@pen-1");
+
     General *yamamuramisao = new General(this, "yamamuramisao", "jing", 3);
     yamamuramisao->addSkill(new Ruoyu);
     yamamuramisao->addSkill(new Zilian);
@@ -1056,6 +1177,7 @@ ThicketPackage::ThicketPackage()
     addMetaObject<HongmengCard>();
     addMetaObject<CimuCard>();
     addMetaObject<LuanzhenCard>();
+    addMetaObject<FenbiCard>();
     addMetaObject<RuoyuCard>();
     addMetaObject<ZilianCard>();
     addMetaObject<ZhiquCard>();
