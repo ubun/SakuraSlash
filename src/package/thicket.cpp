@@ -517,7 +517,7 @@ public:
 
         if(player->askForSkillInvoke(objectName(), data)){
             Room *room = player->getRoom();
-            room->throwCard(judge->card);
+            room->obtainCard(player, judge->card);
             room->playSkillEffect(objectName());
             int card_id = room->drawCard();
             room->moveCardTo(Sanguosha->getCard(card_id), NULL, Player::Special, true);
