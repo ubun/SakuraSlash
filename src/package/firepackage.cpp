@@ -511,7 +511,7 @@ FirePackage::FirePackage()
     satomiwako->addSkill(new Jiaoxie);
     satomiwako->addSkill(new Xianv);
 
-    General *miyanoagemi = new General(this, "miyanoagemi", "te", 3, false);
+    General *miyanoagemi = new General(this, "miyanoagemi", "te", 3, false, true);
     miyanoagemi->addSkill(new Shanliang);
     miyanoagemi->addSkill(new Qingshang);
 

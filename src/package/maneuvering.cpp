@@ -625,7 +625,7 @@ Inspiration::Inspiration(Suit suit, int number)
 }
 
 void Inspiration::onEffect(const CardEffectStruct &effect) const{
-    effect.to->getRoom()->getThread()->delay();
+    effect.to->getRoom()->getThread()->delay(500);
     effect.to->drawCards(qMax(1, effect.to->getLostHp()));
 }
 

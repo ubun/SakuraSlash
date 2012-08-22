@@ -25,7 +25,7 @@ GeneralOverview::GeneralOverview(QWidget *parent) :
 
 void GeneralOverview::fillGenerals(const QList<const General *> &generals){
     ui->tableWidget->clearContents();
-    ui->tableWidget->setRowCount(generals.length() -3);
+    ui->tableWidget->setRowCount(generals.length());
     ui->tableWidget->setIconSize(QSize(20,20));
     QIcon lord_icon("image/system/roles/lord.png");
 
@@ -33,16 +33,14 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
     for(i=0; i<generals.length(); i++){
         const General *general = generals[i];
 
-        if(general->isHidden())
-            continue;
-
         QString name, kingdom, gender, max_hp, package;
 
         name = Sanguosha->translate(general->objectName());
 
         kingdom = Sanguosha->translate(general->getKingdom());
         gender = general->isMale() ? tr("Male") : tr("Female");
-        max_hp = QString::number(general->getMaxHp());
+        max_hp = !general->hasSkill("#losthp") ? QString::number(general->getMaxHp())
+            : QString::number(general->getMaxHp() - 1) + "/" + QString::number(general->getMaxHp());
         package = Sanguosha->translate(general->getPackage());
 
         QTableWidgetItem *name_item = new QTableWidgetItem(name);
@@ -53,8 +51,8 @@ void GeneralOverview::fillGenerals(const QList<const General *> &generals){
             name_item->setTextAlignment(Qt::AlignCenter);
         }
 
-        //if(general->isHidden())
-        //    name_item->setBackgroundColor(Qt::gray);
+        if(general->isHidden())
+            name_item->setBackgroundColor(Qt::gray);
 
         QTableWidgetItem *kingdom_item = new QTableWidgetItem(kingdom);
         kingdom_item->setTextAlignment(Qt::AlignCenter);

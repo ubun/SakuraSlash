@@ -1383,6 +1383,7 @@ WindPackage::WindPackage()
     vermouth->addSkill(new Weixiao);
     vermouth->addSkill(new Qianmian);
     vermouth->addSkill(new Kuai);
+    vermouth->addSkill("#losthp");
 
     General *jodie = new General(this, "jodie", "te", 3, false);
     jodie->addSkill(new Dianwan);

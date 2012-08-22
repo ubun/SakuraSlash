@@ -1913,6 +1913,22 @@ public:
     }
 };
 
+class Losthp: public TriggerSkill{
+public:
+    Losthp():TriggerSkill("#losthp"){
+        events << GameStart;
+    }
+
+    virtual int getPriority() const{
+        return -1;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &) const{
+        player->getRoom()->setPlayerProperty(player, "hp", player->getHp() - 1);
+        return false;
+    }
+};
+
 CheatCard::CheatCard(){
     target_fixed = true;
     will_throw = false;
@@ -2016,6 +2032,7 @@ void StandardPackage::addGenerals(){
     nakamoriaoko = new General(this, "nakamoriaoko", "guai", 4, false);
     nakamoriaoko->addSkill(new Renxing);
     nakamoriaoko->addSkill(new Qingmei);
+    nakamoriaoko->addSkill("#losthp");
 
     General *gin, *vodka, *akaishuichi;
     gin = new General(this, "gin$", "hei");
@@ -2028,6 +2045,7 @@ void StandardPackage::addGenerals(){
     vodka = new General(this, "vodka", "hei");
     vodka->addSkill(new Maixiong);
     vodka->addSkill(new Dashou);
+    vodka->addSkill("#losthp");
 
     akaishuichi = new General(this, "akaishuichi", "te");
     akaishuichi->addSkill(new Jushen);
@@ -2047,6 +2065,7 @@ void StandardPackage::addGenerals(){
     kobayashisumiko->addSkill(new Qiniao);
     kobayashisumiko->addSkill(new QiniaoSkip);
     related_skills.insertMulti("qiniao", "#qiniaoskip");
+    kobayashisumiko->addSkill("#losthp");
 
     meguremidori = new General(this, "meguremidori", "za", 3, false);
     meguremidori->addSkill(new Shexian);
@@ -2070,7 +2089,7 @@ void StandardPackage::addGenerals(){
     addMetaObject<GaizaoCard>();
     addMetaObject<YuandingCard>();
 
-    skills << new RexueEffect;
+    skills << new RexueEffect << new Losthp;
 
     addMetaObject<CheatCard>();
     addMetaObject<ChangeCard>();
