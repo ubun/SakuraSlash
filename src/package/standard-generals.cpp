@@ -115,7 +115,7 @@ public:
             if(hatto)
                 recover.who = hatto;
 
-            room->recover(player, recover);
+            room->recover(player, recover, true);
             return false;
         }
         return false;
@@ -620,7 +620,7 @@ public:
                     RecoverStruct recover;
                     recover.card = NULL;
                     recover.who = mouri;
-                    room->recover(target, recover);
+                    room->recover(target, recover, true);
 
                     mouri->skip(Player::Judge);
                     mouri->skip(Player::Draw);
@@ -1737,7 +1737,7 @@ public:
             RecoverStruct recover;
             recover.who = cancer;
             recover.card = recovcd;
-            room->recover(dying_data.who, recover);
+            room->recover(dying_data.who, recover, true);
         }
         return false;
     }

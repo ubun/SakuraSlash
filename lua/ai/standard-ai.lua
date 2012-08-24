@@ -396,7 +396,7 @@ qingzui_skill.getTurnUseCard = function(self)
 	assert(analeptic)
 	return analeptic
 end
-sgs.ai_view_as["qingzui"] = function(card, player, card_place)
+--[[sgs.ai_view_as["qingzui"] = function(card, player, card_place)
 	local suit = card:getSuitString()
 	local number = card:getNumberString()
 	local card_id = card:getEffectiveId()
@@ -404,5 +404,5 @@ sgs.ai_view_as["qingzui"] = function(card, player, card_place)
 	if card:objectName() == "jink" then
 		return ("analeptic:qingzui[%s:%s]=%d"):format(suit, number, card_id)
 	end
-end
+end]]
 

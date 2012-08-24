@@ -169,6 +169,18 @@ sgs.ai_skill_invoke["panguan"] = function(self, data)
 	return not wizard_friend
 end
 
+-- luanzhen
+sgs.ai_skill_use["@@luanzhen"] = function(self, prompt)
+	local players = self.room:getOtherPlayers(self.player)
+	players = sgs.QList2Table(players)
+	local r = math.random(1, #players)
+	return "@LuanzhenCard=.->" .. players[r]:objectName()
+end
+sgs.ai_skill_choice["luanzhen"] = function(self, choices)
+	local choicelist = choices:split("+")
+	return choicelist[1]
+end
+
 -- yinv
 sgs.ai_skill_invoke["yinv"] = function(self, data)
 	local use = data:toCardUse()

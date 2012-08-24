@@ -25,9 +25,9 @@ public:
                 }else if(player->getGeneralName() == "hattoriheiji"){
                     if(player->askForSkillInvoke("reselect"))
                         room->transfigure(player, "heiji", true);
-                }else if(player->getGeneralName() == "tenkei"){
+                }else if(player->getGeneralName() == "takagiwataru"){
                     if(player->askForSkillInvoke("reselect"))
-                        room->transfigure(player, "ubun", true);
+                        room->transfigure(player, "matsudajinpei", true);
                 }
 
                 break;
@@ -124,10 +124,15 @@ CoupleScenario::CoupleScenario()
     map["kurobakaitou"] = "nakamoriaoko";
     map["shiratorininzaburou"] = "kobayashisumiko";
     map["megurejyuuzou"] = "meguremidori";
+    map["matsudajinpei"] = "satomiwako";
+    //map["akaishuichi"] = "miyanoagemi";
+    map["kudouyuusaku"] = "kudouyukiko";
+    map["hattoriheizou"] = "hattorishizuka";
 
     full_map = map;
     full_map["haibaraai"] = "yoshidaayumi";
     full_map["hattoriheiji"] = "heiji";
+    //full_map["takagiwataru"] = "matsudajinpei";
 }
 
 void CoupleScenario::marryAll(Room *room) const{

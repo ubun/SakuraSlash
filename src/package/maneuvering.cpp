@@ -787,14 +787,12 @@ public:
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         if(event == Damaged){
-            QList<ServerPlayer *> pls;
-            foreach(ServerPlayer *tmp, room->getAllPlayers())
-                if(tmp->getArmor() && tmp->getArmor()->objectName() == objectName())
-                    pls << tmp;
             DamageStruct damage = data.value<DamageStruct>();
-            foreach(ServerPlayer *tmp, pls)
-                if(tmp->distanceTo(damage.to) <= 1)
-                    tmp->drawCards(damage.damage);
+            if(player == damage.to && damage.to->getArmor() && damage.to->getArmor()->objectName() == objectName()){
+                foreach(ServerPlayer *tmp, room->getAllPlayers())
+                    if(tmp->getArmor() && tmp->getArmor()->objectName() == objectName())
+                        tmp->drawCards(1);
+            }
             return false;
         }
         if(event == CardFinished)
