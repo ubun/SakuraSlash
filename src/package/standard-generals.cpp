@@ -534,7 +534,7 @@ public:
                 log.arg = objectName();
                 log.arg2 = room->askForChoice(ayumi, objectName(), "hpc+mxc");
                 if(log.arg2 == "hpc"){
-                    room->setPlayerProperty(ayumi, "maxhp", ayumi->getMaxHP() + 1);
+                    room->setPlayerProperty(ayumi, "maxhp", ayumi->getMaxHp() + 1);
                     room->setPlayerProperty(ayumi, "hp", ayumi->getHp() + 1);
                 }
                 else{
@@ -546,6 +546,13 @@ public:
             }
         }
         return false;
+    }
+
+    virtual QString getDefaultChoice(ServerPlayer *player) const{
+        if(player->getMaxHp() <= 2)
+            return "hpc";
+        else
+            return "mxc";
     }
 };
 

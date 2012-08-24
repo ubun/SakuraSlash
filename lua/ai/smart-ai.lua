@@ -2877,6 +2877,15 @@ function SmartAI:askForCard(pattern, prompt, data)
 			end
 		end
 		return "."
+	elseif parsedPrompt[1] == "@nijian" then
+		local allcards = sgs.QList2Table(self.player:getHandcards())
+		self:sortByUseValue(allcards, true)
+		for _,card in ipairs(allcards) do
+			if card:isRed() then
+				return card:getEffectiveId()
+			end
+		end
+		return "."
 	elseif parsedPrompt[1] == "@bianhu" then
 		local use = data:toCardUse()
 		if self:isEnemy(use.from) and use.card:inherits("ExNihilo") then
@@ -2957,6 +2966,13 @@ function SmartAI:askForCard(pattern, prompt, data)
 		local card = self:getMaxCard()
 		self.largest = nil
 		return card:getEffectiveId()
+	elseif parsedPrompt[1] == "@wuji" then
+		local damage = data:toDamage()
+		if self:isFriend(damage.to) and self:getCardsNum("Slash") ~= 0 then
+			return self:getCardId("Slash")
+		else
+			return "."
+		end
 	end
 
 	if parsedPrompt[1] == "@axe" then

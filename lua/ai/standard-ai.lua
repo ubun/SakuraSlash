@@ -372,4 +372,37 @@ sgs.ai_skill_invoke["long"] = function(self, data)
 	return math.random(0, 1) == 0
 end
 
+-- qingzui
+qingzui_skill={}
+qingzui_skill.name = "qingzui"
+table.insert(sgs.ai_skills, qingzui_skill)
+qingzui_skill.getTurnUseCard = function(self)
+	local cards = self.player:getCards("h")
+	cards=sgs.QList2Table(cards)
+	local card
+	self:sortByUseValue(cards,true)
+	for _,acard in ipairs(cards)  do
+		if acard:objectName() == "jink" then
+			card = acard
+			break
+		end
+	end
+	if not card then return nil end
+	local suit = card:getSuitString()
+	local number = card:getNumberString()
+	local card_id = card:getEffectiveId()
+	local card_str = ("analeptic:qingzui[%s:%s]=%d"):format(suit, number, card_id)
+	local analeptic = sgs.Card_Parse(card_str)
+	assert(analeptic)
+	return analeptic
+end
+sgs.ai_view_as["qingzui"] = function(card, player, card_place)
+	local suit = card:getSuitString()
+	local number = card:getNumberString()
+	local card_id = card:getEffectiveId()
+
+	if card:objectName() == "jink" then
+		return ("analeptic:qingzui[%s:%s]=%d"):format(suit, number, card_id)
+	end
+end
 

@@ -131,9 +131,10 @@ sgs.ai_skill_choice["zhongpu"] = function(self, choices)
 	end
 end
 
--- shanjing & mangju
+-- shanjing & mangju & wuji
 sgs.ai_skill_invoke["shanjing"] = true
 sgs.ai_skill_invoke["mangju"] = true
+sgs.ai_skill_invoke["wuji"] = true
 
 -- anyong
 sgs.ai_skill_invoke["anyong"] = function(self, data)
@@ -146,6 +147,60 @@ sgs.ai_skill_invoke["anyong"] = function(self, data)
 	end
 	return false
 end
-sgs.ai_skill_playerchosen["qingyi"] = function(self, targets)
+sgs.ai_skill_playerchosen["anyong"] = function(self, targets)
 	return self.anyongtarget
+end
+
+-- panguan
+sgs.ai_skill_invoke["panguan"] = function(self, data)
+	local judge = data:toJudge()
+	if not self:needRetrial(judge) then return false end
+	local wizard_friend
+	for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
+		if player == judge.who then break end
+		if self:isFriend(player) then
+			if player:hasSkill("shouqiu") or
+				player:hasSkill("fating") then
+				wizard_friend = player
+				break
+			end
+		end
+	end
+	return not wizard_friend
+end
+
+-- yinv
+sgs.ai_skill_invoke["yinv"] = function(self, data)
+	local use = data:toCardUse()
+	local extras = {}
+	for _, tmp in sgs.qlist(self.room:getOtherPlayers(use.to:first())) do
+		if use.from:inMyAttackRange(tmp) then
+			table.insert(extras, tmp)
+		end
+	end
+	
+	local target
+	if sgs.dynamic_value.benefit[use.card:className()] then
+		for _, friend in ipairs(extras) do
+			if self:isFriend(friend) then
+				target = friend
+				break
+			end
+		end
+	else
+		for _, enemy in ipairs(extras) do
+			if self:isEnemy(enemy) then
+				target = enemy
+				break
+			end
+		end
+	end
+	if target then
+		self.yinvtarget = target
+		return true
+	end
+	return false
+end
+sgs.ai_skill_playerchosen["yinv"] = function(self, targets)
+	return self.yinvtarget
 end

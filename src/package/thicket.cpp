@@ -479,7 +479,7 @@ public:
                     extras << tmp;
             }
 
-            if(extras.isEmpty() || use.to.length() != 1 || !yinv->askForSkillInvoke(objectName()))
+            if(extras.isEmpty() || use.to.length() != 1 || !yinv->askForSkillInvoke(objectName(), data))
                 return false;
             ServerPlayer *extra = room->askForPlayerChosen(yinv, extras, objectName());
             use.to << extra;
