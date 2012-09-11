@@ -1759,14 +1759,17 @@ public:
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        DyingStruct dying_data = data.value<DyingStruct>();
+        Room *room = player->getRoom();
 
+        DyingStruct dying_data = data.value<DyingStruct>();
         if(dying_data.who->getKingdom() != "shao")
             return false;
-        Room *room = player->getRoom();
-        ServerPlayer *cancer = room->findPlayerBySkillName(objectName());
 
-        if(cancer && room->askForSkillInvoke(cancer, objectName(), QVariant::fromValue((PlayerStar)dying_data.who))){
+        ServerPlayer *cancer = room->getLord();
+        if(!cancer || !cancer->hasLordSkill(objectName()))
+            return false;
+
+        if(room->askForSkillInvoke(cancer, objectName(), QVariant::fromValue((PlayerStar)dying_data.who))){
             const Card *recovcd = room->askForCard(cancer, ".S", "@baomu:" + dying_data.who->objectName());
             if(!recovcd)
                 return false;

@@ -83,3 +83,12 @@ sgs.ai_skill_invoke["watch"] = function(self, data)
 	end
 	return false
 end
+
+-- huizhang
+sgs.ai_skill_cardask["@tantei"] = function(self, data)
+	local target = data:toPlayer()
+	if self:isEnemy(target) then return "." end
+	if pattern == "slash" and self:getCardsNum("Slash") ~= 0 then return self:getCardId("Slash") end
+	if pattern == "jink" and self:getCardsNum("Jink") ~= 0 then return self:getCardId("Jink") end
+	return "."
+end

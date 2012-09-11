@@ -2841,6 +2841,7 @@ function SmartAI:askForCardChosen(who, flags, reason)
 	return self:getCardRandomly(who, new_flag) or who:getCards(flags):first():getEffectiveId()
 end
 
+sgs.ai_skill_cardask = {}
 function SmartAI:askForCard(pattern, prompt, data)
 	self.room:output(prompt)
 	if sgs.ai_skill_invoke[pattern] then return sgs.ai_skill_invoke[pattern](self, prompt) end
@@ -2861,162 +2862,10 @@ function SmartAI:askForCard(pattern, prompt, data)
 		end
 	end
 
-	if parsedPrompt[1] == "@xiuluo" then
-		local hand_card = self.player:getHandcards()
-		for _, card in sgs.qlist(hand_card) do
-			if card:getSuitString() == parsedPrompt[2] then return "$"..card:getEffectiveId() end
-		end
-	elseif parsedPrompt[1] == "@xianv" then
-		local damage = data:toDamage()
-		if self:isFriend(damage.to) then
-			local allcards = self.player:getCards("he")
-			for _, card in sgs.qlist(allcards) do
-				if card:inherits("EquipCard") then
-					return card:getEffectiveId()
-				end
-			end
-		end
-		return "."
-	elseif parsedPrompt[1] == "@nijian" then
-		local allcards = sgs.QList2Table(self.player:getHandcards())
-		self:sortByUseValue(allcards, true)
-		for _,card in ipairs(allcards) do
-			if card:isRed() then
-				return card:getEffectiveId()
-			end
-		end
-		return "."
-	elseif parsedPrompt[1] == "@bianhu" then
-		local use = data:toCardUse()
-		if self:isEnemy(use.from) and use.card:inherits("ExNihilo") then
-			local allcards = self.player:getCards("he")
-			for _, card in sgs.qlist(allcards) do
-				if (pattern == "..S" and card:getSuit() == sgs.Card_Spade) or
-					(pattern == "..H" and card:getSuit() == sgs.Card_Heart) or
-					(pattern == "..C" and card:getSuit() == sgs.Card_Club) or
-					(pattern == "..D" and card:getSuit() == sgs.Card_Diamond) then
-					return card:getEffectiveId()
-				end
-			end
-		end
-	--	if self:isFriend(use.to) and use.card:inherits("Dismantlement") then
-	--		return true
-	--	end
-		return "."
-	elseif parsedPrompt[1] == "@tantei" then
-		local target = data:toPlayer()
-		if self:isEnemy(target) then return "." end
-		if pattern == "slash" and self:getCardsNum("Slash") ~= 0 then return self:getCardId("Slash") end
-		if pattern == "jink" and self:getCardsNum("Jink") ~= 0 then return self:getCardId("Jink") end
-		return "."
-	elseif parsedPrompt[1] == "@wuwei-slash" then
-		local damage = data:toDamage()
-		if self:isEnemy(damage.from) and self:getCardsNum("Slash") ~= 0 then
-			return self:getCardId("Slash")
-		else
-			return "."
-		end
-	elseif parsedPrompt[1] == "@diaobing-slash" then
-		local target = data:toPlayer()
-		if self:isFriend(target) then
-			local cards = self.player:getHandcards()
-			cards = sgs.QList2Table(cards)
-			for _, fcard in ipairs(cards) do
-				if fcard:inherits("Slash") or fcard:inherits("FireAttack") or fcard:inherits("Duel") then
-					return fcard:getEffectiveId()
-				end
-			end
-		end
-		return "."
-	elseif parsedPrompt[1] == "@dashou-get" then
-		local player = data:toPlayer()
-		if self:isFriend(player) and not self.player:isKongcheng() then
-			return self.player:getRandomHandCard()
-		elseif self:isEnemy(player) and not self.player:isKongcheng() then
-			if self:getCardId("Shit") then return self:getCardId("Shit") end
-			if self:getCardId("Disaster") then return self:getCardId("Disaster") end
-		end
-		return "."
-	elseif parsedPrompt[1] == "@lingjia" then
-		local carduse = data:toCardUse()
-		if self:isEnemy(carduse.from) then
-			local allcards = self.player:getCards("he")
-			allcards = sgs.QList2Table(allcards)
-			for _, fcard in ipairs(allcards) do
-				if self.player:getMark("lingjia") == carduse.card:getNumber() then
-					return fcard:getEffectiveId()
-				end
-			end
-		end
-		return "."
-	elseif parsedPrompt[1] == "@dushu" then
-		local player = data:toPlayer()
-		if self:isEnemy(player) then
-			local cards = self.player:getHandcards()
-			cards = sgs.QList2Table(cards)
-			for _, fcard in ipairs(cards) do
-				if fcard:inherits("Peach") then
-					return fcard:getEffectiveId()
-				end
-			end
-		end
-		return "."
-	elseif parsedPrompt[1] == "@lvbai" then
-		if self.largest then return self.largest end
-		local card = self:getMaxCard()
-		self.largest = nil
-		return card:getEffectiveId()
-	elseif parsedPrompt[1] == "@wuji" then
-		local damage = data:toDamage()
-		if self:isFriend(damage.to) and self:getCardsNum("Slash") ~= 0 then
-			return self:getCardId("Slash")
-		else
-			return "."
-		end
-	end
-
-	if parsedPrompt[1] == "@axe" then
-		if target and self:isFriend(target) then return "." end
-
-		local allcards = self.player:getCards("he")
-		allcards = sgs.QList2Table(allcards)
-		if self.player:hasFlag("drank") or #allcards-2 >= self.player:getHp() or (self.player:hasSkill("kuanggu") and self.player:isWounded()) then
-			local cards = self.player:getCards("h")
-			cards = sgs.QList2Table(cards)
-			local index
-			if self:hasSkills(sgs.need_kongcheng) then index = #cards end
-			if self.player:getOffensiveCar() then 
-				if index then
-					if index < 2 then
-						index = index + 1
-						table.insert(cards, self.player:getOffensiveCar()) 
-					end
-				end
-				table.insert(cards, self.player:getOffensiveCar()) 
-			end
-			if self.player:getArmor() then
-				if index then
-					if index < 2 then
-						index = index + 1
-						table.insert(cards, self.player:getArmor())
-					end
-				end
-				table.insert(cards, self.player:getArmor())
-			end
-			if self.player:getDefensiveCar() then 
-				if index then
-					if index < 2 then
-						index = index + 1
-						table.insert(cards, self.player:getDefensiveCar()) 
-					end
-				end
-				table.insert(cards, self.player:getDefensiveCar()) 
-			end
-			if #cards >= 2 then
-				self:sortByUseValue(cards, true)
-				return "$"..cards[1]:getEffectiveId().."+"..cards[2]:getEffectiveId()
-			end
-		end
+	local callback = sgs.ai_skill_cardask[parsedPrompt[1]]
+	if type(callback) == "function" then
+		local ret = callback(self, data, pattern, target, target2)
+		if ret then return ret end
 	end
 
 	if self.player:hasSkill("tianxiang") then
@@ -3327,7 +3176,7 @@ function SmartAI:askForPindian(requestor, reason)
 		if self:getUseValue(card) < 6 then mincard = card break end
 	end
 	for _, card in ipairs(sgs.reverse(cards)) do
-		if self.player:hasSkill("changsheng") and card:getSuit() == sgs.Card_Spade then
+		if requestor:hasSkill("qingmei") and card:getNumber() > 11 and not card:inherits("BasicCard") then
 			maxcard = card
 			break
 		end

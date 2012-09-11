@@ -3,6 +3,14 @@ sgs.ai_skill_invoke["wuwei"] = function(self, data)
 	local damage = data:toDamage()
 	return self:isEnemy(damage.from)
 end
+sgs.ai_skill_cardask["@wuwei-slash"] = function(self, data)
+	local damage = data:toDamage()
+	if self:isEnemy(damage.from) and self:getCardsNum("Slash") ~= 0 then
+		return self:getCardId("Slash")
+	else
+		return "."
+	end
+end
 
 -- rexue
 sgs.ai_skill_invoke["rexue"] = function(self, data)
@@ -268,6 +276,19 @@ sgs.ai_skill_use_func["DiaobingCard"] = function(card, use, self)
 	use.card = card
 	return
 end
+sgs.ai_skill_cardask["@diaobing-slash"] = function(self, data)
+	local target = data:toPlayer()
+	if self:isFriend(target) then
+		local cards = self.player:getHandcards()
+		cards = sgs.QList2Table(cards)
+		for _, fcard in ipairs(cards) do
+			if fcard:inherits("Slash") or fcard:inherits("FireAttack") or fcard:inherits("Duel") then
+				return fcard:getEffectiveId()
+			end
+		end
+	end
+	return "."
+end
 
 -- guilin
 sgs.ai_skill_invoke["guilin"] = function(self, data)
@@ -332,6 +353,16 @@ end
 
 -- dashou
 sgs.ai_skill_invoke["dashou"] = true
+sgs.ai_skill_cardask["@dashou-get"] = function(self, data)
+	local player = data:toPlayer()
+	if self:isFriend(player) and not self.player:isKongcheng() then
+		return self.player:getRandomHandCard()
+	elseif self:isEnemy(player) and not self.player:isKongcheng() then
+		if self:getCardId("Shit") then return self:getCardId("Shit") end
+		if self:getCardId("Disaster") then return self:getCardId("Disaster") end
+	end
+	return "."
+end
 
 -- xunzhi
 sgs.ai_skill_playerchosen["xunzhi"] = function(self, targets)

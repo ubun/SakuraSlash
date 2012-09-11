@@ -75,6 +75,50 @@ spear_skill.getTurnUseCard=function(self,inclusive)
 	
 end
 
+sgs.ai_skill_cardask["@axe"] = function(self, data, pattern, target)
+	if target and self:isFriend(target) then return "." end
+
+	local allcards = self.player:getCards("he")
+	allcards = sgs.QList2Table(allcards)
+	if self.player:hasFlag("drank") or #allcards-2 >= self.player:getHp() or (self.player:hasSkill("kuanggu") and self.player:isWounded()) then
+		local cards = self.player:getCards("h")
+		cards = sgs.QList2Table(cards)
+		local index
+		if self:hasSkills(sgs.need_kongcheng) then index = #cards end
+		if self.player:getOffensiveCar() then 
+			if index then
+				if index < 2 then
+					index = index + 1
+					table.insert(cards, self.player:getOffensiveCar()) 
+				end
+			end
+			table.insert(cards, self.player:getOffensiveCar()) 
+		end
+		if self.player:getArmor() then
+			if index then
+				if index < 2 then
+					index = index + 1
+					table.insert(cards, self.player:getArmor())
+				end
+			end
+			table.insert(cards, self.player:getArmor())
+		end
+		if self.player:getDefensiveCar() then 
+			if index then
+				if index < 2 then
+					index = index + 1
+					table.insert(cards, self.player:getDefensiveCar()) 
+				end
+			end
+			table.insert(cards, self.player:getDefensiveCar()) 
+		end
+		if #cards >= 2 then
+			self:sortByUseValue(cards, true)
+			return "$"..cards[1]:getEffectiveId().."+"..cards[2]:getEffectiveId()
+		end
+	end
+end
+
 local jieyin_skill={}
 jieyin_skill.name="jieyin"
 table.insert(sgs.ai_skills,jieyin_skill)

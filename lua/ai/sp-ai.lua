@@ -79,6 +79,13 @@ sgs.ai_skill_use_func["TaichenCard"]=function(card,use,self)
 end
 
 --shenlvbu2
+--[[sgs.ai_skill_cardask["@xiuluo"] = function(self, data)
+	local hand_card = self.player:getHandcards()
+	for _, card in sgs.qlist(hand_card) do
+		if card:getSuitString() == parsedPrompt[2] then return "$"..card:getEffectiveId() end
+	end
+end
+]]
 sgs.ai_skill_invoke.xiuluo = function(self, data)
 	local hand_card = self.player:getHandcards()
 	local judge_list = self.player:getCards("j")

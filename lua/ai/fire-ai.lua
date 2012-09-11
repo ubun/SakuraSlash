@@ -1,5 +1,19 @@
 -- this scripts contains the AI classes for generals of fire package
 
+-- xianv
+sgs.ai_skill_cardask["@xianv"] = function(self, data)
+	local damage = data:toDamage()
+	if self:isFriend(damage.to) then
+		local allcards = self.player:getCards("he")
+		for _, card in sgs.qlist(allcards) do
+			if card:inherits("EquipCard") then
+				return card:getEffectiveId()
+			end
+		end
+	end
+	return "."
+end
+
 -- jiaoxie
 sgs.ai_skill_invoke["jiaoxie"] = true
 

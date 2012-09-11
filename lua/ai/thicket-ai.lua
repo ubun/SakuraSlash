@@ -102,6 +102,12 @@ end
 sgs.ai_skill_playerchosen["lvbai"] = function(self, targets)
 	return self.lvbaitarget
 end
+sgs.ai_skill_cardask["@lvbai"] = function(self, data)
+	if self.largest then return self.largest end
+	local card = self:getMaxCard()
+	self.largest = nil
+	return card:getEffectiveId()
+end
 
 -- lvzhan
 sgs.ai_skill_invoke["lvzhan"] = function(self, data)
@@ -131,10 +137,9 @@ sgs.ai_skill_choice["zhongpu"] = function(self, choices)
 	end
 end
 
--- shanjing & mangju & wuji
+-- shanjing & mangju
 sgs.ai_skill_invoke["shanjing"] = true
 sgs.ai_skill_invoke["mangju"] = true
-sgs.ai_skill_invoke["wuji"] = true
 
 -- anyong
 sgs.ai_skill_invoke["anyong"] = function(self, data)
@@ -167,6 +172,17 @@ sgs.ai_skill_invoke["panguan"] = function(self, data)
 		end
 	end
 	return not wizard_friend
+end
+
+-- wuji
+sgs.ai_skill_invoke["wuji"] = true
+sgs.ai_skill_cardask["@wuji"] = function(self, data)
+	local damage = data:toDamage()
+	if self:isFriend(damage.to) and self:getCardsNum("Slash") ~= 0 then
+		return self:getCardId("Slash")
+	else
+		return "."
+	end
 end
 
 -- luanzhen

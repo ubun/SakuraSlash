@@ -2,6 +2,24 @@
 sgs.ai_skill_playerchosen["bianhu"] = function(self, targets)
 	return self.player
 end
+sgs.ai_skill_cardask["@bianhu"] = function(self, data)
+	local use = data:toCardUse()
+	if self:isEnemy(use.from) and use.card:inherits("ExNihilo") then
+		local allcards = self.player:getCards("he")
+		for _, card in sgs.qlist(allcards) do
+			if (pattern == "..S" and card:getSuit() == sgs.Card_Spade) or
+				(pattern == "..H" and card:getSuit() == sgs.Card_Heart) or
+				(pattern == "..C" and card:getSuit() == sgs.Card_Club) or
+				(pattern == "..D" and card:getSuit() == sgs.Card_Diamond) then
+				return card:getEffectiveId()
+			end
+		end
+	end
+--	if self:isFriend(use.to) and use.card:inherits("Dismantlement") then
+--		return true
+--	end
+	return "."
+end
 
 -- fenju
 sgs.ai_skill_invoke["fenju"] = function(self, data)
@@ -94,11 +112,34 @@ end
 
 -- lingjia
 sgs.ai_skill_playerchosen["lingjia"] = sgs.ai_skill_playerchosen["fenju"]
+sgs.ai_skill_cardask["@lingjia"] = function(self, data)
+	local carduse = data:toCardUse()
+	if self:isEnemy(carduse.from) then
+		local allcards = self.player:getCards("he")
+		allcards = sgs.QList2Table(allcards)
+		for _, fcard in ipairs(allcards) do
+			if self.player:getMark("lingjia") == carduse.card:getNumber() then
+				return fcard:getEffectiveId()
+			end
+		end
+	end
+	return "."
+end
 
 -- nijian
 sgs.ai_skill_invoke["nijian"] = function(self, data)
 	local damage = data:toDamage()
 	return self:isEnemy(damage.from)
+end
+sgs.ai_skill_cardask["@nijian"] = function(self, data)
+	local allcards = sgs.QList2Table(self.player:getHandcards())
+	self:sortByUseValue(allcards, true)
+	for _, card in ipairs(allcards) do
+		if card:isRed() then
+			return card:getEffectiveId()
+		end
+	end
+	return "."
 end
 
 -- yinsi
@@ -257,3 +298,19 @@ sgs.ai_skill_invoke["yanshi"] = function(self, data)
 	if shit_num > 1 then return false end
 	return true
 end
+
+-- dushu
+sgs.ai_skill_cardask["@dushu"] = function(self, data)
+	local player = data:toPlayer()
+	if self:isEnemy(player) then
+		local cards = self.player:getHandcards()
+		cards = sgs.QList2Table(cards)
+		for _, fcard in ipairs(cards) do
+			if fcard:inherits("Peach") then
+				return fcard:getEffectiveId()
+			end
+		end
+	end
+	return "."
+end
+
