@@ -1021,31 +1021,57 @@ public:
     }
 };
 
-class Guilin: public MasochismSkill{
+class Guilin:public TriggerSkill{
 public:
-    Guilin():MasochismSkill("guilin"){
+    Guilin():TriggerSkill("guilin"){
+        events << Predamaged << Damaged;
+        frequency = Frequent;
     }
 
-    virtual void onDamaged(ServerPlayer *player, const DamageStruct &damage) const{
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
+    }
+
+    virtual bool trigger(TriggerEvent evt, ServerPlayer *player, QVariant &data) const{
+        DamageStruct damage = data.value<DamageStruct>();
         Room *room = player->getRoom();
-        const Card *card = damage.card;
-        QVariant data = damage.from ? QVariant::fromValue((PlayerStar)damage.from) : QVariant();
-        if(room->obtainable(card, player) && card->getSubcards().length() < 2
-           && room->askForSkillInvoke(player, objectName(), data)){
-            player->obtainCard(card);
-            QList<ServerPlayer *> targets;
-            if(damage.from && !damage.from->isNude())
-                targets << damage.from;
-            if(room->getCurrent() && !room->getCurrent()->isNude() && room->getCurrent() != damage.from)
-                targets << room->getCurrent();
-            if(!targets.isEmpty()){
-                ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName());
-                int card2_id = room->askForCardChosen(player, target, "he", objectName());
-                room->obtainCard(player, card2_id);
-                if(card->getSuit() != Sanguosha->getCard(card2_id)->getSuit())
-                    room->askForDiscard(player, objectName(), 1, false, true);
+        QList<ServerPlayer *> ducks = room->findPlayersBySkillName(objectName());
+        if(ducks.isEmpty())
+            return false;
+        foreach(ServerPlayer *duck, ducks){
+            if(evt == Damaged){
+                if(duck == player){
+                    //room->playSkillEffect(objectName());
+                    if(damage.from->hasFlag("guilin")){
+                        if(duck->isWounded())
+                            duck->drawCards(duck->getLostHp());
+                        damage.from->setFlags("-guilin");
+                    }
+                    else if(damage.card && duck->askForSkillInvoke(objectName(), QVariant::fromValue(damage.card)))
+                        duck->obtainCard(damage.card);
+                }
+            }
+            else if(duck != player && !duck->isNude() && damage.damage > 0
+                && room->askForCard(duck, "BasicCard", "@guilin:" + player->objectName() + "::" + QString::number(damage.damage), data)){
+                LogMessage log;
+                log.type = "#Guilin";
+                log.from = duck;
+                log.to << damage.to;
+                log.arg = objectName();
+                log.arg2 = QString::number(damage.damage);
+                room->sendLog(log);
+
+                damage.to = duck;
+                damage.from->setFlags("guilin");
+                room->damage(damage);
+                return true;
             }
         }
+        return false;
+    }
+
+    virtual int getPriority() const{
+        return 2;
     }
 };
 /*

@@ -271,8 +271,27 @@ end
 
 -- guilin
 sgs.ai_skill_invoke["guilin"] = function(self, data)
-	local player = data:toPlayer()
-	return player and self:isEnemy(player)
+	local card = data:toCard()
+	return not card:inherits("Shit")
+end
+sgs.ai_skill_cardask["@guilin"] = function(self, data)
+	local damage = data:toDamage()
+	if self:isFriend(damage.to) and damage.to:getHp() <= 2 and not self.player:isKongcheng() then
+		local pile = self:getCardsNum("Peach") + self:getCardsNum("Analeptic")
+		local dmgnum = damage.damage
+		if self.player:getHp() + pile - dmgnum > 0 then
+			if self.player:getHp() + pile - dmgnum == 1 and pile > 0 then return "." end
+			local cards = sgs.QList2Table(self.player:getHandcards())
+			self:sortByUseValue(cards, false)
+			for _, fcard in ipairs(cards) do
+				if fcard:inherits("BasicCard") and
+					not fcard:inherits("Peach") and not fcard:inherits("Analeptic") then
+					return fcard:getEffectiveId()
+				end
+			end
+		end
+	end
+	return "."
 end
 
 -- moshu
