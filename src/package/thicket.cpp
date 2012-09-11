@@ -469,7 +469,9 @@ public:
     virtual bool trigger(TriggerEvent, ServerPlayer *yinv, QVariant &data) const{
         CardUseStruct use = data.value<CardUseStruct>();
         Room *room = yinv->getRoom();
-        if(use.card->inherits("SingleTargetTrick") && !use.card->inherits("Collateral")){
+        if(use.card->inherits("SingleTargetTrick")
+            && !use.card->inherits("Collateral")
+            && !use.card->inherits("Nullification")){
             if(use.to.isEmpty())
                 use.to << use.from;
 

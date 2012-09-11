@@ -1441,7 +1441,7 @@ bool MaixiongCard::targetFilter(const QList<const Player *> &targets, const Play
     if(!targets.isEmpty())
         return false;
 
-    if(to_select == Self || to_select->getMark("daoh") != 0)
+    if(to_select == Self || to_select->hasFlag("daoh"))
         return false;
 
     return true;
@@ -1453,7 +1453,7 @@ void MaixiongCard::use(Room *room, ServerPlayer *vodka, const QList<ServerPlayer
 
     ServerPlayer *target = targets.first();
     room->moveCardTo(this, target, Player::Hand, false);
-    room->setPlayerMark(target, "daoh", 1);
+    room->setPlayerFlag(target, "daoh");
 
     int old_value = vodka->getMark("maixiong");
     int new_value = old_value + subcards.length();
@@ -1490,10 +1490,14 @@ public:
     }
 
     virtual bool onPhaseChange(ServerPlayer *target) const{
+        Room *room = target->getRoom();
         if(target->getPhase() == Player::Start)
-            target->setMark("maixiong", 0);
-        else if(target->getPhase() == Player::NotActive)
-            target->getRoom()->setPlayerMark(target, "daoh", 0);
+            room->setPlayerMark(target, "maixiong", 0);
+        else if(target->getPhase() == Player::NotActive){
+            foreach(ServerPlayer *tmp, room->getOtherPlayers(target))
+                if(tmp->hasFlag("daoh"))
+                    room->setPlayerFlag(tmp, "-daoh");
+        }
         return false;
     }
 };
@@ -1506,19 +1510,25 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         if(player->getPhase() == Player::Finish && player->askForSkillInvoke(objectName(), data)){
+            int count = 0;
             foreach(ServerPlayer *other, room->getOtherPlayers(player)){
                 if(other->isKongcheng())
                     continue;
                 const Card *card = room->askForCard(other, ".", "@dashou-get:" + player->objectName(), QVariant::fromValue((PlayerStar)player));
                 if(card){
-                    player->obtainCard(card);
-                    player->addMark("dashou");
+                    LogMessage log;
+                    log.type = "#DashouGet";
+                    //log.arg = card->objectName();
+                    log.from = player;
+                    log.to << other;
+                    room->sendLog(log);
+                    room->obtainCard(player, card->getEffectiveId());
+                    count ++;
                 }
             }
-            if(player->getMark("dashou")>2)
+            if(count > 2)
                 player->turnOver();
         }
-        player->setMark("dashou",0);
         return false;
     }
 };
