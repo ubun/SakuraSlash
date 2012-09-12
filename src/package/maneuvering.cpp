@@ -459,6 +459,7 @@ BlackDragonPackage::BlackDragonPackage()
 
     foreach(Card *card, cards)
         card->setParent(this);
+    skills << new Skill("citroBX");
 
     type = CardPack;
 }
@@ -722,9 +723,11 @@ void Locust::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &
 
 void Locust::takeEffect(ServerPlayer *target) const{
     Room *room = target->getRoom();
+    room->broadcastInvoke("playAudio", "locust");
     if(target->isKongcheng())
         room->loseHp(target);
-    else room->askForDiscard(target,objectName(),1);
+    else
+        room->askForDiscard(target,objectName(), 1);
     onNullified(target);
 //    room->moveCardTo(this, target->getNextAlive(), Player::Judging);
 }
@@ -931,7 +934,8 @@ ThunderBirdPackage::ThunderBirdPackage()
 
     foreach(Card *card, cards)
         card->setParent(this);
-    skills << new InjectorSkill;
+    skills << new InjectorSkill
+            << new Skill("jaguarE");
 
     type = CardPack;
 }

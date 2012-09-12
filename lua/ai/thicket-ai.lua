@@ -70,6 +70,11 @@ end
 sgs.ai_skill_use_func["HongmengCard"] = function(card,use,self)
     use.card=card
 end
+sgs.ai_skill_invoke["hongmeng"] = function(self, data)
+	local nextp = data:toPlayer()
+	if not nextp or self:isEnemy(nextp) then return true end
+	return nextp:getHandcardNum() >= self.player:getHandcardNum()
+end
 
 -- zilian
 sgs.ai_skill_use["@@zilian"] = function(self, prompt)
@@ -189,7 +194,7 @@ end
 sgs.ai_skill_use["@@luanzhen"] = function(self, prompt)
 	local players = self.room:getOtherPlayers(self.player)
 	players = sgs.QList2Table(players)
-	local r = math.random(1, #players)
+	local r = math.random(1, #players-1)
 	return "@LuanzhenCard=.->" .. players[r]:objectName()
 end
 sgs.ai_skill_choice["luanzhen"] = function(self, choices)

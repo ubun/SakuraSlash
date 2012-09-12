@@ -184,6 +184,9 @@ void DelayedTrick::onEffect(const CardEffectStruct &effect) const{
     if(!movable)
         room->throwCard(this);
 
+    if(inherits("Lightning"))
+        room->broadcastInvoke("playAudio", "didida");
+
     LogMessage log;
     log.from = effect.to;
     log.type = "#DelayedTrick";

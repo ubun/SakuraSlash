@@ -503,9 +503,17 @@ void AmazingGrace::use(Room *room, ServerPlayer *source, const QList<ServerPlaye
         ag_list << card_id;
     room->setTag("AmazingGrace", ag_list);
 
-    ServerPlayer *haruna = room->findPlayerBySkillName("hongmeng");
-    if(haruna)
-        Hongmeng(room, haruna);
+    QList<ServerPlayer *> harunas = room->findPlayersBySkillName("hongmeng");
+    foreach(ServerPlayer *haruna, harunas){
+        int n = harunas.indexOf(haruna);
+        PlayerStar next = NULL;
+        if(n + 2 < harunas.count())
+            next = harunas.at(n+1);
+        if(haruna->askForSkillInvoke("hongmeng", QVariant::fromValue(next))){
+            Hongmeng(room, haruna);
+            break;
+        }
+    }
     GlobalEffect::use(room, source, players);
 
     ag_list = room->getTag("AmazingGrace").toList();
@@ -953,6 +961,7 @@ void Lightning::takeEffect(ServerPlayer *target) const{
     damage.to = target;
     damage.nature = DamageStruct::Thunder;
 
+    target->getRoom()->broadcastInvoke("playAudio", "bigbang");
     target->getRoom()->damage(damage);
 }
 
@@ -1143,7 +1152,8 @@ StandardCardPackage::StandardCardPackage()
         cards << cars;
 
         skills << new CarSkill;
-        skills << new Porsche365A << new Skill("chevyCK") << new Skill("beetle")
+        skills << new Porsche365A << new Skill("chevyCK")
+                << new Skill("beetle") << new Skill("skateboard")
                 << new Skill("mazdaRX7") << new Skill("benzCLK");
     }
 
