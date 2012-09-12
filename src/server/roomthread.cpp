@@ -98,7 +98,7 @@ JudgeStructPattern &JudgeStructPattern::operator =(const QString &str){
 }
 
 JudgeStruct::JudgeStruct()
-    :who(NULL), card(NULL), good(true), time_consuming(false)
+    :who(NULL), card(NULL), good(true), time_consuming(false), delayedtrick(NULL)
 {
 
 }

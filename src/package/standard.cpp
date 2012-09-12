@@ -195,6 +195,7 @@ void DelayedTrick::onEffect(const CardEffectStruct &effect) const{
 
     JudgeStruct judge_struct = judge;
     judge_struct.who = effect.to;
+    judge_struct.delayedtrick = this;
     room->judge(judge_struct);
 
     if((judge_struct.isBad() && !inherits("Emigration")) ||

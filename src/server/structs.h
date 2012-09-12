@@ -123,6 +123,7 @@ struct JudgeStruct{
     bool good;
     QString reason;
     bool time_consuming;
+    const Card *delayedtrick;
 };
 
 enum TriggerEvent{

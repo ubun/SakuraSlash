@@ -438,6 +438,66 @@ public:
     }
 };
 
+class Mune: public TriggerSkill{
+public:
+    Mune():TriggerSkill("mune"){
+        frequency = Frequent;
+        events << FinishJudge;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *wataru, QVariant &data) const{
+        JudgeStar judge = data.value<JudgeStar>();
+        CardStar card = judge->card;
+
+        QVariant data_card = QVariant::fromValue(card);
+        if(wataru->askForSkillInvoke(objectName(), data_card)){
+            wataru->obtainCard(judge->card);
+            if(judge->delayedtrick)
+                wataru->obtainCard(judge->delayedtrick);
+
+            return true;
+        }
+        return false;
+    }
+};
+
+class Gengzhi: public MasochismSkill{
+public:
+    Gengzhi():MasochismSkill("gengzhi"){
+    }
+
+    virtual void onDamaged(ServerPlayer *takagi, const DamageStruct &) const{
+        Room *room = takagi->getRoom();
+        const Card *first = Sanguosha->getCard(room->drawCard());
+        room->moveCardTo(first, takagi, Player::Special);
+        const Card *second = Sanguosha->getCard(room->drawCard());
+        room->moveCardTo(second, takagi, Player::Special);
+
+        const Card *heart = NULL;
+        if(first->getSuit() == Card::Heart && second->getSuit() != Card::Heart)
+            heart = first;
+        else if(first->getSuit() != Card::Heart && second->getSuit() == Card::Heart)
+            heart = second;
+
+        if(heart){
+            RecoverStruct rec;
+            rec.card = heart;
+            room->recover(takagi, rec, true);
+            takagi->obtainCard(heart);
+        }
+        else{
+            if(qrand() % 2 == 0){
+                heart = first;
+                takagi->obtainCard(heart);
+            }
+        }
+        if(heart == first)
+            room->moveCardTo(second, NULL, Player::DrawPile);
+        else
+            room->moveCardTo(first, NULL, Player::DrawPile);
+    }
+};
+
 class Shanliang: public TriggerSkill{
 public:
     Shanliang():TriggerSkill("shanliang"){
@@ -507,9 +567,13 @@ FirePackage::FirePackage()
     General *amurotooru = new General(this, "amurotooru", "zhen");
     amurotooru->addSkill(new Ientou);
 
-    General *satomiwako = new General(this, "satomiwako", "jing", 4, false);
+    General *satomiwako = new General(this, "satomiwako", "jing", 3, false);
     satomiwako->addSkill(new Jiaoxie);
     satomiwako->addSkill(new Xianv);
+
+    General *takagiwataru = new General(this, "takagiwataru", "jing", 3);
+    takagiwataru->addSkill(new Mune);
+    takagiwataru->addSkill(new Gengzhi);
 
     General *miyanoagemi = new General(this, "miyanoagemi", "te", 3, false, true);
     miyanoagemi->addSkill(new Shanliang);

@@ -423,6 +423,7 @@ struct JudgeStruct{
 	bool good;
 	QString reason;
 	bool time_consuming;
+	const Card *delayedtrick;
 };
 
 typedef JudgeStruct *JudgeStar;
