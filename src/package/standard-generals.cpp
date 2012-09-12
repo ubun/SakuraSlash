@@ -273,8 +273,13 @@ void MazuiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *
     judge.who = source;
 
     room->judge(judge);
-    if(judge.isGood()){
+    if(judge.isGood())
         target->turnOver();
+    else if(source->hasSkill("skateboard") && source->askForSkillInvoke("skateboard")){
+        source->obtainCard(judge.card);
+        room->judge(judge);
+        if(judge.isGood())
+            target->turnOver();
     }
 }
 

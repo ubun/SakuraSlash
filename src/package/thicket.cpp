@@ -477,6 +477,10 @@ public:
 
             QList<ServerPlayer *> extras;
             foreach(ServerPlayer *tmp, room->getOtherPlayers(use.to.first())){
+                if(yinv->hasSkill("jaguarE")){
+                    extras << tmp;
+                    continue;
+                }
                 if(use.from->inMyAttackRange(tmp))
                     extras << tmp;
             }
