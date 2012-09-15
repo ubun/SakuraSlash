@@ -205,6 +205,9 @@ void DelayedTrick::onEffect(const CardEffectStruct &effect) const{
     }else if(movable){
         onNullified(effect.to);
     }
+
+    if(effect.to->hasSkill("mune"))
+        effect.to->obtainCard(this);
 }
 
 void DelayedTrick::onNullified(ServerPlayer *target) const{

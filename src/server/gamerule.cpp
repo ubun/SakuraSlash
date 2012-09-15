@@ -117,6 +117,10 @@ void GameRule::onPhaseChange(ServerPlayer *player) const{
 
                 room->setPlayerFlag(player, "-drank");
             }
+            foreach(ServerPlayer *tmp, room->getAllPlayers()){
+                if(tmp->hasFlag("Fangxin"))
+                    room->setPlayerFlag(tmp, "-Fangxin");
+            }
 
             if(player->hasFlag("NewTurn"))
                 player->gainAnExtraTurn(player);

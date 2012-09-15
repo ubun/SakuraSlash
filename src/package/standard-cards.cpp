@@ -21,6 +21,8 @@ void Slash::setNature(DamageStruct::Nature nature){
 }
 
 bool Slash::IsAvailable(const Player *player){
+    if(player->hasFlag("Fangxin"))
+        return false;
     if(player->hasFlag("tianyi_failed") || player->hasFlag("xianzhen_failed"))
         return false;
 

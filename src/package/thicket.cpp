@@ -191,6 +191,12 @@ public:
                     target->tag.remove("Caidian");
                 }
                 int x = Sanguosha->getCard(card_id)->getNumber();
+                LogMessage log;
+                log.type = "#CaidianShow";
+                log.from = mitsu;
+                log.arg = QString::number(x);
+                room->sendLog(log);
+
                 bool jiangli = false;
                 QList<ServerPlayer *> chengfa;
                 for(int i = 0; i < 14; i++){
