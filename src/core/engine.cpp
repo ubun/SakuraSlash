@@ -48,7 +48,7 @@ Engine::Engine()
             << "Wind"
             << "Thicket"
             << "Fire"
-            //<< "Mountain"
+            << "Mountain"
             << "Test"
 
             << "StandardCard"
@@ -59,7 +59,6 @@ Engine::Engine()
             << "Secrets"
             //<< "Nostalgia"
             << "Joy"
-            //<< "Disaster"
             << "JoyEquip"
             ;
 

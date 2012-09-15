@@ -405,7 +405,7 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         ServerPlayer *jiuwenlong = room->findPlayerBySkillName(objectName());
-        if(!jiuwenlong || jiuwenlong->isKongcheng())
+        if(!jiuwenlong || jiuwenlong->isNude())
             return false;
         DamageStruct damage = data.value<DamageStruct>();
 
@@ -482,18 +482,134 @@ public:
             RecoverStruct rec;
             rec.card = heart;
             room->recover(takagi, rec, true);
-            takagi->obtainCard(heart);
+            room->moveCardTo(heart, takagi, Player::Hand);
+            //takagi->obtainCard(heart);
         }
         else{
             if(qrand() % 2 == 0){
                 heart = first;
-                takagi->obtainCard(heart);
+                room->moveCardTo(heart, takagi, Player::Hand);
+                //takagi->obtainCard(heart);
             }
         }
         if(heart == first)
             room->moveCardTo(second, NULL, Player::DrawPile);
         else
             room->moveCardTo(first, NULL, Player::DrawPile);
+    }
+};
+
+FangxinCard::FangxinCard(){
+}
+
+bool FangxinCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && Self->canSlash(to_select);
+}
+
+void FangxinCard::use(Room *room, ServerPlayer *gaolian, const QList<ServerPlayer *> &targets) const{
+    ServerPlayer *to = targets.first();
+
+    JudgeStruct judge;
+    judge.pattern = QRegExp("(.*):(heart):(.*)");
+    judge.good = false;
+    judge.reason = objectName();
+    judge.who = gaolian;
+
+    room->judge(judge);
+
+    if(judge.isGood()){
+        Slash *slash = new Slash(Card::NoSuit, 0);
+        slash->setSkillName("fangxin");
+
+        CardUseStruct use;
+        use.from = gaolian;
+        use.to << to;
+        use.card = slash;
+        room->useCard(use);
+    }else
+        room->setPlayerFlag(gaolian, "Fangxin");
+}
+
+class FangxinViewAsSkill:public ZeroCardViewAsSkill{
+public:
+    FangxinViewAsSkill():ZeroCardViewAsSkill("fangxin"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return Slash::IsAvailable(player);
+    }
+
+    virtual const Card *viewAs() const{
+        return new FangxinCard;
+    }
+};
+
+class Fangxin: public TriggerSkill{
+public:
+    Fangxin():TriggerSkill("fangxin"){
+        events << CardAsked;
+        view_as_skill = new FangxinViewAsSkill;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *gaolian, QVariant &data) const{
+        QString pattern = data.toString();
+        if(pattern != "slash")
+            return false;
+
+        if(gaolian->askForSkillInvoke(objectName())){
+            JudgeStruct judge;
+            judge.pattern = QRegExp("(.*):(heart):(.*)");
+            judge.good = false;
+            judge.reason = objectName();
+            judge.who = gaolian;
+
+            Room *room = gaolian->getRoom();
+            room->playSkillEffect(objectName());
+            room->judge(judge);
+
+            if(judge.isGood()){
+                Slash *slash = new Slash(Card::NoSuit, 0);
+                slash->setSkillName(objectName());
+                room->provide(slash);
+                return true;
+            }
+            else
+                room->setPlayerFlag(gaolian, "Fangxin");
+        }
+        return false;
+    }
+};
+
+MoguaCard::MoguaCard(){
+    target_fixed = true;
+}
+
+void MoguaCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
+    int num = getSubcards().length();
+    room->moveCardTo(this, NULL, Player::DrawPile);
+    QList<int> fog = room->getNCards(num, false);
+    room->doGuanxing(source, fog, true);
+};
+
+class Mogua:public ViewAsSkill{
+public:
+    Mogua():ViewAsSkill("mogua"){
+    }
+
+    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
+        return !to_select->isEquipped();
+    }
+
+    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
+        if(cards.isEmpty())
+            return NULL;
+        MoguaCard *mogua_card = new MoguaCard;
+        mogua_card->addSubcards(cards);
+        return mogua_card;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return !player->isKongcheng();
     }
 };
 
@@ -574,11 +690,17 @@ FirePackage::FirePackage()
     takagiwataru->addSkill(new Mune);
     takagiwataru->addSkill(new Gengzhi);
 
+    General *koizumiakako = new General(this, "koizumiakako", "guai", 3, false);
+    koizumiakako->addSkill(new Fangxin);
+    koizumiakako->addSkill(new Mogua);
+
     General *miyanoagemi = new General(this, "miyanoagemi", "te", 3, false, true);
     miyanoagemi->addSkill(new Shanliang);
     miyanoagemi->addSkill(new Qingshang);
 
     addMetaObject<IentouCard>();
+    addMetaObject<FangxinCard>();
+    addMetaObject<MoguaCard>();
 }
 
 ADD_PACKAGE(Fire);

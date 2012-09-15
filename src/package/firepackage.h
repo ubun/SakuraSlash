@@ -21,25 +21,23 @@ public:
     virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
-/*
-class QiangxiCard: public SkillCard{
+
+class FangxinCard: public SkillCard{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE QiangxiCard();
-
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
-};
-
-class TianyiCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE TianyiCard();
+    Q_INVOKABLE FangxinCard();
 
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
-*/
+
+class MoguaCard:public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE MoguaCard();
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
+
 #endif // FIREPACKAGE_H

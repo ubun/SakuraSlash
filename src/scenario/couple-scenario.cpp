@@ -124,15 +124,15 @@ CoupleScenario::CoupleScenario()
     map["kurobakaitou"] = "nakamoriaoko";
     map["shiratorininzaburou"] = "kobayashisumiko";
     map["megurejyuuzou"] = "meguremidori";
-    map["matsudajinpei"] = "satomiwako";
+    map["takagiwataru"] = "satomiwako";
     //map["akaishuichi"] = "miyanoagemi";
     map["kudouyuusaku"] = "kudouyukiko";
     map["hattoriheizou"] = "hattorishizuka";
 
     full_map = map;
-    full_map["haibaraai"] = "yoshidaayumi";
-    full_map["hattoriheiji"] = "heiji";
-    //full_map["takagiwataru"] = "matsudajinpei";
+    full_map["edogawaconan"] = "yoshidaayumi";
+    full_map["heiji"] = "touyamakazuha";
+    full_map["matsudajinpei"] = "satomiwako";
 }
 
 void CoupleScenario::marryAll(Room *room) const{

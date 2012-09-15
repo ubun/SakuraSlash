@@ -3564,6 +3564,14 @@ end
 function SmartAI:cardProhibit(card, to)
 	if card:inherits("Slash") then return self:slashProhibit(card, to) end
 	if card:getTypeId() == sgs.Card_Trick then
+		if card:isRed() and to:hasSkill("anye") and to:getPhase() == sgs.Player_NotActive then return end
+		if to:hasSkill("rougu") then
+			if card:inherits("Dismantlement") or card:inherits("Snatch") and to:getHandcardNum() < to:getMaxHp() then
+				return true
+			elseif card:inherits("Indulgence") or card:inherits("SupplyShortage") and to:getHandcardNum() > to:getMaxHp() then
+				return true
+			end
+		end
 		if card:isBlack() and to:hasSkill("weimu") then return true end
 		if card:inherits("Indulgence") or card:inherits("Snatch") and to:hasSkill("qianxun") then return true end
 		if card:inherits("Duel") and to:hasSkill("kongcheng") and to:isKongcheng() then return true end
