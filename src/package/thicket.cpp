@@ -193,7 +193,7 @@ public:
                 int x = Sanguosha->getCard(card_id)->getNumber();
                 LogMessage log;
                 log.type = "#CaidianShow";
-                log.from = mitsu;
+                log.to << mitsu;
                 log.arg = QString::number(x);
                 room->sendLog(log);
 

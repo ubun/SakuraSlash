@@ -1,7 +1,7 @@
 -- translation for WindPackage
 
 return {
-	["wind"] = "其疾如风",
+	["wind"] = "疾如风",
 
 	["kisakieri"] = "妃英理",
 	["bianhu"] = "辩护",

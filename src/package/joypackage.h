@@ -11,13 +11,6 @@ public:
     JoyPackage();
 };
 
-class DisasterPackage: public Package{
-    Q_OBJECT
-
-public:
-    DisasterPackage();
-};
-
 class JoyEquipPackage: public Package{
     Q_OBJECT
 
@@ -44,48 +37,6 @@ public:
     virtual QString getSubtype() const;
     virtual QString getEffectPath(bool is_male) const;
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-};
-
-// five disasters:
-
-class Deluge: public Disaster{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Deluge(Card::Suit suit, int number);
-    virtual void takeEffect(ServerPlayer *target) const;
-};
-
-class Typhoon: public Disaster{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Typhoon(Card::Suit suit, int number);
-    virtual void takeEffect(ServerPlayer *target) const;
-};
-
-class Earthquake: public Disaster{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Earthquake(Card::Suit suit, int number);
-    virtual void takeEffect(ServerPlayer *target) const;
-};
-
-class Volcano: public Disaster{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE Volcano(Card::Suit suit, int number);
-    virtual void takeEffect(ServerPlayer *target) const;
-};
-
-class MudSlide: public Disaster{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE MudSlide(Card::Suit suit, int number);
-    virtual void takeEffect(ServerPlayer *target) const;
 };
 
 class Monkey: public OffensiveCar{

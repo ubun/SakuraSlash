@@ -64,83 +64,52 @@ sgs.ai_skill_use_func["IentouCard"] = function(card, use, self)
     use.card = card
 end
 
-sgs.ai_skill_use["@@jieming"] = function(self, prompt)
-	self:sort(self.friends)
+-- fangxin
+sgs.ai_card_intention.FangxinCard = sgs.ai_card_intention.Slash
 
-	local max_x = 0
-	local target
-	for _, friend in ipairs(self.friends) do
-		local x = math.min(friend:getMaxHP(), 5) - friend:getHandcardNum()
-
-		if x > max_x then
-			max_x = x
-			target = friend
-		end
-	end
-
-	if target then
-		return "@JiemingCard=.->" .. target:objectName()
-	else
-		return "."
-	end
+sgs.ai_skill_invoke["fangxin"] = true
+local fangxin_skill = {}
+fangxin_skill.name = "fangxin"
+table.insert(sgs.ai_skills, fangxin_skill)
+fangxin_skill.getTurnUseCard = function(self)
+	if self.player:hasFlag("Fangxin") or not self:slashIsAvailable() then return end
+	local card_str = "@FangxinCard=."
+	local slash = sgs.Card_Parse(card_str)
+	assert(slash)
+	return slash
 end
-
--- mengjin
-sgs.ai_skill_invoke.mengjin = function(self, data)
-	local effect = data:toSlashEffect()
-	return not self:isFriend(effect.to)
-end
-
-local qiangxi_skill={}
-qiangxi_skill.name="qiangxi"
-table.insert(sgs.ai_skills,qiangxi_skill)
-qiangxi_skill.getTurnUseCard=function(self)
-	if not self.player:hasUsed("QiangxiCard") then
-		return sgs.Card_Parse("@QiangxiCard=.")
-	end
-end
-
-sgs.ai_skill_use_func["QiangxiCard"] = function(card, use, self)
-	local weapon = self.player:getWeapon()
-	if weapon then
-		local hand_weapon, cards
-		cards = self.player:getHandcards()
-		for _, card in sgs.qlist(cards) do
-			if card:inherits("Weapon") then
-				hand_weapon = card
-				break
-			end
-		end
-		self:sort(self.enemies)
-		for _, enemy in ipairs(self.enemies) do
-			if hand_weapon and self.player:inMyAttackRange(enemy) then
-				use.card = sgs.Card_Parse("@QiangxiCard=" .. hand_weapon:getId())
-				if use.to then
-					use.to:append(enemy)
+sgs.ai_skill_use_func["FangxinCard"] = function(card,use,self)
+	self:sort(self.enemies, "defense")
+	local target_count=0
+	for _, enemy in ipairs(self.enemies) do
+		if ((self.player:canSlash(enemy, not no_distance)) or
+			(use.isDummy and (self.player:distanceTo(enemy)<=self.predictedRange))) and
+			self:objectiveLevel(enemy)>3 and
+			self:slashIsEffective(card, enemy) and
+			not self:slashProhibit(card, enemy) then
+			local cheat_card = sgs.Sanguosha:getCard(self.room:getDrawPile():first())
+			if cheat_card:getSuit() == sgs.Card_Heart and not self.player:hasUsed("MoguaCard") and not self.player:isKongcheng() then
+				local cards = sgs.QList2Table(self.player:getCards("h"))
+				self:sortByUseValue(cards, true)
+				for _, car in ipairs(cards) do
+					if car:getSuit() ~= sgs.Card_Heart then
+						use.card = sgs.Card_Parse("@MoguaCard=" .. car:getId())
+						return
+					end
 				end
-				break
 			end
-			if self.player:distanceTo(enemy) <= 1 then
-				use.card = sgs.Card_Parse("@QiangxiCard=" .. weapon:getId())
-				if use.to then
-					use.to:append(enemy)
-				end
-				return
+			use.card=card
+			if use.to then
+				use.to:append(enemy)
 			end
-		end
-	else
-		self:sort(self.enemies, "hp")
-		for _, enemy in ipairs(self.enemies) do
-			if self.player:inMyAttackRange(enemy) and self.player:getHp() > enemy:getHp() and self.player:getHp() > 2 then
-				use.card = sgs.Card_Parse("@QiangxiCard=.")
-				if use.to then
-					use.to:append(enemy)
-				end
-				return
-			end
+			target_count=target_count+1
+			if self.slash_targets<=target_count then return end
 		end
 	end
 end
+--function sgs.ai_cardneed.fangxin(to, card, self)
+--	return card:isBlack()
+--end
 
 --shuangxiong
 
