@@ -79,7 +79,7 @@ public:
 
 	// property setters/getters
 	int getHp() const;
-	void setHp(int hp);    
+	void setHp(int hp);
 	int getMaxHP() const;
 	int getMaxHp() const;
 	void setMaxHP(int max_hp);
@@ -95,12 +95,12 @@ public:
 	QString getKingdomFrame() const;
 
 	void setRole(const char *role);
-	QString getRole() const;    
+	QString getRole() const;
 	Role getRoleEnum() const;
 
 	void setGeneral(const General *general);
 	void setGeneralName(const char *general_name);
-	QString getGeneralName() const;    
+	QString getGeneralName() const;
 
 	void setGeneral2Name(const char *general_name);
 	QString getGeneral2Name() const;
@@ -110,7 +110,7 @@ public:
 	QString getState() const;
 
 	int getSeat() const;
-	void setSeat(int seat);  
+	void setSeat(int seat);
 	QString getPhaseString() const;
 	void setPhaseString(const char *phase_str);
 	Phase getPhase() const;
@@ -328,11 +328,11 @@ class ClientPlayer : public Player
 public:
 	explicit ClientPlayer(Client *client);
 	virtual int aliveCount() const;
-	virtual int getHandcardNum() const;	
+	virtual int getHandcardNum() const;
 	virtual void removeCard(const Card *card, Place place);
 	virtual void addCard(const Card *card, Place place);
 	virtual void addKnownHandCard(const Card *card);
-	virtual bool isLastHandCard(const Card *card) const; 
+	virtual bool isLastHandCard(const Card *card) const;
 };
 
 extern ClientPlayer *Self;
@@ -500,7 +500,8 @@ public:
 	// enumeration type
 	enum Suit {Spade, Club, Heart, Diamond, NoSuit};
 	static const Suit AllSuits[4];
-	
+	enum Color {Red, Black, Colorless};
+
 	// card types
 	enum CardType{
 		Skill,
@@ -529,17 +530,18 @@ public:
 	Suit getSuit() const;
 	void setSuit(Suit suit);
 
+	Color getColor() const;
 	bool sameColorWith(const Card *other) const;
 	bool isEquipped() const;
 
 	QString getPixmapPath() const;
 	QString getIconPath() const;
-	QString getPackage() const;    
+	QString getPackage() const;
 	QIcon getSuitIcon() const;
 	QString getFullName(bool include_suit = false) const;
 	QString getLogName() const;
 	QString getName() const;
-	QString getSkillName() const;   
+	QString getSkillName() const;
 	void setSkillName(const char *skill_name);
 	QString getDescription() const;
 	QString getEffectPath() const;
@@ -605,10 +607,10 @@ public:
 	SkillCard();
 	void setUserString(const char *user_string);
 
-	virtual QString getSubtype() const;    
+	virtual QString getSubtype() const;
 	virtual QString getType() const;
 	virtual CardType getTypeId() const;
-	virtual QString toString() const;    
+	virtual QString toString() const;
 
 protected:
 	QString user_string;
@@ -627,7 +629,7 @@ class Engine: public QObject
 {
 public:
 	void addTranslationEntry(const char *key, const char *value);
-	QString translate(const char *to_translate) const;    
+	QString translate(const char *to_translate) const;
 
 	void addPackage(Package *package);
 	void addBanPackage(const char *package_name);
@@ -694,6 +696,11 @@ public:
 		Wake
 	};
 
+	enum Location{
+		Left,
+		Right
+	};
+
 	explicit Skill(const char *name, Frequency frequent = NotFrequent);
 	bool isLordSkill() const;
 	QString getDescription() const;
@@ -703,6 +710,8 @@ public:
 	virtual QString getDefaultChoice(ServerPlayer *player) const;
 	virtual int getEffectIndex(const ServerPlayer *player, const Card *card) const;
 	virtual QDialog *getDialog() const;
+
+	virtual Location getLocation() const;
 
 	void initMediaSource();
 	void playEffect(int index = -1) const;
@@ -789,6 +798,7 @@ public:
 	void useCard(const CardUseStruct &card_use, bool add_history = true);
 	void damage(const DamageStruct &data);
 	void sendDamageLog(const DamageStruct &data);
+	void addHpSlot(ServerPlayer *victim, int number = 1);
 	void loseHp(ServerPlayer *victim, int lose = 1);
 	void loseMaxHp(ServerPlayer *victim, int lose = 1);
 	void applyDamage(ServerPlayer *victim, const DamageStruct &damage);

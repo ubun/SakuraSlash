@@ -538,13 +538,10 @@ public:
                 log.from = ayumi;
                 log.arg = objectName();
                 log.arg2 = room->askForChoice(ayumi, objectName(), "hpc+mxc");
-                if(log.arg2 == "hpc"){
-                    room->setPlayerProperty(ayumi, "maxhp", ayumi->getMaxHp() + 1);
-                    room->setPlayerProperty(ayumi, "hp", ayumi->getHp() + 1);
-                }
-                else{
+                if(log.arg2 == "hpc")
+                    room->addHpSlot(ayumi);
+                else
                     room->setPlayerMark(ayumi, "CryMaxCards", 1);
-                }
                 room->broadcastInvoke("animate", "lightbox:$dontcry");
 
                 room->sendLog(log);
@@ -796,7 +793,7 @@ public:
     }
     virtual bool onPhaseChange(ServerPlayer *kid) const{
         if(kid->getPhase() == Player::Discard){
-            if(kid->usedTimes("Snatch") > 2 && kid->askForSkillInvoke(objectName()))
+            if(kid->usedTimes("Snatch") >= 2 && kid->askForSkillInvoke(objectName()))
                 return true;
         }
         return false;
@@ -1701,7 +1698,8 @@ public:
         Room *room = hakasi->getRoom();
         foreach(ServerPlayer *tmp, room->getAllPlayers()){
             if(tmp->hasEquip()){
-                room->askForUseCard(hakasi, "@@gaizao", "@gaizao");
+                if(room->askForUseCard(hakasi, "@@gaizao", "@gaizao"))
+                    return true;
                 break;
             }
         }

@@ -63,7 +63,7 @@ sgs.ai_skill_use_func["JiaojinCard"] = function(card, use, self)
 			break
 		end
 	end
-	if not target then target = self.Enemies[1] end
+	if not target then target = self.enemies[1] end
 	if use.to then use.to:append(target) end
 	use.card = card
 	return

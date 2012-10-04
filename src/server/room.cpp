@@ -1860,6 +1860,11 @@ void Room::useCard(const CardUseStruct &card_use, bool add_history){
         */
 }
 
+void Room::addHpSlot(ServerPlayer *victim, int number){
+    setPlayerProperty(victim, "maxhp", victim->getMaxHp() + number);
+    setPlayerProperty(victim, "hp", victim->getHp() + number);
+}
+
 void Room::loseHp(ServerPlayer *victim, int lose){
     QVariant data = lose;
     thread->trigger(HpLost, victim, data);

@@ -467,9 +467,9 @@ public:
 
     virtual void onDamaged(ServerPlayer *takagi, const DamageStruct &) const{
         Room *room = takagi->getRoom();
-        const Card *first = Sanguosha->getCard(room->drawCard());
+        const Card *first = room->peek();
         room->moveCardTo(first, takagi, Player::Special);
-        const Card *second = Sanguosha->getCard(room->drawCard());
+        const Card *second = room->peek();
         room->moveCardTo(second, takagi, Player::Special);
 
         const Card *heart = NULL;
@@ -478,6 +478,11 @@ public:
         else if(first->getSuit() != Card::Heart && second->getSuit() == Card::Heart)
             heart = second;
 
+        LogMessage log;
+        log.type = "#TriggerSkill";
+        log.from = takagi;
+        log.arg = objectName();
+        room->sendLog(log);
         if(heart){
             RecoverStruct rec;
             rec.card = heart;
