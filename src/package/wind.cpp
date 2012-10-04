@@ -916,6 +916,7 @@ public:
             return false;
         PindianStar pindian = data.value<PindianStar>();
         if(pindian->reason == "weijiao" && nakamori->askForSkillInvoke(objectName())){
+            room->playSkillEffect(objectName());
             nakamori->skip(Player::Draw);
             nakamori->obtainCard(pindian->from_card);
             nakamori->obtainCard(pindian->to_card);

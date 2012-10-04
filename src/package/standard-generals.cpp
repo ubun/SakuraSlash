@@ -250,8 +250,8 @@ public:
         if(conan->isDead())
             return false;
         if(move->from_place == Player::Hand && room->askForSkillInvoke(conan, objectName())){
-            //room->playSkillEffect(objectName());
-             conan->drawCards(1);
+            room->playSkillEffect(objectName());
+            conan->drawCards(1);
         }
         return false;
     }
@@ -1136,6 +1136,7 @@ public:
             const Card *card = target->getRandomHandCard();
             room->obtainCard(kaitou, card);
             if(card->inherits("BasicCard")){
+                room->playSkillEffect(objectName());
                 room->broadcastInvoke("animate", "lightbox:$tishen");
                 kaitou->loseMark("@fake");
                 room->setPlayerProperty(kaitou, "hp", qMin(3, kaitou->getMaxHP()));
@@ -1226,7 +1227,6 @@ public:
 
 RenxingCard::RenxingCard(){
     once = true;
-    mute = true;
     will_throw = false;
 }
 

@@ -782,6 +782,7 @@ public:
             return;
         if(jii->askForSkillInvoke(objectName())){
             ServerPlayer *target = room->askForPlayerChosen(jii, room->getOtherPlayers(jii), objectName());
+            room->playSkillEffect(objectName());
             QString to = room->askForChoice(jii, objectName(), "draw+recover");
             if(to == "draw")
                 target->drawCards(2);

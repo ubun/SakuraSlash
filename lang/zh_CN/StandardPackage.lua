@@ -110,6 +110,7 @@ return {
 
 --run a way
 	["runaway_mode"] = "跑路模式",
+	["runaway"] = "跑路模式",
 	["#Runprex"] = "%from 翻开一张跑路牌，但由于其点数 %arg 不小于场上存活角色数，本次不得跑路",
 	["#Runpre"] = "%from 翻开一张跑路牌，他需要跑 %arg 步路",
 	["#Runaway2"] = "%arg 位 %from 和 %arg2 位 %to 交换了位置",
