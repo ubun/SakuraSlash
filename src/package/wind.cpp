@@ -723,7 +723,7 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return target->getRoom()->getLord()->hasLordSkill(objectName());
+        return true;
     }
 
     virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
@@ -735,7 +735,7 @@ public:
         if(use.card->inherits("Peach") && (use.to.isEmpty() || use.to.first()->getHp() > 0)){
             QList<ServerPlayer *> zhenjing;
             foreach(ServerPlayer *tmp, room->getOtherPlayers(heizou)){
-                if(tmp == use.from || (!use.to.isEmpty() && use.to.contains(tmp)))
+                if(!use.to.isEmpty() && use.to.contains(tmp))
                     continue;
                 if(tmp->getKingdom() == "zhen" || tmp->getKingdom() == "jing")
                     zhenjing << tmp;
@@ -1371,6 +1371,7 @@ WindPackage::WindPackage()
     related_skills.insertMulti("yunchou", "#yunchou_clear");
     hattoriheizou->addSkill(new Weiwo);
     hattoriheizou->addSkill(new Lingjia);
+    patterns.insert(".Lj", new LingjiaPattern);
 
     General *touyamaginshirou = new General(this, "touyamaginshirou", "jing");
     touyamaginshirou->addSkill(new Yinsi);

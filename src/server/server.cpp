@@ -162,7 +162,8 @@ QWidget *ServerDialog::createAdvancedTab(){
     second_general_checkbox = new QCheckBox(tr("Enable second general"));
 
     scene_checkbox  = new QCheckBox(tr("Enable Scene"));//changjing
-    scene_checkbox->setChecked(Config.EnableScene);	//changjing
+    scene_checkbox->setChecked(Config.EnableScene);
+    scene_checkbox->setEnabled(false);
 
     max_hp_scheme_combobox = new QComboBox;
     max_hp_scheme_combobox->addItem(tr("Sum - 3"));

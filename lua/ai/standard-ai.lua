@@ -149,15 +149,11 @@ end
 -- shouhou
 sgs.ai_skill_invoke["shouhou"] = function(self, data)
 	self:sort(self.friends, "hp")
-	return self.friends[1]:isWounded() and self.player:getHandcardNum() >= 3
+	return #self.friends > 0 and self.friends[1]:isWounded() and self.player:getHandcardNum() >= 3
 end
 sgs.ai_skill_playerchosen["shouhou"] = function(self, targets)
 	self:sort(self.friends, "hp")
-	for _, friend in ipairs(self.friends) do
-		if friend:isWounded() then
-			return friend
-		end
-	end
+	return self.friends[1]
 end
 
 -- heqi
@@ -376,6 +372,7 @@ end
 
 -- gaizao
 sgs.ai_skill_use["@@gaizao"] = function(self, prompt)
+	if player:getHandcardNum() < 3 then return "." end
 	for _, player in sgs.qlist(self.room:getAllPlayers()) do
 		if not player:getCards("e"):isEmpty() then
 			if self:isEnemy(player) and	not self:hasSkills(sgs.lose_equip_skill, player) then

@@ -548,7 +548,7 @@ function SmartAI:filterEvent(event, player, data)
 				intention = sgs.ai_card_intention.general(to, 100) 
 			end
 			
-			if from:objectName() == to:objectName() then intention = 0 end
+			if from and from:objectName() == to:objectName() then intention = 0 end
 			self:refreshLoyalty(from, intention)
 			if to:isLord() and intention < 0 then
 				sgs.ai_anti_lord[from:objectName()] = (sgs.ai_anti_lord[from:objectName()] or 0)+1

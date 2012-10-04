@@ -245,12 +245,16 @@ sgs.ai_skill_choice["qianmian"] = function(self, choices)
 end
 
 -- qingdi
-sgs.ai_skill_invoke["qingdi"] = true
-sgs.ai_skill_playerchosen["qingdi"] = function(self, targets)
+sgs.ai_skill_invoke["qingdi"] = function(self, data)
 	self:sort(self.enemies, "hp")
-	local target = self.enemies[1]
-	if not target then target = targets[1] end
-	return target
+	if #self.enemies > 0 then
+		self.qingditarget = self.enemies[1]
+		return true
+	end
+	return false
+end
+sgs.ai_skill_playerchosen["qingdi"] = function(self, targets)
+	return self.qingditarget
 end
 
 -- zhiyu
