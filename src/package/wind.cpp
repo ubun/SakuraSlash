@@ -258,6 +258,7 @@ public:
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
+        room->playSkillEffect(objectName());
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
         LogMessage log;
         log.type = "#BantuEffect";
@@ -438,7 +439,6 @@ public:
 };
 
 HuachiCard::HuachiCard(){
-
 }
 
 bool HuachiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{

@@ -372,7 +372,7 @@ end
 
 -- gaizao
 sgs.ai_skill_use["@@gaizao"] = function(self, prompt)
-	if player:getHandcardNum() < 3 then return "." end
+	if self.player:getHandcardNum() < 3 then return "." end
 	for _, player in sgs.qlist(self.room:getAllPlayers()) do
 		if not player:getCards("e"):isEmpty() then
 			if self:isEnemy(player) and	not self:hasSkills(sgs.lose_equip_skill, player) then

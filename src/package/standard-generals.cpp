@@ -87,6 +87,7 @@ public:
         if(players.isEmpty())
             return;
         if(hatto->askForSkillInvoke(objectName())){
+            room->playSkillEffect(objectName());
             ServerPlayer *target = room->askForPlayerChosen(hatto, players, "rexue");
             int card_id = room->askForCardChosen(hatto, target, "he", objectName());
             target->addToPile("rexue", card_id);
@@ -398,6 +399,7 @@ public:
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
         if(effect.slash->isRed())
             return false;
+        player->getRoom()->playSkillEffect(objectName());
 
         LogMessage log;
         log.type = "#SkillNullify";

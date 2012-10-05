@@ -735,6 +735,7 @@ public:
             }
         }
         if(!targets.isEmpty() && room->askForSkillInvoke(player, objectName())){
+            room->playSkillEffect(objectName());
             ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName());
             const Card *card = room->askForCard(player, ".", "@lvbai:" + target->objectName() + ":" + objectName());
             if(player->pindian(target, objectName(), card)){
@@ -761,6 +762,7 @@ public:
         Room *room = player->getRoom();
 
         if(room->askForSkillInvoke(player, objectName(), data)){
+            room->playSkillEffect(objectName());
             const Card *card = room->askForCard(player, ".", "@lvbai:" + damage.to->objectName() + ":" + objectName());
             if(player->pindian(damage.to, objectName(), card)){
                 damage.damage ++;
