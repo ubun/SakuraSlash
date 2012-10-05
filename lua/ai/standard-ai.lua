@@ -401,17 +401,22 @@ sgs.ai_skill_invoke["baomu"] = function(self, data)
 end
 
 -- qiniao
-sgs.ai_skill_invoke["qiniao"] = true
-sgs.ai_skill_playerchosen["qiniao"] = function(self, targets)
-	for _, player in sgs.qlist(targets) do
-		if self:isFriend(player) and not player:hasSkill("weijiao") and
-			(player:containsTrick("indulgence") or player:containsTrick("supply_shortage")) then
-			return player
-		elseif self:isEnemy(player) and player:hasSkill("weijiao") then
-			return player
-		end
+sgs.ai_skill_invoke["qiniao"] = function(self, data)
+	local d = data:toDamage()
+	local target = d.to
+	return self:isFriend(target)
+end
+sgs.ai_skill_cardask["@qiniao"] = function(self, data)
+	local d = data:toDamage()
+	local sumiko = d.from
+	if self:isFriend(sumiko) then
+		local cards = self.player:getCards("h")
+		cards=sgs.QList2Table(cards)
+		self:sortByUseValue(cards, true)
+		return cards[1]:getEffectiveId()
+	else
+		return "."
 	end
-	return self.friends[1]
 end
 
 -- long

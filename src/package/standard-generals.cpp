@@ -1849,32 +1849,24 @@ public:
     Qiniao():PhaseChangeSkill("qiniao"){
     }
 
-    virtual bool onPhaseChange(ServerPlayer *sumiko) const{
-        if(sumiko->getPhase() == Player::Discard)
-           sumiko->setMark("qiniao", sumiko->getHandcardNum());
-        if(sumiko->getPhase() == Player::Finish){
-           if(sumiko->getMark("qiniao") - sumiko->getHandcardNum() < 2 && sumiko->askForSkillInvoke(objectName())){
-               Room *room = sumiko->getRoom();
-               ServerPlayer *target = room->askForPlayerChosen(sumiko, room->getAlivePlayers(), objectName());
-               target->gainMark("@bird");
-           }
-        }
-        return false;
-    }
-};
-
-class QiniaoSkip: public TriggerSkill{
-public:
-    QiniaoSkip():TriggerSkill("#qiniaoskip"){
-        events << PhaseChange;
-    }
     virtual bool triggerable(const ServerPlayer *target) const{
-        return target->getMark("@bird")>0;
+        return true;
     }
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        if(player->getPhase() == Player::Start){
-            player->skip(Player::Judge);
-            player->loseMark("@bird");
+
+    virtual bool onPhaseChange(ServerPlayer *player) const{
+        if(player->getPhase() != Player::Discard || player->getHandcardNum() <= player->getMaxCards())
+            return false;
+        Room *room = player->getRoom();
+        ServerPlayer *sumiko = room->findPlayerBySkillName(objectName());
+        DamageStruct d;
+        d.from = sumiko;
+        d.to = player;
+        if(sumiko && sumiko != player && sumiko->askForSkillInvoke(objectName(), QVariant::fromValue(d))){
+            const Card *card = room->askForCard(player, ".", "@qiniao:" + sumiko->objectName(), QVariant::fromValue(d));
+            if(card){
+                sumiko->obtainCard(card);
+                return true;
+            }
         }
         return false;
     }
@@ -2119,8 +2111,6 @@ void StandardPackage::addGenerals(){
     kobayashisumiko = new General(this, "kobayashisumiko", "za", 4, false);
     kobayashisumiko->addSkill(new Yuanding);
     kobayashisumiko->addSkill(new Qiniao);
-    kobayashisumiko->addSkill(new QiniaoSkip);
-    related_skills.insertMulti("qiniao", "#qiniaoskip");
     kobayashisumiko->addSkill("#losthp");
 
     meguremidori = new General(this, "meguremidori", "za", 3, false);
