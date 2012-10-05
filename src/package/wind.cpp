@@ -238,13 +238,6 @@ public:
     }
 };
 
-class UnBasicPattern: public CardPattern{
-public:
-    virtual bool match(const Player *player, const Card *card) const{
-        return card->getTypeId() != Card::Basic;
-    }
-};
-
 class Bantu: public TriggerSkill{
 public:
     Bantu():TriggerSkill("bantu"){
@@ -267,7 +260,7 @@ public:
         log.arg = objectName();
         room->sendLog(log);
 
-        const Card *jink = room->askForCard(effect.to, ".unbasic", "bantu-jink:" + effect.from->objectName());
+        const Card *jink = room->askForCard(effect.to, "TrickCard", "bantu-jink:" + effect.from->objectName());
         room->slashResult(effect, jink);
 
         return true;
@@ -698,6 +691,7 @@ public:
         if((move->from_place == Player::Hand)
             && move->to != player
             && player->askForSkillInvoke(objectName(), data)){
+            room->playSkillEffect(objectName());
             JudgeStruct judge;
             judge.reason = objectName();
             judge.who = player;
@@ -1344,7 +1338,6 @@ WindPackage::WindPackage()
     General *kojimagenta = new General(this, "kojimagenta$", "shao", 3);
     kojimagenta->addSkill(new Manyu);
     kojimagenta->addSkill(new Bantu);
-    patterns[".unbasic"] = new UnBasicPattern;
     kojimagenta->addSkill(new Tuanzhang);
     skills << new TuanzhangViewAsSkill;
 

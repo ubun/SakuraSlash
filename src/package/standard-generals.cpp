@@ -1,6 +1,7 @@
 #include "general.h"
 #include "standard.h"
 #include "standard-generals.h"
+#include "maneuvering.h"
 #include "skill.h"
 #include "engine.h"
 #include "client.h"
@@ -31,7 +32,6 @@ void ZhenxiangCard::onEffect(const CardEffectStruct &effect) const{
 class Zhenxiang: public ZeroCardViewAsSkill{
 public:
     Zhenxiang():ZeroCardViewAsSkill("zhenxiang"){
-        frequency = Compulsory;
     }
 
     virtual const Card *viewAs() const{
@@ -188,6 +188,7 @@ public:
         Room *room = mouri->getRoom();
         if(mouri->getPhase() == Player::Start && room->askForSkillInvoke(mouri, objectName())){
             ServerPlayer *target = room->askForPlayerChosen(mouri, room->getAlivePlayers(), "chenshuiprotect");
+            room->playSkillEffect(objectName());
             foreach(ServerPlayer *player, room->getAlivePlayers()){
                 if (player == target)
                     continue;
@@ -332,6 +333,7 @@ public:
                 return false;
             int num = player->tag.value("FC_S").toInt();
             if(num - player->getHandcardNum() >= 2 && player->askForSkillInvoke(objectName(), data)){
+                room->playSkillEffect(objectName());
                 player->setMark("aptx", 1);
                 room->acquireSkill(player, "zhenxiang");
                 if(player->isLord())
@@ -621,6 +623,7 @@ public:
             if(!hurts.isEmpty() && mouri->askForSkillInvoke(objectName())){
                 ServerPlayer *target = room->askForPlayerChosen(mouri, hurts, "shouhou");
                 if(target){
+                    room->playSkillEffect(objectName());
                     RecoverStruct recover;
                     recover.card = NULL;
                     recover.who = mouri;
@@ -802,7 +805,6 @@ public:
     }
 };
 
-#include "maneuvering.h"
 BaiyiCard::BaiyiCard(){
     once = true;
     target_fixed = true;
@@ -913,13 +915,13 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return !target->hasSkill("quzheng");
+        return true;
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
         ServerPlayer *megure = room->findPlayerBySkillName(objectName());
-        if(!megure)
+        if(!megure || megure == player)
             return false;
 
         if(player->getPhase() == Player::Discard){
@@ -931,6 +933,7 @@ public:
 
             if(card_ids.isEmpty() || !room->askForSkillInvoke(megure, objectName(), data))
                 return false;
+            room->playSkillEffect(objectName());
             if(megure->hasLordSkill("ranglu")){
                 QList<ServerPlayer *> players;
                 foreach(ServerPlayer *tmp, room->getOtherPlayers(megure)){
@@ -939,6 +942,7 @@ public:
                     }
                 }
                 if(!players.isEmpty() && room->askForSkillInvoke(megure, "ranglu", data)){
+                    room->playSkillEffect("ranglu");
                     megure = room->askForPlayerChosen(megure, players, "ranglu");
                 }
             }
@@ -1211,6 +1215,7 @@ public:
 
             kaitou->drawCards(2);
             if(!room->askForUseCard(kaitou, "@@moshu!", "@moshu-card")){
+                room->playSkillEffect(objectName());
                 room->moveCardTo(kaitou->getHandcards().last(), NULL, Player::DrawPile, true);
                 room->moveCardTo(kaitou->getHandcards().last(), NULL, Player::DrawPile, true);
             }
