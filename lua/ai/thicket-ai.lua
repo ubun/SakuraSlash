@@ -147,18 +147,25 @@ sgs.ai_skill_invoke["shanjing"] = true
 sgs.ai_skill_invoke["mangju"] = true
 
 -- anyong
-sgs.ai_skill_invoke["anyong"] = function(self, data)
-	self:sort(self.enemies, "hp")
-	for _, enemy in ipairs(self.enemies) do
-		if enemy:getHandcardNum() > enemy:getHp() then
-			self.anyongtarget = shao
-			return true
+sgs.ai_skill_use["@@anyong"] = function(self, prompt)
+	local target = self.room:getCurrent()
+	local caninvoke = false
+	if self:isEnemy(target) then
+		if target:getHandcardNum() - 1 > target:getMaxCards() and not target:containsTrick("indulgence") then
+			caninvoke = true
+		end
+	else
+		if target:containsTrick("indulgence") or target:containsTrick("supply_shortage") then
+			caninvoke = true
 		end
 	end
-	return false
-end
-sgs.ai_skill_playerchosen["anyong"] = function(self, targets)
-	return self.anyongtarget
+	if caninvoke then
+		local hcards = self.player:getCards("h")
+		hcards = sgs.QList2Table(hcards)
+		self:sortByUseValue(hcards, true)
+		return "@AnyongCard=" .. hcards[1]:getEffectiveId() .. "->."
+	end
+	return "."
 end
 
 -- panguan

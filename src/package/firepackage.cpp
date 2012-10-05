@@ -483,6 +483,7 @@ public:
         log.from = takagi;
         log.arg = objectName();
         room->sendLog(log);
+        room->playSkillEffect(objectName());
         if(heart){
             RecoverStruct rec;
             rec.card = heart;

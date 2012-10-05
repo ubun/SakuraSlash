@@ -634,6 +634,7 @@ bool Room::askForNullification(const TrickCard *trick, ServerPlayer *from, Serve
                 log.type = "#TriggerSkill";
                 log.from = ok;
                 log.arg = "xuncha";
+                playSkillEffect("xuncha");
                 sendLog(log);
                 ok->obtainCard(trick);
             }

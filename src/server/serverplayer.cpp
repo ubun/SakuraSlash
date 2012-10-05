@@ -563,7 +563,6 @@ void ServerPlayer::swap2Phases(Player::Phase phase1, Player::Phase phase2){
     }
     int i = static_cast<int>(phase1);
     int j = static_cast<int>(phase2);
-    phases.swap(i-1, j-1);
 
     LogMessage log;
     log.type = "#SwapPhases";
@@ -571,6 +570,8 @@ void ServerPlayer::swap2Phases(Player::Phase phase1, Player::Phase phase2){
     log.arg = phase_strings.at(j);
     log.arg2 = phase_strings.at(i);
     room->sendLog(log);
+
+    phases.swap(i-1, j-1);
 }
 
 void ServerPlayer::gainMark(const QString &mark, int n){

@@ -210,27 +210,27 @@ public:
         if(genta->getPhase() == Player::Start && genta->isWounded()
             && genta->askForSkillInvoke(objectName())){
             Room *room = genta->getRoom();
-
-            int card_id = room->drawCard();
-            room->moveCardTo(Sanguosha->getCard(card_id), NULL, Player::Special, true);
+            room->playSkillEffect(objectName());
+            const Card *card = room->peek();
+            //room->moveCardTo(card, NULL, Player::Special, true);
             LogMessage log;
             log.from = genta;
             log.type = "$Manyu";
-            log.card_str = QString::number(card_id);
+            log.card_str = card->getEffectIdString();
             room->sendLog(log);
             room->getThread()->delay();
 
-            if(Sanguosha->getCard(card_id)->getSuit() == Card::Spade){
+            if(card->getSuit() == Card::Spade){
                 RecoverStruct recover;
-                recover.card = Sanguosha->getCard(card_id);
+                recover.card = card;
                 room->recover(genta, recover);
-                room->throwCard(card_id);
+                room->throwCard(card);
             }
             else{
                 ServerPlayer *target = room->askForPlayerChosen(genta, room->getOtherPlayers(genta), objectName());
                 log.type = "$ManyuTo";
                 log.to << target;
-                room->obtainCard(target, card_id);
+                room->obtainCard(target, card);
                 room->sendLog(log);
             }
         }

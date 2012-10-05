@@ -53,6 +53,7 @@ public:
         Room *room = kudou->getRoom();
         DamageStruct damage = data.value<DamageStruct>();
         if(room->getCurrent() != kudou && damage.from && room->askForSkillInvoke(kudou, objectName(), data)){
+            room->playSkillEffect(objectName());
             foreach(ServerPlayer *player, room->getOtherPlayers(kudou)){
                 const Card *slash = room->askForCard(player, "slash", "@wuwei-slash", data);
                 if(slash){
@@ -1783,6 +1784,7 @@ public:
             const Card *recovcd = room->askForCard(cancer, ".S", "@baomu:" + dying_data.who->objectName());
             if(!recovcd)
                 return false;
+            room->playSkillEffect(objectName());
             RecoverStruct recover;
             recover.who = cancer;
             recover.card = recovcd;

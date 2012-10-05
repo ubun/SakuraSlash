@@ -950,9 +950,43 @@ public:
     }
 };
 
+AnyongCard::AnyongCard(){
+    target_fixed = true;
+}
+
+void AnyongCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    room->throwCard(this);
+    PlayerStar target = room->getCurrent();
+    JudgeStruct judge;
+    judge.pattern = QRegExp("(.*):(heart|diamond):(.*)");
+    judge.good = false;
+    judge.reason = "anyong";
+    judge.who = source;
+    room->judge(judge);
+    if(judge.isGood())
+        target->swap2Phases(Player::Judge, Player::Discard);
+}
+
+class AnyongViewAsSkill:public OneCardViewAsSkill{
+public:
+    AnyongViewAsSkill():OneCardViewAsSkill("anyong"){
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        return !to_select->isEquipped();
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        AnyongCard *card = new AnyongCard;
+        card->addSubcard(card_item->getFilteredCard());
+        return card;
+    }
+};
+
 class Anyong: public PhaseChangeSkill{
 public:
     Anyong():PhaseChangeSkill("anyong"){
+        view_as_skill = new AnyongViewAsSkill;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
@@ -960,29 +994,12 @@ public:
     }
 
     virtual bool onPhaseChange(ServerPlayer *player) const{
-        if(player->getMark("@anyong") > 0 && player->getPhase() == Player::RoundStart){
-            player->swap2Phases(Player::Judge, Player::Discard);
-            player->loseAllMarks("@anyong");
+        Room *room = player->getRoom();
+        if(player->getPhase() != Player::RoundStart)
             return false;
-        }
-        if(player->hasSkill(objectName()) && player->getPhase() == Player::Start && player->askForSkillInvoke(objectName())){
-            Room *eroom = player->getRoom();
-            clk:
-            ServerPlayer *target = eroom->askForPlayerChosen(player, eroom->getAlivePlayers(), objectName());
-            JudgeStruct judge;
-            judge.pattern = QRegExp("(.*):(heart|diamond):(.*)");
-            judge.good = false;
-            judge.reason = objectName();
-            judge.who = player;
-
-            eroom->judge(judge);
-            if(judge.isGood())
-                target->gainMark("@anyong");
-            if(player->hasSkill("benzCLK") && !player->hasFlag("CLK") && player->askForSkillInvoke("benzCLK")){
-                player->setFlags("CLK");
-                goto clk;
-            }
-        }
+        ServerPlayer *jams = room->findPlayerBySkillName(objectName());
+        if(jams && jams != player && !jams->isKongcheng())
+            room->askForUseCard(jams, "@@anyong", "@anyong:" + player->objectName());
         return false;
     }
 };
@@ -1196,6 +1213,7 @@ ThicketPackage::ThicketPackage()
     addMetaObject<RuoyuCard>();
     addMetaObject<ZilianCard>();
     addMetaObject<ZhiquCard>();
+    addMetaObject<AnyongCard>();
 }
 
 ADD_PACKAGE(Thicket)
