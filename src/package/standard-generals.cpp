@@ -226,11 +226,14 @@ public:
 
         for(int i = damage.damage; i>0; i--){
             ServerPlayer *target = room->askForPlayerChosen(mori, room->getAlivePlayers(), objectName());
-            if(target == mori)
+            if(target == mori){
+                room->playSkillEffect(objectName(), 2);
                 target->drawCards(2);
-            else{
-                if(!target->isNude())
+            }else{
+                if(!target->isNude()){
+                    room->playSkillEffect(objectName(), 1);
                     room->askForDiscard(target, objectName(), 1, false, true);
+                }
             }
         }
     }
@@ -481,6 +484,7 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *ayumi, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
         if(damage.card && damage.card->inherits("TrickCard")){
+            ayumi->getRoom()->playSkillEffect(objectName());
             LogMessage log;
             log.type = "#TianzhenPrevent";
             log.from = ayumi;
@@ -1050,14 +1054,15 @@ public:
         foreach(ServerPlayer *duck, ducks){
             if(evt == Damaged){
                 if(duck == player){
-                    //room->playSkillEffect(objectName());
                     if(damage.from->hasFlag("guilin")){
                         if(duck->isWounded())
                             duck->drawCards(duck->getLostHp());
                         damage.from->setFlags("-guilin");
                     }
-                    else if(damage.card && duck->askForSkillInvoke(objectName(), QVariant::fromValue(damage.card)))
+                    else if(damage.card && duck->askForSkillInvoke(objectName(), QVariant::fromValue(damage.card))){
+                        room->playSkillEffect(objectName(), 2);
                         duck->obtainCard(damage.card);
+                    }
                 }
             }
             else if(duck != player && !duck->isNude() && damage.damage > 0
@@ -1069,6 +1074,7 @@ public:
                 log.arg = objectName();
                 log.arg2 = QString::number(damage.damage);
                 room->sendLog(log);
+                room->playSkillEffect(objectName(), 1);
 
                 damage.to = duck;
                 damage.from->setFlags("guilin");

@@ -250,6 +250,7 @@ public:
 
 HongmengCard::HongmengCard(){
     target_fixed = true;
+    mute = true;
 }
 
 void HongmengCard::onUse(Room *room, const CardUseStruct &card_use) const{

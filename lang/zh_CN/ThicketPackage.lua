@@ -11,6 +11,7 @@ return {
 	["@circle"] = "轮子",
 
 	["tsuburayamitsuhiko"] = "圆谷光彦",
+	["cv:tsuburayamitsuhiko"] = "大谷育江",
 	["conghui"] = "聪慧",
 	[":conghui"] = "你可以跳过出牌阶段并将一张手牌背面朝下移出游戏，从下家开始轮流猜点数，不能猜已经猜过的，最接近正确答案的摸三张牌，猜点成绩排名靠后的一半角色（向下取整）失去一点体力。",
 	["qingyi"] = "情义",
@@ -20,12 +21,19 @@ return {
 	["#Caidian"] = "%from 的猜点结果是 %arg",
 	["#CaidianShow"] = "%to 展示了正确结果【%arg】，真是有人欢喜有人愁啊~",
 	["caidian"] = "猜点",
+	["$conghui"] = "在我们少年侦探团面前是没有谜团存在的~",
+	["~tsuburayamitsuhiko"] = "步美，我们好像出局了呢~",
 
 	["tabuseharuna"] = "田布施阳菜",
+	["cv:tabuseharuna"] = "松岡由貴",
 	["hongmeng"] = "虹梦",
 	[":hongmeng"] = "单发技，你可以将红桃手牌当【雨后彩虹】使用。每当有人使用【雨后彩虹】时，你可以先拿走所有的红桃牌。",
 	["loli"] = "萝莉",
 	[":loli"] = "锁定技，红色的【杀】对你无效。",
+	["$hongmeng"] = "要拿走，就一起拿走吧。",
+	["$loli1"] = "别碰我！",
+	["$loli2"] = "才不是一起的呢！",
+	["~tabuseharuna"] = "大姐姐……啊？",
 
 	["hattorishizuka"] = "服部静华",
 	["tieshan"] = "铁扇",
@@ -43,6 +51,7 @@ return {
 	["@luanzhen"] = "你可以发动【乱真】，获得一名其他角色的一个常规技能。",
 
 	["kudouyuusaku"] = "工藤优作",
+	["cv:kudouyuusaku"] = "田中秀幸",
 	["anye"] = "暗夜",
 	[":anye"] = "锁定技，回合外，红色锦囊对你无效。",
 	["panguan"] = "判官",
@@ -56,6 +65,7 @@ return {
 	["@pen"] = "笔",
 	["@fenbi"] = "%src 发动了【奋笔】，你需要弃掉一张 %dest",
 	["@wuji"] = "%src 将要受到伤害，你可以打出一张【杀】，抵消此次伤害",
+	["$fenbi"] = "让我好好听听你的推理吧。",
 
 	["yamamuramisao"] = "山村操",
 	["ruoyu"] = "若愚",
@@ -132,8 +142,7 @@ return {
 
 -- last words
 	["~matsudajinpei"] = "其实……我挺喜欢你的……",
-	["~tsuburayamitsuhiko"] = "我可是要成为福尔摩斯的男人，怎么能轻易死在这里？",
-	["~tabuseharuna"] = "呜呜……",
+--	["~tsuburayamitsuhiko"] = "我可是要成为福尔摩斯的男人，怎么能轻易死在这里？",
 	["~hattorishizuka"] = "等我！",
 	["~kudouyukiko"] = "- -",
 	["~kudouyuusaku"] = "= =",

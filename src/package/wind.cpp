@@ -340,6 +340,7 @@ public:
             return false;
         if(damage.from && heiji->askForSkillInvoke(objectName(), data)){
             Room *room = heiji->getRoom();
+            room->playSkillEffect(objectName());
 
             JudgeStruct judge;
             judge.pattern = QRegExp("(.*):(heart):(.*)");
@@ -529,6 +530,7 @@ public:
             log.arg2 = "normal_nature",
         room->sendLog(log);
 
+        room->playSkillEffect(objectName());
         room->damage(damage);
         return true;
     }
