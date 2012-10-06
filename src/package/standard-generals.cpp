@@ -1434,6 +1434,7 @@ public:
             Room *room = gin->getRoom();
             const Card *card = room->askForCard(gin, "slash", "juelu-slash");
             if(card){
+                room->playSkillEffect(objectName());
                 LogMessage log;
                 log.type = "#InvokeSkill";
                 log.from = gin;
@@ -1642,6 +1643,7 @@ public:
             target->gainMark("@aka",1);
             target->acquireSkill("xunzhiresult");
         }
+        room->playSkillEffect(objectName());
         return false;
     }
 };
