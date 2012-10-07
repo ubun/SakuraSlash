@@ -303,7 +303,7 @@ public:
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
         if(effect.slash->isRed()){
-            player->getRoom()->playSkillEffect(objectName());
+            player->playSkillEffect(objectName());
 
             LogMessage log;
             log.type = "#SkillNullify";

@@ -29,7 +29,7 @@ public:
 
         if(damage.from && damage.from != player){
             damage.from->gainMark("@nightmare", damage.damage);
-            damage.from->getRoom()->playSkillEffect(objectName(), 1);
+            damage.from->playSkillEffect(objectName(), 1);
         }
 
         return false;
@@ -426,7 +426,7 @@ public:
         player->getRoom()->sendLog(log);
 
         player->gainMark("@wrath", damage.damage);
-        player->getRoom()->playSkillEffect(objectName());
+        player->playSkillEffect(objectName());
 
         return false;
     }

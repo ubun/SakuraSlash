@@ -336,7 +336,7 @@ public:
         if(!damage.card)
             return false;
         const Card *card = damage.card;
-        if(!card->inherits("Slash") && !card->inherits("Duel") && !card->inherits("FireAttack"))
+        if(!card->inherits("Slash") && !card->inherits("Duel"))
             return false;
         if(damage.from && heiji->askForSkillInvoke(objectName(), data)){
             Room *room = heiji->getRoom();

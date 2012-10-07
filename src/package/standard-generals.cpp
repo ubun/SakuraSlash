@@ -405,7 +405,7 @@ public:
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
         if(effect.slash->isRed())
             return false;
-        player->getRoom()->playSkillEffect(objectName());
+        player->playSkillEffect(objectName());
 
         LogMessage log;
         log.type = "#SkillNullify";
@@ -484,7 +484,7 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *ayumi, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
         if(damage.card && damage.card->inherits("TrickCard")){
-            ayumi->getRoom()->playSkillEffect(objectName());
+            ayumi->playSkillEffect(objectName());
             LogMessage log;
             log.type = "#TianzhenPrevent";
             log.from = ayumi;

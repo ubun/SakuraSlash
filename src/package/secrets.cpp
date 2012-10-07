@@ -508,7 +508,7 @@ public:
                 if(!lumeng->hasFlag("keji_use_slash") &&
                    lumeng->getSlashCount() == 0 &&
                    lumeng->askForSkillInvoke("keji")){
-                    lumeng->getRoom()->playSkillEffect("keji");
+                    lumeng->playSkillEffect("keji");
                     return true;
                 }
             }
