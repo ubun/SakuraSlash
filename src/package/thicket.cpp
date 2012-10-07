@@ -620,6 +620,7 @@ public:
 };
 
 RuoyuCard::RuoyuCard(){
+    mute = true;
 }
 
 bool RuoyuCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
@@ -792,7 +793,7 @@ public:
             else{
                 RecoverStruct r;
                 r.who = jii;
-                room->recover(target, r);
+                room->recover(target, r, true);
             }
             room->setTag("ZProject", jii->objectName());
         }

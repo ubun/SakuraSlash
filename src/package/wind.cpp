@@ -223,11 +223,11 @@ public:
             if(card->getSuit() == Card::Spade){
                 RecoverStruct recover;
                 recover.card = card;
-                room->recover(genta, recover);
+                room->recover(genta, recover, true);
                 room->throwCard(card);
             }
             else{
-                ServerPlayer *target = room->askForPlayerChosen(genta, room->getOtherPlayers(genta), objectName());
+                ServerPlayer *target = room->askForPlayerChosen(genta, room->getAlivePlayers(), objectName());
                 log.type = "$ManyuTo";
                 log.to << target;
                 room->obtainCard(target, card);
@@ -1207,7 +1207,7 @@ void ZhiyuCard::onEffect(const CardEffectStruct &effect) const{
     RecoverStruct recover;
     recover.card = this;
     recover.who = effect.from;
-    effect.to->getRoom()->recover(effect.to, recover);
+    effect.to->getRoom()->recover(effect.to, recover, true);
 }
 
 class ZhiyuViewAsSkill: public OneCardViewAsSkill{
@@ -1248,8 +1248,7 @@ public:
            player->askForSkillInvoke(objectName())){
             RecoverStruct rec;
             rec.who = player;
-            rec.card = NULL;
-            player->getRoom()->recover(player, rec);
+            player->getRoom()->recover(player, rec, true);
         }
         return false;
     }

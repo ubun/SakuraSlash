@@ -322,7 +322,7 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const{
 }
 
 QString Engine::getVersionNumber() const{
-    return "20120425"; // Happy birthday to me!
+    return "20121010"; // Edition double ten
 }
 
 QString Engine::getVersion() const{
@@ -335,7 +335,7 @@ QString Engine::getVersion() const{
 }
 
 QString Engine::getVersionName() const{
-    return "V2.0.0";
+    return "V2.5.0";
 }
 
 QString Engine::getMODName() const{

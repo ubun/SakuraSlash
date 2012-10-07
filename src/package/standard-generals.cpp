@@ -665,7 +665,7 @@ public:
                 room->moveCardTo(Sanguosha->getCard(card_id), kazuha, Player::Hand, false);
             else
                 room->obtainCard(kazuha, card_id);
-            //room->playSkillEffect(objectName());
+            room->playSkillEffect(objectName());
         }
         return false;
     }

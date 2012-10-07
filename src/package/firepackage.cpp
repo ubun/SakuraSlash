@@ -419,7 +419,7 @@ public:
                 }
             }
             if(caninvoke){
-                const Card *card = room->askForCard(jiuwenlong, "EquipCard", "@xianv", data);
+                const Card *card = room->askForCard(jiuwenlong, "EquipCard", "@xianv:" + damage.to->objectName(), data);
                 if(card){
                     LogMessage log;
                     log.type = "$Xianv";

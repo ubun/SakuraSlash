@@ -126,7 +126,7 @@ private slots:
     void sendLowLevelCommand();
     void startGameInAnotherInstance();
     void changeBackground();
-    void on_actionView_ban_list_triggered();
+    //void on_actionView_ban_list_triggered();
 };
 
 #endif // MAINWINDOW_H

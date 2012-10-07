@@ -4,7 +4,7 @@ return {
 	["standard"] = "标准版",
 
 	["kudoushinichi"] = "工藤新一",
-	["cv:kudoushinichi"] = "山口胜平",
+	["cv:kudoushinichi"] = "山口勝平",
 	["zhenxiang"] = "真相",
 	[":zhenxiang"] = "锁定技，其他角色的手牌始终对你处于可见状态。",
 	["$Zhenxiangissingle"] = "%from 观看了 %to 的手牌",
@@ -126,11 +126,13 @@ return {
 	["$shouqiu2"] = "新娘、六角、蛸锦。",
 
 	["kyougokumakoto"] = "京极真",
+	["cv:kyougokumakoto"] = "桧山修之",
 	["shenyong"] = "神勇",
 	[":shenyong"] = "你可以将装备牌当【杀】使用或打出，出牌阶段使用【杀】可额外指定一个目标。",
+	["$shenyong"] = "在你来之前，一直等着。",
 
 	["kaitoukid"] = "怪盗基德",
-	["cv:kaitoukid"] = "山口胜平",
+	["cv:kaitoukid"] = "山口勝平",
 	["shentou"] = "神偷",
 	[":shentou"] = "你可以将一张锦囊牌当【顺手牵羊】使用且无距离限制；若出牌阶段你使用了两张或以上的【顺手牵羊】，你可以跳过此回合的弃牌阶段。",
 	["baiyi"] = "白衣",
@@ -185,7 +187,7 @@ return {
 	["$guilin2"] = "我从那时开始，就喜欢上你了（缺）", -- 奸雄
 
 	["kurobakaitou"] = "黑羽快斗",
-	["cv:kurobakaitou"] = "山口胜平",
+	["cv:kurobakaitou"] = "山口勝平",
 	["tishen"] = "替身",
 	[":tishen"] = "当你处于濒死状态时，你可以获得一名其他角色的一张手牌并展示，若为基本牌，你的体力回复至3点并无法再次发动【替身】直到游戏结束。",
 	["@fake"] = "假人",
@@ -258,6 +260,7 @@ return {
 	["$baomu"] = "久等了，下面是猜谜时间！",
 
 	["kobayashisumiko"] = "小林澄子",
+	["cv:kobayashisumiko"] = "加藤優子",
 	["designer:kobayashisumiko"] = "尉迟泱",
 	["yuanding"] = "园丁",
 	[":yuanding"] = "出牌阶段，你可以亮出一张手牌并选择一名有手牌的其他角色，该角色须交给你一张手牌，然后获得你亮出的手牌。对每名其他角色限一次。",
@@ -265,6 +268,7 @@ return {
 	["qiniao"] = "栖鸟",
 	[":qiniao"] = "其他角色的弃牌阶段开始时且其手牌数大于手牌上限，你可令其交给你一张手牌，若如此做，该角色跳过弃牌阶段。",
 	["@qiniao"] = "你可以给 %src 一张手牌，跳过弃牌阶段",
+	["$yuanding"] = "老师彻底认输了~",
 
 	["meguremidori"] = "目暮绿",
 	["shexian"] = "涉险",
