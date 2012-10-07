@@ -160,6 +160,7 @@ return {
 	["$ranglu"] = "你们这些侦探，有什么线索么？",
 
 	["matsumotokiyonaka"] = "松本清长",
+	["cv:matsumotokiyonaka"] = "加藤精三",
 	["shangchi"] = "伤饬",
 	[":shangchi"] = "摸牌阶段，若你已受伤，可以额外摸X张牌，或者让另一名角色摸Y-1张牌，X为你失去的体力，Y为你当前的体力。",
 	["shangchi:me"] = "自己摸牌",
@@ -171,6 +172,7 @@ return {
 	["diaobing:accept"] = "攻击",
 	["diaobing:ignore"] = "弹药不足",
 	["@diaobing-slash"] = "请打出一张【杀】【决斗】或【纵火】以响应主公的【调兵】",
+	["$diaobing"] = "这次一定要阻止他！",
 
 	["shiratorininzaburou"] = "白鸟任三郎",
 	["cv:shiratorininzaburou"] = "井上和彦",

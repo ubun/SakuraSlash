@@ -101,7 +101,7 @@ void Settings::init(){
     BGMVolume = value("BGMVolume", 1.0f).toFloat();
     EffectVolume = value("EffectVolume", 1.0f).toFloat();
 
-    BackgroundBrush = value("BackgroundBrush", "backdrop/new-year.jpg").toString();
+    BackgroundBrush = value("BackgroundBrush", "backdrop/conan1.jpg").toString();
 
     if(!contains("1v1/Banlist")){
         QStringList banlist;

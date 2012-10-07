@@ -83,7 +83,7 @@ void Dashboard::createRight(){
     small_avatar->setOpacity(0.75);
 
     kingdom = new QGraphicsPixmapItem(right);
-    kingdom->setPos(91, 54);
+    kingdom->setPos(-10, 30);
 
     ready_item = new QGraphicsPixmapItem(QPixmap("image/system/ready.png"), avatar);
     ready_item->setPos(2, 43);

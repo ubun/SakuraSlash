@@ -452,6 +452,7 @@ public:
         QVariant data_card = QVariant::fromValue(card);
         if(wataru->askForSkillInvoke(objectName(), data_card)){
             wataru->obtainCard(judge->card);
+            wataru->playSkillEffect(objectName());
             //if(judge->delayedtrick)
             //    wataru->obtainCard(judge->delayedtrick);
             return true;

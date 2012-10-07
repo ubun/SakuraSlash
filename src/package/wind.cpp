@@ -1305,6 +1305,7 @@ public:
         if(tomy && tomy->inMyAttackRange(git)){
             const Card *poison = room->askForCard(tomy, "peach", "@dushu:" + git->objectName(), QVariant::fromValue(git));
             if(poison){
+                room->playSkillEffect(objectName());
                 LogMessage log;
                 log.type = "#Dushu";
                 log.from = tomy;

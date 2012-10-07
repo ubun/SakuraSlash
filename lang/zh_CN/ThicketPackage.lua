@@ -4,11 +4,16 @@ return {
 	["thicket"] = "徐如林",
 
 	["matsudajinpei"] = "松田阵平",
+	["cv:matsudajinpei"] = "神奈延年",
 	["chaidan"] = "拆弹",
 	[":chaidan"] = "单发技，你可以选择一名角色判定区内的一张牌并进行一次判定，若判定牌为该延时锦囊的判定生效牌，获得此判定牌和目标锦囊。",
 	["julun"] = "巨轮",
 	[":julun"] = "限定技，从你开始，依次摸下家一张牌，若下家没牌，受到来自上家的一点伤害。",
 	["@circle"] = "轮子",
+	["$chaidan1"] = "这种事就交给专家吧。",
+	["$chaidan2"] = "那家伙肯定会在今天行动的。",
+	["$julun"] = "圆桌骑士没在里面等着。",
+	["~matsudajinpei"] = "抱歉了，荻原，我恐怕履行不了和你的约定了……",
 
 	["tsuburayamitsuhiko"] = "圆谷光彦",
 	["cv:tsuburayamitsuhiko"] = "大谷育江",
@@ -143,7 +148,7 @@ return {
 	["$xuncha"] = "你也喜欢吧，这种东西~",
 
 -- last words
-	["~matsudajinpei"] = "其实……我挺喜欢你的……",
+--	["~matsudajinpei"] = "其实……我挺喜欢你的……",
 --	["~tsuburayamitsuhiko"] = "我可是要成为福尔摩斯的男人，怎么能轻易死在这里？",
 	["~hattorishizuka"] = "等我！",
 	["~kudouyukiko"] = "- -",
