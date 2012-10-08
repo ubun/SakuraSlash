@@ -364,7 +364,7 @@ public:
 
         if(ai && ai->isWounded() && ai->faceUp() && ai->askForSkillInvoke(objectName())){
             ai->turnOver();
-
+            room->playSkillEffect(objectName());
             PlayerStar zhenggong = room->getTag("Pantao").value<PlayerStar>();
             if(zhenggong == NULL){
                 PlayerStar p = player;
@@ -1060,7 +1060,7 @@ public:
                         damage.from->setFlags("-guilin");
                     }
                     else if(damage.card && duck->askForSkillInvoke(objectName(), QVariant::fromValue(damage.card))){
-                        room->playSkillEffect(objectName(), 2);
+                        room->playSkillEffect(objectName(), 3);
                         duck->obtainCard(damage.card);
                     }
                 }
@@ -1074,7 +1074,7 @@ public:
                 log.arg = objectName();
                 log.arg2 = QString::number(damage.damage);
                 room->sendLog(log);
-                room->playSkillEffect(objectName(), 1);
+                room->playSkillEffect(objectName(), qrand() % 2 + 1);
 
                 damage.to = duck;
                 damage.from->setFlags("guilin");
@@ -1463,10 +1463,13 @@ public:
         PlayerStar gin = room->getLord();
         if(gin->hasLordSkill(objectName())){
             if(player != gin && room->askForSkillInvoke(player, "heiyi", QVariant::fromValue(gin))){
+                room->playSkillEffect(objectName(), 2);
                 gin->gainMark("@heiyi");
                 return true;
             }
             else if(player == gin){
+                if(gin->getMark("@heiyi") > 0)
+                    room->playSkillEffect(objectName(), 1);
                 for(; gin->getMark("@heiyi") > 0; gin->loseMark("@heiyi")){
                     gin->drawCards(2);
                 }
@@ -1554,6 +1557,7 @@ public:
         Room *room = player->getRoom();
         if(player->getPhase() == Player::Finish && player->askForSkillInvoke(objectName(), data)){
             int count = 0;
+            room->playSkillEffect(objectName());
             foreach(ServerPlayer *other, room->getOtherPlayers(player)){
                 if(other->isKongcheng())
                     continue;
@@ -1596,6 +1600,7 @@ public:
             log.to << effect.to;
             room->sendLog(log);
 
+            room->playSkillEffect(objectName());
             effect.from->getRoom()->slashResult(effect, NULL);
             return true;
         }
@@ -1749,6 +1754,7 @@ public:
             log.type = "#SuyuanChange";
             log.from = agasa;
             log.to << damage.from;
+            room->playSkillEffect(objectName());
             room->sendLog(log);
             if(agasa->hasSkill("beetle") && room->askForSkillInvoke(agasa, "beetle", data)){
                 damage.to = room->askForPlayerChosen(agasa, room->getOtherPlayers(damage.to), "beetle");

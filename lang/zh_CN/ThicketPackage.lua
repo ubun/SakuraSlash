@@ -82,6 +82,7 @@ return {
 	[":zilian"] = "回合外，你每受到一次伤害或失去一点体力，可以弃X张牌，摸X+1张牌，X不大于你的当前手牌数。",
 	["@zilian"] = "你可以发动【自恋】，弃X张牌，摸X+1张牌",
 	["$ruoyu"] = "电视剧我才看到一半，你可别剧透啊。",
+	["$zilian"] = "乌鸦啊，你为虾米哭泣~",
 
 	["suzukijirokichi"] = "铃木次郎吉",
 	["cv:suzukijirokichi"] = "永井一郎",
@@ -108,6 +109,7 @@ return {
 	["$zhiqu"] = "总算还是完美结局。",
 
 	["chianti"] = "基安蒂",
+	["cv:chianti"] = "井上喜久子",
 	["weiju"] = "微距",
 	[":weiju"] = "锁定技，若你未装备武器，你和其他角色的距离锁定为1.",
 	["shanjing"] = "闪镜",
@@ -115,6 +117,7 @@ return {
 	["#Shanjing"] = "%from 的【%arg】技能生效，%to 无法闪避",
 	["shanjing1"] = "闪镜1",
 	["shanjing2"] = "闪镜2",
+	["$shanjing"] = "可爱的男孩。",
 
 	["korn"] = "科恩",
 	["baotai"] = "爆胎",
