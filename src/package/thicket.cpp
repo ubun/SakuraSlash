@@ -338,6 +338,7 @@ public:
             log.from = player;
             log.arg = objectName();
             room->sendLog(log);
+            room->playSkillEffect(objectName());
             player->drawCards(1);
         }
         return false;
@@ -507,7 +508,6 @@ public:
 class Anye: public ProhibitSkill{
 public:
     Anye():ProhibitSkill("anye"){
-
     }
 
     virtual bool isProhibited(const Player *from, const Player *to, const Card *card) const{
@@ -1058,31 +1058,17 @@ class Mihu: public TriggerSkill{
 public:
     Mihu():TriggerSkill("mihu"){
         frequency = Compulsory;
-        events << CardUsed;
+        events << DrawNCards << PhaseChange;
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        if(player->getPhase() != Player::Play)
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        if(event == DrawNCards){
+            int n = data.toInt();
+            data = n - 1;
             return false;
-        CardUseStruct use = data.value<CardUseStruct>();
-        if(use.card->getSkillName() != "zhizhuo")
-            return false;
-        int frog = qrand() % 4;
-        Room *room = player->getRoom();
-        if(frog == 0){
-            if(use.card->subcardsLength() > 0)
-                room->throwCard(use.card);
-            else
-                room->throwCard(use.card->getId());
-
-            LogMessage log;
-            log.type = "#Mihu_cup";
-            log.from = player;
-            log.arg = objectName();
-            room->sendLog(log);
-
-            return true;
         }
+        else if(player->getPhase() == Player::NotActive)
+            player->drawCards(1);
         return false;
     }
 };

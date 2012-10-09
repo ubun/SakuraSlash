@@ -757,7 +757,7 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return target->getRoom()->findPlayerBySkillName(objectName());
+        return true;
     }
 
     virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
@@ -785,6 +785,7 @@ public:
         }
         if(choice == "cancel")
             return false;
+        room->playSkillEffect(objectName());
         LogMessage log;
         log.type = "#InvokeSkill";
         log.from = toyama;
@@ -1022,6 +1023,7 @@ public:
         player->tag["Qmmv"] = player->getRole();
         QString role = room->askForChoice(player, objectName(), "renegade+rebel+loyalist+cancel");
         if(role != "cancel"){
+            room->playSkillEffect(objectName());
             LogMessage log;
             log.type = "#Qianmian";
             log.from = player;
@@ -1046,12 +1048,12 @@ public:
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        Room *room = player->getRoom();
-        ServerPlayer *ver = room->getLord();
+        ServerPlayer *ver = player->getRoom()->getLord();
         if(!ver || !ver->hasLordSkill(objectName()))
             return false;
         if(ver->inMyAttackRange(player) && ver->askForSkillInvoke(objectName())){
             DamageStruct damage = data.value<DamageStruct>();
+            ver->playSkillEffect(objectName());
             ver->drawCards(damage.damage);
         }
         return false;
@@ -1068,6 +1070,7 @@ public:
         Room *room = jodie->getRoom();
         if(room->askForSkillInvoke(jodie, objectName())){
             int x = jodie->getEquips().length();
+            room->playSkillEffect(objectName());
             return n + qMax(x, 1);
         }
         else

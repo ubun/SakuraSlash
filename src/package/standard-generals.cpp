@@ -1880,6 +1880,7 @@ public:
         if(sumiko && sumiko != player && sumiko->askForSkillInvoke(objectName(), QVariant::fromValue(d))){
             const Card *card = room->askForCard(player, ".", "@qiniao:" + sumiko->objectName(), QVariant::fromValue(d));
             if(card){
+                room->playSkillEffect(objectName());
                 sumiko->obtainCard(card);
                 return true;
             }
