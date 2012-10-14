@@ -218,31 +218,6 @@ public:
     }
 };
 
-class Mengjin: public TriggerSkill{
-public:
-    Mengjin():TriggerSkill("mengjin"){
-        events << SlashMissed;
-    }
-
-    virtual int getPriority() const{
-        return 2;
-    }
-
-    virtual bool trigger(TriggerEvent, ServerPlayer *pangde, QVariant &data) const{
-        SlashEffectStruct effect = data.value<SlashEffectStruct>();
-        if(!effect.to->isNude()){
-            Room *room = pangde->getRoom();
-            if(pangde->askForSkillInvoke(objectName(), data)){
-                room->playSkillEffect(objectName());
-                int to_throw = room->askForCardChosen(pangde, effect.to, "he", objectName());
-                room->throwCard(to_throw);
-            }
-        }
-
-        return false;
-    }
-};
-
 class Lianhuan: public OneCardViewAsSkill{
 public:
     Lianhuan():OneCardViewAsSkill("lianhuan"){
