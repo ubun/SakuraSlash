@@ -263,9 +263,9 @@ public:
     }
 };
 
-class Mazui: public ZeroCardViewAsSkill{
+class Mazui: public OneCardViewAsSkill{
 public:
-    Mazui():ZeroCardViewAsSkill("mazui"){
+    Mazui(): OneCardViewAsSkill("mazui"){
     }
 
     virtual bool isEnabledAtPlay(const Player *conan) const{
@@ -598,10 +598,43 @@ public:
     }
 };
 
+ShouhouCard::ShouhouCard(){
+}
+
+bool ShouhouCard::targetFilter(const QList<const Player *> &targets, const Player *to_select) const{
+    return targets.isEmpty() && to_select->isWounded();
+}
+
+void ShouhouCard::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.from->getRoom();
+    RecoverStruct ct;
+    ct.who = effect.from;
+    room->recover(effect.to, ct, true);
+}
+
+class ShouhouViewAsSkill: public ZeroCardViewAsSkill{
+public:
+    ShouhouViewAsSkill():ZeroCardViewAsSkill("shouhou"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "@@shouhou";
+    }
+
+    virtual const Card *viewAs() const{
+        return new ShouhouCard;
+    }
+};
+
 class Shouhou: public TriggerSkill{
 public:
     Shouhou():TriggerSkill("shouhou"){
         events << CardResponsed << TurnedOver;
+        view_as_skill = new ShouhouViewAsSkill;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *mouriran, QVariant &data) const{
@@ -2114,6 +2147,7 @@ void StandardPackage::addGenerals(){
     addMetaObject<ZhenxiangCard>();
     addMetaObject<JiaojinCard>();
     addMetaObject<ShiyanCard>();
+    addMetaObject<ShouhouCard>();
     addMetaObject<ShouqiuCard>();
     addMetaObject<BaiyiCard>();
     addMetaObject<DiaobingCard>();
