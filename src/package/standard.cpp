@@ -198,10 +198,16 @@ void DelayedTrick::onEffect(const CardEffectStruct &effect) const{
     judge_struct.delayedtrick = this;
     room->judge(judge_struct);
 
-    if((judge_struct.isBad() && !inherits("Emigration")) ||
-       (judge_struct.isGood() && inherits("Emigration"))){
-        room->throwCard(this);
-        takeEffect(effect.to);
+    if(judge_struct.isBad()){
+        ServerPlayer *mazida = room->findPlayerBySkillName("chaidan");
+        if(mazida && room->askForCard(mazida, ".|spade|2~9", "@chaidan:" + effect.to->objectName())){
+            mazida->playSkillEffect("chaidan");
+            mazida->obtainCard(this);
+        }
+        else{
+            room->throwCard(this);
+            takeEffect(effect.to);
+        }
     }else if(movable){
         onNullified(effect.to);
     }
@@ -234,12 +240,17 @@ const DelayedTrick *DelayedTrick::CastFrom(const Card *card){
     DelayedTrick *trick = NULL;
     Card::Suit suit = card->getSuit();
     int number = card->getNumber();
-    if(card->getSuit() == Card::Diamond){
+    if(Self->findplayerbySkillName("chaidan")){
+        trick = new Lightning(suit, number);
+        trick->addSubcard(card->getId());
+    }
+    else if(card->inherits("DelayedTrick"))
+        return qobject_cast<const DelayedTrick *>(card);
+    else if(card->getSuit() == Card::Diamond && card->inherits("BasicCard")){
         trick = new Indulgence(suit, number);
         trick->addSubcard(card->getId());
-    }else if(card->inherits("DelayedTrick"))
-        return qobject_cast<const DelayedTrick *>(card);
-    else if(card->isBlack() && (card->inherits("BasicCard") || card->inherits("EquipCard"))){
+    }
+    else if(card->isBlack() && card->inherits("BasicCard")){
         trick = new SupplyShortage(suit, number);
         trick->addSubcard(card->getId());
     }

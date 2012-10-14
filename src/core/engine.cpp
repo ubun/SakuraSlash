@@ -49,6 +49,7 @@ Engine::Engine()
             << "Thicket"
             << "Fire"
             << "Mountain"
+            << "Negative"
             << "Test"
 
             << "StandardCard"

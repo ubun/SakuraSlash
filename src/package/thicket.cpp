@@ -8,75 +8,6 @@
 #include "client.h"
 #include "engine.h"
 
-ChaidanCard::ChaidanCard(){
-    once = true;
-}
-
-bool ChaidanCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty() && !to_select->getJudgingArea().isEmpty();
-}
-
-void ChaidanCard::onEffect(const CardEffectStruct &effect) const{
-    QList<int> days;
-    foreach(const Card *card, effect.to->getJudgingArea())
-        days << card->getId();
-    if(days.isEmpty())
-        return;
-
-    Room *room = effect.to->getRoom();
-    int day = -1;
-    if(days.count() > 1){
-        room->fillAG(days, effect.from);
-        day = room->askForAG(effect.from, days, true, "chaidan");
-        effect.from->invoke("clearAG");
-    }
-    if(day == -1)
-        day = days.first();
-
-    const Card *delayCard = qobject_cast<const DelayedTrick *>(Sanguosha->getCard(day));
-    const Card *delaycard = DelayedTrick::CastFrom(delayCard);
-
-    JudgeStruct judge;
-    judge.reason = "chaidan";
-    judge.who = effect.from;
-    room->judge(judge);
-
-    bool chai = false;
-    if(delaycard->inherits("Lightning")){
-        if(judge.card->getSuit() == Card::Spade &&
-           judge.card->getNumber() <= 9 && judge.card->getNumber() >= 2)
-            chai = true;
-    }
-    else if(delaycard->inherits("Indulgence")){
-        if(judge.card->getSuit() != Card::Heart)
-            chai = true;
-    }
-    else if(delaycard->inherits("SupplyShortage")){
-        if(judge.card->getSuit() != Card::Club)
-            chai = true;
-    }
-
-    if(chai){
-        effect.from->obtainCard(judge.card);
-        effect.from->obtainCard(delayCard);
-    }
-}
-
-class Chaidan: public ZeroCardViewAsSkill{
-public:
-    Chaidan():ZeroCardViewAsSkill("chaidan"){
-
-    }
-
-    virtual bool isEnabledAtPlay(const Player *matsuda) const{
-        return !matsuda->hasUsed("ChaidanCard");
-    }
-
-    virtual const Card *viewAs() const{
-        return new ChaidanCard;
-    }
-};
-
 JulunCard::JulunCard(){
     once = true;
     target_fixed = true;
@@ -1128,7 +1059,7 @@ ThicketPackage::ThicketPackage()
     :Package("thicket")
 {
     General *matsudajinpei = new General(this, "matsudajinpei", "zhen");
-    matsudajinpei->addSkill(new Chaidan);
+    matsudajinpei->addSkill(new Skill("chaidan", Skill::Compulsory));
     matsudajinpei->addSkill(new Julun);
     matsudajinpei->addSkill(new MarkAssignSkill("@circle", 1));
     related_skills.insertMulti("julun", "#@circle-1");
@@ -1191,7 +1122,6 @@ ThicketPackage::ThicketPackage()
     miyamotoyumi->addSkill(new Skill("xuncha", Skill::Compulsory));
     miyamotoyumi->addSkill(new Skill("chuanyao", Skill::Compulsory));
 
-    addMetaObject<ChaidanCard>();
     addMetaObject<JulunCard>();
     addMetaObject<ConghuiCard>();
     addMetaObject<HongmengCard>();

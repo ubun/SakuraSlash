@@ -697,7 +697,7 @@ Turnover::Turnover(Suit suit, int number)
 bool Turnover::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     if(!targets.isEmpty())
         return false;
-    if(Self->hasSkill("chuanyao"))
+    if(Self->hasSkill("chuanyao") || Self->hasSkill("mazui"))
         return true;
     return Self->inMyAttackRange(to_select);
 }

@@ -404,7 +404,7 @@ class Dongcha:public TriggerSkill{
 public:
     Dongcha():TriggerSkill("dongcha"){
         events << CardUsed << PhaseChange;
-        frequency = Frequency;
+        frequency = Frequent;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
