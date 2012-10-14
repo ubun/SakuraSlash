@@ -263,44 +263,29 @@ public:
     }
 };
 
-MazuiCard::MazuiCard(){
-    once = true;
-}
-
-void MazuiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    if(targets.isEmpty())
-        return;
-
-    ServerPlayer *target = targets.first();
-    JudgeStruct judge;
-    judge.pattern = QRegExp("(.*):(heart):(.*)");
-    judge.good = true;
-    judge.reason = objectName();
-    judge.who = source;
-
-    room->judge(judge);
-    if(judge.isGood())
-        target->turnOver();
-    else if(source->hasSkill("skateboard") && source->askForSkillInvoke("skateboard")){
-        source->obtainCard(judge.card);
-        room->judge(judge);
-        if(judge.isGood())
-            target->turnOver();
-    }
-}
-
 class Mazui: public ZeroCardViewAsSkill{
 public:
     Mazui():ZeroCardViewAsSkill("mazui"){
-
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return !player->hasUsed("MazuiCard");
+    virtual bool isEnabledAtPlay(const Player *conan) const{
+        if(conan->hasSkill("skateboard"))
+            return true;
+        return !conan->hasFlag("Mazui");
     }
 
-    virtual const Card *viewAs() const{
-        return new MazuiCard;
+    virtual bool viewFilter(const CardItem *to_select) const{
+        const Card *card = to_select->getFilteredCard();
+        return card->inherits("BasicCard") && card->getSuit() == Card::Heart;
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        const Card *first = card_item->getCard();
+        Turnover *turnover = new Turnover(first->getSuit(), first->getNumber());
+        turnover->addSubcard(first->getId());
+        turnover->setSkillName(objectName());
+        Self->setFlags("Mazui");
+        return turnover;
     }
 };
 
@@ -613,32 +598,20 @@ public:
     }
 };
 
-class Shouhou: public PhaseChangeSkill{
+class Shouhou: public TriggerSkill{
 public:
-    Shouhou():PhaseChangeSkill("shouhou"){
+    Shouhou():TriggerSkill("shouhou"){
+        events << CardResponsed << TurnedOver;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *mouri) const{
-        Room *room = mouri->getRoom();
-        if(mouri->getPhase() == Player::Start){
-            QList<ServerPlayer *> hurts;
-            foreach(ServerPlayer *player, room->getAlivePlayers())
-                if(player->isWounded())
-                    hurts << player;
-            if(!hurts.isEmpty() && mouri->askForSkillInvoke(objectName())){
-                ServerPlayer *target = room->askForPlayerChosen(mouri, hurts, "shouhou");
-                if(target){
-                    room->playSkillEffect(objectName());
-                    RecoverStruct recover;
-                    recover.card = NULL;
-                    recover.who = mouri;
-                    room->recover(target, recover, true);
-
-                    mouri->skip(Player::Judge);
-                    mouri->skip(Player::Draw);
-                }
-            }
+    virtual bool trigger(TriggerEvent event, ServerPlayer *mouriran, QVariant &data) const{
+        Room *room = mouriran->getRoom();
+        if(event == TurnedOver){
+            room->askForUseCard(mouriran, "@@shouhou", "@shouhou");
+            return false;
         }
+        if(mouriran->getPhase() == Player::Finish && mouriran->askForSkillInvoke(objectName(), data))
+            mouriran->turnOver();
         return false;
     }
 };
@@ -2140,7 +2113,6 @@ void StandardPackage::addGenerals(){
     // for skill cards
     addMetaObject<ZhenxiangCard>();
     addMetaObject<JiaojinCard>();
-    addMetaObject<MazuiCard>();
     addMetaObject<ShiyanCard>();
     addMetaObject<ShouqiuCard>();
     addMetaObject<BaiyiCard>();

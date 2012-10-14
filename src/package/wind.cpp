@@ -380,22 +380,22 @@ public:
         return 2;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *okida) const{
-        Room *room = okida->getRoom();
-        if(okida->getPhase() == Player::Draw || okida->getPhase() == Player::Play){
-            if(room->getTag("Zhenwu").isNull() && okida->askForSkillInvoke(objectName())){
-                QString choice = room->askForChoice(okida, objectName(), "slash+ndtrick");
+    virtual bool onPhaseChange(ServerPlayer *satoshi) const{
+        Room *room = satoshi->getRoom();
+        if(satoshi->getPhase() == Player::Draw || satoshi->getPhase() == Player::Play){
+            if(room->getTag("Zhenwu").isNull() && satoshi->askForSkillInvoke(objectName())){
+                QString choice = room->askForChoice(satoshi, objectName(), "slash+ndtrick");
                 room->setTag("Zhenwu", QVariant::fromValue(choice));
                 LogMessage log;
                 log.type = "#Zhenwu";
-                log.from = okida;
+                log.from = satoshi;
                 log.arg = choice;
                 log.arg2 = objectName();
                 room->sendLog(log);
                 return true;
             }
         }
-        else if(okida->getPhase() == Player::Start)
+        else if(satoshi->getPhase() == Player::Start)
             room->removeTag("Zhenwu");
         return false;
     }
@@ -407,13 +407,15 @@ public:
         events << CardUsed;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
-        ServerPlayer *okida = target->getRoom()->findPlayerBySkillName("zhenwu");
-        return okida;
+    virtual bool triggerable(const ServerPlayer *) const{
+        return true;
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
+        ServerPlayer *satoshi = room->findPlayerBySkillName("zhenwu");
+        if(!satoshi)
+            return false;
         QString zhenwutag = room->getTag("Zhenwu").toString();
         CardUseStruct use = data.value<CardUseStruct>();
         if(use.card->isRed())
@@ -1349,9 +1351,9 @@ WindPackage::WindPackage()
     General *heiji = new General(this, "heiji", "woo");
     heiji->addSkill(new Nijian);
 
-    General *okidasouji = new General(this, "okidasouji", "woo");
-    okidasouji->addSkill(new Zhenwu);
-    okidasouji->addSkill(new ZhenwuEffect);
+    General *maedasatoshi = new General(this, "maedasatoshi", "woo");
+    maedasatoshi->addSkill(new Zhenwu);
+    maedasatoshi->addSkill(new ZhenwuEffect);
     related_skills.insertMulti("zhenwu", "#zhenwu_eft");
 
     General *suzukisonoko = new General(this, "suzukisonoko", "yi", 3, false);
