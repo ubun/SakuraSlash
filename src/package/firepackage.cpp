@@ -583,6 +583,91 @@ public:
     }
 };
 
+ShendieCard::ShendieCard(){
+    once = true;
+    target_fixed = true;
+}
+/*
+bool ShendieCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(!targets.isEmpty())
+        return false;
+    return !to_select->isLord() && to_select != Self;
+}
+*/
+void ShendieCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    QList<ServerPlayer *> tars;
+    foreach(ServerPlayer *tmp, room->getOtherPlayers(source)){
+        if(!tmp->isLord())
+            tars << tmp;
+    }
+    if(!tars.isEmpty()){
+        ServerPlayer *target = room->askForPlayerChosen(source, tars, skill_name);
+        QString myrole = source->getRole();
+        source->setRole(target->getRole());
+        target->setRole(myrole);
+    }
+}
+
+class ShendieViewAsSkill: public ZeroCardViewAsSkill{
+public:
+    ShendieViewAsSkill():ZeroCardViewAsSkill("shendie"){
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return !player->hasUsed("ShendieCard") && player->getMark("die") < 1;
+    }
+
+    virtual const Card *viewAs() const{
+        return new ShendieCard;
+    }
+};
+
+class Shendie:public TriggerSkill{
+public:
+    Shendie():TriggerSkill("shendie"){
+        events << PhaseChange;
+        view_as_skill = new ShendieViewAsSkill;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *hidemi, QVariant &data) const{
+        if(hidemi->getPhase() == Player::Play && hidemi->getMark("die") < 1){
+            Room *room = hidemi->getRoom();
+            if(room->getAlivePlayers().count() != room->getPlayers().count()){
+                room->addHpSlot(hidemi);
+                room->setPlayerMark(hidemi, "die", 1);
+                room->detachSkillFromPlayer(hidemi, "shendie");
+            }
+        }
+        return false;
+    }
+};
+
+class Gangxie: public TriggerSkill{
+public:
+    Gangxie():TriggerSkill("gangxie"){
+        events << CardEffected;
+        frequency = Compulsory;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        CardEffectStruct effect = data.value<CardEffectStruct>();
+
+        if(effect.card->inherits("Slash")){
+            Room *room = player->getRoom();
+            room->playSkillEffect(objectName());
+            LogMessage log;
+            log.type = "#Gangxie";
+            log.from = effect.from;
+            log.to << effect.to;
+            log.arg = objectName();
+            room->sendLog(log);
+
+            return !room->askForCard(effect.from, "slash", "@gangxie:" + effect.to->objectName(), data);
+        }
+        return false;
+    }
+};
+
 FirePackage::FirePackage()
     :Package("fire")
 {
@@ -616,9 +701,14 @@ FirePackage::FirePackage()
     miyanoagemi->addSkill(new Shanliang);
     miyanoagemi->addSkill(new Qingshang);
 
+    General *hondouhidemi = new General(this, "hondouhidemi", "te", 3, false);
+    hondouhidemi->addSkill(new Shendie);
+    hondouhidemi->addSkill(new Gangxie);
+
     addMetaObject<IentouCard>();
     addMetaObject<FangxinCard>();
     addMetaObject<MoguaCard>();
+    addMetaObject<ShendieCard>();
 }
 
 ADD_PACKAGE(Fire);

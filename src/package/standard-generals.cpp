@@ -633,7 +633,7 @@ public:
 class Shouhou: public TriggerSkill{
 public:
     Shouhou():TriggerSkill("shouhou"){
-        events << CardResponsed << TurnedOver;
+        events << PhaseChange << TurnedOver;
         view_as_skill = new ShouhouViewAsSkill;
     }
 

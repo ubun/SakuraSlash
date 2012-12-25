@@ -806,6 +806,9 @@ void Duel::onEffect(const CardEffectStruct &effect) const{
     room->setEmotion(first, "duel-a");
     room->setEmotion(second, "duel-b");
 
+    if(effect.to->hasSkill("gangxie"))
+        qSwap(first, second);
+
     forever{
         if(second->hasSkill("wushuang")){
             room->playSkillEffect("wushuang");
