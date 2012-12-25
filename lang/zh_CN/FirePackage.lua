@@ -14,6 +14,8 @@ return {
 	["kugorou"] = "毛利小五郎",
 	["kinoshitafusae"] = "木之下芙纱绘",
 	["akibareiko"] = "秋庭怜子",
+	["chuyin"] = "初音",
+	[":chuyin"] = "当你受到伤害时，增加一点体力上限，若此时你的体力值为全场最少，其他角色依次进行二选一：失去一点体力或弃置两张牌。",
 
 	["satomiwako"] = "佐藤美和子",
 	["cv:satomiwako"] = "湯屋敦子",
