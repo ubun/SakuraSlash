@@ -24,15 +24,6 @@ public:
     virtual void use(Room *room, ServerPlayer *heiji, const QList<ServerPlayer *> &targets) const;
 };
 
-class MazuiCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE MazuiCard();
-
-    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
-};
-
 class ShiyanCard: public SkillCard{
     Q_OBJECT
 
@@ -40,6 +31,16 @@ public:
     Q_INVOKABLE ShiyanCard();
 
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
+
+class ShouhouCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE ShouhouCard();
+
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select) const;
+    virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
 class ShouqiuCard: public SkillCard{

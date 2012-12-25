@@ -208,6 +208,7 @@ public:
     void copyFrom(Player* p);
 
     QList<const Player *> getSiblings() const;
+    const Player* findplayerbySkillName(const QString &skill) const;
 
     QVariantMap tag;
 

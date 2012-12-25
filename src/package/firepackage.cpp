@@ -166,7 +166,6 @@ public:
             Room *room = pangde->getRoom();
             if(pangde->askForSkillInvoke(objectName(), data)){
                 room->playSkillEffect(objectName());
-                int to_throw = room->askForCardChosen(pangde, effect.to, "he", objectName());
                 room->throwCard(to_throw);
             }
         }
@@ -186,7 +185,6 @@ public:
 
     virtual const Card *viewAs(CardItem *card_item) const{
         const Card *card = card_item->getFilteredCard();
-        IronChain *chain = new IronChain(card->getSuit(), card->getNumber());
         chain->addSubcard(card);
         chain->setSkillName(objectName());
         return chain;
@@ -221,7 +219,6 @@ public:
             pangtong->drawCards(3);
 
             if(pangtong->isChained()){
-                if(dying_data.damage == NULL || dying_data.damage->nature == DamageStruct::Normal)
                     room->setPlayerProperty(pangtong, "chained", false);
             }
             if(!pangtong->faceUp())
@@ -243,7 +240,6 @@ public:
 
     virtual const Card *viewAs(CardItem *card_item) const{
         const Card *card = card_item->getCard();
-        FireAttack *fire_attack = new FireAttack(card->getSuit(), card->getNumber());
         fire_attack->addSubcard(card->getId());
         fire_attack->setSkillName(objectName());
         return fire_attack;
@@ -257,8 +253,7 @@ public:
         events << CardAsked;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return TriggerSkill::triggerable(target) && !target->getArmor() && target->getMark("qinggang") == 0 && target->getMark("wuqian") == 0;
+    virtual bool triggerable(const ServerPlayer *target) con->getMark("qinggang") == 0 && target->getMark("wuqian") == 0;
     }
 
     virtual bool trigger(TriggerEvent, ServerPlayer *wolong, QVariant &data) const{

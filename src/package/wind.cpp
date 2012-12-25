@@ -371,64 +371,53 @@ public:
     }
 };
 
-class Zhenwu: public PhaseChangeSkill{
+class Jiequan: public TriggerSkill{
 public:
-    Zhenwu():PhaseChangeSkill("zhenwu"){
+    Jiequan():TriggerSkill("jiequan"){
+        events << SlashMissed;
+        frequency = Compulsory;
     }
 
-    virtual int getPriority() const{
-        return 2;
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *satoshi) const{
-        Room *room = satoshi->getRoom();
-        if(satoshi->getPhase() == Player::Draw || satoshi->getPhase() == Player::Play){
-            if(room->getTag("Zhenwu").isNull() && satoshi->askForSkillInvoke(objectName())){
-                QString choice = room->askForChoice(satoshi, objectName(), "slash+ndtrick");
-                room->setTag("Zhenwu", QVariant::fromValue(choice));
-                LogMessage log;
-                log.type = "#Zhenwu";
-                log.from = satoshi;
-                log.arg = choice;
-                log.arg2 = objectName();
-                room->sendLog(log);
-                return true;
-            }
+    virtual bool trigger(TriggerEvent, ServerPlayer *sira, QVariant &data) const{
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        Room *room = sira->getRoom();
+        QList<ServerPlayer *> targets;
+        foreach(ServerPlayer *tmp, room->getOtherPlayers(effect.to)){
+            if(sira->inMyAttackRange(tmp))
+                targets << tmp;
         }
-        else if(satoshi->getPhase() == Player::Start)
-            room->removeTag("Zhenwu");
+        LogMessage log;
+        log.type = "#Jiequan";
+        log.from = sira;
+        log.arg = objectName();
+        room->sendLog(log);
+        PlayerStar target = room->askForPlayerChosen(sira, targets, objectName());
+        DamageStruct dmg;
+        dmg.from = sira;
+        dmg.to = target;
+        room->damage(dmg);
         return false;
     }
 };
 
-class ZhenwuEffect: public TriggerSkill{
+class Dongcha:public TriggerSkill{
 public:
-    ZhenwuEffect():TriggerSkill("#zhenwu_eft"){
-        events << CardUsed;
+    Dongcha():TriggerSkill("dongcha"){
+        events << CardUsed << PhaseChange;
+        frequency = Frequent;
     }
 
-    virtual bool triggerable(const ServerPlayer *) const{
-        return true;
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
-        ServerPlayer *satoshi = room->findPlayerBySkillName("zhenwu");
-        if(!satoshi)
-            return false;
-        QString zhenwutag = room->getTag("Zhenwu").toString();
-        CardUseStruct use = data.value<CardUseStruct>();
-        if(use.card->isRed())
-            return false;
-        if((use.card->inherits("Slash") && zhenwutag == "slash") ||
-           (use.card->isNDTrick() && zhenwutag == "ndtrick")){
-            LogMessage log;
-            log.type = "#ZhenwuEffect";
-            log.from = player;
-            log.arg = "zhenwu";
-            log.arg2 = use.card->objectName();
-            room->sendLog(log);
-            return true;
+        if(event == CardUsed){
+            CardUseStruct use = data.value<CardUseStruct>();
+            if(!use.card->inherits("BasicCard") && player->getPhase() == Player::Play)
+                room->setPlayerFlag(player, "DongUa");
+        }
+        else{
+            if(player->getPhase() == Player::Discard && !player->hasFlag("DongUa")
+                && player->askForSkillInvoke(objectName()))
+                return true;
         }
         return false;
     }
@@ -1351,10 +1340,9 @@ WindPackage::WindPackage()
     General *heiji = new General(this, "heiji", "woo");
     heiji->addSkill(new Nijian);
 
-    General *maedasatoshi = new General(this, "maedasatoshi", "woo");
-    maedasatoshi->addSkill(new Zhenwu);
-    maedasatoshi->addSkill(new ZhenwuEffect);
-    related_skills.insertMulti("zhenwu", "#zhenwu_eft");
+    General *seramasumi = new General(this, "seramasumi", "woo", 3, false);
+    seramasumi->addSkill(new Jiequan);
+    seramasumi->addSkill(new Dongcha);
 
     General *suzukisonoko = new General(this, "suzukisonoko", "yi", 3, false);
     suzukisonoko->addSkill(new Huachi);

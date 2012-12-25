@@ -58,15 +58,6 @@ public:
     virtual void onUse(Room *room, const CardUseStruct &card_use) const;
 };
 
-class ChaidanCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE ChaidanCard();
-    virtual void onEffect(const CardEffectStruct &effect) const;
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-};
-
 class FenbiCard:public SkillCard{
     Q_OBJECT
 
