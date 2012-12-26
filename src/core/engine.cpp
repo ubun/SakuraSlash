@@ -57,7 +57,6 @@ Engine::Engine()
             << "ThunderBird"
             //<< "WhiteTiger"
             //<< "IronDino"
-            << "Secrets"
             //<< "Nostalgia"
             << "Joy"
             << "JoyEquip"

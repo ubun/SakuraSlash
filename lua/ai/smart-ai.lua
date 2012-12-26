@@ -3630,13 +3630,12 @@ dofile "lua/ai/value_config.lua"
 dofile "lua/ai/standard-ai.lua"
 dofile "lua/ai/standard-skill-ai.lua"
 dofile "lua/ai/thunder_bird-ai.lua"
-dofile "lua/ai/secrets-ai.lua"
 dofile "lua/ai/chat-ai.lua"
 -- dofile "lua/ai/hulaoguan-ai.lua"
 dofile "lua/ai/guanxing-ai.lua"
 dofile "lua/ai/intention-ai.lua"
 
-local loaded = "standard|standard_cards|thunder_bird|secrets"
+local loaded = "standard|standard_cards|thunder_bird"
 
 local files = table.concat(sgs.GetFileNames("lua/ai"), " ")
 

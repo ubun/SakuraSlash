@@ -49,7 +49,6 @@ SOURCES += src/main.cpp \
 	src/package/firepackage.cpp \
 	src/package/mountainpackage.cpp \
 	src/package/negative.cpp \
-	src/package/secrets.cpp \
 	src/package/god.cpp \
 	src/package/joypackage.cpp \
 	src/package/nostalgia.cpp \
@@ -158,7 +157,6 @@ HEADERS += src/client/aux-skills.h \
 	src/package/negative.h \
 	src/package/joypackage.h \
 	src/package/nostalgia.h \
-	src/package/secrets.h \
 	src/package/god.h \
 	src/scenario/boss-mode-scenario.h \
 	src/scenario/couple-scenario.h \
