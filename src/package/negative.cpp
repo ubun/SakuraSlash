@@ -73,25 +73,39 @@ public:
     Ruoshui():TriggerSkill("ruoshui"){
         events << PhaseChange;
     }
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return !target->hasSkill("guilin");
+
+    virtual bool triggerable(const ServerPlayer *) const{
+        return true;
     }
-    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &) const{
-        if(event == PhaseChange && player->getPhase() == Player::Judge && player->getJudgingArea().length()!=0){
-            Room *room = player->getRoom();
-            ServerPlayer *three = room->findPlayerBySkillName(objectName());
-            if(!three->askForSkillInvoke(objectName()))
-                return false;
-  //          CardEffectStruct effect = data.value<CardEffectStruct>();
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &) const{
+        Room *room = player->getRoom();
+        ServerPlayer *three = room->findPlayerBySkillName(objectName());
+        if(!three || three == player)
+            return false;
+        if(player->getPhase() == Player::Judge && !player->getJudgingArea().isEmpty()
+            && three->askForSkillInvoke(objectName())){
             QList<const Card *> three_cards = three->getJudgingArea();
             QList<const Card *> cards = player->getJudgingArea();
-            foreach(const Card *card, cards){
+            foreach(const Card *card, cards)
                room->moveCardTo(card, three, Player::Judging);
-            }
-            foreach(const Card *card, three_cards){
+            foreach(const Card *card, three_cards)
                room->moveCardTo(card, player, Player::Judging);
-            }
          }
+        return false;
+    }
+};
+
+class Wodi: public TriggerSkill{
+public:
+    Wodi():TriggerSkill("wodi"){
+        events << PhaseChange;
+        frequency = Compulsory;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &) const{
+        if(player->getPhase() == Player::RoundStart && player->getRole() == "renegade")
+            player->setRole("loyalist");
         return false;
     }
 };
@@ -104,8 +118,10 @@ NegativePackage::NegativePackage()
     maedasatoshi->addSkill(new ZhenwuEffect);
     related_skills.insertMulti("zhenwu", "#zhenwu_eft");
 
-    General *mizunashireina = new General(this, "mizunashireina", "yi", 4, false);
+    General *mizunashireina = new General(this, "mizunashireina", "yi", 4, false, true);
     mizunashireina->addSkill(new Ruoshui);
+    mizunashireina->addSkill(new Wodi);
+    mizunashireina->addSkill("#losthp");
 }
 
 ADD_PACKAGE(Negative)

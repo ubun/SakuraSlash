@@ -217,7 +217,7 @@ public:
     virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
-        if(effect.to->hasSkill("kongcheng") && effect.to->isKongcheng())
+        if(!player->canSlash(effect.to, false))
             return false;
 
         Room *room = player->getRoom();

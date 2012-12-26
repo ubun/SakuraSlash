@@ -1087,7 +1087,9 @@ void ShuangyuCard::use(Room *room, ServerPlayer *source, const QList<ServerPlaye
     QString myrole = source->getRole();
     QList<ServerPlayer *> lucky_players, cup_players;
     foreach(ServerPlayer *player, targets){
+        room->setTag("Jody", QVariant::fromValue((PlayerStar)source));
         QString result = room->askForChoice(player, "shuangyu", "lord+loyalist+rebel+renegade");
+        room->removeTag("Jody");
         if(result == myrole)
             lucky_players << player;
         else{
@@ -1340,7 +1342,7 @@ WindPackage::WindPackage()
     General *heiji = new General(this, "heiji", "woo");
     heiji->addSkill(new Nijian);
 
-    General *seramasumi = new General(this, "seramasumi", "woo", 3, false);
+    General *seramasumi = new General(this, "seramasumi", "woo", 3, false, true);
     seramasumi->addSkill(new Jiequan);
     seramasumi->addSkill(new Dongcha);
 

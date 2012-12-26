@@ -93,6 +93,13 @@ public:
     virtual bool trigger(TriggerEvent, ServerPlayer *yuriko, QVariant &data) const{
         if(yuriko->getHp() > 0){
             yuriko->playSkillEffect(objectName());
+
+            LogMessage log;
+            log.type = "#Fengsheng";
+            log.from = yuriko;
+            log.arg = objectName();
+            yuriko->getRoom()->sendLog(log);
+
             yuriko->gainMark("@door");
         }
         return false;

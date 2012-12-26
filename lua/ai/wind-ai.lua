@@ -244,6 +244,24 @@ sgs.ai_skill_choice["qianmian"] = function(self, choices)
 	end
 end
 
+-- shuangyu
+sgs.ai_skill_choice["shuangyu"] = function(self, choices)
+	local source = self.room:getTag("Jody"):toPlayer()
+	if source:isLord() then
+		return "lord"
+	elseif self:isFriend(source) and not self.player:isLord() then
+		return self.player:getRole()
+	end
+	local r = math.random(1, 7)
+	if r < 4 then
+		return "loyalist"
+	elseif r > 4 then
+		return "rebel"
+	else
+		return "renegade"
+	end
+end
+
 -- qingdi
 sgs.ai_skill_invoke["qingdi"] = function(self, data)
 	self:sort(self.enemies, "hp")
