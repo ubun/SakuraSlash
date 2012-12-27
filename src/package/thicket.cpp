@@ -744,7 +744,7 @@ public:
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &) const{
         Room *room = player->getRoom();
         if(event == Predamaged){
-            if(player->hasSkill(objectName()))
+            if(player->hasSkill("zhongpu"))
                 if(room->getTag("ZProject").toString() == player->objectName())
                     return true;
             return false;
@@ -760,7 +760,7 @@ ZhiquCard::ZhiquCard(){
     once = true;
 }
 
-bool ZhiquCard::targetFilter(const QList<const Player *> &targets, const Player *to_select) const{
+bool ZhiquCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const{
     return targets.isEmpty() && !to_select->isAllNude();
 }
 

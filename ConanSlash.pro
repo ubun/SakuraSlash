@@ -43,7 +43,6 @@ SOURCES += src/main.cpp \
 	src/package/standard-cards.cpp \
 	src/package/maneuvering.cpp \
 	src/package/standard-generals.cpp \
-	src/package/standard-skillcards.cpp \
 	src/package/wind.cpp \
 	src/package/thicket.cpp \
 	src/package/firepackage.cpp \
@@ -148,7 +147,6 @@ HEADERS += src/client/aux-skills.h \
 	src/package/standard.h \
 	src/package/standard-equips.h \
 	src/package/standard-generals.h \
-	src/package/standard-skillcards.h \
 	src/package/maneuvering.h \
 	src/package/wind.h \
 	src/package/thicket.h \
@@ -254,3 +252,5 @@ CONFIG(joystick){
 }
 
 TRANSLATIONS += conanslash.ts
+
+

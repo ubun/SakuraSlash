@@ -853,10 +853,13 @@ QList<const Player *> Player::getSiblings() const{
 }
 
 const Player* Player::findplayerbySkillName(const QString &skill) const{
-    QList<const Player *> siblings = parent()->findChildren<const Player *>();
-    foreach(const Player *tmp, siblings){
-        if(tmp->hasSkill(skill))
-            return tmp;
+    QList<const Player *> siblings;
+    if(parent()){
+        siblings = parent()->findChildren<const Player *>();
+        foreach(const Player *tmp, siblings){
+            if(tmp->isAlive() && tmp->hasSkill(skill))
+                return tmp;
+        }
     }
     return NULL;
 }

@@ -149,7 +149,7 @@ public:
 
     virtual bool trigger(TriggerEvent, ServerPlayer *rou, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
-        if(damage.to && !damage.to->faceUp() && rou->askForSkillInvoke(objectName(), data)){
+        if(damage.to->isAlive() && !damage.to->faceUp() && rou->askForSkillInvoke(objectName(), data)){
             rou->playSkillEffect(objectName(), 1);
             damage.to->turnOver();
         }

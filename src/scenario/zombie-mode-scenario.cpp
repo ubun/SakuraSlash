@@ -1,4 +1,3 @@
-#include "aux-skills.h"
 #include "zombie-mode-scenario.h"
 #include "engine.h"
 #include "clientplayer.h"

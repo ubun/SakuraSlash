@@ -14,7 +14,7 @@
 ZhenxiangCard::ZhenxiangCard(){
 }
 
-bool ZhenxiangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select) const{
+bool ZhenxiangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const{
     return targets.isEmpty() && !to_select->isKongcheng();
 }
 
@@ -574,7 +574,7 @@ public:
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
-        return  pattern == "jink";
+        return pattern == "jink";
     }
 };
 
@@ -601,7 +601,7 @@ public:
 ShouhouCard::ShouhouCard(){
 }
 
-bool ShouhouCard::targetFilter(const QList<const Player *> &targets, const Player *to_select) const{
+bool ShouhouCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     return targets.isEmpty() && to_select->isWounded();
 }
 
@@ -1007,7 +1007,7 @@ DiaobingCard::DiaobingCard(){
     once = true;
 }
 
-bool DiaobingCard::targetFilter(const QList<const Player *> &targets, const Player *to_select) const{
+bool DiaobingCard::targetFilter(const QList<const Player *> &targets, const Player *, const Player *) const{
     return targets.isEmpty();
 }
 
@@ -1250,7 +1250,7 @@ RenxingCard::RenxingCard(){
     will_throw = false;
 }
 
-bool RenxingCard::targetFilter(const QList<const Player *> &targets, const Player *to_select) const{
+bool RenxingCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
     if(!targets.isEmpty())
         return false;
     if(to_select->getHp() < Self->getHp())
@@ -1681,7 +1681,7 @@ public:
 GaizaoCard::GaizaoCard(){
 }
 
-bool GaizaoCard::targetFilter(const QList<const Player *> &targets, const Player *to_select) const{
+bool GaizaoCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const{
     return targets.isEmpty() && to_select->hasEquip();
 }
 
@@ -1818,7 +1818,7 @@ YuandingCard::YuandingCard(){
     will_throw = false;
 }
 
-bool YuandingCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+bool YuandingCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const{
     return targets.isEmpty() && !to_select->isKongcheng() && !to_select->hasFlag("gardener");
 }
 
