@@ -84,7 +84,7 @@ public:
         if(!three || three == player)
             return false;
         if(player->getPhase() == Player::Judge && !player->getJudgingArea().isEmpty()
-            && three->askForSkillInvoke(objectName())){
+                && three->askForSkillInvoke(objectName(), QVariant::fromValue((PlayerStar)player))){
             QList<const Card *> three_cards = three->getJudgingArea();
             QList<const Card *> cards = player->getJudgingArea();
             foreach(const Card *card, cards)

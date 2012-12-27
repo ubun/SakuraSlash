@@ -111,29 +111,37 @@ end
 --	return card:isBlack()
 --end
 
---shuangxiong
+-- yiben
+sgs.ai_skill_invoke["yiben"] = true
+sgs.ai_skill_playerchosen["yiben"] = sgs.ai_skill_playerchosen["jiequan"]
 
-sgs.ai_skill_invoke["shuangxiong"]=function(self,data)
-	if self.player:isSkipped(sgs.Player_Play) or self.player:getHp() < 2 then
-		return false
-	end
-
-	local cards=self.player:getCards("h")
-	cards=sgs.QList2Table(cards)
-
-	local handnum=0
-
-	for _,card in ipairs(cards) do
-		if self:getUseValue(card)<8 then
-			handnum=handnum+1
-		end
-	end
-
-	handnum=handnum/2
-	self:sort(self.enemies, "hp")
-	for _, enemy in ipairs(self.enemies) do
-		if (self:getCardsNum("Slash", enemy)+enemy:getHp()<=handnum) and (self:getCardsNum("Slash")>=self:getCardsNum("Slash", enemy)) then return true end
-	end
-
-	return self.player:getHandcardNum()>=self.player:getHp()
+-- xiebi
+sgs.ai_skill_invoke["xiebi"]=function(self,data)
+	local damage = data:toDamage()
+	return self:isFriend(damage.to)
 end
+
+-- chuyin
+sgs.ai_skill_invoke["chuyin"] = true
+--[[sgs.ai_skill_discard["chuyin"] = function(self, discard_num, optional, include_equip)
+	local to_discard = {}
+	local cards = self.player:getHandcards()
+	cards=sgs.QList2Table(cards)
+	self:sortByKeepValue(cards, true)
+	for _, card in ipairs(cards) do
+		if #to_discard >= discard_num then break end
+		table.insert(to_discard, card:getId())
+	end
+	if #to_discard == discard_num then
+		return to_discard
+	else
+		return {}
+	end
+end]]
+
+-- shanliang
+sgs.ai_skill_invoke["shanliang"]=function(self,data)
+	local damage = data:toDamage()
+	return self.player:getHp() > 2 and self:isFriend(damage.to)
+end
+

@@ -142,6 +142,18 @@ sgs.ai_skill_cardask["@nijian"] = function(self, data)
 	return "."
 end
 
+-- jiequan
+sgs.ai_skill_playerchosen["jiequan"] = function(self, targets)
+	local targetlist = sgs.QList2Table(targets)
+	self:sort(targetlist)
+	for _, target in ipairs(targetlist) do
+		if self:isEnemy(target) then
+			return target
+		end
+	end
+	return targetlist[1]
+end
+
 -- yinsi
 sgs.ai_skill_choice["yinsi"] = function(self, choices)
 	local target = self.room:getTag("YinsTarget"):toPlayer()

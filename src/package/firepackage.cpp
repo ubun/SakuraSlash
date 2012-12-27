@@ -67,7 +67,7 @@ public:
 
     virtual int getDrawNum(ServerPlayer *matru, int n) const{
         Room *room = matru->getRoom();
-        int todraw = qMin(matru->getHandcardNum(), 4);
+        int todraw = qMin(matru->getHandcardNum() + matru->getHp(), 4);
         if(todraw > 2)
             room->playSkillEffect(objectName(), qrand() % 2 + 1);
         else
@@ -93,6 +93,7 @@ public:
     virtual bool trigger(TriggerEvent, ServerPlayer *yuriko, QVariant &data) const{
         if(yuriko->getHp() > 0){
             yuriko->playSkillEffect(objectName());
+            yuriko->drawCards(3);
 
             LogMessage log;
             log.type = "#Fengsheng";
@@ -545,7 +546,7 @@ public:
             return false;
         foreach(ServerPlayer *duck, ducks){
             if(duck != player && damage.damage > 0 && duck->distanceTo(player) <= 2 &&
-               duck->askForSkillInvoke(objectName())){
+               duck->askForSkillInvoke(objectName(), data)){
                 room->loseHp(duck);
                 if(duck->isAlive())
                     duck->drawCards(player->getHp());
