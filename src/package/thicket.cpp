@@ -744,13 +744,11 @@ public:
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &) const{
         Room *room = player->getRoom();
         if(event == Predamaged){
-            if(player->hasSkill("zhongpu"))
-                if(room->getTag("ZProject").toString() == player->objectName())
-                    return true;
-            return false;
+            QString zp = room->getTag("ZProject").toString();
+            return player->hasSkill("zhongpu") && player->objectName() == zp;
         }
         if(player->getPhase() == Player::NotActive)
-            room->setTag("ZProject", QVariant());
+            room->removeTag("ZProject");
 
         return false;
     }
