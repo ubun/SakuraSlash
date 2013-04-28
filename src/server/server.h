@@ -64,6 +64,7 @@ public:
     ServerDialog(QWidget *parent);
     void ensureEnableAI();
     bool config();
+    bool isPCConsole() {return pc_console;}
 
 private:
     QWidget *createBasicTab();
@@ -74,6 +75,8 @@ private:
 
     QGroupBox *createGameModeBox();
     QGroupBox *create3v3Box();
+    QPushButton *ok_button;
+    QCheckBox *minimize_checkbox;
 
     QLineEdit *server_name_edit;
     QSpinBox *timeout_spinbox;
@@ -102,9 +105,12 @@ private:
 
     QButtonGroup *extension_group;
     QButtonGroup *mode_group;
+    bool pc_console;
 
 private slots:
     void onOkButtonClicked();
+    void onSerButtonClicked();
+    void onPCCButtonClicked();
     void onDetectButtonClicked();
     void onHttpDone(bool error);
     void select3v3Generals();

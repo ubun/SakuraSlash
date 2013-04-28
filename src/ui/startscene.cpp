@@ -27,7 +27,12 @@ StartScene::StartScene()
 }
 
 void StartScene::addButton(QAction *action){
-    Button *button = new Button(action->text());
+    QString text = action->text();
+    if(action->objectName() == "actionPackaging")
+        text = tr("Lua Manager");
+    else if(action->objectName() == "actionReplay")
+        text = tr("Replay");
+    Button *button = new Button(text);
     button->setMute(false);
 
     connect(button, SIGNAL(clicked()), action, SLOT(trigger()));
@@ -35,11 +40,10 @@ void StartScene::addButton(QAction *action){
 
     QRectF rect = button->boundingRect();
     int n = buttons.length();
-    if(n < 5){
+    if(n < 5)
         button->setPos(- rect.width() - 5, (n - 1) * (rect.height() * 1.2));
-    }else{
+    else
         button->setPos(5, (n - 6) * (rect.height() * 1.2));
-    }
 
     buttons << button;
 }

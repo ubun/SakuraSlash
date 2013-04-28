@@ -931,6 +931,10 @@
     <name>ConnectionDialog</name>
     <message>
         <location filename="src/dialog/connectiondialog.ui" line="17"/>
+        <source>Join Game</source>
+        <translation>加入游戏(连接到服务器)</translation>
+    </message>
+    <message>
         <location filename="src/dialog/connectiondialog.ui" line="29"/>
         <source>Connection setup</source>
         <translation>连接设置</translation>
@@ -1509,9 +1513,14 @@
         <translation>Ctrl+R</translation>
     </message>
     <message>
-        <location filename="src/dialog/mainwindow.ui" line="126"/>
-        <source>Start server</source>
-        <translation>启动服务器</translation>
+        <location filename="src/dialog/mainwindow.ui" line="164"/>
+        <source>Start game</source>
+        <translation>启动游戏</translation>
+    </message>
+    <message>
+        <location filename="src/dialog/mainwindow.ui" line="172"/>
+        <source>Join game</source>
+        <translation>加入游戏</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.ui" line="83"/>
@@ -1669,6 +1678,11 @@
         <source>Package manager ...</source>
         <oldsource>Packaging ...</oldsource>
         <translation>DIY 包管理器 ...</translation>
+    </message>
+    <message>
+        <location filename="src/dialog/mainwindow.ui" line="480"/>
+        <source>Return main</source>
+        <translation>返回主界面</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.ui" line="337"/>

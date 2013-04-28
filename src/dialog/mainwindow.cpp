@@ -53,8 +53,8 @@ MainWindow::MainWindow(QWidget *parent)
     scene = NULL;
 
     connection_dialog = new ConnectionDialog(this);
-    connect(ui->actionStart_Game, SIGNAL(triggered()), connection_dialog, SLOT(exec()));
-    connect(connection_dialog, SIGNAL(accepted()), this, SLOT(startConnection()));
+    connect(ui->actionJoin_Game, SIGNAL(triggered()), connection_dialog, SLOT(exec()));
+    connect(connection_dialog, SIGNAL(accepted()), this, SLOT(on_actionRestart_game_triggered()));
 
     config_dialog = new ConfigDialog(this);
     connect(ui->actionConfigure, SIGNAL(triggered()), config_dialog, SLOT(show()));
@@ -65,10 +65,10 @@ MainWindow::MainWindow(QWidget *parent)
     StartScene *start_scene = new StartScene;
 
     QList<QAction*> actions;
-    actions << ui->actionStart_Game
-            << ui->actionStart_Server
-            << ui->actionPC_Console_Start
+    actions << ui->actionStart_Game //Start_Server
+            << ui->actionJoin_Game
             << ui->actionReplay
+            << ui->actionPackaging
             << ui->actionConfigure
             << ui->actionGeneral_Overview
             << ui->actionCard_Overview
@@ -144,9 +144,11 @@ void MainWindow::on_actionExit_triggered()
     }
 }
 
-void MainWindow::on_actionStart_Server_triggered()
+void MainWindow::on_actionStart_Game_triggered()
 {
     ServerDialog *dialog = new ServerDialog(this);
+    if(dialog->isPCConsole())
+        dialog->ensureEnableAI();
     if(!dialog->config())
         return;
 
@@ -157,10 +159,18 @@ void MainWindow::on_actionStart_Server_triggered()
         return;
     }
 
+    if(dialog->isPCConsole()){
+        server->createNewRoom();
+
+        Config.HostAddress = "127.0.0.1";
+        on_actionRestart_game_triggered();
+        return;
+    }
+
     server->daemonize();
 
-    ui->actionStart_Game->disconnect();
-    connect(ui->actionStart_Game, SIGNAL(triggered()), this, SLOT(startGameInAnotherInstance()));
+    ui->actionJoin_Game->disconnect();
+    connect(ui->actionJoin_Game, SIGNAL(triggered()), this, SLOT(startGameInAnotherInstance()));
 
     StartScene *start_scene = qobject_cast<StartScene *>(scene);
     if(start_scene){
@@ -194,7 +204,7 @@ void MainWindow::checkVersion(const QString &server_version, const QString &serv
 
     client->disconnectFromHost();
 
-    static QString link = "http://github.com/Moligaloo/QSanguosha/downloads";
+    static QString link = "http://weibo.com/conanslash";
     QString text = tr("Server version is %1, client version is %2 <br/>").arg(server_version).arg(client_version);
     if(server_version > client_version)
         text.append(tr("Your client version is older than the server's, please update it <br/>"));
@@ -205,7 +215,7 @@ void MainWindow::checkVersion(const QString &server_version, const QString &serv
     QMessageBox::warning(this, tr("Warning"), text);
 }
 
-void MainWindow::startConnection(){
+void MainWindow::on_actionRestart_game_triggered(){
     Client *client = new Client(this);
 
     connect(client, SIGNAL(version_checked(QString,QString)), SLOT(checkVersion(QString,QString)));
@@ -251,8 +261,8 @@ void MainWindow::enterRoom(){
         Config.setValue("HistoryIPs", Config.HistoryIPs);
     }
 
+    ui->actionJoin_Game->setEnabled(false);
     ui->actionStart_Game->setEnabled(false);
-    ui->actionStart_Server->setEnabled(false);
 
     RoomScene *room_scene = new RoomScene(this);
 
@@ -291,21 +301,26 @@ void MainWindow::enterRoom(){
         ui->actionExecute_script_at_server_side->disconnect();
     }
 
-    connect(room_scene, SIGNAL(restart()), this, SLOT(startConnection()));
-    connect(room_scene, SIGNAL(return_to_start()), this, SLOT(gotoStartScene()));
+    connect(room_scene, SIGNAL(restart()), this, SLOT(on_actionRestart_game_triggered()));
+    connect(room_scene, SIGNAL(return_to_start()), this, SLOT(on_actionReturn_main_triggered()));
 
     gotoScene(room_scene);
 }
 
-void MainWindow::gotoStartScene(){
+void MainWindow::on_actionReturn_main_triggered(){
+    QList<Server *> servers = findChildren<Server *>();
+    if(!servers.isEmpty())
+        servers.first()->deleteLater();
+
     StartScene *start_scene = new StartScene;
 
     QList<QAction*> actions;
-    actions << ui->actionStart_Game
-            << ui->actionStart_Server
-            << ui->actionPC_Console_Start
+    actions << ui->actionStart_Game //Start_Server
+            << ui->actionJoin_Game
             << ui->actionReplay
+            << ui->actionPackaging
             << ui->actionConfigure
+
             << ui->actionGeneral_Overview
             << ui->actionCard_Overview
             << ui->actionScenario_Overview
@@ -576,26 +591,6 @@ void MainWindow::on_actionBroadcast_triggered()
 void MainWindow::on_actionAcknowledgement_triggered()
 {
 
-}
-
-void MainWindow::on_actionPC_Console_Start_triggered()
-{
-    ServerDialog *dialog = new ServerDialog(this);
-    dialog->ensureEnableAI();
-    if(!dialog->config())
-        return;
-
-    Server *server = new Server(this);
-    if(! server->listen()){
-        QMessageBox::warning(this, tr("Warning"), tr("Can not start server!"));
-
-        return;
-    }
-
-    server->createNewRoom();
-
-    Config.HostAddress = "127.0.0.1";
-    startConnection();
 }
 
 void MainWindow::on_actionScript_editor_triggered()
@@ -929,11 +924,13 @@ void MeleeDialog::updateResultBox(QString role, int win){
 
     server_log->append(tr("End of game %1").arg(totalCount));
 }
-
+/*
 void MainWindow::on_actionView_ban_list_triggered()
 {
+    KOFBanlistDialog *dialog = new KOFBanlistDialog(this);
+    dialog->exec();
 }
-
+*/
 #include "audio.h"
 
 void MainWindow::on_actionAbout_fmod_triggered()

@@ -472,15 +472,21 @@ QGroupBox *ServerDialog::createGameModeBox(){
 
 QLayout *ServerDialog::createButtonLayout(){
     QHBoxLayout *button_layout = new QHBoxLayout;
-    button_layout->addStretch();
 
-    QPushButton *ok_button = new QPushButton(tr("OK"));
+    ok_button = new QPushButton(tr("PC Console"));
+    QPushButton *server_button = new QPushButton(tr("Start Server"));
     QPushButton *cancel_button = new QPushButton(tr("Cancel"));
+    minimize_checkbox = new QCheckBox(tr("Minimize the dialog when server runs"));
+    minimize_checkbox->setChecked(Config.EnableMinimizeDialog);
 
+    button_layout->addWidget(minimize_checkbox);
+    button_layout->addWidget(server_button);
+    button_layout->addStretch();
     button_layout->addWidget(ok_button);
     button_layout->addWidget(cancel_button);
 
-    connect(ok_button, SIGNAL(clicked()), this, SLOT(onOkButtonClicked()));
+    connect(ok_button, SIGNAL(clicked()), this, SLOT(onPCCButtonClicked()));
+    connect(server_button, SIGNAL(clicked()), this, SLOT(onSerButtonClicked()));
     connect(cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
 
     return button_layout;
@@ -518,6 +524,16 @@ void ServerDialog::onOkButtonClicked(){
         QMessageBox::warning(this, tr("Warning"), tr("Please fill address when you want to annouce your server's IP"));
     }else
         accept();
+}
+
+void ServerDialog::onPCCButtonClicked(){
+    pc_console = true;
+    onOkButtonClicked();
+}
+
+void ServerDialog::onSerButtonClicked(){
+    pc_console = false;
+    onOkButtonClicked();
 }
 
 Select3v3GeneralDialog::Select3v3GeneralDialog(QDialog *parent)
@@ -646,6 +662,7 @@ bool ServerDialog::config(){
     if(result() != Accepted)
         return false;
 
+    Config.EnableMinimizeDialog = minimize_checkbox->isChecked();
     Config.ServerName = server_name_edit->text();
     Config.OperationTimeout = timeout_spinbox->value();
     Config.OperationNoLimit = nolimit_checkbox->isChecked();
@@ -670,6 +687,7 @@ bool ServerDialog::config(){
     else
         Config.GameMode = objname;
 
+    Config.setValue("EnableMinimizeDialog", Config.EnableMinimizeDialog);
     Config.setValue("ServerName", Config.ServerName);
     Config.setValue("GameMode", Config.GameMode);
     Config.setValue("OperationTimeout", Config.OperationTimeout);
