@@ -5,18 +5,6 @@
 #include "settings.h"
 #include "maneuvering.h"
 
-GongxinCard::GongxinCard(){
-    once = true;
-}
-
-bool GongxinCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty() && !to_select->isKongcheng();
-}
-
-void GongxinCard::onEffect(const CardEffectStruct &effect) const{
-    effect.from->getRoom()->doGongxin(effect.from, effect.to);
-}
-
 class Wuhun: public TriggerSkill{
 public:
     Wuhun():TriggerSkill("wuhun"){
@@ -95,76 +83,6 @@ public:
             room->playSkillEffect("wuhun", 3);
 
         return false;
-    }
-};
-
-static bool CompareBySuit(int card1, int card2){
-    const Card *c1 = Sanguosha->getCard(card1);
-    const Card *c2 = Sanguosha->getCard(card2);
-
-    int a = static_cast<int>(c1->getSuit());
-    int b = static_cast<int>(c2->getSuit());
-
-    return a < b;
-}
-
-class Shelie: public PhaseChangeSkill{
-public:
-    Shelie():PhaseChangeSkill("shelie"){
-
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *shenlumeng) const{
-        if(shenlumeng->getPhase() != Player::Draw)
-            return false;
-
-        Room *room = shenlumeng->getRoom();
-        if(!shenlumeng->askForSkillInvoke(objectName()))
-            return false;
-
-        room->playSkillEffect(objectName());
-
-        QList<int> card_ids = room->getNCards(5);
-        qSort(card_ids.begin(), card_ids.end(), CompareBySuit);
-        room->fillAG(card_ids);
-
-        while(!card_ids.isEmpty()){
-            int card_id = room->askForAG(shenlumeng, card_ids, false, "shelie");
-            card_ids.removeOne(card_id);
-            room->takeAG(shenlumeng, card_id);
-
-            // throw the rest cards that matches the same suit
-            const Card *card = Sanguosha->getCard(card_id);
-            Card::Suit suit = card->getSuit();
-            QMutableListIterator<int> itor(card_ids);
-            while(itor.hasNext()){
-                const Card *c = Sanguosha->getCard(itor.next());
-                if(c->getSuit() == suit){
-                    itor.remove();
-
-                    room->takeAG(NULL, c->getId());
-                }
-            }
-        }
-
-        room->broadcastInvoke("clearAG");
-
-        return true;
-    }
-};
-
-class Gongxin: public ZeroCardViewAsSkill{
-public:
-    Gongxin():ZeroCardViewAsSkill("gongxin"){
-        default_choice = "discard";
-    }
-
-    virtual const Card *viewAs() const{
-        return new GongxinCard;
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return !player->hasUsed("GongxinCard");
     }
 };
 
@@ -1245,10 +1163,6 @@ GodPackage::GodPackage()
 
     related_skills.insertMulti("wuhun", "#wuhun");
 
-    General *shenlumeng = new General(this, "shenlumeng", "god", 3);
-    shenlumeng->addSkill(new Shelie);
-    shenlumeng->addSkill(new Gongxin);
-
     General *shenzhouyu = new General(this, "shenzhouyu", "god");
     shenzhouyu->addSkill(new Qinyin);
     shenzhouyu->addSkill(new MarkAssignSkill("@flame", 1));
@@ -1294,7 +1208,6 @@ GodPackage::GodPackage()
     related_skills.insertMulti("jilve", "#jilve-clear");
     related_skills.insertMulti("lianpo", "#lianpo-count");
 
-    addMetaObject<GongxinCard>();
     addMetaObject<GreatYeyanCard>();
     addMetaObject<ShenfenCard>();
     addMetaObject<GreatYeyanCard>();

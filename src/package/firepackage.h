@@ -50,4 +50,23 @@ public:
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
 };
 
+class YingyanCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE YingyanCard();
+
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
+class ChunbaiCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE ChunbaiCard();
+
+    virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+};
+
 #endif // FIREPACKAGE_H

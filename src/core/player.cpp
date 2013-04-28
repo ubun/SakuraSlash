@@ -591,6 +591,10 @@ int Player::getMark(const QString &mark) const{
     return marks.value(mark, 0);
 }
 
+bool Player::hasMark(const QString &mark) const{
+    return marks.value(mark, 0) > 0;
+}
+
 bool Player::canSlash(const Player *other, bool distance_limit) const{
     if(other->hasSkill("kongcheng") && other->isKongcheng())
         return false;

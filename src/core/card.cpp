@@ -7,6 +7,16 @@
 #include "lua-wrapper.h"
 #include <QFile>
 
+static bool CompareBySuit(int card1, int card2){
+    const Card *c1 = Sanguosha->getCard(card1);
+    const Card *c2 = Sanguosha->getCard(card2);
+
+    int a = static_cast<int>(c1->getSuit());
+    int b = static_cast<int>(c2->getSuit());
+
+    return a < b;
+}
+
 const Card::Suit Card::AllSuits[4] = {
     Card::Spade,
     Card::Club,

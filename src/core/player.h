@@ -170,6 +170,7 @@ public:
     void removeMark(const QString &mark);
     virtual void setMark(const QString &mark, int value);
     int getMark(const QString &mark) const;
+    bool hasMark(const QString &mark) const;
 
     void setChained(bool chained);
     bool isChained() const;

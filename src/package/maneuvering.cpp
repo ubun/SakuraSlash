@@ -180,7 +180,7 @@ public:
             }
         }else if(event == CardEffected){
             CardEffectStruct effect = data.value<CardEffectStruct>();
-            if(effect.card->inherits("AOE")){
+            if(effect.card->inherits("SavageAssault") || effect.card->inherits("ArcheryAttack")){
                 LogMessage log;
                 log.from = player;
                 log.type = "#ArmorNullify";

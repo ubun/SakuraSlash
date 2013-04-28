@@ -572,7 +572,6 @@ public:
     }
 };
 
-
 class YunchouClear: public PhaseChangeSkill{
 public:
     YunchouClear():PhaseChangeSkill("#yunchou_clear"){
