@@ -1373,11 +1373,10 @@ WindPackage::WindPackage()
     nakamoriginzou->addSkill(new Weijiao);
     nakamoriginzou->addSkill(new Shiyi);
 
-    General *vermouth = new General(this, "vermouth$", "hei", 4, false);
+    General *vermouth = new General(this, "vermouth$", "hei", "3/4", General::Female);
     vermouth->addSkill(new Weixiao);
     vermouth->addSkill(new Qianmian);
     vermouth->addSkill(new Kuai);
-    vermouth->addSkill("#losthp");
 
     General *jodie = new General(this, "jodie", "te", 3, false);
     jodie->addSkill(new Dianwan);

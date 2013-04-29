@@ -210,81 +210,31 @@ public:
         }
     }
 };
-/*
-class Guixiang: public GameStartSkill{
+
+class Feiti: public TriggerSkill{
 public:
-    Guixiang():GameStartSkill("guixiang"){
-        frequency = Limited;
-    }
-
-    virtual void onGameStart(ServerPlayer *player) const{
-        if(player->getGeneralName() == "caiwenji"
-           && player->askForSkillInvoke(objectName()))
-        {
-            player->getRoom()->setPlayerProperty(player, "general", "sp_caiwenji");
-            player->getRoom()->setPlayerProperty(player, "kingdom", "wei");
-        }
-    }
-};
-
-class Tuntian: public DistanceSkill{
-public:
-    Tuntian():DistanceSkill("tuntian"){
-        frequency = NotFrequent;
-    }
-
-    virtual int getCorrect(const Player *from, const Player *) const{
-        if(from->hasSkill(objectName()))
-            return -from->getPile("field").length();
-        else
-            return 0;
-    }
-};
-
-class TuntianGet: public TriggerSkill{
-public:
-    TuntianGet():TriggerSkill("#tuntian-get"){
-        events << CardLost << CardLostDone << FinishJudge;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return TriggerSkill::triggerable(target) && target->getPhase() == Player::NotActive;
+    Feiti():TriggerSkill("feiti"){
+        events << PhaseChange << Predamage;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
-        if(event == CardLost){
-            CardMoveStar move = data.value<CardMoveStar>();
-
-            if((move->from_place == Player::Hand || move->from_place == Player::Equip) && move->to!=player)
-                player->tag["InvokeTuntian"] = true;
-        }else if(event == CardLostDone){
-            if(!player->tag.value("InvokeTuntian", false).toBool())
-                return false;
-            player->tag.remove("InvokeTuntian");
-
-            if(player->askForSkillInvoke("tuntian", data)){
-                Room *room = player->getRoom();
-
-                JudgeStruct judge;
-                judge.pattern = QRegExp("(.*):(heart):(.*)");
-                judge.good = false;
-                judge.reason = "tuntian";
-                judge.who = player;
-
-                room->judge(judge);
-            }
-        }else if(event == FinishJudge){
-            JudgeStar judge = data.value<JudgeStar>();
-            if(judge->reason == "tuntian" && judge->isGood()){
-                player->addToPile("field", judge->card->getEffectiveId());
+        Room *room = player->getRoom();
+        if(event == Predamage){
+            DamageStruct damage = data.value<DamageStruct>();
+            if(damage.damage > 0 && player->askForSkillInvoke(objectName())){
+                player->gainMark("@yaiba", damage.damage);
                 return true;
             }
+        }else{
+            if(!player->getPhase() == Player::Finish || !player->hasMark("@yaiba"))
+                return false;
+            room->askForUseCard(player, "@@feiti", "@feiti");
         }
-
         return false;
     }
 };
 
+/*
 class Zaoxian: public PhaseChangeSkill{
 public:
     Zaoxian():PhaseChangeSkill("zaoxian"){

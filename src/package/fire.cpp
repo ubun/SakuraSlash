@@ -1065,10 +1065,9 @@ FirePackage::FirePackage()
     hakubasaguru->addSkill(new Shoushi);
     patterns[".Equi"] = new EquiPattern;
 
-    General *sherry = new General(this, "sherry", "hei", 4, false);
+    General *sherry = new General(this, "sherry", "hei", "3/4", General::Female);
     sherry->addSkill(new Chunbai);
     sherry->addSkill(new Suoxiao);
-    sherry->addSkill("#losthp");
 
     General *miyanoagemi = new General(this, "miyanoagemi", "te", 3, false);
     miyanoagemi->addSkill(new Shanliang);

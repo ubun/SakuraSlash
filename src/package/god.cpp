@@ -1152,7 +1152,6 @@ public:
     }
 };
 
-
 GodPackage::GodPackage()
     :Package("god")
 {
@@ -1222,4 +1221,4 @@ GodPackage::GodPackage()
     skills << new Jilve << new JilveClear;
 }
 
-ADD_PACKAGE(God)
+//ADD_PACKAGE(God)

@@ -118,10 +118,9 @@ NegativePackage::NegativePackage()
     maedasatoshi->addSkill(new ZhenwuEffect);
     related_skills.insertMulti("zhenwu", "#zhenwu_eft");
 
-    General *mizunashireina = new General(this, "mizunashireina", "yi", 4, false, true);
+    General *mizunashireina = new General(this, "mizunashireina", "yi", "3/4", General::Female, General::Hidden);
     mizunashireina->addSkill(new Ruoshui);
     mizunashireina->addSkill(new Wodi);
-    mizunashireina->addSkill("#losthp");
 }
 
 ADD_PACKAGE(Negative)
