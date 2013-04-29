@@ -33,6 +33,7 @@ return {
 	["trust"] = "托管",
 	["cheat"] = "作弊",
 	["free-discard"] = "自由弃牌",
+	["change"] = "更换武将",
 	["yes"] = "是",
 	["no"] = "否",
 	["male"] = "男性",

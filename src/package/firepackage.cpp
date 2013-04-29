@@ -117,6 +117,8 @@ public:
         CardMoveStar move = data.value<CardMoveStar>();
         if(mori->getPhase() != Player::NotActive || move->from_place != Player::Hand)
             return false;
+        if(!Sanguosha->getCard(move->card_id)->isBlack())
+            return false;
 
         Room *room = mori->getRoom();
         QList<ServerPlayer *> players;
@@ -152,6 +154,48 @@ public:
         if(damage.to->isAlive() && !damage.to->faceUp() && rou->askForSkillInvoke(objectName(), data)){
             rou->playSkillEffect(objectName(), 1);
             damage.to->turnOver();
+        }
+        return false;
+    }
+};
+
+class Yinxing: public TriggerSkill{
+public:
+    Yinxing():TriggerSkill("yinxing"){
+        events << CardLost << PhaseChange;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target != NULL;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *s, QVariant &data) const{
+        Room *room = s->getRoom();
+        if(event == CardLost){
+            if(!s->hasSkill(objectName()) || s->getPhase() != Player::NotActive)
+                return false;
+            CardMoveStar move = data.value<CardMoveStar>();
+            if(move->from_place == Player::Equip){
+                LogMessage log;
+                log.type = "#Yinxing";
+                log.from = s;
+                log.to << room->getCurrent();
+                log.arg = objectName();
+                room->sendLog(log);
+
+                s->setFlags("Yinxing");
+            }
+        }
+        else{
+            if(s->getPhase() == Player::NotActive){
+                foreach(ServerPlayer *fusae, room->getOtherPlayers(s)){
+                    if(!fusae->hasFlag("Yinxing"))
+                        continue;
+                    fusae->setFlags("-Yinxing");
+                    if(fusae->askForSkillInvoke(objectName()))
+                        fusae->gainAnExtraTurn(s);
+                }
+            }
         }
         return false;
     }
@@ -997,6 +1041,9 @@ FirePackage::FirePackage()
     General *kugorou = new General(this, "kugorou", "woo");
     kugorou->addSkill(new Yiben);
     kugorou->addSkill(new Xiebi);
+
+    General *kinoshitafusae = new General(this, "kinoshitafusae", "yi", 4, false);
+    kinoshitafusae->addSkill(new Yinxing);
 
     General *akibareiko = new General(this, "akibareiko", "yi", 3, false);
     akibareiko->addSkill(new Chuyin);
