@@ -911,205 +911,73 @@ public:
         return false;
     }
 };
+*/
 
-class Huashen: public GameStartSkill{
+ZhaodaiCard::ZhaodaiCard(){
+    will_throw = false;
+    once = true;
+}
+
+void ZhaodaiCard::onEffect(const CardEffectStruct &effect) const{
+    effect.to->obtainCard(this);
+    if(effect.from->getRoom()->askForChoice(effect.from, "zhaodai", "tian+zi") == "tian")
+        effect.to->drawCards(1);
+    else
+        effect.from->drawCards(1);
+}
+
+class Zhaodai: public OneCardViewAsSkill{
 public:
-    Huashen():GameStartSkill("huashen"){
-
+    Zhaodai():OneCardViewAsSkill("zhaodai"){
     }
 
-    static void AcquireGenerals(ServerPlayer *zuoci, int n){
-        QStringList list = GetAvailableGenerals(zuoci);
-        qShuffle(list);
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return ! player->hasUsed("ZhaodaiCard");
+    }
 
-        QStringList acquired = list.mid(0, n);
-        QVariantList huashens = zuoci->tag["Huashens"].toList();
-        foreach(QString huashen, acquired){
-            huashens << huashen;
-            const General *general = Sanguosha->getGeneral(huashen);
-            foreach(const TriggerSkill *skill, general->getTriggerSkills()){
-                zuoci->getRoom()->getThread()->addTriggerSkill(skill);
+    virtual bool viewFilter(const CardItem *watch) const{
+        return watch->getCard()->inherits("BasicCard");
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        ZhaodaiCard *card = new ZhaodaiCard;
+        card->addSubcard(card_item->getFilteredCard());
+        return card;
+    }
+};
+
+class Kaxiang: public TriggerSkill{
+public:
+    Kaxiang():TriggerSkill("kaxiang"){
+        events << Predamaged;
+    }
+
+    virtual int getPriority(TriggerEvent) const{
+        return 2;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *linko, QVariant &data) const{
+        Room* room = linko->getRoom();
+        DamageStruct damage = data.value<DamageStruct>();
+        if(!damage.from || damage.from == damage.to)
+            return false;
+        if(!linko->isKongcheng() && !damage.from->isKongcheng() &&
+           linko->askForSkillInvoke(objectName(), data)){
+            room->playSkillEffect(objectName());
+            bool success = linko->pindian(damage.from, objectName());
+            if(success){
+                LogMessage log;
+                log.type = "#Kaxiang";
+                log.from = damage.from;
+                log.to << linko;
+                log.arg = QString::number(damage.damage);
+                room->sendLog(log);
+                return true;
             }
         }
-
-        zuoci->tag["Huashens"] = huashens;
-
-        zuoci->invoke("animate", "huashen:" + acquired.join(":"));
-
-        LogMessage log;
-        log.type = "#GetHuashen";
-        log.from = zuoci;
-        log.arg = QString::number(n);
-        log.arg2 = QString::number(huashens.length());
-        zuoci->getRoom()->sendLog(log);
-    }
-
-    static QStringList GetAvailableGenerals(ServerPlayer *zuoci){
-        QSet<QString> all = Sanguosha->getLimitedGeneralNames().toSet();
-        QSet<QString> huashen_set, room_set;
-        QVariantList huashens = zuoci->tag["Huashens"].toList();
-        foreach(QVariant huashen, huashens)
-            huashen_set << huashen.toString();
-
-        Room *room = zuoci->getRoom();
-        QList<const ServerPlayer *> players = room->findChildren<const ServerPlayer *>();
-        foreach(const ServerPlayer *player, players){
-            room_set << player->getGeneralName();
-            if(player->getGeneral2())
-                room_set << player->getGeneral2Name();
-        }
-
-        static QSet<QString> banned;
-        if(banned.isEmpty()){
-            banned << "zuoci" << "zuocif" << "guzhielai" << "dengshizai" << "caochong";
-        }
-
-        return (all - banned - huashen_set - room_set).toList();
-    }
-
-    static QString SelectSkill(ServerPlayer *zuoci, bool acquire_instant = true){
-        Room *room = zuoci->getRoom();
-
-        QString huashen_skill = zuoci->tag["HuashenSkill"].toString();
-        if(!huashen_skill.isEmpty())
-            room->detachSkillFromPlayer(zuoci, huashen_skill);
-
-        QVariantList huashens = zuoci->tag["Huashens"].toList();
-        if(huashens.isEmpty())
-            return QString();
-
-        QStringList huashen_generals;
-        foreach(QVariant huashen, huashens)
-            huashen_generals << huashen.toString();
-
-        QString general_name = room->askForGeneral(zuoci, huashen_generals);
-        const General *general = Sanguosha->getGeneral(general_name);
-        QString kingdom = general->getKingdom();
-        if(zuoci->getKingdom() != kingdom){
-            if(kingdom == "god")
-                kingdom = room->askForKingdom(zuoci);
-            room->setPlayerProperty(zuoci, "kingdom", kingdom);
-        }
-        if(zuoci->getGeneral()->isMale() != general->isMale())
-            room->setPlayerProperty(zuoci, "general", general->isMale() ? "zuoci" : "zuocif");
-
-        QStringList skill_names;
-        foreach(const Skill *skill, general->getVisibleSkillList()){
-            if(skill->isLordSkill() || skill->getFrequency() == Skill::Limited
-               || skill->getFrequency() == Skill::Wake)
-                continue;
-
-            skill_names << skill->objectName();
-        }
-
-        if(skill_names.isEmpty())
-            return QString();
-
-        QString skill_name;
-        if(skill_names.length() == 1)
-            skill_name = skill_names.first();
-        else
-            skill_name = room->askForChoice(zuoci, "huashen", skill_names.join("+"));
-
-        zuoci->tag["HuashenSkill"] = skill_name;
-
-        if(acquire_instant)
-            room->acquireSkill(zuoci, skill_name);
-
-        return skill_name;
-    }
-
-    virtual void onGameStart(ServerPlayer *zuoci) const{
-        AcquireGenerals(zuoci, 2);
-        SelectSkill(zuoci);
-    }
-
-    virtual QDialog *getDialog() const{
-        static HuashenDialog *dialog;
-
-        if(dialog == NULL)
-            dialog = new HuashenDialog;
-
-        return dialog;
-    }
-};
-
-HuashenDialog::HuashenDialog()
-{
-    setWindowTitle(tr("Incarnation"));
-}
-
-void HuashenDialog::popup(){
-    QVariantList huashen_list = Self->tag["Huashens"].toList();
-    QList<const General *> huashens;
-    foreach(QVariant huashen, huashen_list)
-        huashens << Sanguosha->getGeneral(huashen.toString());
-
-    fillGenerals(huashens);
-
-    show();
-}
-
-class HuashenBegin: public PhaseChangeSkill{
-public:
-    HuashenBegin():PhaseChangeSkill("#huashen-begin"){
-
-    }
-
-    virtual int getPriority() const{
-        return 3;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return PhaseChangeSkill::triggerable(target) && target->getPhase() == Player::Start;
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *zuoci) const{
-        QString skill_name = Huashen::SelectSkill(zuoci, false);
-        if(!skill_name.isEmpty())
-            zuoci->getRoom()->acquireSkill(zuoci, skill_name);
-
         return false;
     }
 };
-
-class HuashenEnd: public PhaseChangeSkill{
-public:
-    HuashenEnd():PhaseChangeSkill("#huashen-end"){
-
-    }
-
-    virtual int getPriority() const{
-        return -2;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return PhaseChangeSkill::triggerable(target) && target->getPhase() == Player::NotActive;
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *zuoci) const{
-        Huashen::SelectSkill(zuoci);
-
-        return false;
-    }
-};
-
-class Xinsheng: public MasochismSkill{
-public:
-    Xinsheng():MasochismSkill("xinsheng"){
-        frequency = Frequent;
-    }
-
-    virtual void onDamaged(ServerPlayer *zuoci, const DamageStruct &damage) const{
-        int n = damage.damage;
-        if(n == 0)
-            return;
-
-        if(zuoci->getRoom()->askForSkillInvoke(zuoci, objectName()))
-            Huashen::AcquireGenerals(zuoci, n);
-    }
-};
-*/
 
 class Biaoche: public DistanceSkill{
 public:
@@ -1212,30 +1080,19 @@ MountainPackage::MountainPackage()
     caiwenji->addSkill(new Duanchang);
     caiwenji->addSkill(new Guixiang);
 
-    General *zuoci = new General(this, "zuoci", "qun", 3);
-    zuoci->addSkill(new Huashen);
-    zuoci->addSkill(new HuashenBegin);
-    zuoci->addSkill(new HuashenEnd);
-    zuoci->addSkill(new Xinsheng);
-
-    General *zuocif = new General(this, "zuocif", "qun", 3, false, true);
-    zuocif->addSkill("huashen");
-    zuocif->addSkill("#huashen-begin");
-    zuocif->addSkill("#huashen-end");
-    zuocif->addSkill("xinsheng");
-
-    related_skills.insertMulti("huashen", "#huashen-begin");
-    related_skills.insertMulti("huashen", "#huashen-end");
-
     addMetaObject<QiaobianCard>();
     addMetaObject<TiaoxinCard>();
     addMetaObject<ZhijianCard>();
     addMetaObject<ZhibaCard>();
-    addMetaObject<JixiCard>();
 
     skills << new ZhibaPindian << new Jixi;
 
     patterns[".basic"] = new BasicPattern;*/
+    General *enomotoazusa = new General(this, "enomotoazusa", "za", 3, false);
+    enomotoazusa->addSkill(new Zhaodai);
+    enomotoazusa->addSkill(new Kaxiang);
+    addMetaObject<ZhaodaiCard>();
+
     General *yamamuramisae = new General(this, "yamamuramisae", "za", 3, false);
     yamamuramisae->addSkill(new Biaoche);
     yamamuramisae->addSkill(new Jingshen);

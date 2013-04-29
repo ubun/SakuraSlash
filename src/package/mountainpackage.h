@@ -54,17 +54,16 @@ public:
 
     virtual void onUse(Room *room, const CardUseStruct &card_use) const;
 };
+*/
 
-class HuashenDialog: public GeneralOverview{
+class ZhaodaiCard: public SkillCard{
     Q_OBJECT
 
 public:
-    HuashenDialog();
-
-public slots:
-    void popup();
+    Q_INVOKABLE ZhaodaiCard();
+    virtual void onEffect(const CardEffectStruct &effect) const;
 };
-*/
+
 class JingshenCard: public SkillCard{
     Q_OBJECT
 
