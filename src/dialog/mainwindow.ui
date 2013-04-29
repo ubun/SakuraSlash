@@ -326,11 +326,6 @@
     <string>Ctrl+T</string>
    </property>
   </action>
-  <action name="actionPC_Console_Start">
-   <property name="text">
-    <string>PC Console Start</string>
-   </property>
-  </action>
   <action name="actionPackaging">
    <property name="text">
     <string>Package manager ...</string>

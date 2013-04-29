@@ -96,6 +96,13 @@ General::Gender Player::getGender() const{
         return General::Neuter;
 }
 
+QString Player::getGenderString() const{
+    if(general)
+        return general->getGenderString();
+    else
+        return "neuter";
+}
+
 int Player::getSeat() const{
     return seat;
 }

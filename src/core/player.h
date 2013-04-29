@@ -69,6 +69,7 @@ public:
     int getLostHp() const;
     bool isWounded() const;
     General::Gender getGender() const;
+    QString getGenderString() const;
 
     bool isOwner() const;
     void setOwner(bool owner);

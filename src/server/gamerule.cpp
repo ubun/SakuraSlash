@@ -16,7 +16,7 @@ GameRule::GameRule(QObject *parent)
             << CardEffected << HpRecover << HpLost << AskForPeachesDone
             << AskForPeaches << Death << Dying << GameOverJudge
             << SlashHit << SlashMissed << SlashEffected << SlashProceed
-            << DamageDone << DamageComplete
+            << DamageDone << DamageComplete << MaxHpLost
             << StartJudge << FinishJudge << Pindian;
 }
 
@@ -57,10 +57,11 @@ void GameRule::onPhaseChange(ServerPlayer *player) const{
                     num = 1;
             }
 
-            room->getThread()->trigger(DrawNCards, player, num);
-            int n = num.toInt();
-            if(n > 0)
-                player->drawCards(n, false);
+            if(!room->getThread()->trigger(DrawNCards, player, num)){
+                int n = num.toInt();
+                if(n > 0)
+                    player->drawCards(n, false);
+            }
             break;
         }
 
@@ -265,6 +266,25 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             break;
     }
 
+    case MaxHpLost:{
+            int lose = data.toInt();
+            int hp = player->getHp();
+            player->setMaxHP(qMax(player->getMaxHP() - lose, 0));
+
+            room->broadcastProperty(player, "maxhp");
+            room->broadcastProperty(player, "hp");
+
+            LogMessage log;
+            log.type = hp - player->getHp() == 0 ? "#LoseMaxHp" : "#LostMaxHpPlus";
+            log.from = player;
+            log.arg = QString::number(lose);
+            log.arg2 = QString::number(hp - player->getHp());
+            room->sendLog(log);
+
+            if(player->getMaxHP() == 0)
+                room->killPlayer(player);
+            break;
+        }
     case Dying:{
             if(player->getHp() > 0){
                 player->setFlags("-dying");

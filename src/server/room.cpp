@@ -1872,21 +1872,8 @@ void Room::loseHp(ServerPlayer *victim, int lose){
 }
 
 void Room::loseMaxHp(ServerPlayer *victim, int lose){
-    int hp = victim->getHp();
-    victim->setMaxHP(qMax(victim->getMaxHP() - lose, 0));
-
-    broadcastProperty(victim, "maxhp");
-    broadcastProperty(victim, "hp");
-
-    LogMessage log;
-    log.type = hp - victim->getHp() == 0 ? "#LoseMaxHp" : "#LostMaxHpPlus";
-    log.from = victim;
-    log.arg = QString::number(lose);
-    log.arg2 = QString::number(hp - victim->getHp());
-    sendLog(log);
-
-    if(victim->getMaxHP() == 0)
-        killPlayer(victim);
+    QVariant data = lose;
+    thread->trigger(MaxHpLost, victim, data);
 }
 
 void Room::applyDamage(ServerPlayer *victim, const DamageStruct &damage){
