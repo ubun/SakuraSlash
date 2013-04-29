@@ -402,7 +402,8 @@ DummyCard *ServerPlayer::wholeHandCards() const{
 bool ServerPlayer::hasNullification() const{
     if(hasSkill("kanpo")){
         foreach(const Card *card, handcards){
-            if(card->isBlack() || card->objectName() == "nullification")
+            if((card->isBlack() && !card->inherits("TrickCard"))
+                || card->objectName() == "nullification")
                 return true;
         }
     }else if(hasSkill("wushen")){

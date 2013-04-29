@@ -8,6 +8,48 @@
 #include "generaloverview.h"
 #include "clientplayer.h"
 #include "client.h"
+
+class Kongcheng: public ProhibitSkill{
+public:
+    Kongcheng():ProhibitSkill("kongcheng"){
+    }
+
+    virtual bool isProhibited(const Player *, const Player *to, const Card *card) const{
+        if(to->getHandcardNum() < to->getHp())
+            return card->inherits("Slash") || card->inherits("Duel") || card->inherits("Turnover");
+        else
+            return false;
+    }
+};
+
+class Kanpo: public OneCardViewAsSkill{
+public:
+    Kanpo():OneCardViewAsSkill("kanpo"){
+    }
+
+    virtual bool viewFilter(const CardItem *to_select) const{
+        const Card *card = to_select->getFilteredCard();
+        return card->isBlack() && !card->inherits("TrickCard");
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const{
+        return pattern == "nullification";
+    }
+
+    virtual const Card *viewAs(CardItem *card_item) const{
+        const Card *first = card_item->getFilteredCard();
+        Card *ncard = new Nullification(first->getSuit(), first->getNumber());
+        ncard->addSubcard(first);
+        ncard->setSkillName("kanpo");
+
+        return ncard;
+    }
+};
+
 /*
 #include <QCommandLinkButton>
 
@@ -1125,7 +1167,11 @@ public:
 
 MountainPackage::MountainPackage()
     :Package("mountain")
-{/*
+{
+    General *morofushitakaaki = new General(this, "morofushitakaaki", "zhen", 3);
+    morofushitakaaki->addSkill(new Kongcheng);
+    morofushitakaaki->addSkill(new Kanpo);
+    /*
     General *zhanghe = new General(this, "zhanghe", "wei");
     zhanghe->addSkill(new Qiaobian);
 

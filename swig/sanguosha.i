@@ -208,9 +208,9 @@ public:
 	void jilei(const char *type);
 	bool isJilei(const Card *card) const;
 
-	void setCardLocked(const QString &name);
+	void setCardLocked(const char *name);
 	bool isLocked(const Card *card) const;
-	bool hasCardLock(const QString &card_str) const;
+	bool hasCardLock(const char *card_str) const;
 
 	void copyFrom(Player* p);
 
@@ -449,6 +449,7 @@ enum TriggerEvent{
     HpRecover,
     HpLost,
     HpChanged,
+    MaxHpLost,
 
     StartJudge,
     AskForRetrial,
@@ -831,7 +832,7 @@ public:
 	int getCardFromPile(const char *card_name);
 	ServerPlayer *findPlayer(const char *general_name, bool include_dead = false) const;
 	ServerPlayer *findPlayerBySkillName(const char *skill_name, bool include_dead = false) const;
-	QList<ServerPlayer *> findPlayersBySkillName(const QString &skill_name, bool include_dead = false) const;
+	QList<ServerPlayer *> findPlayersBySkillName(const char *skill_name, bool include_dead = false) const;
 	void installEquip(ServerPlayer *player, const char *equip_name);
 	void resetAI(ServerPlayer *player);
 	void transfigure(ServerPlayer *player, const char *new_general, bool full_state, bool invoke_start = true);

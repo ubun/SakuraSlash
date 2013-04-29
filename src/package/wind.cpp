@@ -391,6 +391,7 @@ public:
         log.from = sira;
         log.arg = objectName();
         room->sendLog(log);
+        room->setPlayerProperty(sira, "kingdom", "woo");
         PlayerStar target = room->askForPlayerChosen(sira, targets, objectName());
         DamageStruct dmg;
         dmg.from = sira;
@@ -416,8 +417,10 @@ public:
         }
         else{
             if(player->getPhase() == Player::Discard && !player->hasFlag("DongUa")
-                && player->askForSkillInvoke(objectName()))
+                && player->askForSkillInvoke(objectName())){
+                room->setPlayerProperty(player, "kingdom", "zhen");
                 return true;
+            }
         }
         return false;
     }
@@ -1059,7 +1062,7 @@ public:
     virtual int getDrawNum(ServerPlayer *jodie, int n) const{
         Room *room = jodie->getRoom();
         if(room->askForSkillInvoke(jodie, objectName())){
-            int x = jodie->getEquips().length();
+            int x = jodie->getEquips().length() / 2;
             room->playSkillEffect(objectName());
             return n + qMax(x, 1);
         }
@@ -1341,7 +1344,7 @@ WindPackage::WindPackage()
     General *heiji = new General(this, "heiji", "woo");
     heiji->addSkill(new Nijian);
 
-    General *seramasumi = new General(this, "seramasumi", "woo", 3, false, true);
+    General *seramasumi = new General(this, "seramasumi", "woo", 3, false);
     seramasumi->addSkill(new Jiequan);
     seramasumi->addSkill(new Dongcha);
 

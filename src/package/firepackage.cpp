@@ -450,7 +450,7 @@ YingyanCard::YingyanCard(){
 }
 
 bool YingyanCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty() && !to_select->isKongcheng();
+    return targets.isEmpty() && Self->inMyAttackRange(to_select) && !to_select->isKongcheng();
 }
 
 void YingyanCard::onEffect(const CardEffectStruct &effect) const{
@@ -1046,6 +1046,7 @@ FirePackage::FirePackage()
     addMetaObject<YingyanCard>();
     addMetaObject<ChunbaiCard>();
     addMetaObject<ManmiCard>();
+    addMetaObject<MijiCard>();
 }
 
 ADD_PACKAGE(Fire);

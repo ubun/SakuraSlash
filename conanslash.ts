@@ -368,20 +368,17 @@
     <message>
         <location filename="src/client/client.cpp" line="411"/>
         <source>Game will start in &lt;b&gt;%1&lt;/b&gt; seconds</source>
-        <oldsource>Game will start in %1 seconds</oldsource>
         <translation>游戏将在 &lt;b&gt;%1&lt;/b&gt; 秒后开始</translation>
     </message>
     <message>
         <location filename="src/client/client.cpp" line="450"/>
         <source>Your role is %1</source>
-        <oldsource>Your role is </oldsource>
         <translation>您的角色是 %1</translation>
     </message>
     <message>
         <location filename="src/client/client.cpp" line="452"/>
         <source>
  wait for the lord player choosing general, please</source>
-        <oldsource>, wait for the lord player choosing general, please</oldsource>
         <translation>
 请等待主公选择武将</translation>
     </message>
@@ -409,7 +406,6 @@
         <location filename="src/client/client.cpp" line="668"/>
         <location filename="src/client/client.cpp" line="704"/>
         <source>&lt;br/&gt;&lt;br/&gt; &lt;b&gt;Notice&lt;/b&gt;: %1&lt;br/&gt;</source>
-        <oldsource>&lt;br/&gt;&lt;br/&gt; Notice: %1</oldsource>
         <translation>&lt;br/&gt;&lt;br/&gt; &lt;b&gt;温馨提示&lt;/b&gt;: %1&lt;br/&gt;</translation>
     </message>
     <message>
@@ -495,7 +491,6 @@
     <message>
         <location filename="src/client/client.cpp" line="1302"/>
         <source>You are dying, please provide %1 peach(es)(or analeptic) to save yourself</source>
-        <oldsource>You are dying, please provide %2 peach(es)(or analeptic) to save yourself</oldsource>
         <translation>您正在死亡线上挣扎，请提供 %1 个桃子（或酒）来救您自己</translation>
     </message>
     <message>
@@ -712,7 +707,6 @@
     <message>
         <location filename="src/ui/clientlogbox.cpp" line="135"/>
         <source>Log string is not well formatted: %1</source>
-        <oldsource>Log string is not well formatted: %1, error string is %2</oldsource>
         <translation>提示信息没有格式化好: %1</translation>
     </message>
 </context>
@@ -878,7 +872,6 @@
     <message>
         <location filename="src/dialog/configdialog.ui" line="569"/>
         <source>The sender&apos;s email address</source>
-        <oldsource>The user name of SMTP server</oldsource>
         <translation>发送者的邮件地址</translation>
     </message>
     <message>
@@ -1098,7 +1091,6 @@
     <message>
         <location filename="src/ui/dashboard.cpp" line="64"/>
         <source>Trusting ...</source>
-        <oldsource>Trusting</oldsource>
         <translation>托管中 ...</translation>
     </message>
 </context>
@@ -1459,7 +1451,7 @@
         <location filename="src/dialog/mainwindow.ui" line="14"/>
         <location filename="src/dialog/mainwindow.cpp" line="138"/>
         <source>ConanSlash</source>
-        <translation>太阳神柯南杀 - 太阳神三国杀MOD</translation>
+        <translation>柯南杀</translation>
     </message>
     <message>
         <location filename="src/dialog/mainwindow.ui" line="28"/>
@@ -1569,7 +1561,6 @@
     <message>
         <location filename="src/dialog/mainwindow.ui" line="195"/>
         <source>Ctrl+I</source>
-        <oldsource>Ctrl+V</oldsource>
         <translation>Ctrl+I</translation>
     </message>
     <message>
@@ -1827,7 +1818,6 @@
     <message>
         <location filename="src/dialog/mainwindow.cpp" line="411"/>
         <source>Compilation time: %1 %2 &lt;br/&gt;</source>
-        <oldsource>Compilation time: %1 %2</oldsource>
         <translation>编译时间: %1 %2 &lt;br/&gt;</translation>
     </message>
     <message>
@@ -1955,7 +1945,6 @@
     <message>
         <location filename="src/dialog/mainwindow.cpp" line="392"/>
         <source>This is the open source clone of the popular &lt;b&gt;Sanguosha&lt;/b&gt; game,totally written in C++ Qt GUI framework &lt;br /&gt;My Email: moligaloo@gmail.com &lt;br/&gt;</source>
-        <oldsource>This is the open source clone of the popular &lt;b&gt;Sanguosha&lt;/b&gt; game,totally written in C++ Qt GUI framework &lt;br /&gt;My Email: moligaloo@gmail.com</oldsource>
         <translation>这是 &lt;b&gt;三国杀&lt;/b&gt; 的开源克隆，完全基于 C++ Qt GUI 框架&lt;br /&gt; 我的电子邮件：moligaloo@gmail.com &lt;br/&gt;</translation>
     </message>
 </context>
@@ -2389,7 +2378,6 @@
     <message>
         <location filename="src/server/room.cpp" line="1342"/>
         <source>&lt;font color=#000000&gt;Player &lt;b&gt;%1&lt;/b&gt; left the game&lt;/font&gt;</source>
-        <oldsource>&lt;font color=#000000&gt;Player &lt;b&gt;%1&lt;/b&gt; leave the game&lt;/font&gt;</oldsource>
         <translation>&lt;font color=#000000&gt;玩家 %1 离开了游戏&lt;/font&gt;</translation>
     </message>
     <message>
@@ -2411,8 +2399,6 @@
         <location filename="src/server/room.cpp" line="2545"/>
         <source>Card can not parse:
  %1</source>
-        <oldsource>Card can not parse:
- %s</oldsource>
         <translation>卡牌字符串无法解析:
 %1</translation>
     </message>
@@ -2927,7 +2913,6 @@ P = 你自己, R = 你所在的房间</translation>
     <message>
         <location filename="src/server/server.cpp" line="138"/>
         <source>Requires password to login, hide screen name and disable kicking</source>
-        <oldsource>Requires password to login, hide screen name and disable kicking and </oldsource>
         <translation>需要密码才能登录，隐藏玩家昵称且禁止主公T人</translation>
     </message>
     <message>
@@ -3069,7 +3054,6 @@ P = 你自己, R = 你所在的房间</translation>
     <message>
         <location filename="src/server/server.cpp" line="140"/>
         <source>Choose generals and cards freely</source>
-        <oldsource>Free choose generals</oldsource>
         <translation>自由选择武将与卡牌</translation>
     </message>
     <message>
@@ -3245,7 +3229,6 @@ P = 你自己, R = 你所在的房间</translation>
     <message>
         <location filename="src/core/settings.cpp" line="81"/>
         <source>ConanSlash-fans</source>
-        <oldsource>Sanguosha-lover</oldsource>
         <translation>柯南杀fans</translation>
     </message>
     <message>
