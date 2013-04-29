@@ -1117,7 +1117,7 @@ void Room::transfigure(ServerPlayer *player, const QString &new_general, bool fu
     broadcastProperty(player, "maxhp");
 
     if(full_state)
-        player->setHp(player->getMaxHP());
+        player->setHp(player->getGeneralHp());
     broadcastProperty(player, "hp");
 
     resetAI(player);
@@ -2104,7 +2104,7 @@ void Room::startGame(){
 
     foreach(ServerPlayer *player, players){
         player->setMaxHP(player->getGeneralMaxHP());
-        player->setHp(player->getMaxHP());
+        player->setHp(player->getGeneralHp());
 
         broadcastProperty(player, "maxhp");
         broadcastProperty(player, "hp");

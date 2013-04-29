@@ -24,18 +24,22 @@ class General : public QObject
     Q_PROPERTY(bool hidden READ isHidden CONSTANT)
 
 public:
-    explicit General(Package *package, const QString &name, const QString &kingdom, int max_hp = 4, bool male = true, bool hidden = false);
+    enum Gender {Male = 0, Female = 1, Neuter = 2};
+    enum Attrib {Shown = 1, Hidden = 0, NeverShown = -1};
+    explicit General(Package *package, const QString &name, const QString &kingdom, int max_hp = 4, bool male = true, bool hidden = false, bool never_shown = false);
+    explicit General(Package *package, const QString &name, const QString &kingdom, const QString &show_hp, Gender gender = Male, Attrib attrib = Shown);
 
     // property getters/setters
-    int getMaxHp() const;
+    int getMaxHp() const {return max_hp;}
+    int getHp() const {return _hp;}
     QString getKingdom() const;
     bool isMale() const;
     bool isFemale() const;
     bool isNeuter() const;
     bool isLord() const;
-    bool isHidden() const;
+    bool isHidden() const {return attrib == Hidden || attrib == NeverShown;}
+    bool isTotallyHidden() const {return attrib == NeverShown;}
 
-    enum Gender {Male, Female, Neuter};
     Gender getGender() const;
     void setGender(Gender gender);
     QString getGenderString() const;
@@ -53,6 +57,7 @@ public:
     QString getPixmapPath(const QString &category) const;
     QString getPackage() const;
     QString getSkillDescription() const;
+    QString getShowHp() const {return show_hp;}
 
     static QSize BigIconSize;
     static QSize SmallIconSize;
@@ -62,13 +67,16 @@ public slots:
     void lastWord() const;
 
 private:
+    void init(const QString &name);
     QString kingdom;
-    int max_hp;
+    int max_hp, _hp;
+    QString show_hp;
     Gender gender;
     bool lord;
     QSet<QString> skill_set;
     QSet<QString> extra_set;
     QStringList related_skills;
+    Attrib attrib;
     bool hidden;
 };
 

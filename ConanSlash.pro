@@ -45,11 +45,11 @@ SOURCES += src/main.cpp \
 	src/package/standard-generals.cpp \
 	src/package/wind.cpp \
 	src/package/thicket.cpp \
-	src/package/firepackage.cpp \
-	src/package/mountainpackage.cpp \
+	src/package/fire.cpp \
+	src/package/mountain.cpp \
 	src/package/negative.cpp \
 	src/package/god.cpp \
-	src/package/joypackage.cpp \
+	src/package/joy.cpp \
 	src/package/nostalgia.cpp \
 	src/scenario/boss-mode-scenario.cpp \
 	src/scenario/couple-scenario.cpp \
@@ -150,10 +150,10 @@ HEADERS += src/client/aux-skills.h \
 	src/package/maneuvering.h \
 	src/package/wind.h \
 	src/package/thicket.h \
-	src/package/firepackage.h \
-	src/package/mountainpackage.h \
+	src/package/fire.h \
+	src/package/mountain.h \
 	src/package/negative.h \
-	src/package/joypackage.h \
+	src/package/joy.h \
 	src/package/nostalgia.h \
 	src/package/god.h \
 	src/scenario/boss-mode-scenario.h \

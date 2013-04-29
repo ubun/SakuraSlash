@@ -277,6 +277,8 @@ QGroupBox *FreeChooseDialog::createGroupBox(const QList<const General *> &genera
         if(general->isLord())
             button->setIcon(lord_icon);
 
+        if(general->isTotallyHidden())
+           button->setDisabled(true);
         group->addButton(button);
         layout->addWidget(button);
     }

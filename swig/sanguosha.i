@@ -35,7 +35,10 @@ public:
 class General : public QObject
 {
 public:
-       explicit General(Package *package, const char *name, const char *kingdom, int max_hp = 4, bool male = true, bool hidden = false);
+	enum Gender {Male = 0, Female = 1, Neuter = 2};
+	enum Attrib {Shown = 1, Hidden = 0, NeverShown = -1};
+	explicit General(Package *package, const char *name, const char *kingdom, int max_hp = 4, bool male = true, bool hidden = false, bool never_shown = false);
+	explicit General(Package *package, const char *name, const char *kingdom, const char *show_hp, Gender gender = Male, Attrib attrib = Shown);
 
 	// property getters/setters
 	int getMaxHp() const;
@@ -45,8 +48,8 @@ public:
 	bool isNeuter() const;
 	bool isLord() const;
 	bool isHidden() const;
+	bool isTotallyHidden() const;
 
-	enum Gender {Male, Female, Neuter};
 	Gender getGender() const;
 	void setGender(Gender gender);
 
@@ -75,6 +78,7 @@ public:
 
 	void setScreenName(const char *screen_name);
 	QString screenName() const;
+	QString getGenderString() const;
 	General::Gender getGender() const;
 
 	// property setters/getters
@@ -127,7 +131,6 @@ public:
 	void setFlags(const char *flag);
 	bool hasFlag(const char *flag) const;
 	void clearFlags();
-
 
 	bool faceUp() const;
 	void setFaceUp(bool face_up);

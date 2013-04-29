@@ -6,9 +6,28 @@
 
 #include <QSize>
 
-General::General(Package *package, const QString &name, const QString &kingdom, int max_hp, bool male, bool hidden)
-    :QObject(package), kingdom(kingdom), max_hp(max_hp), gender(male ? Male : Female), hidden(hidden)
+General::General(Package *package, const QString &name, const QString &kingdom, int max_hp, bool male, bool hidden, bool never_shown)
+    :QObject(package), kingdom(kingdom), max_hp(max_hp), _hp(max_hp), gender(male ? Male : Female)
 {
+    show_hp = QString::number(max_hp);
+    if(never_shown)
+        attrib = NeverShown;
+    else if(hidden)
+        attrib = Hidden;
+    else
+        attrib = Shown;
+    init(name);
+}
+
+General::General(Package *package, const QString &name, const QString &kingdom, const QString &show_hp, Gender gender, Attrib attrib)
+    :QObject(package), kingdom(kingdom), show_hp(show_hp), gender(gender), attrib(attrib)
+{
+    max_hp = QString(show_hp.split("/").last()).toInt();
+    _hp = QString(show_hp.split("/").first()).toInt();
+    init(name);
+}
+
+void General::init(const QString &name){
     static QChar lord_symbol('$');
     if(name.contains(lord_symbol)){
         QString copy = name;
@@ -19,10 +38,6 @@ General::General(Package *package, const QString &name, const QString &kingdom, 
         lord = false;
         setObjectName(name);
     }
-}
-
-int General::getMaxHp() const{
-    return max_hp;
 }
 
 QString General::getKingdom() const{
@@ -60,10 +75,6 @@ QString General::getGenderString() const{
 
 bool General::isLord() const{
     return lord;
-}
-
-bool General::isHidden() const{
-    return hidden;
 }
 
 QString General::getPixmapPath(const QString &category) const{
