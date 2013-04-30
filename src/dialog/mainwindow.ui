@@ -352,6 +352,11 @@
     <string>Send lowlevel command ...</string>
    </property>
   </action>
+  <action name="actionView_ban_list">
+   <property name="text">
+    <string>View ban list</string>
+   </property>
+  </action>
   <action name="actionAbout_fmod">
    <property name="text">
     <string>About fmod</string>

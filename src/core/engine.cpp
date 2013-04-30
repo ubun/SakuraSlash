@@ -5,7 +5,7 @@
 #include "settings.h"
 #include "scenario.h"
 #include "lua.hpp"
-#include "banpairdialog.h"
+#include "banpair.h"
 #include "audio.h"
 
 #include <QFile>
@@ -287,7 +287,13 @@ int Engine::getGeneralCount(bool include_banned) const{
         if(ban_package.contains(general->getPackage()))
             total--;
 
-        if(Config.Enable2ndGeneral && BanPair::isBanned(general->objectName()))
+        else if( (ServerInfo.GameMode.endsWith("p") ||
+                  ServerInfo.GameMode.endsWith("pd") ||
+                  ServerInfo.GameMode.endsWith("pz"))
+                  && Config.value("Banlist/Roles").toStringList().contains(general->objectName()))
+            total--;
+
+        else if(ServerInfo.Enable2ndGeneral && BanPair::isBanned(general->objectName()))
             total--;
     }
 
@@ -541,7 +547,22 @@ QStringList Engine::getLords() const{
 }
 
 QStringList Engine::getRandomLords() const{
-    QStringList lords = getLords();
+    QStringList banlist_ban;
+    if(Config.GameMode == "zombie_mode")
+        banlist_ban.append(Config.value("Banlist/zombie").toStringList());
+    else if((Config.GameMode.endsWith("p") ||
+             Config.GameMode.endsWith("pz") ||
+             Config.GameMode.endsWith("pd")))
+        banlist_ban.append(Config.value("Banlist/Roles").toStringList());
+
+    QStringList lords;
+
+    foreach(QString alord, getLords()){
+        if(banlist_ban.contains(alord))
+            continue;
+
+        lords << alord;
+    }
 
     QStringList nonlord_list;
     foreach(QString nonlord, this->nonlord_list){
@@ -550,6 +571,9 @@ QStringList Engine::getRandomLords() const{
             continue;
 
         if(Config.Enable2ndGeneral && BanPair::isBanned(general->objectName()))
+            continue;
+
+        if(banlist_ban.contains(general->objectName()))
             continue;
 
         nonlord_list << nonlord;
@@ -580,13 +604,14 @@ QStringList Engine::getLimitedGeneralNames() const{
 
 QStringList Engine::getRandomGenerals(int count, const QSet<QString> &ban_set) const{
     QStringList all_generals = getLimitedGeneralNames();
+    QSet<QString> general_set = all_generals.toSet();
 
     Q_ASSERT(all_generals.count() >= count);
 
-    if(!ban_set.isEmpty()){
-        QSet<QString> general_set = all_generals.toSet();
-        all_generals = general_set.subtract(ban_set).toList();
-    }
+    if(ServerInfo.GameMode.endsWith("p") || ServerInfo.GameMode.endsWith("pd") || ServerInfo.GameMode.endsWith("pz"))
+        general_set.subtract(Config.value("Banlist/Roles", "").toStringList().toSet());
+
+    all_generals = general_set.subtract(ban_set).toList();
 
     // shuffle them
     qShuffle(all_generals);

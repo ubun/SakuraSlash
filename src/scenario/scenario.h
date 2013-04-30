@@ -1,6 +1,8 @@
 #ifndef SCENARIO_H
 #define SCENARIO_H
 
+#include "engine.h"
+#include "settings.h"
 #include "package.h"
 #include "ai.h"
 

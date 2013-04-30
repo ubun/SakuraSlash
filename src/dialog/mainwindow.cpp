@@ -924,13 +924,13 @@ void MeleeDialog::updateResultBox(QString role, int win){
 
     server_log->append(tr("End of game %1").arg(totalCount));
 }
-/*
+
 void MainWindow::on_actionView_ban_list_triggered()
 {
-    KOFBanlistDialog *dialog = new KOFBanlistDialog(this);
+    BanlistDialog *dialog = new BanlistDialog(this, true);
     dialog->exec();
 }
-*/
+
 #include "audio.h"
 
 void MainWindow::on_actionAbout_fmod_triggered()

@@ -5,6 +5,7 @@
 #include "ai.h"
 #include "settings.h"
 #include "recorder.h"
+#include "banpair.h"
 #include "lua-wrapper.h"
 
 ServerPlayer::ServerPlayer(Room *room)
@@ -236,19 +237,34 @@ QStringList ServerPlayer::getSelected() const{
     return selected;
 }
 
-#include "banpairdialog.h"
-
 QString ServerPlayer::findReasonable(const QStringList &generals){
-    if(Config.Enable2ndGeneral){
-        foreach(QString name, generals){
+
+    foreach(QString name, generals){
+        if(Config.Enable2ndGeneral){
             if(getGeneral()){
-                if(!BanPair::isBanned(getGeneralName(), name))
-                    return name;
+                if(BanPair::isBanned(getGeneralName(), name))
+                    continue;
             }else{
-                if(!BanPair::isBanned(name))
-                    return name;
+                if(BanPair::isBanned(name))
+                    continue;
             }
         }
+        if(Config.GameMode == "zombie_mode")
+        {
+            QStringList ban_list = Config.value("Banlist/zombie").toStringList();
+
+            if(ban_list.contains(name))continue;
+        }
+        if((Config.GameMode.endsWith("p") ||
+            Config.GameMode.endsWith("pd") ||
+            Config.GameMode.endsWith("pz")))
+        {
+            QStringList ban_list = Config.value("Banlist/Roles").toStringList();
+
+            if(ban_list.contains(name))continue;
+        }
+
+        return name;
     }
 
     return generals.first();

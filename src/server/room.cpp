@@ -7,7 +7,7 @@
 #include "gamerule.h"
 #include "scenerule.h"	//changjing
 #include "contestdb.h"
-#include "banpairdialog.h"
+#include "banpair.h"
 #include "roomthread3v3.h"
 #include "roomthread1v1.h"
 #include "server.h"
@@ -2927,7 +2927,7 @@ void Room::kickCommand(ServerPlayer *player, const QString &arg){
 }
 
 void Room::makeCheat(const QString &cheat_str){
-    QRegExp damage_rx(":(.+)->(\\w+):([NTFRL])(\\d+)");
+    QRegExp damage_rx(":(.+)->(\\w+):([NTFRLME])(\\d+)");
     QRegExp killing_rx(":KILL:(.+)->(\\w+)");
     QRegExp revive_rx(":REVIVE:(.+)");
     QRegExp doscript_rx(":SCRIPT:(.+)");
@@ -2965,6 +2965,8 @@ void Room::makeDamage(const QStringList &texts){
     case 'T': damage.nature = DamageStruct::Thunder; break;
     case 'F': damage.nature = DamageStruct::Fire; break;
     case 'L': loseHp(damage.to, point); return;
+    case 'M': loseMaxHp(damage.to, point); return;
+    case 'E': setPlayerProperty(damage.to, "maxhp", point); return;
     case 'R':{
             RecoverStruct recover;
             if(texts.at(1) != ".")
