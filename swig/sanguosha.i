@@ -504,8 +504,9 @@ class Card: public QObject
 public:
 	// enumeration type
 	enum Suit {Spade, Club, Heart, Diamond, NoSuit};
-	static const Suit AllSuits[4];
 	enum Color {Red, Black, Colorless};
+
+	static const Suit AllSuits[4];
 
 	// card types
 	enum CardType{
@@ -536,6 +537,7 @@ public:
 	void setSuit(Suit suit);
 
 	Color getColor() const;
+	QString getColorString() const;
 	bool sameColorWith(const Card *other) const;
 	bool isEquipped() const;
 
@@ -587,6 +589,7 @@ public:
 	virtual void onEffect(const CardEffectStruct &effect) const;
 	virtual bool isCancelable(const CardEffectStruct &effect) const;
 
+	virtual bool isKindOf(const char* cardType) const;
 	virtual void onMove(const CardMoveStruct &move) const;
 
 	// static functions
