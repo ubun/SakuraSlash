@@ -2245,7 +2245,14 @@ RoomThread *Room::getThread() const{
 
 void Room::moveCardTo(const Card *card, ServerPlayer *to, Player::Place place, bool open){
     QSet<ServerPlayer *> scope;
-
+/*
+    if(to->hasSkill("bamian") && card->inherits("Car") && place == Player::Equip){
+        if(to->getOffensiveCar())
+            throwCard(to->getOffensiveCar());
+        if(to->getDefensiveCar())
+            throwCard(to->getDefensiveCar());
+    }
+*/
     if(!open){
         int eid = card->getEffectiveId();
         ServerPlayer *from = getCardOwner(eid);

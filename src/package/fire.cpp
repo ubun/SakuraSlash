@@ -590,25 +590,25 @@ public:
         }
         if(player->getPhase() == Player::NotActive)
             return false;
-        ServerPlayer *horse = room->findPlayerBySkillName(objectName());
-        if(!horse || horse->getMark("Shoushi") < 1)
+        ServerPlayer *hakuba = room->findPlayerBySkillName(objectName());
+        if(!hakuba || hakuba->getMark("Shoushi") < 1)
             return false;
-        int num = horse->getMark("Shoushi");
+        int num = hakuba->getMark("Shoushi");
         CardMoveStar move = data.value<CardMoveStar>();
         if(move->to_place == Player::DiscardedPile){
             const Card *card = Sanguosha->getCard(move->card_id);
             if(card->getNumber() == num){
                 LogMessage log;
-                log.from = horse;
+                log.from = hakuba;
                 log.to << player;
                 log.type = "#ShoushiGet";
                 log.arg = objectName();
                 log.arg2 = QString::number(num);
                 room->sendLog(log);
                 const Card *card = !player->hasEquip() ? NULL :
-                                   room->askForCard(player, ".Equi", "@shoushi:" + horse->objectName(), data);
+                                   room->askForCard(player, ".Equi", "@shoushi:" + hakuba->objectName(), data);
                 if(card)
-                    horse->obtainCard(card);
+                    hakuba->obtainCard(card);
                 else
                     room->loseHp(player);
             }

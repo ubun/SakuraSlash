@@ -49,6 +49,12 @@ int main(int argc, char *argv[])
         return qApp->exec();
     }
 
+    QFile file("conanslash.qss");
+    if(file.open(QIODevice::ReadOnly)){
+        QTextStream stream(&file);
+        qApp->setStyleSheet(stream.readAll());
+    }
+
 #ifdef AUDIO_SUPPORT
 
     Audio::init();

@@ -258,137 +258,118 @@ public:
     }
 };
 
-/*
-class Zaoxian: public PhaseChangeSkill{
-public:
-    Zaoxian():PhaseChangeSkill("zaoxian"){
-        frequency = Wake;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return PhaseChangeSkill::triggerable(target)
-                && target->getPhase() == Player::Start
-                && target->getMark("zaoxian") == 0
-                && target->getPile("field").length() >= 3;
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *dengai) const{
-        Room *room = dengai->getRoom();
-
-        room->setPlayerMark(dengai, "zaoxian", 1);
-        room->loseMaxHp(dengai);
-
-        LogMessage log;
-        log.type = "#ZaoxianWake";
-        log.from = dengai;
-        log.arg = QString::number(dengai->getPile("field").length());
-        room->sendLog(log);
-
-        room->acquireSkill(dengai, "jixi");
-
-        return false;
-    }
-};
-
-JixiCard::JixiCard(){
-    target_fixed = true;
+ShehangCard::ShehangCard(){
+    mute = true;
+    will_throw = false;
 }
 
-void JixiCard::onUse(Room *room, const CardUseStruct &card_use) const{
-    ServerPlayer *dengai = card_use.from;
+bool ShehangCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const{
+    if(targets.length() == 2)
+        return true;
+    return targets.length() == 1 && Self->canSlash(targets.first());
+}
 
-    QList<int> fields = dengai->getPile("field");
-    if(fields.isEmpty())
-        return ;
+bool ShehangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    if(targets.isEmpty()){
+        return to_select->hasEquip() && to_select != Self;
+    }else if(targets.length() == 1){
+        const Player *first = targets.first();
+        return to_select != Self && first->hasEquip() && Self->canSlash(to_select);
+    }else
+        return false;
+}
 
-    int card_id;
-    if(fields.length() == 1)
-        card_id = fields.first();
-    else{
-        room->fillAG(fields, dengai);
-        card_id = room->askForAG(dengai, fields, true, "jixi");
-        dengai->invoke("clearAG");
-
-        if(card_id == -1)
-            return;
-    }
-
-    const Card *card = Sanguosha->getCard(card_id);
-    Snatch *snatch = new Snatch(card->getSuit(), card->getNumber());
-    snatch->setSkillName("jixi");
-    snatch->addSubcard(card_id);
-
-    QList<ServerPlayer *> targets;
-    QList<const Player *> empty_list;
-    foreach(ServerPlayer *p, room->getAlivePlayers()){
-        if(!snatch->targetFilter(empty_list, p, dengai))
-            continue;
-
-        if(dengai->isProhibited(p, snatch))
-            continue;
-
-        targets << p;
-    }
-
-    if(targets.isEmpty())
+void ShehangCard::onUse(Room *room, const CardUseStruct &card_use) const{
+    QList<ServerPlayer *> targets = card_use.to;
+    PlayerStar source = card_use.from;
+    if(room->getCurrent() != source)
+        return;
+    if(targets.length() > 1)
+        targets.removeFirst();
+    else if(targets.length() == 1 && source->canSlash(targets.first()))
+        targets = card_use.to;
+    else
         return;
 
-    ServerPlayer *target = room->askForPlayerChosen(dengai, targets, "jixi");
-
-    CardUseStruct use;
-    use.card = snatch;
-    use.from = dengai;
-    use.to << target;
-
-    room->useCard(use);
+    int card_id = card_use.to.first()->getEquips().length() == 1 ? card_use.to.first()->getEquips().first()->getId():
+                  room->askForCardChosen(source, card_use.to.first(), "e", skill_name);
+    if(card_id > -1){
+        const Card *weapon = Sanguosha->getCard(card_id);
+        Slash *slash = new Slash(weapon->getSuit(), weapon->getNumber());
+        slash->setSkillName(skill_name);
+        slash->addSubcard(weapon->getEffectiveId());
+        CardUseStruct use;
+        use.card = slash;
+        use.from = source;
+        use.to = targets;
+        room->useCard(use);
+    }
 }
 
-class Jixi:public ZeroCardViewAsSkill{
+class ShehangViewAsSkill:public ZeroCardViewAsSkill{
 public:
-    Jixi():ZeroCardViewAsSkill("jixi"){
+    ShehangViewAsSkill():ZeroCardViewAsSkill("shehang"){
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return !player->getPile("field").isEmpty();
+        return player->getPhase() != Player::NotActive && Slash::IsAvailable(player);
     }
 
     virtual const Card *viewAs() const{
-        return new JixiCard;
+        return new ShehangCard;
     }
 };
 
-class Hunzi: public PhaseChangeSkill{
+class Shehang: public TriggerSkill{
 public:
-    Hunzi():PhaseChangeSkill("hunzi"){
-        frequency = Wake;
+    Shehang():TriggerSkill("shehang"){
+        events << CardAsked;
+        view_as_skill = new ShehangViewAsSkill;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return PhaseChangeSkill::triggerable(target)
-                && target->getMark("hunzi") == 0
-                && target->getPhase() == Player::Start
-                && target->getHp() == 1;
+    virtual int getPriority(TriggerEvent) const{
+        return 2;
     }
 
-    virtual bool onPhaseChange(ServerPlayer *sunce) const{
-        Room *room = sunce->getRoom();
-
-        LogMessage log;
-        log.type = "#HunziWake";
-        log.from = sunce;
-        room->sendLog(log);
-
-        room->loseMaxHp(sunce);
-
-        room->acquireSkill(sunce, "yinghun");
-        room->acquireSkill(sunce, "yingzi");
-
-        room->setPlayerMark(sunce, "hunzi", 1);
-
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        QString asked = data.toString();
+        if(asked != "slash" && asked != "jink")
+            return false;
+        Room *room = player->getRoom();
+        if(asked == "slash" && room->getCurrent() != player)
+            return false;
+        if(asked == "jink" && room->getCurrent() == player)
+            return false;
+        QList<ServerPlayer *> players;
+        foreach(ServerPlayer *tmp, room->getOtherPlayers(player)){
+            if(tmp->hasEquip())
+                players << tmp;
+        }
+        if(players.isEmpty())
+            return false;
+        if(room->askForSkillInvoke(player, objectName(), data)){
+            ServerPlayer *target = room->askForPlayerChosen(player, players, objectName());
+            const Card *card = NULL;
+            if(target->getEquips().length() == 1)
+                card = target->getEquips().first();
+            else
+                card = Sanguosha->getCard(room->askForCardChosen(player, target, "e", objectName()));
+            if(asked == "slash"){
+                Slash *shehang_card = new Slash(card->getSuit(), card->getNumber());
+                shehang_card->setSkillName(objectName());
+                shehang_card->addSubcard(card);
+                room->provide(shehang_card);
+            }
+            else{
+                Jink *shehang_card = new Jink(card->getSuit(), card->getNumber());
+                shehang_card->setSkillName(objectName());
+                shehang_card->addSubcard(card);
+                room->provide(shehang_card);
+            }
+        }
         return false;
     }
 };
-*/
 
 CanwuCard::CanwuCard(){
     once = true;
@@ -903,6 +884,7 @@ MountainPackage::MountainPackage()
     :Package("mountain")
 {
     General *yamatokansuke = new General(this, "yamatokansuke", "zhen", 3);
+    yamatokansuke->addSkill(new Skill("bamian", Skill::Compulsory));
 
     General *morofushitakaaki = new General(this, "morofushitakaaki", "zhen", 3);
     morofushitakaaki->addSkill(new Kongcheng);
@@ -924,6 +906,8 @@ MountainPackage::MountainPackage()
     addMetaObject<FeitiCard>();
 
     General *datewataru = new General(this, "datewataru", "jing", 3);
+    datewataru->addSkill(new Shehang);
+    addMetaObject<ShehangCard>();
 
     General *yokomizo = new General(this, "yokomizo", "jing", "3/4");
     yokomizo->addSkill(new Canwu);
