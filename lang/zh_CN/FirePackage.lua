@@ -30,6 +30,7 @@ return {
 	["#Yinxing"] = "%from 可在 %to 回合结束后发动技能【%arg】",
 
 	["akibareiko"] = "秋庭怜子",
+	["designer:akibareiko"] = "天音",
 	["chuyin"] = "初音",
 	[":chuyin"] = "当你受到伤害时，可增加1点体力上限，若此时你的体力值为全场最少，其他角色依次进行二选一：失去一点体力或弃置两张牌。",
 

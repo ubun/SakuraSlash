@@ -6,6 +6,26 @@
 #include "generaloverview.h"
 #include "client.h"
 
+class Bansha: public TriggerSkill{
+public:
+    Bansha():TriggerSkill("bansha"){
+        events << SlashMissed;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *yamato, QVariant &data) const{
+        Room* room = yamato->getRoom();
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        PlayerStar target = effect.to;
+        if(!target->isKongcheng() &&
+           target->getHandcardNum() >= yamato->getHandcardNum() &&
+           room->askForSkillInvoke(yamato, objectName(), data)){
+            room->playSkillEffect(objectName());
+            yamato->obtainCard(target->getRandomHandCard(), false);
+        }
+        return false;
+    }
+};
+
 class Kongcheng: public ProhibitSkill{
 public:
     Kongcheng():ProhibitSkill("kongcheng"){
@@ -885,6 +905,7 @@ MountainPackage::MountainPackage()
 {
     General *yamatokansuke = new General(this, "yamatokansuke", "zhen", 3);
     yamatokansuke->addSkill(new Skill("bamian", Skill::Compulsory));
+    yamatokansuke->addSkill(new Bansha);
 
     General *morofushitakaaki = new General(this, "morofushitakaaki", "zhen", 3);
     morofushitakaaki->addSkill(new Kongcheng);
