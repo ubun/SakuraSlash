@@ -483,18 +483,11 @@ int Player::getMaxCards() const{
 
     int door = getMark("@door");
 
-    int xueyi = 0;
-    if(hasLordSkill("xueyi")){
-        QList<const Player *> players = getSiblings();
-        foreach(const Player *player, players){
-            if(player->isAlive() && player->getKingdom() == "qun")
-                xueyi += 2;
-        }
-    }
+    int guifu = hasSkill("guifu") ? 2 : 0;
 
     int cry = getMark("CryMaxCards") > 0 ? 2 : 0;
 
-    return qMax(hp,0) + extra + door + xueyi + cry;
+    return qMax(hp,0) + extra + door + guifu + cry;
 }
 
 QString Player::getKingdom() const{

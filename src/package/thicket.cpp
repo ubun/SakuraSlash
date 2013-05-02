@@ -837,7 +837,9 @@ public:
                 return true;
             }
             else{
-                room->slashResult(effect, effect.slash);
+                Jink *jink = new Jink(Card::NoSuit, 0);
+                jink->setSkillName(objectName());
+                room->slashResult(effect, jink);
                 return true;
             }
         }

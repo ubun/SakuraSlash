@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>23</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuGame">
@@ -268,7 +268,7 @@
   </action>
   <action name="actionScript_editor">
    <property name="enabled">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Script editor</string>
@@ -319,6 +319,9 @@
    </property>
   </action>
   <action name="actionCard_editor">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Card editor ...</string>
    </property>

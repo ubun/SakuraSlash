@@ -473,14 +473,21 @@ public:
         Room *room = player->getRoom();
         if(event == GameStart)
             player->gainMark("@hatchet", 2);
-        else if(event == HpLost || event == MaxHpLost)
+        else if(event == MaxHpLost)
             return true;
         else{
-            DamageStruct damage = data.value<DamageStruct>();
-            if(event == Predamage)
-                player->gainMark("@hatchet", damage.damage);
+            DamageStruct damage;
+            int num = 0;
+            if(data.canConvert<DamageStruct>()){
+                damage = data.value<DamageStruct>();
+                num = damage.damage;
+            }
             else
-                player->loseMark("@hatchet", damage.damage);
+                num = data.toInt();
+            if(event == Predamage)
+                player->gainMark("@hatchet", num);
+            else
+                player->loseMark("@hatchet", num);
 
             if(!player->hasMark("@hatchet")){
                 JudgeStruct judge;
@@ -490,14 +497,15 @@ public:
                 judge.who = player;
 
                 room->judge(judge);
-                if(judge.isGood())
+                if(judge.card->inherits("Peach") ||
+                   (judge.card->inherits("TrickCard") && judge.card->isRed()))
                     player->gainMark("@hatchet", 2);
                 else{
                     room->setPlayerProperty(player, "hp", 0);
                     room->enterDying(player, &damage);
                 }
             }
-            return true;
+            return event != Predamage;
         }
         return false;
     }
