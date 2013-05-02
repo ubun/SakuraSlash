@@ -7,7 +7,7 @@
 #include "gamerule.h"
 #include "scenerule.h"	//changjing
 #include "contestdb.h"
-#include "banpairdialog.h"
+#include "banpair.h"
 #include "roomthread3v3.h"
 #include "roomthread1v1.h"
 #include "server.h"
@@ -1117,7 +1117,7 @@ void Room::transfigure(ServerPlayer *player, const QString &new_general, bool fu
     broadcastProperty(player, "maxhp");
 
     if(full_state)
-        player->setHp(player->getMaxHP());
+        player->setHp(player->getGeneralHp());
     broadcastProperty(player, "hp");
 
     resetAI(player);
@@ -1872,21 +1872,8 @@ void Room::loseHp(ServerPlayer *victim, int lose){
 }
 
 void Room::loseMaxHp(ServerPlayer *victim, int lose){
-    int hp = victim->getHp();
-    victim->setMaxHP(qMax(victim->getMaxHP() - lose, 0));
-
-    broadcastProperty(victim, "maxhp");
-    broadcastProperty(victim, "hp");
-
-    LogMessage log;
-    log.type = hp - victim->getHp() == 0 ? "#LoseMaxHp" : "#LostMaxHpPlus";
-    log.from = victim;
-    log.arg = QString::number(lose);
-    log.arg2 = QString::number(hp - victim->getHp());
-    sendLog(log);
-
-    if(victim->getMaxHP() == 0)
-        killPlayer(victim);
+    QVariant data = lose;
+    thread->trigger(MaxHpLost, victim, data);
 }
 
 void Room::applyDamage(ServerPlayer *victim, const DamageStruct &damage){
@@ -2117,7 +2104,7 @@ void Room::startGame(){
 
     foreach(ServerPlayer *player, players){
         player->setMaxHP(player->getGeneralMaxHP());
-        player->setHp(player->getMaxHP());
+        player->setHp(player->getGeneralHp());
 
         broadcastProperty(player, "maxhp");
         broadcastProperty(player, "hp");
@@ -2258,7 +2245,14 @@ RoomThread *Room::getThread() const{
 
 void Room::moveCardTo(const Card *card, ServerPlayer *to, Player::Place place, bool open){
     QSet<ServerPlayer *> scope;
-
+/*
+    if(to->hasSkill("bamian") && card->inherits("Car") && place == Player::Equip){
+        if(to->getOffensiveCar())
+            throwCard(to->getOffensiveCar());
+        if(to->getDefensiveCar())
+            throwCard(to->getDefensiveCar());
+    }
+*/
     if(!open){
         int eid = card->getEffectiveId();
         ServerPlayer *from = getCardOwner(eid);
@@ -2940,7 +2934,7 @@ void Room::kickCommand(ServerPlayer *player, const QString &arg){
 }
 
 void Room::makeCheat(const QString &cheat_str){
-    QRegExp damage_rx(":(.+)->(\\w+):([NTFRL])(\\d+)");
+    QRegExp damage_rx(":(.+)->(\\w+):([NTFRLME])(\\d+)");
     QRegExp killing_rx(":KILL:(.+)->(\\w+)");
     QRegExp revive_rx(":REVIVE:(.+)");
     QRegExp doscript_rx(":SCRIPT:(.+)");
@@ -2978,6 +2972,8 @@ void Room::makeDamage(const QStringList &texts){
     case 'T': damage.nature = DamageStruct::Thunder; break;
     case 'F': damage.nature = DamageStruct::Fire; break;
     case 'L': loseHp(damage.to, point); return;
+    case 'M': loseMaxHp(damage.to, point); return;
+    case 'E': setPlayerProperty(damage.to, "maxhp", point); return;
     case 'R':{
             RecoverStruct recover;
             if(texts.at(1) != ".")

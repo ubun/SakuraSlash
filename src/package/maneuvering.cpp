@@ -180,7 +180,7 @@ public:
             }
         }else if(event == CardEffected){
             CardEffectStruct effect = data.value<CardEffectStruct>();
-            if(effect.card->inherits("AOE")){
+            if(effect.card->inherits("SavageAssault") || effect.card->inherits("ArcheryAttack")){
                 LogMessage log;
                 log.from = player;
                 log.type = "#ArmorNullify";
@@ -357,19 +357,50 @@ bool SupplyShortage::targetFilter(const QList<const Player *> &targets, const Pl
     if(to_select->containsTrick(objectName()))
         return false;
 
+    if(getSkillName() == "foyuan")
+        return true;
+
     if(Self->hasSkill("qicai") || Self->hasSkill("chuanyao"))
         return true;
 
     int distance = Self->distanceTo(to_select);
-    if(Self->hasSkill("duanliang"))
-        return distance <= 2;
-    else
-        return distance <= 1;
+    return distance <= 1;
 }
 
 void SupplyShortage::takeEffect(ServerPlayer *target) const{
     target->skip(Player::Draw);
 }
+
+class CitroBX: public TriggerSkill{
+public:
+    CitroBX():TriggerSkill("citroBX"){
+        events << SlashProceed;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->hasSkill("citroBX") && target->hasSkill("shendie");
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+
+        if(player->isAlive()){
+            Room *room = effect.from->getRoom();
+            if(effect.from->getHp() == effect.to->getHp() ||
+               effect.from->getHp() == effect.to->getHandcardNum()){
+                LogMessage log;
+                log.type = "#Wulian";
+                log.from = player;
+                log.to << effect.to;
+                log.arg = objectName();
+                room->sendLog(log);
+                room->slashResult(effect, NULL);
+                return true;
+            }
+        }
+        return false;
+    }
+};
 
 BlackDragonPackage::BlackDragonPackage()
     :Package("black_dragon")
@@ -459,7 +490,7 @@ BlackDragonPackage::BlackDragonPackage()
 
     foreach(Card *card, cards)
         card->setParent(this);
-    skills << new Skill("citroBX");
+    skills << new CitroBX;
 
     type = CardPack;
 }

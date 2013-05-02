@@ -341,8 +341,8 @@ RoomScene::RoomScene(QMainWindow *main_window)
     skill_dock_layout->setContentsMargins(margins);
     skill_dock_layout->addStretch();
 
-    main_window->statusBar()->setObjectName("skill_bar_container");
-    main_window->statusBar()->setLayout(skill_dock_layout);
+    //main_window->statusBar()->setObjectName("skill_bar_container");
+    //main_window->statusBar()->setLayout(skill_dock_layout);
     addWidgetToSkillDock(sort_combobox, true);
 
     createStateItem();
@@ -2462,8 +2462,10 @@ DamageMakerDialog::DamageMakerDialog(QWidget *parent)
     damage_nature->addItem(tr("Normal"), "N");
     damage_nature->addItem(tr("Thunder"), "T");
     damage_nature->addItem(tr("Fire"), "F");
-    damage_nature->addItem(tr("HP recover"), "R");
+    damage_nature->addItem(tr("Recover HP"), "R");
     damage_nature->addItem(tr("Lose HP"), "L");
+    damage_nature->addItem(tr("Lose Max HP"), "M");
+    damage_nature->addItem(tr("Reset Max HP"), "E");
 
     damage_point = new QSpinBox;
     damage_point->setRange(1, 1000);
@@ -2490,7 +2492,7 @@ DamageMakerDialog::DamageMakerDialog(QWidget *parent)
 
 void DamageMakerDialog::disableSource(){
     QString nature = damage_nature->itemData(damage_nature->currentIndex()).toString();
-    damage_source->setEnabled(nature != "L");
+    damage_source->setEnabled(nature != "L" && nature != "M" && nature != "E");
 }
 
 void RoomScene::FillPlayerNames(QComboBox *combobox, bool add_none){
@@ -2501,6 +2503,7 @@ void RoomScene::FillPlayerNames(QComboBox *combobox, bool add_none){
 
     foreach(const ClientPlayer *player, ClientInstance->getPlayers()){
         QString general_name = Sanguosha->translate(player->getGeneralName());
+        if(!player->getGeneral()) continue;
         combobox->addItem(QIcon(player->getGeneral()->getPixmapPath("tiny")),
                           QString("%1 [%2]").arg(general_name).arg(player->screenName()),
                           player->objectName());

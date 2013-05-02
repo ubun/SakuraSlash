@@ -42,19 +42,29 @@ private slots:
     void toggleCheck();
 };
 
-class KOFBanlistDialog: public QDialog{
+class BanlistDialog: public QDialog{
     Q_OBJECT
 
 public:
-    KOFBanlistDialog(QDialog *parent);
+    BanlistDialog(QWidget *parent, bool view = false);
 
 private:
-    QListWidget *list;
+    QList<QListWidget *>lists;
+    QListWidget * list;
+    int item;
+    QStringList ban_list;
+    QPushButton* add2nd;
 
 private slots:
     void addGeneral(const QString &name);
-    void removeGeneral();
+    void add2ndGeneral(const QString &name);
+    void addPair(const QString &first, const QString& second);
+    void doAdd2ndButton();
+    void doAddButton();
+    void doRemoveButton();
     void save();
+    void saveAll();
+    void switchTo(int item);
 };
 
 class ServerDialog: public QDialog{
@@ -64,6 +74,7 @@ public:
     ServerDialog(QWidget *parent);
     void ensureEnableAI();
     bool config();
+    bool isPCConsole() {return pc_console;}
 
 private:
     QWidget *createBasicTab();
@@ -74,6 +85,8 @@ private:
 
     QGroupBox *createGameModeBox();
     QGroupBox *create3v3Box();
+    QPushButton *ok_button;
+    QCheckBox *minimize_checkbox;
 
     QLineEdit *server_name_edit;
     QSpinBox *timeout_spinbox;
@@ -102,9 +115,12 @@ private:
 
     QButtonGroup *extension_group;
     QButtonGroup *mode_group;
+    bool pc_console;
 
 private slots:
     void onOkButtonClicked();
+    void onSerButtonClicked();
+    void onPCCButtonClicked();
     void onDetectButtonClicked();
     void onHttpDone(bool error);
     void select3v3Generals();

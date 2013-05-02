@@ -23,7 +23,7 @@ SOURCES += src/main.cpp \
 	src/core/settings.cpp \
 	src/core/skill.cpp \
 	src/core/statistics.cpp \
-	src/dialog/banpairdialog.cpp \
+	src/core/banpair.cpp \
 	src/dialog/cardeditor.cpp \
 	src/dialog/cardoverview.cpp \
 	src/dialog/choosegeneraldialog.cpp \
@@ -45,11 +45,11 @@ SOURCES += src/main.cpp \
 	src/package/standard-generals.cpp \
 	src/package/wind.cpp \
 	src/package/thicket.cpp \
-	src/package/firepackage.cpp \
-	src/package/mountainpackage.cpp \
+	src/package/fire.cpp \
+	src/package/mountain.cpp \
 	src/package/negative.cpp \
 	src/package/god.cpp \
-	src/package/joypackage.cpp \
+	src/package/joy.cpp \
 	src/package/nostalgia.cpp \
 	src/scenario/boss-mode-scenario.cpp \
 	src/scenario/couple-scenario.cpp \
@@ -127,7 +127,7 @@ HEADERS += src/client/aux-skills.h \
 	src/core/settings.h \
 	src/core/skill.h \
 	src/core/statistics.h \
-	src/dialog/banpairdialog.h \
+	src/core/banpair.h \
 	src/dialog/cardeditor.h \
 	src/dialog/cardoverview.h \
 	src/dialog/choosegeneraldialog.h \
@@ -150,10 +150,10 @@ HEADERS += src/client/aux-skills.h \
 	src/package/maneuvering.h \
 	src/package/wind.h \
 	src/package/thicket.h \
-	src/package/firepackage.h \
-	src/package/mountainpackage.h \
+	src/package/fire.h \
+	src/package/mountain.h \
 	src/package/negative.h \
-	src/package/joypackage.h \
+	src/package/joy.h \
 	src/package/nostalgia.h \
 	src/package/god.h \
 	src/scenario/boss-mode-scenario.h \

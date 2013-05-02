@@ -870,13 +870,13 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return TriggerSkill::triggerable(target) && target->getMark("@yaiba") > 0;
+        return TriggerSkill::triggerable(target) && target->getMark("@face") > 0;
     }
 
     virtual bool trigger(TriggerEvent , ServerPlayer *sharon, QVariant &) const{
         Room *room = sharon->getRoom();
         if(sharon->getHp() <= 0 && sharon->askForSkillInvoke(objectName())){
-            sharon->loseMark("@yaiba");
+            sharon->loseMark("@face");
 
             QStringList genlist = Sanguosha->getLimitedGeneralNames();
             foreach(ServerPlayer *player, room->getAllPlayers()){
@@ -1984,22 +1984,6 @@ public:
     }
 };
 
-class Losthp: public TriggerSkill{
-public:
-    Losthp():TriggerSkill("#losthp"){
-        events << GameStart;
-    }
-
-    virtual int getPriority() const{
-        return -1;
-    }
-
-    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &) const{
-        player->getRoom()->setPlayerProperty(player, "hp", player->getHp() - 1);
-        return false;
-    }
-};
-
 CheatCard::CheatCard(){
     target_fixed = true;
     will_throw = false;
@@ -2074,8 +2058,8 @@ void StandardPackage::addGenerals(){
 
     sharon = new General(this, "sharon", "yi", 3, false);
     sharon->addSkill(new Yirong);
-    sharon->addSkill(new MarkAssignSkill("@yaiba", 1));
-    related_skills.insertMulti("yirong", "#@yaiba-1");
+    sharon->addSkill(new MarkAssignSkill("@face", 1));
+    related_skills.insertMulti("yirong", "#@face-1");
     sharon->addSkill(new Wuyu);
 
     General *megurejyuuzou, *matsumotokiyonaka, *shiratorininzaburou;
@@ -2100,10 +2084,9 @@ void StandardPackage::addGenerals(){
     //kurobakaitou->addSkill(new MarkAssignSkill("magic", 1));
     kurobakaitou->addSkill(new Moshu);
 
-    nakamoriaoko = new General(this, "nakamoriaoko", "guai", 4, false);
+    nakamoriaoko = new General(this, "nakamoriaoko", "guai", "3/4", General::Female);
     nakamoriaoko->addSkill(new Renxing);
     nakamoriaoko->addSkill(new Qingmei);
-    nakamoriaoko->addSkill("#losthp");
 
     General *gin, *vodka, *akaishuichi;
     gin = new General(this, "gin$", "hei");
@@ -2113,10 +2096,9 @@ void StandardPackage::addGenerals(){
     gin->addSkill(new Juelu);
     gin->addSkill(new Heiyi);
 
-    vodka = new General(this, "vodka", "hei");
+    vodka = new General(this, "vodka", "hei", "3/4");
     vodka->addSkill(new Maixiong);
     vodka->addSkill(new Dashou);
-    vodka->addSkill("#losthp");
 
     akaishuichi = new General(this, "akaishuichi", "te");
     akaishuichi->addSkill(new Jushen);
@@ -2131,10 +2113,9 @@ void StandardPackage::addGenerals(){
     agasahiroshi->addSkill(new Suyuan);
     agasahiroshi->addSkill(new Baomu);
 
-    kobayashisumiko = new General(this, "kobayashisumiko", "za", 4, false);
+    kobayashisumiko = new General(this, "kobayashisumiko", "za", "3/4", General::Female);
     kobayashisumiko->addSkill(new Yuanding);
     kobayashisumiko->addSkill(new Qiniao);
-    kobayashisumiko->addSkill("#losthp");
 
     meguremidori = new General(this, "meguremidori", "za", 3, false);
     meguremidori->addSkill(new Shexian);
@@ -2158,7 +2139,7 @@ void StandardPackage::addGenerals(){
     addMetaObject<GaizaoCard>();
     addMetaObject<YuandingCard>();
 
-    skills << new RexueEffect << new Losthp;
+    skills << new RexueEffect;
 
     addMetaObject<CheatCard>();
     addMetaObject<ChangeCard>();
@@ -2168,8 +2149,8 @@ TestPackage::TestPackage()
     :Package("test")
 {
     // for test only
-    new General(this, "uzumaki", "god", 5, true, true);
-    new General(this, "haruno", "god", 5, false, true);
+    new General(this, "uzumaki", "god", "5", General::Male, General::Hidden);
+    new General(this, "haruno", "god", "5", General::Female, General::Hidden);
 }
 
 ADD_PACKAGE(Test)

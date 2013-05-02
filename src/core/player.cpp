@@ -96,6 +96,13 @@ General::Gender Player::getGender() const{
         return General::Neuter;
 }
 
+QString Player::getGenderString() const{
+    if(general)
+        return general->getGenderString();
+    else
+        return "neuter";
+}
+
 int Player::getSeat() const{
     return seat;
 }
@@ -589,6 +596,10 @@ void Player::setMark(const QString &mark, int value){
 
 int Player::getMark(const QString &mark) const{
     return marks.value(mark, 0);
+}
+
+bool Player::hasMark(const QString &mark) const{
+    return marks.value(mark, 0) > 0;
 }
 
 bool Player::canSlash(const Player *other, bool distance_limit) const{

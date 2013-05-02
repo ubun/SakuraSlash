@@ -84,6 +84,13 @@ void EquipCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *
     if(equipped)
         room->throwCard(equipped);
 
+    if(target->hasSkill("bamian") && inherits("Car")){
+        if(target->getOffensiveCar())
+            room->throwCard(target->getOffensiveCar());
+        if(target->getDefensiveCar())
+            room->throwCard(target->getDefensiveCar());
+    }
+
     LogMessage log;
     log.from = target;
     log.type = "$Install";

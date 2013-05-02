@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Connection setup</string>
+   <string>Join Game</string>
   </property>
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">

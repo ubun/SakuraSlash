@@ -10,24 +10,29 @@
 StartScene::StartScene()
 {
     // game logo
-    logo = new Pixmap("image/system/logo.png");
+    logo = new Pixmap("image/logo/logo.png");
     logo->shift();
     logo->moveBy(0, -Config.Rect.height()/4);
     addItem(logo);
 
-    //the website URL
+    /*the website URL
     QFont website_font(Config.SmallFont);
     website_font.setStyle(QFont::StyleItalic);
     QGraphicsSimpleTextItem *website_text = addSimpleText("QQ qun: 1296898; 110549027", website_font);
     website_text->setBrush(Qt::white);
     website_text->setPos(Config.Rect.width()/2 - website_text->boundingRect().width(),
                        Config.Rect.height()/2 - website_text->boundingRect().height());
-
+    */
     server_log = NULL;
 }
 
 void StartScene::addButton(QAction *action){
-    Button *button = new Button(action->text());
+    QString text = action->text();
+    if(action->objectName() == "actionPackaging")
+        text = tr("Lua Manager");
+    else if(action->objectName() == "actionReplay")
+        text = tr("Replay");
+    Button *button = new Button(text);
     button->setMute(false);
 
     connect(button, SIGNAL(clicked()), action, SLOT(trigger()));
@@ -35,11 +40,10 @@ void StartScene::addButton(QAction *action){
 
     QRectF rect = button->boundingRect();
     int n = buttons.length();
-    if(n < 5){
+    if(n < 5)
         button->setPos(- rect.width() - 5, (n - 1) * (rect.height() * 1.2));
-    }else{
+    else
         button->setPos(5, (n - 6) * (rect.height() * 1.2));
-    }
 
     buttons << button;
 }

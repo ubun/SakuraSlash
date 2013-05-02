@@ -93,6 +93,9 @@ private:
 
     void restoreFromConfig();
 
+public slots:
+    void on_actionRestart_game_triggered();
+
 private slots:
     void on_actionAbout_Lua_triggered();
     void on_actionAbout_fmod_triggered();
@@ -100,7 +103,6 @@ private slots:
     void on_actionAI_Melee_triggered();
     void on_actionPackaging_triggered();
     void on_actionScript_editor_triggered();
-    void on_actionPC_Console_Start_triggered();
     void on_actionCard_editor_triggered();
     void on_actionAcknowledgement_triggered();
     void on_actionBroadcast_triggered();
@@ -114,19 +116,18 @@ private slots:
     void on_actionEnable_Hotkey_toggled(bool );
     void on_actionCard_Overview_triggered();
     void on_actionGeneral_Overview_triggered();
-    void on_actionStart_Server_triggered();
+    void on_actionStart_Game_triggered();
+    void on_actionReturn_main_triggered();
     void on_actionExit_triggered();
+    void on_actionView_ban_list_triggered();
 
-    void startConnection();
     void checkVersion(const QString &server_version, const QString &server_mod);
     void networkError(const QString &error_msg);
     void enterRoom();
     void gotoScene(QGraphicsScene *scene);
-    void gotoStartScene();
     void sendLowLevelCommand();
     void startGameInAnotherInstance();
     void changeBackground();
-    void on_actionView_ban_list_triggered();
 };
 
 #endif // MAINWINDOW_H

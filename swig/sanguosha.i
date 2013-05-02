@@ -35,7 +35,10 @@ public:
 class General : public QObject
 {
 public:
-       explicit General(Package *package, const char *name, const char *kingdom, int max_hp = 4, bool male = true, bool hidden = false);
+	enum Gender {Male = 0, Female = 1, Neuter = 2};
+	enum Attrib {Shown = 1, Hidden = 0, NeverShown = -1};
+	explicit General(Package *package, const char *name, const char *kingdom, int max_hp = 4, bool male = true, bool hidden = false, bool never_shown = false);
+	explicit General(Package *package, const char *name, const char *kingdom, const char *show_hp, Gender gender = Male, Attrib attrib = Shown);
 
 	// property getters/setters
 	int getMaxHp() const;
@@ -45,8 +48,8 @@ public:
 	bool isNeuter() const;
 	bool isLord() const;
 	bool isHidden() const;
+	bool isTotallyHidden() const;
 
-	enum Gender {Male, Female, Neuter};
 	Gender getGender() const;
 	void setGender(Gender gender);
 
@@ -75,6 +78,7 @@ public:
 
 	void setScreenName(const char *screen_name);
 	QString screenName() const;
+	QString getGenderString() const;
 	General::Gender getGender() const;
 
 	// property setters/getters
@@ -127,7 +131,6 @@ public:
 	void setFlags(const char *flag);
 	bool hasFlag(const char *flag) const;
 	void clearFlags();
-
 
 	bool faceUp() const;
 	void setFaceUp(bool face_up);
@@ -208,9 +211,9 @@ public:
 	void jilei(const char *type);
 	bool isJilei(const Card *card) const;
 
-	void setCardLocked(const QString &name);
+	void setCardLocked(const char *name);
 	bool isLocked(const Card *card) const;
-	bool hasCardLock(const QString &card_str) const;
+	bool hasCardLock(const char *card_str) const;
 
 	void copyFrom(Player* p);
 
@@ -449,6 +452,7 @@ enum TriggerEvent{
     HpRecover,
     HpLost,
     HpChanged,
+    MaxHpLost,
 
     StartJudge,
     AskForRetrial,
@@ -500,8 +504,9 @@ class Card: public QObject
 public:
 	// enumeration type
 	enum Suit {Spade, Club, Heart, Diamond, NoSuit};
-	static const Suit AllSuits[4];
 	enum Color {Red, Black, Colorless};
+
+	static const Suit AllSuits[4];
 
 	// card types
 	enum CardType{
@@ -532,6 +537,7 @@ public:
 	void setSuit(Suit suit);
 
 	Color getColor() const;
+	QString getColorString() const;
 	bool sameColorWith(const Card *other) const;
 	bool isEquipped() const;
 
@@ -583,6 +589,7 @@ public:
 	virtual void onEffect(const CardEffectStruct &effect) const;
 	virtual bool isCancelable(const CardEffectStruct &effect) const;
 
+	virtual bool isKindOf(const char* cardType) const;
 	virtual void onMove(const CardMoveStruct &move) const;
 
 	// static functions
@@ -831,7 +838,7 @@ public:
 	int getCardFromPile(const char *card_name);
 	ServerPlayer *findPlayer(const char *general_name, bool include_dead = false) const;
 	ServerPlayer *findPlayerBySkillName(const char *skill_name, bool include_dead = false) const;
-	QList<ServerPlayer *> findPlayersBySkillName(const QString &skill_name, bool include_dead = false) const;
+	QList<ServerPlayer *> findPlayersBySkillName(const char *skill_name, bool include_dead = false) const;
 	void installEquip(ServerPlayer *player, const char *equip_name);
 	void resetAI(ServerPlayer *player);
 	void transfigure(ServerPlayer *player, const char *new_general, bool full_state, bool invoke_start = true);

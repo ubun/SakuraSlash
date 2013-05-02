@@ -69,6 +69,7 @@ public:
     int getLostHp() const;
     bool isWounded() const;
     General::Gender getGender() const;
+    QString getGenderString() const;
 
     bool isOwner() const;
     void setOwner(bool owner);
@@ -170,6 +171,7 @@ public:
     void removeMark(const QString &mark);
     virtual void setMark(const QString &mark, int value);
     int getMark(const QString &mark) const;
+    bool hasMark(const QString &mark) const;
 
     void setChained(bool chained);
     bool isChained() const;

@@ -1018,10 +1018,18 @@ public:
         int correct = 0;
         if(from->hasSkill("baotai") || to->hasSkill("baotai"))
             return correct;
-        if(from->getOffensiveCar())
-            correct += from->getOffensiveCar()->getCorrect();
-        if(to->getDefensiveCar())
-            correct += to->getDefensiveCar()->getCorrect();
+        if(from->getOffensiveCar()){
+            int corr = from->getOffensiveCar()->getCorrect();
+            if(from->hasSkill("bamian"))
+                corr *= 2;
+            correct += corr;
+        }
+        if(to->getDefensiveCar()){
+            int corr = to->getDefensiveCar()->getCorrect();
+            if(to->hasSkill("bamian"))
+                corr *= 2;
+            correct += corr;
+        }
 
         return correct;
     }

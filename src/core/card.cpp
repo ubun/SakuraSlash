@@ -6,7 +6,17 @@
 #include "carditem.h"
 #include "lua-wrapper.h"
 #include <QFile>
+/*
+static bool CompareBySuit(int card1, int card2){
+    const Card *c1 = Sanguosha->getCard(card1);
+    const Card *c2 = Sanguosha->getCard(card2);
 
+    int a = static_cast<int>(c1->getSuit());
+    int b = static_cast<int>(c2->getSuit());
+
+    return a < b;
+}
+*/
 const Card::Suit Card::AllSuits[4] = {
     Card::Spade,
     Card::Club,
@@ -35,6 +45,19 @@ QString Card::Suit2String(Suit suit){
     case Diamond: return "diamond";
     default: return "no_suit";
     }
+}
+
+Card::Suit Card::String2Suit(QString string){
+    if(string == "spade")
+        return Spade;
+    else if(string == "heart")
+        return Heart;
+    else if(string == "club")
+        return Club;
+    else if(string == "diamond")
+        return Diamond;
+    else
+        return NoSuit;
 }
 
 QStringList Card::IdsToStrings(const QList<int> &ids){
@@ -128,6 +151,17 @@ Card::Color Card::getColor() const{
     case Diamond: return Red;
     default:
         return Colorless;
+    }
+}
+
+QString Card::getColorString() const{
+    switch(suit){
+    case Spade:
+    case Club: return "black";
+    case Heart:
+    case Diamond: return "red";
+    default:
+        return "colorless";
     }
 }
 

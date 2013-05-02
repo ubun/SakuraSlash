@@ -391,6 +391,7 @@ public:
         log.from = sira;
         log.arg = objectName();
         room->sendLog(log);
+        room->setPlayerProperty(sira, "kingdom", "woo");
         PlayerStar target = room->askForPlayerChosen(sira, targets, objectName());
         DamageStruct dmg;
         dmg.from = sira;
@@ -416,8 +417,10 @@ public:
         }
         else{
             if(player->getPhase() == Player::Discard && !player->hasFlag("DongUa")
-                && player->askForSkillInvoke(objectName()))
+                && player->askForSkillInvoke(objectName())){
+                room->setPlayerProperty(player, "kingdom", "zhen");
                 return true;
+            }
         }
         return false;
     }
@@ -571,7 +574,6 @@ public:
         return false;
     }
 };
-
 
 class YunchouClear: public PhaseChangeSkill{
 public:
@@ -1060,7 +1062,7 @@ public:
     virtual int getDrawNum(ServerPlayer *jodie, int n) const{
         Room *room = jodie->getRoom();
         if(room->askForSkillInvoke(jodie, objectName())){
-            int x = jodie->getEquips().length();
+            int x = jodie->getEquips().length() / 2;
             room->playSkillEffect(objectName());
             return n + qMax(x, 1);
         }
@@ -1342,7 +1344,7 @@ WindPackage::WindPackage()
     General *heiji = new General(this, "heiji", "woo");
     heiji->addSkill(new Nijian);
 
-    General *seramasumi = new General(this, "seramasumi", "woo", 3, false, true);
+    General *seramasumi = new General(this, "seramasumi", "woo", 3, false);
     seramasumi->addSkill(new Jiequan);
     seramasumi->addSkill(new Dongcha);
 
@@ -1371,11 +1373,10 @@ WindPackage::WindPackage()
     nakamoriginzou->addSkill(new Weijiao);
     nakamoriginzou->addSkill(new Shiyi);
 
-    General *vermouth = new General(this, "vermouth$", "hei", 4, false);
+    General *vermouth = new General(this, "vermouth$", "hei", "3/4", General::Female);
     vermouth->addSkill(new Weixiao);
     vermouth->addSkill(new Qianmian);
     vermouth->addSkill(new Kuai);
-    vermouth->addSkill("#losthp");
 
     General *jodie = new General(this, "jodie", "te", 3, false);
     jodie->addSkill(new Dianwan);

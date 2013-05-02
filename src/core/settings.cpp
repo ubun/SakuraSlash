@@ -103,9 +103,22 @@ void Settings::init(){
 
     BackgroundBrush = value("BackgroundBrush", "backdrop/conan1.jpg").toString();
 
-    if(!contains("1v1/Banlist")){
-        QStringList banlist;
-        banlist << "hattoriheiji" << "mourikogorou" << "touyamakazuha" << "gin" << "akaishuichi";
-        setValue("1v1/Banlist", banlist);
-    }
+    QStringList banlist = value("Banlist/Roles").toStringList();
+    setValue("Banlist/Roles", banlist);
+
+    banlist = value("Banlist/1v1").toStringList();
+    QStringList banlist_init;
+    banlist_init << "hattoriheiji" << "mourikogorou" << "touyamakazuha" << "gin" << "akaishuichi";
+    foreach(QString bann, banlist_init)
+        if(!banlist.contains(bann))
+            banlist << bann;
+    setValue("Banlist/1v1", banlist);
+    banlist = value("Banlist/Couple").toStringList();
+    setValue("Banlist/Couple", banlist);
+
+    banlist = value("Banlist/zombie").toStringList();
+    setValue("Banlist/zombie", banlist);
+
+    banlist = value("Banlist/Pairs").toStringList();
+    setValue("Banlist/Pairs", banlist);
 }

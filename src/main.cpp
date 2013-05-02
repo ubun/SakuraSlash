@@ -8,7 +8,7 @@
 
 #include "mainwindow.h"
 #include "settings.h"
-#include "banpairdialog.h"
+#include "banpair.h"
 #include "server.h"
 #include "audio.h"
 
@@ -47,6 +47,12 @@ int main(int argc, char *argv[])
             printf("Starting failed!\n");
 
         return qApp->exec();
+    }
+
+    QFile file("conanslash.qss");
+    if(file.open(QIODevice::ReadOnly)){
+        QTextStream stream(&file);
+        qApp->setStyleSheet(stream.readAll());
     }
 
 #ifdef AUDIO_SUPPORT

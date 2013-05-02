@@ -73,6 +73,7 @@ public:
 
     bool sameColorWith(const Card *other) const;
     Color getColor() const;
+    QString getColorString() const;
     bool isEquipped() const;
 
     QString getPixmapPath() const;
@@ -123,6 +124,7 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
     virtual bool isCancelable(const CardEffectStruct &effect) const;
 
+    inline virtual bool isKindOf(const char* cardType) const { return inherits(cardType); }
     virtual void onMove(const CardMoveStruct &move) const;
 
     // static functions
@@ -132,6 +134,7 @@ public:
     static const Card *Parse(const QString &str);
     static Card * Clone(const Card *card);
     static QString Suit2String(Suit suit);
+    static Suit String2Suit(QString string);
     static QString Number2String(int number);
     static QStringList IdsToStrings(const QList<int> &ids);
     static QList<int> StringsToIds(const QStringList &strings);
