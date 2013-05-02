@@ -936,7 +936,7 @@ public:
         Room *room = player->getRoom();
         ServerPlayer *chiba = room->findPlayerBySkillName(objectName());
         int n = data.toInt();
-        if(chiba && !player->isNude() && n > 0 && chiba->askForSkillInvoke(objectName())){
+        if(chiba && !player->isNude() && n > 0 && chiba->askForSkillInvoke(objectName(), QVariant::fromValue((PlayerStar)player))){
             for(; n > 0; n--){
                 int card_id = room->askForCardChosen(chiba, player, "he", objectName());
                 room->obtainCard(chiba, card_id, room->getCardPlace(card_id) != Player::Hand);
