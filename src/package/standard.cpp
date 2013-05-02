@@ -299,7 +299,7 @@ void Weapon::onUninstall(ServerPlayer *player) const{
     Room *room = player->getRoom();
 
     if(attach_skill)
-        room->detachSkillFromPlayer(player, objectName());
+        room->detachSkillFromPlayer(player, objectName(), false);
 }
 
 QString Armor::getSubtype() const{
@@ -332,7 +332,7 @@ void Car::onInstall(ServerPlayer *my) const{
 }
 
 void Car::onUninstall(ServerPlayer *my) const{
-    my->getRoom()->detachSkillFromPlayer(my, objectName());
+    my->getRoom()->detachSkillFromPlayer(my, objectName(), false);
 }
 
 QString Car::label() const{

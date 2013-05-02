@@ -553,43 +553,22 @@ public:
     }
 };
 
-/*
-class BasicPattern: public CardPattern{
+class Nixing: public GameStartSkill{
 public:
-    virtual bool match(const Player *player, const Card *card) const{
-        return ! player->hasEquip(card) && card->getTypeId() == Card::Basic;
-    }
-};
-
-class Xiangle: public TriggerSkill{
-public:
-    Xiangle():TriggerSkill("xiangle"){
-        events << CardEffected;
-
-        frequency = Compulsory;
+    Nixing():GameStartSkill("nixing"){
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        CardEffectStruct effect = data.value<CardEffectStruct>();
-
-        if(effect.card->inherits("Slash")){
-            Room *room = player->getRoom();
-
-            room->playSkillEffect(objectName());
-
-            LogMessage log;
-            log.type = "#Xiangle";
-            log.from = effect.from;
-            log.to << effect.to;
-            room->sendLog(log);
-
-            return !room->askForCard(effect.from, ".basic", "@xiangle-discard", data);
+    virtual void onGameStart(ServerPlayer *dai) const{
+        Room *room = dai->getRoom();
+        int n = 0;
+        foreach(ServerPlayer *player, room->getOtherPlayers(dai)){
+            if(player->getKingdom() == "hei")
+                n ++;
         }
-
-        return false;
+        room->loseMaxHp(dai, qMin(n, dai->getMaxHp() - 1));
     }
 };
-
+/*
 class Fangquan: public PhaseChangeSkill{
 public:
     Fangquan():PhaseChangeSkill("fangquan"){
@@ -869,6 +848,7 @@ MountainPackage::MountainPackage()
     skills << new ShengongViewAsSkill;
 
     General *rye = new General(this, "rye", "hei", 3);
+    rye->addSkill(new Nixing);
 
     General *kir = new General(this, "kir", "hei", 4, false);
     kir->addSkill(new Wulian);
