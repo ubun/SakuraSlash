@@ -30,6 +30,7 @@ return {
 	["#Yinxing"] = "%from 可在 %to 回合结束后发动技能【%arg】",
 
 	["akibareiko"] = "秋庭怜子",
+	["designer:akibareiko"] = "天音",
 	["chuyin"] = "初音",
 	[":chuyin"] = "当你受到伤害时，可增加1点体力上限，若此时你的体力值为全场最少，其他角色依次进行二选一：失去一点体力或弃置两张牌。",
 
@@ -85,6 +86,7 @@ return {
 	["suoxiao"] = "缩小",
 	[":suoxiao"] = "觉醒技，回合开始阶段，若你没有手牌且场上没有灰原哀，则须失去1点体力上限，永久获得技能“叛逃”和“实验”。",
 	["@chunbai"] = "你可以发动技能【纯白】，观看牌堆顶的五张牌",
+	["#GuanxingResult"] = "%from 的纯白结果：%arg 上 %arg2 下",
 
 	["miyanoagemi"] = "宫野明美",
 	["shanliang"] = "善良",

@@ -5,225 +5,49 @@
 #include "settings.h"
 #include "maneuvering.h"
 
-class Wuhun: public TriggerSkill{
+class LingyuanAsSkill: public OneCardViewAsSkill{
 public:
-    Wuhun():TriggerSkill("wuhun"){
-        events << DamageDone;
-        frequency = Compulsory;
+    LingyuanAsSkill():OneCardViewAsSkill("lingyuan"){
     }
 
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
-        DamageStruct damage = data.value<DamageStruct>();
+    virtual bool viewFilter(const CardItem *to_select) const{
+        const Card *card = to_select->getFilteredCard();
+        return card->isRed() && !to_select->isEquipped();
+    }
 
-        if(damage.from && damage.from != player){
-            damage.from->gainMark("@nightmare", damage.damage);
-            damage.from->playSkillEffect(objectName(), 1);
+    virtual const Card *viewAs(CardItem *card_item) const{
+        const Card *card = card_item->getFilteredCard();
+        Snatch *sn = new Snatch(card->getSuit(), card->getNumber());
+        sn->setSkillName(objectName());
+        sn->addSubcard(card);
+        return sn;
+    }
+};
+
+class Lingyuan: public TriggerSkill{
+public:
+    Lingyuan():TriggerSkill("lingyuan"){
+        events << CardFinished;
+        view_as_skill = new LingyuanAsSkill;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *monkey, QVariant &data) const{
+        Room *room = monkey->getRoom();
+        CardUseStruct use = data.value<CardUseStruct>();
+        if(use.card->isKindOf("Snatch")){
+            foreach(ServerPlayer *to, use.to){
+                if(to->getGender() != General::Female)
+                    continue;
+                if(!to->isWounded())
+                    continue;
+                if(monkey->askForSkillInvoke(objectName())){
+                    RecoverStruct rst;
+                    rst.who = monkey;
+                    room->recover(to, rst, true);
+                }
+            }
         }
-
         return false;
-    }
-};
-
-class WuhunRevenge: public TriggerSkill{
-public:
-    WuhunRevenge():TriggerSkill("#wuhun"){
-        events << Death;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return target->hasSkill("wuhun");
-    }
-
-    virtual bool trigger(TriggerEvent, ServerPlayer *shenguanyu, QVariant &) const{
-        Room *room = shenguanyu->getRoom();
-        QList<ServerPlayer *> players = room->getOtherPlayers(shenguanyu);
-
-        int max = 0;
-        foreach(ServerPlayer *player, players){
-            max = qMax(max, player->getMark("@nightmare"));
-        }
-
-        if(max == 0)
-            return false;
-
-        QList<ServerPlayer *> foes;
-        foreach(ServerPlayer *player, players){
-            if(player->getMark("@nightmare") == max)
-                foes << player;
-        }
-
-        if(foes.isEmpty())
-            return false;
-
-        ServerPlayer *foe;
-        if(foes.length() == 1)
-            foe = foes.first();
-        else
-            foe = room->askForPlayerChosen(shenguanyu, foes, "wuhun");
-
-        JudgeStruct judge;
-        judge.pattern = QRegExp("(Peach|GodSalvation):(.*):(.*)");
-        judge.good = true;
-        judge.reason = "wuhun";
-        judge.who = foe;
-
-        room->judge(judge);
-
-        if(judge.isBad()){
-            LogMessage log;
-            log.type = "#WuhunRevenge";
-            log.from = shenguanyu;
-            log.to << foe;
-            log.arg = QString::number(max);
-            room->sendLog(log);
-
-            room->killPlayer(foe);
-            room->playSkillEffect("wuhun", 2);
-        }else
-            room->playSkillEffect("wuhun", 3);
-
-        return false;
-    }
-};
-
-void YeyanCard::damage(ServerPlayer *shenzhouyu, ServerPlayer *target, int point) const{
-    DamageStruct damage;
-
-    damage.card = NULL;
-    damage.from = shenzhouyu;
-    damage.to = target;
-    damage.damage = point;
-    damage.nature = DamageStruct::Fire;
-
-    shenzhouyu->getRoom()->damage(damage);
-}
-
-GreatYeyanCard::GreatYeyanCard(){
-
-}
-
-bool GreatYeyanCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty();
-}
-
-void GreatYeyanCard::use(Room *room, ServerPlayer *shenzhouyu, const QList<ServerPlayer *> &targets) const{
-    room->broadcastInvoke("animate", "lightbox:$greatyeyan");
-
-    shenzhouyu->loseMark("@flame");
-    room->throwCard(this);
-    room->loseHp(shenzhouyu, 3);
-
-    damage(shenzhouyu, targets.first(), 3);
-}
-
-MediumYeyanCard::MediumYeyanCard(){
-
-}
-
-bool MediumYeyanCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.length() < 2;
-}
-
-void MediumYeyanCard::use(Room *room, ServerPlayer *shenzhouyu, const QList<ServerPlayer *> &targets) const{
-    room->broadcastInvoke("animate", "lightbox:$mediumyeyan");
-
-    shenzhouyu->loseMark("@flame");
-    room->throwCard(this);
-    room->loseHp(shenzhouyu, 3);
-
-    ServerPlayer *first = targets.first();
-    ServerPlayer *second = targets.value(1, NULL);
-
-    damage(shenzhouyu, first, 2);
-
-    if(second)
-        damage(shenzhouyu, second, 1);
-}
-
-SmallYeyanCard::SmallYeyanCard(){
-
-}
-
-bool SmallYeyanCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.length() < 3;
-}
-
-void SmallYeyanCard::use(Room *room, ServerPlayer *shenzhouyu, const QList<ServerPlayer *> &targets) const{
-    room->broadcastInvoke("animate", "lightbox:$smallyeyan");
-    shenzhouyu->loseMark("@flame");
-
-    Card::use(room, shenzhouyu, targets);
-}
-
-void SmallYeyanCard::onEffect(const CardEffectStruct &effect) const{
-    damage(effect.from, effect.to, 1);
-}
-
-class GreatYeyan: public ViewAsSkill{
-public:
-    GreatYeyan(): ViewAsSkill("greatyeyan"){
-        frequency = Limited;
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->getMark("@flame") >= 1;
-    }
-
-    virtual bool viewFilter(const QList<CardItem *> &selected, const CardItem *to_select) const{
-        if(selected.length() >= 4)
-            return false;
-
-        if(to_select->isEquipped())
-            return false;
-
-        foreach(CardItem *item, selected){
-            if(to_select->getFilteredCard()->getSuit() == item->getFilteredCard()->getSuit())
-                return false;
-        }
-
-        return true;
-    }
-
-    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
-        if(cards.length() != 4)
-            return NULL;
-
-        GreatYeyanCard *card = new GreatYeyanCard;
-        card->addSubcards(cards);
-
-        return card;
-    }
-};
-
-class MediumYeyan: public GreatYeyan{
-public:
-    MediumYeyan(){
-        setObjectName("mediumyeyan");
-    }
-
-    virtual const Card *viewAs(const QList<CardItem *> &cards) const{
-        if(cards.length() != 4)
-            return NULL;
-
-        MediumYeyanCard *card = new MediumYeyanCard;
-        card->addSubcards(cards);
-
-        return card;
-    }
-};
-
-class SmallYeyan: public ZeroCardViewAsSkill{
-public:
-    SmallYeyan():ZeroCardViewAsSkill("smallyeyan"){
-        frequency = Limited;
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const{
-        return player->getMark("@flame") >= 1;
-    }
-
-    virtual const Card *viewAs() const{
-        return new SmallYeyanCard;
     }
 };
 
@@ -1155,6 +979,9 @@ public:
 GodPackage::GodPackage()
     :Package("god")
 {
+    General *rupansansei = new General(this, "rupansansei", "god");
+    rupansansei->addSkill(new Lingyuan);
+    /*
     General *shenguanyu = new General(this, "shenguanyu", "god", 5);
     shenguanyu->addSkill(new Wushen);
     shenguanyu->addSkill(new Wuhun);
@@ -1218,7 +1045,7 @@ GodPackage::GodPackage()
     addMetaObject<WuqianCard>();
     addMetaObject<JilveCard>();
 
-    skills << new Jilve << new JilveClear;
+    skills << new Jilve << new JilveClear;*/
 }
 
-//ADD_PACKAGE(God)
+ADD_PACKAGE(God)

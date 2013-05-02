@@ -181,8 +181,10 @@ class GameStartSkill: public TriggerSkill{
 public:
     GameStartSkill(const QString &name);
 
+    virtual bool triggerable(const ServerPlayer *target) const;
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const;
     virtual void onGameStart(ServerPlayer *player) const = 0;
+    virtual void onIdied(ServerPlayer *player) const;
 };
 
 class ProhibitSkill: public Skill{

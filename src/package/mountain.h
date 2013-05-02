@@ -4,26 +4,17 @@
 #include "package.h"
 #include "card.h"
 #include "generaloverview.h"
-/*
-class QiaobianCard: public SkillCard{
+
+class ShengongCard: public SkillCard{
     Q_OBJECT
 
 public:
-    Q_INVOKABLE QiaobianCard();
+    Q_INVOKABLE ShengongCard();
 
-    virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual void use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
 
-class TiaoxinCard: public SkillCard{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE TiaoxinCard();
-
-    virtual bo
-*/
 class FeitiCard: public SkillCard{
     Q_OBJECT
 

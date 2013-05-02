@@ -6,6 +6,26 @@
 #include "generaloverview.h"
 #include "client.h"
 
+class Bansha: public TriggerSkill{
+public:
+    Bansha():TriggerSkill("bansha"){
+        events << SlashMissed;
+    }
+
+    virtual bool trigger(TriggerEvent, ServerPlayer *yamato, QVariant &data) const{
+        Room* room = yamato->getRoom();
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        PlayerStar target = effect.to;
+        if(!target->isKongcheng() &&
+           target->getHandcardNum() >= yamato->getHandcardNum() &&
+           room->askForSkillInvoke(yamato, objectName(), QVariant::fromValue(target))){
+            room->playSkillEffect(objectName());
+            yamato->obtainCard(target->getRandomHandCard(), false);
+        }
+        return false;
+    }
+};
+
 class Kongcheng: public ProhibitSkill{
 public:
     Kongcheng():ProhibitSkill("kongcheng"){
@@ -433,7 +453,7 @@ public:
         Room *room = player->getRoom();
         ServerPlayer *chong5 = room->findPlayerBySkillName(objectName());
         if(chong5 && room->getCurrent() != chong5){
-            if(chong5->askForSkillInvoke(objectName())){
+            if(chong5->askForSkillInvoke(objectName(), QVariant::fromValue((PlayerStar)player))){
                 room->loseHp(chong5);
                 return true;
             }
@@ -442,171 +462,98 @@ public:
     }
 };
 
-/*
-class Zhiji: public PhaseChangeSkill{
+class Guifu: public TriggerSkill{
 public:
-    Zhiji():PhaseChangeSkill("zhiji"){
-        frequency = Wake;
+    Guifu():TriggerSkill("guifu"){
+        events << GameStart << Predamage << Predamaged << HpLost << MaxHpLost;
+        frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return PhaseChangeSkill::triggerable(target)
-                && target->getMark("zhiji") == 0
-                && target->getPhase() == Player::Start
-                && target->isKongcheng();
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *jiangwei) const{
-        Room *room = jiangwei->getRoom();
-
-        LogMessage log;
-        log.type = "#ZhijiWake";
-        log.from = jiangwei;
-        room->sendLog(log);
-
-        room->playSkillEffect("zhiji");
-        room->broadcastInvoke("animate", "lightbox:$zhiji:5000");
-        room->getThread()->delay(5000);
-
-        if(room->askForChoice(jiangwei, objectName(), "recover+draw") == "recover"){
-            RecoverStruct recover;
-            recover.who = jiangwei;
-            room->recover(jiangwei, recover);
-        }else
-            room->drawCards(jiangwei, 2);
-
-        room->setPlayerMark(jiangwei, "zhiji", 1);
-        room->acquireSkill(jiangwei, "guanxing");
-
-        room->loseMaxHp(jiangwei);
-
-        return false;
-    }
-};
-
-ZhijianCard::ZhijianCard(){
-    will_throw = false;
-}
-
-bool ZhijianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    if(!targets.isEmpty() || to_select == Self)
-        return false;
-
-    const Card *card = Sanguosha->getCard(subcards.first());
-    const EquipCard *equip = qobject_cast<const EquipCard *>(card);
-    int equip_index = static_cast<int>(equip->location());
-    return to_select->getEquip(equip_index) == NULL;
-}
-
-void ZhijianCard::onEffect(const CardEffectStruct &effect) const{
-    ServerPlayer *erzhang = effect.from;
-    erzhang->getRoom()->moveCardTo(this, effect.to, Player::Equip);
-    erzhang->drawCards(1);
-}
-
-class Zhijian: public OneCardViewAsSkill{
-public:
-    Zhijian():OneCardViewAsSkill("zhijian"){
-
-    }
-
-    virtual bool viewFilter(const CardItem *to_select) const{
-        return !to_select->isEquipped() && to_select->getFilteredCard()->getTypeId() == Card::Equip;
-    }
-
-    virtual const Card *viewAs(CardItem *card_item) const{
-        ZhijianCard *zhijian_card = new ZhijianCard();
-        zhijian_card->addSubcard(card_item->getFilteredCard());
-        return zhijian_card;
-    }
-};
-
-class Guzheng: public TriggerSkill{
-public:
-    Guzheng():TriggerSkill("guzheng"){
-        events << CardDiscarded;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return !target->hasSkill("guzheng");
-    }
-
-    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
-        ServerPlayer *erzhang = room->findPlayerBySkillName(objectName());
+        if(event == GameStart)
+            player->gainMark("@hatchet", 2);
+        else if(event == HpLost || event == MaxHpLost)
+            return true;
+        else{
+            DamageStruct damage = data.value<DamageStruct>();
+            if(event == Predamage)
+                player->gainMark("@hatchet", damage.damage);
+            else
+                player->loseMark("@hatchet", damage.damage);
 
-        if(erzhang == NULL)
-            return false;
+            if(!player->hasMark("@hatchet")){
+                JudgeStruct judge;
+                judge.pattern = QRegExp("(Peach|TrickCard):(heart|diamond):(.*)");
+                judge.good = true;
+                judge.reason = objectName();
+                judge.who = player;
 
-        if(player->getPhase() == Player::Discard){
-            QVariantList guzheng = erzhang->tag["Guzheng"].toList();
-
-            CardStar card = data.value<CardStar>();
-            foreach(int card_id, card->getSubcards()){
-                guzheng << card_id;
+                room->judge(judge);
+                if(judge.isGood())
+                    player->gainMark("@hatchet", 2);
+                else{
+                    room->setPlayerProperty(player, "hp", 0);
+                    room->enterDying(player, &damage);
+                }
             }
-
-            erzhang->tag["Guzheng"] = guzheng;
+            return true;
         }
-
         return false;
     }
 };
 
-class GuzhengGet: public PhaseChangeSkill{
+ShengongCard::ShengongCard(){
+    once = true;
+}
+
+void ShengongCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
+    ServerPlayer *touichi = targets.first();
+    room->loseHp(source);
+    touichi->gainMark("@hatchet");
+}
+
+bool ShengongCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && to_select->hasLordSkill("shengong") && to_select != Self;
+}
+
+class ShengongViewAsSkill: public ZeroCardViewAsSkill{
 public:
-    GuzhengGet():PhaseChangeSkill("#guzheng-get"){
-
+    ShengongViewAsSkill():ZeroCardViewAsSkill("shengongv"){
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return !target->hasSkill("guzheng");
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return !player->hasUsed("ShengongCard") && player->getKingdom() == "guai";
     }
 
-    virtual int getPriority() const{
-        return -1;
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *player) const{
-        if(player->isDead())
-            return false;
-
-        Room *room = player->getRoom();
-        ServerPlayer *erzhang = room->findPlayerBySkillName(objectName());
-        if(erzhang == NULL)
-            return false;
-
-        QVariantList guzheng_cards = erzhang->tag["Guzheng"].toList();
-        erzhang->tag.remove("Guzheng");
-
-        QList<int> cards;
-        foreach(QVariant card_data, guzheng_cards){
-            int card_id = card_data.toInt();
-            if(room->getCardPlace(card_id) == Player::DiscardedPile)
-                cards << card_id;
-        }
-
-        if(cards.isEmpty())
-            return false;
-
-        if(erzhang->askForSkillInvoke("guzheng", cards.length())){
-            room->fillAG(cards, erzhang);
-
-            int to_back = room->askForAG(erzhang, cards, false, objectName());
-            player->obtainCard(Sanguosha->getCard(to_back));
-
-            cards.removeOne(to_back);
-
-            erzhang->invoke("clearAG");
-
-            foreach(int card_id, cards)
-                erzhang->obtainCard(Sanguosha->getCard(card_id));
-        }
-
-        return false;
+    virtual const Card *viewAs() const{
+        return new ShengongCard;
     }
 };
 
+class Shengong: public GameStartSkill{
+public:
+    Shengong():GameStartSkill("shengong$"){
+    }
+
+    virtual void onGameStart(ServerPlayer *touichi) const{
+        Room *room = touichi->getRoom();
+        QList<ServerPlayer *> players = room->getAlivePlayers();
+        foreach(ServerPlayer *player, players)
+            room->attachSkillToPlayer(player, "shengongv");
+    }
+
+    virtual void onIdied(ServerPlayer *player) const{
+        Room *room = player->getRoom();
+        if(room->findPlayerBySkillName("shengong"))
+            return;
+        QList<ServerPlayer *> players = room->getAlivePlayers();
+        foreach(ServerPlayer *tmp, players)
+            room->detachSkillFromPlayer(tmp, "shengongv", false);
+    }
+};
+
+/*
 class BasicPattern: public CardPattern{
 public:
     virtual bool match(const Player *player, const Card *card) const{
@@ -885,6 +832,7 @@ MountainPackage::MountainPackage()
 {
     General *yamatokansuke = new General(this, "yamatokansuke", "zhen", 3);
     yamatokansuke->addSkill(new Skill("bamian", Skill::Compulsory));
+    yamatokansuke->addSkill(new Bansha);
 
     General *morofushitakaaki = new General(this, "morofushitakaaki", "zhen", 3);
     morofushitakaaki->addSkill(new Kongcheng);
@@ -914,7 +862,11 @@ MountainPackage::MountainPackage()
     yokomizo->addSkill(new Chongwu);
     addMetaObject<CanwuCard>();
 
-    General *kurobatouichi = new General(this, "kurobatouichi", "guai", 1);
+    General *kurobatouichi = new General(this, "kurobatouichi$", "guai", 1);
+    kurobatouichi->addSkill(new Guifu);
+    kurobatouichi->addSkill(new Shengong);
+    addMetaObject<ShengongCard>();
+    skills << new ShengongViewAsSkill;
 
     General *rye = new General(this, "rye", "hei", 3);
 
@@ -936,4 +888,4 @@ MountainPackage::MountainPackage()
     addMetaObject<JingshenCard>();
 }
 
-ADD_PACKAGE(Mountain);
+ADD_PACKAGE(Mountain)

@@ -445,7 +445,7 @@ qingzui_skill.getTurnUseCard = function(self)
 	local card_id = card:getEffectiveId()
 	local card_str = ("analeptic:qingzui[%s:%s]=%d"):format(suit, number, card_id)
 	local analeptic = sgs.Card_Parse(card_str)
-	assert(analeptic)
+--	assert(analeptic)
 	return analeptic
 end
 --[[sgs.ai_view_as["qingzui"] = function(card, player, card_place)

@@ -290,12 +290,23 @@ bool SlashBuffSkill::trigger(TriggerEvent, ServerPlayer *player, QVariant &data)
 GameStartSkill::GameStartSkill(const QString &name)
     :TriggerSkill(name)
 {
-    events << GameStart;
+    events << GameStart << Death;
 }
 
-bool GameStartSkill::trigger(TriggerEvent, ServerPlayer *player, QVariant &) const{
-    onGameStart(player);
+bool GameStartSkill::triggerable(const ServerPlayer *target) const{
+    return target->hasSkill(objectName());
+}
+bool GameStartSkill::trigger(TriggerEvent event, ServerPlayer *player, QVariant &) const{
+    if (event == GameStart)
+        onGameStart(player);
+    else
+        onIdied(player);
+
     return false;
+}
+
+void GameStartSkill::onIdied(ServerPlayer *) const{
+    return;
 }
 
 ProhibitSkill::ProhibitSkill(const QString &name)
