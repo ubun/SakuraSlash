@@ -740,7 +740,7 @@ function SmartAI:askForYiji(cards)
 				if card:inherits("Nullification") then
 					return friend, card_id
 				end
-			elseif not (friend:isKongcheng() and friend:hasSkill("kongcheng")) then
+			elseif not (friend:isKongcheng() and friend:hasSkill("okongcheng")) then
 				if card:inherits("Jink") then
 					if friend:getHp() < 2 and self:getCardsNum("Jink", friend) < 1 then
 						return friend, card_id
@@ -1450,7 +1450,7 @@ function SmartAI:useCardDismantlement(dismantlement, use)
 			not (self:hasSkills(sgs.lose_equip_skill, enemy) and enemy:getHandcardNum() == 0) and
 			not (enemy:getCards("he"):length() == 1 and self:isEquip("GaleShell",enemy)) then
 			if enemy:getHandcardNum() == 1 then
-				if enemy:hasSkill("kongcheng") or enemy:hasSkill("lianying") then return end
+				if enemy:hasSkill("lianying") then return end
 				elseif enemy:hasSkill("zhinang") then
 					return
 			end
@@ -1518,7 +1518,7 @@ function SmartAI:useCardSnatch(snatch, use)
 			not (self:hasSkills(sgs.lose_equip_skill, enemy) and enemy:getHandcardNum() == 0) and
 			not (enemy:getCards("he"):length() == 1 and self:isEquip("GaleShell",enemy)) then
 			if enemy:getHandcardNum() == 1 then
-				if enemy:hasSkill("kongcheng") or enemy:hasSkill("lianying") then return end
+				if enemy:hasSkill("lianying") then return end
 			elseif enemy:hasSkill("zhinang") then
 				return
 			end
@@ -1654,7 +1654,6 @@ function SmartAI:useCardSupplyShortage(card, use)
 		if ((#enemies == 1) or not enemy:hasSkill("tiandu")) and not enemy:containsTrick("supply_shortage") then
 			use.card = card
 			if use.to then use.to:append(enemy) end
-
 			return
 		end
 	end
@@ -1674,7 +1673,7 @@ function SmartAI:useCardIndulgence(card, use)
 	for _, enemy in ipairs(enemies) do
 		if not enemy:containsTrick("indulgence") and not enemy:hasSkill("keji") then
 			use.card = card
-				if use.to then use.to:append(enemy) end
+			if use.to then use.to:append(enemy) end
 			return
 		end
 	end
@@ -3572,9 +3571,13 @@ function SmartAI:cardProhibit(card, to)
 				return true
 			end
 		end
+		if to:hasSkill("kongcheng") then
+			if to:getHandcardNum() < to:getHp() and (card:inherits("Duel") or card:inherits("Turnover")) then
+				return true
+			end
+		end
 		if card:isBlack() and to:hasSkill("weimu") then return true end
 		if card:inherits("Indulgence") or card:inherits("Snatch") and to:hasSkill("qianxun") then return true end
-		if card:inherits("Duel") and to:hasSkill("kongcheng") and to:isKongcheng() then return true end
 	end
 	return false
 end

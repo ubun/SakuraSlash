@@ -127,10 +127,7 @@ sgs.ai_skill_cardask["@lingjia"] = function(self, data)
 end
 
 -- nijian
-sgs.ai_skill_invoke["nijian"] = function(self, data)
-	local damage = data:toDamage()
-	return self:isEnemy(damage.from)
-end
+sgs.ai_skill_invoke["nijian"] = sgs.ai_skill_invoke["wuwei"]
 sgs.ai_skill_cardask["@nijian"] = function(self, data)
 	local allcards = sgs.QList2Table(self.player:getHandcards())
 	self:sortByUseValue(allcards, true)

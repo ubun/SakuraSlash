@@ -634,6 +634,8 @@ void ChunbaiCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer
             card_id = cards.first();
         left.removeOne(card_id);
         source->obtainCard(Sanguosha->getCard(card_id));
+        source->invoke("clearAG");
+        cards = left;
         room->fillAG(cards, source);
     }
 

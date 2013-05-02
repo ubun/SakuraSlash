@@ -18,7 +18,7 @@ public:
         PlayerStar target = effect.to;
         if(!target->isKongcheng() &&
            target->getHandcardNum() >= yamato->getHandcardNum() &&
-           room->askForSkillInvoke(yamato, objectName(), data)){
+           room->askForSkillInvoke(yamato, objectName(), QVariant::fromValue(target))){
             room->playSkillEffect(objectName());
             yamato->obtainCard(target->getRandomHandCard(), false);
         }
@@ -453,7 +453,7 @@ public:
         Room *room = player->getRoom();
         ServerPlayer *chong5 = room->findPlayerBySkillName(objectName());
         if(chong5 && room->getCurrent() != chong5){
-            if(chong5->askForSkillInvoke(objectName())){
+            if(chong5->askForSkillInvoke(objectName(), QVariant::fromValue((PlayerStar)player))){
                 room->loseHp(chong5);
                 return true;
             }
@@ -957,4 +957,4 @@ MountainPackage::MountainPackage()
     addMetaObject<JingshenCard>();
 }
 
-ADD_PACKAGE(Mountain);
+ADD_PACKAGE(Mountain)

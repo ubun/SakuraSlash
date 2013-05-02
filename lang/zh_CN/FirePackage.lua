@@ -86,6 +86,7 @@ return {
 	["suoxiao"] = "缩小",
 	[":suoxiao"] = "觉醒技，回合开始阶段，若你没有手牌且场上没有灰原哀，则须失去1点体力上限，永久获得技能“叛逃”和“实验”。",
 	["@chunbai"] = "你可以发动技能【纯白】，观看牌堆顶的五张牌",
+	["#GuanxingResult"] = "%from 的纯白结果：%arg 上 %arg2 下",
 
 	["miyanoagemi"] = "宫野明美",
 	["shanliang"] = "善良",
