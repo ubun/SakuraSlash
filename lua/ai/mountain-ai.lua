@@ -66,6 +66,21 @@ sgs.ai_skill_cardask["@zhibao"] = function(self, data)
 end
 
 -- feiti
+sgs.ai_skill_invoke["feiti"] = sgs.ai_skill_invoke["qiniao"]
+sgs.ai_skill_use["@@feiti"] = function(self, prompt)
+	local final
+	self:sort(self.enemies)
+	for _, enemy in ipairs(self.enemies) do
+		if not self.player:inMyAttackRange(enemy) then
+			final = enemy
+		end
+	end
+	if final then
+		return "@FeitiCard=.->" .. final:objectName()
+	else
+		return "."
+	end
+end
 
 -- shehang
 local shehang_skill = {}

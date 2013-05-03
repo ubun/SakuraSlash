@@ -66,18 +66,5 @@ int main(int argc, char *argv[])
     Sanguosha->setParent(main_window);
     main_window->show();
 
-    QList<int> str;
-    for(int i = 1; i < 10; i++)
-        str << i;
-    while(str.length() == 9){
-        qShuffle(str);
-        int x = str[0]*10000 + str[1]*1000 + str[2]*100 + str[3]*10 + str[4];
-        int y = str[5]*1000 + str[6]*100 + str[7]*10 + str[8];
-        if(x+y == 33333){
-            qDebug("RESULT: %s + %s", qPrintable(QString::number(x)), qPrintable(QString::number(y)));
-            break;
-        }
-    }
-
     return qApp->exec();
 }

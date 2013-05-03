@@ -265,14 +265,13 @@ public:
         Room *room = player->getRoom();
         if(event == Predamage){
             DamageStruct damage = data.value<DamageStruct>();
-            if(!player->hasFlag("Feiti") && damage.damage > 0 && player->askForSkillInvoke(objectName())){
+            if(!player->hasFlag("Feiti") && damage.damage > 0 && player->askForSkillInvoke(objectName(), data)){
                 player->gainMark("@yaiba", damage.damage);
                 return true;
             }
         }else{
-            if(!player->getPhase() == Player::Finish || !player->hasMark("@yaiba"))
-                return false;
-            room->askForUseCard(player, "@@feiti", "@feiti");
+            if(player->getPhase() == Player::Finish && player->hasMark("@yaiba"))
+                room->askForUseCard(player, "@@feiti", "@feiti");
         }
         return false;
     }

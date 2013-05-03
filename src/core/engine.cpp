@@ -50,7 +50,7 @@ Engine::Engine()
             << "Fire"
             << "Mountain"
             //<< "God"
-            << "Negative"
+            //<< "Negative"
             //<< "Thunder"
             << "Test"
 

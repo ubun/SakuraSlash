@@ -1436,7 +1436,7 @@ public:
 
     virtual bool trigger(TriggerEvent , ServerPlayer *gin, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
-        if(damage.card && damage.card->inherits("Slash") && damage.to->isAlive()){
+        if(damage.card && damage.to->isAlive()){
             Room *room = gin->getRoom();
             const Card *card = room->askForCard(gin, "slash", "juelu-slash");
             if(card){
@@ -1596,7 +1596,7 @@ public:
     virtual bool trigger(TriggerEvent , ServerPlayer *akai, QVariant &data) const{
         Room *room = akai->getRoom();
         const Weapon *weapon = akai->getWeapon();
-        if(weapon && weapon->getRange() > 2){
+        if(weapon && weapon->getRange() >= 2){
             SlashEffectStruct effect = data.value<SlashEffectStruct>();
 
             LogMessage log;

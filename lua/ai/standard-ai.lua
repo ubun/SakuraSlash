@@ -403,8 +403,7 @@ end
 -- qiniao
 sgs.ai_skill_invoke["qiniao"] = function(self, data)
 	local d = data:toDamage()
-	local target = d.to
-	return self:isFriend(target)
+	return self:isFriend(d.to)
 end
 sgs.ai_skill_cardask["@qiniao"] = function(self, data)
 	local d = data:toDamage()

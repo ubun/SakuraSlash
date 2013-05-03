@@ -799,8 +799,8 @@ void Wolf::onEffect(const CardEffectStruct &effect) const{
         if(tmp->isAllNude())
             continue;
         QList<const Card *> cards = tmp->getCards("hej");
-        int index = qrand() % cards.length();
-        effect.to->obtainCard(cards.at(index));
+        qShuffle(cards);
+        effect.to->obtainCard(cards.first());
         count ++;
         if(count == 4)
             room->loseHp(effect.to);
