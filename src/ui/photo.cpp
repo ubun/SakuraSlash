@@ -58,6 +58,7 @@ Photo::Photo()
     skill_name_item->moveBy(10, 30);
 
     emotion_item = new QGraphicsPixmapItem(this);
+    emotion_item->setZValue(8);
     emotion_item->moveBy(10, 0);
 
     avatar_area = new QGraphicsRectItem(0, 0, 122, 50, this);

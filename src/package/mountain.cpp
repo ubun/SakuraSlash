@@ -484,8 +484,10 @@ public:
             }
             else
                 num = data.toInt();
-            if(event == Predamage)
+            if(event == Predamage){
                 player->gainMark("@hatchet", num);
+                room->setPlayerMark(player, "@hatchet", qMin(5, player->getMark("@hatchet")));
+            }
             else
                 player->loseMark("@hatchet", num);
 
@@ -499,7 +501,7 @@ public:
                 room->judge(judge);
                 if(judge.card->inherits("Peach") ||
                    (judge.card->inherits("TrickCard") && judge.card->isRed()))
-                    player->gainMark("@hatchet", 2);
+                    player->gainMark("@hatchet");
                 else{
                     room->setPlayerProperty(player, "hp", 0);
                     room->enterDying(player, &damage);
@@ -701,7 +703,7 @@ ZhaodaiCard::ZhaodaiCard(){
 
 void ZhaodaiCard::onEffect(const CardEffectStruct &effect) const{
     effect.to->obtainCard(this);
-    if(effect.from->getRoom()->askForChoice(effect.from, "zhaodai", "tian+zi") == "tian")
+    if(effect.from->getRoom()->askForChoice(effect.from, "zhaodai", "tian+zi", QVariant::fromValue(effect)) == "tian")
         effect.to->drawCards(1);
     else
         effect.from->drawCards(1);

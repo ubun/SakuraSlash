@@ -1,3 +1,5 @@
+-- this scripts contains the AI classes for generals of mountain package
+
 -- bansha
 sgs.ai_skill_invoke["bansha"] = sgs.ai_skill_invoke["duoren"]
 

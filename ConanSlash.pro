@@ -4,13 +4,16 @@
 TARGET = ConanSlash
 QT += network sql declarative
 TEMPLATE = app
+win32 : RC_FILE = resource/icon.rc
 CONFIG += warn_on audio qaxcontainer
 
 # If you want to enable joystick support, please uncomment the following line:
 # CONFIG += joystick
 # However, joystick is not supported under Mac OS X temporarily
 
-SOURCES += src/main.cpp \
+
+SOURCES += \
+	src/main.cpp \
 	src/client/aux-skills.cpp \
 	src/client/client.cpp \
 	src/client/clientplayer.cpp \
@@ -48,12 +51,11 @@ SOURCES += src/main.cpp \
 	src/package/fire.cpp \
 	src/package/mountain.cpp \
 	src/package/negative.cpp \
+	src/package/thunder.cpp \
 	src/package/god.cpp \
 	src/package/joy.cpp \
-	src/package/nostalgia.cpp \
 	src/scenario/boss-mode-scenario.cpp \
 	src/scenario/couple-scenario.cpp \
-	src/scenario/legend-mode-scenario.cpp \
 	src/scenario/scenario.cpp \
 	src/scenario/scenerule.cpp \
 	src/scenario/zombie-mode-scenario.cpp \
@@ -153,12 +155,11 @@ HEADERS += src/client/aux-skills.h \
 	src/package/fire.h \
 	src/package/mountain.h \
 	src/package/negative.h \
+	src/package/thunder.h \
 	src/package/joy.h \
-	src/package/nostalgia.h \
 	src/package/god.h \
 	src/scenario/boss-mode-scenario.h \
 	src/scenario/couple-scenario.h \
-	src/scenario/legend-mode-scenario.h \
 	src/scenario/scenario.h \
 	src/scenario/scenerule.h \
 	src/scenario/zombie-mode-scenario.h \
@@ -230,11 +231,9 @@ INCLUDEPATH += src/ui
 INCLUDEPATH += src/util
 INCLUDEPATH += src/lua
 
-win32{
-	RC_FILE += resource/icon.rc
-}
-
 LIBS += -L. -lm
+
+TRANSLATIONS += conanslash.ts
 
 CONFIG(audio){
 	DEFINES += AUDIO_SUPPORT
@@ -250,7 +249,3 @@ CONFIG(joystick){
 	win32: LIBS += -lplibjs -lplibul -lwinmm
 	unix: LIBS += -lplibjs -lplibul
 }
-
-TRANSLATIONS += conanslash.ts
-
-

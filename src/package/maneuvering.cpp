@@ -782,8 +782,7 @@ void Locust::onEffect(const CardEffectStruct &effect) const{
         if(room->askForChoice(effect.to,objectName(),"move+throw")=="throw")
             room->throwCard(this);
         else
-//        room->moveCardTo(this, effect.to->getNextAlive(), Player::Judging);
-        onNullified(effect.to);
+            onNullified(effect.to);
     }
 }
 

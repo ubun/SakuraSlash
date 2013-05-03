@@ -49,8 +49,9 @@ Engine::Engine()
             << "Thicket"
             << "Fire"
             << "Mountain"
-            << "God"
+            //<< "God"
             << "Negative"
+            //<< "Thunder"
             << "Test"
 
             << "StandardCard"
@@ -58,7 +59,6 @@ Engine::Engine()
             << "ThunderBird"
             //<< "WhiteTiger"
             //<< "IronDino"
-            //<< "Nostalgia"
             << "Joy"
             << "JoyEquip"
             ;
@@ -70,7 +70,6 @@ Engine::Engine()
     scene_names
             << "Couple"
             << "Zombie"
-            << "Legend"
             << "Impasse";
 
     foreach(QString name, scene_names)

@@ -975,7 +975,17 @@ public:
         if(!invoke)
             return false;
         QString prompt = QString("@chufa:%1::%2").arg(player->objectName()).arg(data.toString());
-        return data.toInt() > 0 && room->askForCard(naeko, "..H", prompt, QVariant::fromValue((PlayerStar) player));
+        if(data.toInt() > 0 && room->askForCard(naeko, "..H", prompt, QVariant::fromValue((PlayerStar) player))){
+            LogMessage log;
+            log.type = "#Chufa";
+            log.from = naeko;
+            log.to << player;
+            log.arg = QString::number(data.toInt());
+            log.arg2 = objectName();
+            room->sendLog(log);
+            return true;
+        }
+        return false;
     }
 };
 

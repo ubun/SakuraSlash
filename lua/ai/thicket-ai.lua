@@ -1,3 +1,5 @@
+-- this scripts contains the AI classes for generals of thicket package
+
 -- chaidan
 local chaidan_skill={}
 chaidan_skill.name = "chaidan"
