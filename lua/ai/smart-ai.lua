@@ -2649,12 +2649,12 @@ end
 -- used for SmartAI:askForChoice
 sgs.ai_skill_choice = {}
 
-function SmartAI:askForChoice(skill_name, choices)
+function SmartAI:askForChoice(skill_name, choices, data)
 	local choice = sgs.ai_skill_choice[skill_name]
 	if type(choice) == "string" then
 		return choice
 	elseif type(choice) == "function" then
-		return choice(self, choices)
+		return choice(self, choices, data)
 	else
 		local skill = sgs.Sanguosha:getSkill(skill_name)
 		if skill then
@@ -2666,7 +2666,6 @@ function SmartAI:askForChoice(skill_name, choices)
 		end
 	end
 end
-
 
 function SmartAI:getCardRandomly(who, flags)
 	local cards = who:getCards(flags)

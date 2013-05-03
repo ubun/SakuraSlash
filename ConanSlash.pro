@@ -4,13 +4,16 @@
 TARGET = ConanSlash
 QT += network sql declarative
 TEMPLATE = app
+win32 : RC_FILE = resource/icon.rc
 CONFIG += warn_on audio qaxcontainer
 
 # If you want to enable joystick support, please uncomment the following line:
 # CONFIG += joystick
 # However, joystick is not supported under Mac OS X temporarily
 
-SOURCES += src/main.cpp \
+
+SOURCES += \
+	src/main.cpp \
 	src/client/aux-skills.cpp \
 	src/client/client.cpp \
 	src/client/clientplayer.cpp \
@@ -230,11 +233,9 @@ INCLUDEPATH += src/ui
 INCLUDEPATH += src/util
 INCLUDEPATH += src/lua
 
-win32{
-	RC_FILE += resource/icon.rc
-}
-
 LIBS += -L. -lm
+
+TRANSLATIONS += conanslash.ts
 
 CONFIG(audio){
 	DEFINES += AUDIO_SUPPORT
@@ -250,7 +251,5 @@ CONFIG(joystick){
 	win32: LIBS += -lplibjs -lplibul -lwinmm
 	unix: LIBS += -lplibjs -lplibul
 }
-
-TRANSLATIONS += conanslash.ts
 
 

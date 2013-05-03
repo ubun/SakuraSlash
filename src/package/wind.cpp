@@ -769,12 +769,11 @@ public:
         if(damage.to->isDead())
             return false;
         QString choice = "cancel";
-        toyama->tag["YinsTarget"] = QVariant::fromValue((PlayerStar)damage.to);
         if(peach > 0 && (toyama->inMyAttackRange(damage.to) || equip > 0)){
-            choice = room->askForChoice(toyama, objectName(), "friend+enemy+cancel");
+            choice = room->askForChoice(toyama, objectName(), "friend+enemy+cancel", QVariant::fromValue((PlayerStar)damage.to));
         }
         else if(peach > 0){
-            choice = room->askForChoice(toyama, objectName(), "friend+cancel");
+            choice = room->askForChoice(toyama, objectName(), "friend+cancel", QVariant::fromValue((PlayerStar)damage.to));
         }
         if(choice == "cancel")
             return false;
@@ -979,8 +978,9 @@ public:
                 player->loseAllMarks("@smile");
         }
         else{
+            PlayerStar source = room->findPlayerBySkillName(objectName());
             DamageStruct damage = data.value<DamageStruct>();
-            if(!damage.card)
+            if(!damage.card || !source)
                 return false;
 
             if(damage.card->inherits("Slash") || damage.card->inherits("Duel")){
@@ -1089,9 +1089,7 @@ void ShuangyuCard::use(Room *room, ServerPlayer *source, const QList<ServerPlaye
     QString myrole = source->getRole();
     QList<ServerPlayer *> lucky_players, cup_players;
     foreach(ServerPlayer *player, targets){
-        room->setTag("Jody", QVariant::fromValue((PlayerStar)source));
-        QString result = room->askForChoice(player, "shuangyu", "lord+loyalist+rebel+renegade");
-        room->removeTag("Jody");
+        QString result = room->askForChoice(player, "shuangyu", "lord+loyalist+rebel+renegade", QVariant::fromValue((PlayerStar)source));
         if(result == myrole)
             lucky_players << player;
         else{

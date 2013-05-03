@@ -152,8 +152,8 @@ sgs.ai_skill_playerchosen["jiequan"] = function(self, targets)
 end
 
 -- yinsi
-sgs.ai_skill_choice["yinsi"] = function(self, choices)
-	local target = self.room:getTag("YinsTarget"):toPlayer()
+sgs.ai_skill_choice["yinsi"] = function(self, choices, data)
+	local target = data:toPlayer()
 	if not target then return "cancel" end
 	if self:isEnemy(target) and self.player:inMyAttackRange(target) then
 		return "enemy"
@@ -254,8 +254,8 @@ sgs.ai_skill_choice["qianmian"] = function(self, choices)
 end
 
 -- shuangyu
-sgs.ai_skill_choice["shuangyu"] = function(self, choices)
-	local source = self.room:getTag("Jody"):toPlayer()
+sgs.ai_skill_choice["shuangyu"] = function(self, choices, data)
+	local source = data:toPlayer()
 	if source:isLord() then
 		return "lord"
 	elseif self:isFriend(source) and not self.player:isLord() then
