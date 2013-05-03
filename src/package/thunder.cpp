@@ -1,10 +1,9 @@
 #include "standard.h"
 #include "skill.h"
-#include "wind.h"
 #include "client.h"
 #include "carditem.h"
 #include "engine.h"
-#include "nostalgia.h"
+#include "thunder.h"
 
 class MoonSpearSkill: public WeaponSkill{
 public:
@@ -91,8 +90,8 @@ public:
     }
 };
 
-NostalgiaPackage::NostalgiaPackage()
-    :Package("nostalgia")
+ThunderPackage::ThunderPackage()
+    :Package("thunder")
 {
     type = CardPack;
 
@@ -100,4 +99,4 @@ NostalgiaPackage::NostalgiaPackage()
     (new SPMoonSpear)->setParent(this);
 }
 
-ADD_PACKAGE(Nostalgia);
+ADD_PACKAGE(Thunder)

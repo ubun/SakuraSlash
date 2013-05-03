@@ -709,11 +709,9 @@ void Collateral::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
                     room->throwCard(card_id);
                 }
             }
-            else
-            {
-                if(killer->isAlive() && killer->getWeapon()){
+            else{
+                if(killer->isAlive() && killer->getWeapon())
                     source->obtainCard(weapon);
-                }
             }
         }
         if (source->isDead()){

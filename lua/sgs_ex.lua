@@ -91,6 +91,16 @@ function sgs.CreateMasochismSkill(spec)
 	return sgs.CreateTriggerSkill(spec)
 end
 
+function sgs.CreateMaxCardsSkill(spec)
+	assert(type(spec.name) == "string")
+	assert(type(spec.extra_func) == "function")
+
+	local skill = sgs.LuaMaxCardsSkill(spec.name)
+	skill.extra_func = spec.extra_func
+
+	return skill
+end
+
 --------------------------------------------
 
 -- skill cards
@@ -252,4 +262,8 @@ function table.copyFrom(list)
 		table.insert(l, e)
 	end
 	return l
+end
+
+function string:matchOne(option)
+	return self:match("^" .. option .. "%p") or self:match("%p" .. option .. "%p") or self:match("%p" .. option .. "$")
 end

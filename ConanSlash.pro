@@ -51,9 +51,9 @@ SOURCES += \
 	src/package/fire.cpp \
 	src/package/mountain.cpp \
 	src/package/negative.cpp \
+	src/package/thunder.cpp \
 	src/package/god.cpp \
 	src/package/joy.cpp \
-	src/package/nostalgia.cpp \
 	src/scenario/boss-mode-scenario.cpp \
 	src/scenario/couple-scenario.cpp \
 	src/scenario/legend-mode-scenario.cpp \
@@ -156,8 +156,8 @@ HEADERS += src/client/aux-skills.h \
 	src/package/fire.h \
 	src/package/mountain.h \
 	src/package/negative.h \
+	src/package/thunder.h \
 	src/package/joy.h \
-	src/package/nostalgia.h \
 	src/package/god.h \
 	src/scenario/boss-mode-scenario.h \
 	src/scenario/couple-scenario.h \
