@@ -242,22 +242,26 @@ public:
 class Zhinang: public TriggerSkill{
 public:
     Zhinang():TriggerSkill("zhinang"){
-        events << CardLost;
+        events << CardLost << PhaseChange;
         frequency = Frequent;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const{
-        return target->hasSkill(objectName()) && target->getPhase() == Player::NotActive;
-    }
-
-    virtual bool trigger(TriggerEvent, ServerPlayer *conan, QVariant &data) const{
+    virtual bool trigger(TriggerEvent event, ServerPlayer *conan, QVariant &data) const{
         Room *room = conan->getRoom();
-        CardMoveStar move = data.value<CardMoveStar>();
-        if(conan->isDead())
-            return false;
-        if(move->from_place == Player::Hand && room->askForSkillInvoke(conan, objectName())){
-            room->playSkillEffect(objectName());
-            conan->drawCards(1);
+        if(event == CardLost){
+            if(conan->getPhase() != Player::NotActive)
+                return false;
+            CardMoveStar move = data.value<CardMoveStar>();
+            if(conan->isDead())
+                return false;
+            if(move->from_place == Player::Hand && room->askForSkillInvoke(conan, objectName())){
+                room->playSkillEffect(objectName());
+                conan->drawCards(1);
+            }
+        }
+        else{
+            if(conan->getPhase() == Player::NotActive && conan->askForSkillInvoke(objectName()))
+                conan->drawCards(qMax(0, conan->getMaxHp() - conan->getHandcardNum()));
         }
         return false;
     }
@@ -504,12 +508,12 @@ public:
     Lanman():OneCardViewAsSkill("lanman"){
     }
 
-    virtual bool isEnabledAtPlay(const Player *yoshida) const{
-        return yoshida->getHandcardNum() < 4;
-    }
-
     virtual bool viewFilter(const CardItem *to_select) const{
-        return !to_select->isEquipped() && to_select->getCard()->getSuit() == Card::Diamond;
+        if(to_select->isEquipped())
+            return false;
+        const Card *card = to_select->getCard();
+        return card->getSuit() == Card::Diamond &&
+                card->getNumber() >= 2 && card->getNumber() <= 9;
     }
 
     virtual const Card *viewAs(CardItem *card_item) const{

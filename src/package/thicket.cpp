@@ -716,7 +716,7 @@ public:
         if(damage.damage < 1)
             return;
         if(jii->askForSkillInvoke(objectName())){
-            ServerPlayer *target = room->askForPlayerChosen(jii, room->getOtherPlayers(jii), objectName());
+            PlayerStar target = room->askForPlayerChosen(jii, room->getOtherPlayers(jii), objectName());
             room->playSkillEffect(objectName());
             QString to = room->askForChoice(jii, objectName(), "draw+recover");
             if(to == "draw")
@@ -726,7 +726,7 @@ public:
                 r.who = jii;
                 room->recover(target, r, true);
             }
-            room->setTag("ZProject", jii->objectName());
+            room->setPlayerFlag(jii, "ZProject");
         }
     }
 };
@@ -743,13 +743,12 @@ public:
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &) const{
         Room *room = player->getRoom();
-        if(event == Predamaged){
-            QString zp = room->getTag("ZProject").toString();
-            return player->hasSkill("zhongpu") && player->objectName() == zp;
+        if(event == Predamaged)
+            return player->hasSkill("zhongpu") && player->hasFlag("ZProject");
+        else if(player->getPhase() == Player::NotActive){
+            foreach(ServerPlayer *tmp, room->getAlivePlayers())
+                room->setPlayerFlag(tmp, "-ZProject");
         }
-        if(player->getPhase() == Player::NotActive)
-            room->removeTag("ZProject");
-
         return false;
     }
 };

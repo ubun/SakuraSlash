@@ -273,19 +273,6 @@ sgs.ai_skill_choice["shuangyu"] = function(self, choices, data)
 	end
 end
 
--- qingdi
-sgs.ai_skill_invoke["qingdi"] = function(self, data)
-	self:sort(self.enemies, "hp")
-	if #self.enemies > 0 then
-		self.qingditarget = self.enemies[1]
-		return true
-	end
-	return false
-end
-sgs.ai_skill_playerchosen["qingdi"] = function(self, targets)
-	return self.qingditarget
-end
-
 -- zhiyu
 local zhiyu_skill={}
 zhiyu_skill.name = "zhiyu"
@@ -312,7 +299,6 @@ sgs.ai_skill_use_func["ZhiyuCard"]=function(card,use,self)
 		end
 	end
 end
-sgs.ai_skill_invoke["zhiyu"] = true
 
 -- yanshi
 sgs.ai_skill_invoke["yanshi"] = function(self, data)

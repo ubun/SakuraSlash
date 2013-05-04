@@ -1153,22 +1153,33 @@ public:
 class Qingdi: public TriggerSkill{
 public:
     Qingdi():TriggerSkill("qingdi"){
-        events << CardLost;
+        events << CardLost << CardUsed;
+        frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent, ServerPlayer *player, QVariant &data) const{
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         Room *room = player->getRoom();
-        CardMoveStar move = data.value<CardMoveStar>();
-        if(move->from_place == Player::Equip && player && room->askForSkillInvoke(player, objectName())){
-            Slash *slash = new Slash(Card::NoSuit, 0);
-            slash->setSkillName(objectName());
-            CardUseStruct use;
-            use.card = slash;
-            use.from = player;
-            ServerPlayer *target = room->askForPlayerChosen(player, room->getAllPlayers(), objectName());
-            use.to << target;
-
-            room->useCard(use, false);
+        if(event == CardLost && player->getPhase() == Player::NotActive){
+            CardMoveStar move = data.value<CardMoveStar>();
+            if(move->from_place == Player::Equip && move->to != player && !player->isNude()){
+                LogMessage log;
+                log.type = "#TriggerSkill";
+                log.from = player;
+                log.arg = objectName();
+                room->sendLog(log);
+                room->askForDiscard(player, objectName(), 1, false, true);
+            }
+        }
+        else if(event == CardUsed && player->getPhase() == Player::Play){
+            CardUseStruct use = data.value<CardUseStruct>();
+            if(use.card->inherits("EquipCard")){
+                LogMessage log;
+                log.type = "#TriggerSkill";
+                log.from = player;
+                log.arg = objectName();
+                room->sendLog(log);
+                player->drawCards(2);
+            }
         }
         return false;
     }
@@ -1206,10 +1217,9 @@ void ZhiyuCard::onEffect(const CardEffectStruct &effect) const{
     effect.to->getRoom()->recover(effect.to, recover, true);
 }
 
-class ZhiyuViewAsSkill: public OneCardViewAsSkill{
+class Zhiyu: public OneCardViewAsSkill{
 public:
-    ZhiyuViewAsSkill():OneCardViewAsSkill("zhiyu"){
-
+    Zhiyu():OneCardViewAsSkill("zhiyu"){
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
@@ -1224,29 +1234,6 @@ public:
         ZhiyuCard *card = new ZhiyuCard;
         card->addSubcard(card_item->getCard()->getId());
         return card;
-    }
-};
-
-class Zhiyu: public PhaseChangeSkill{
-public:
-    Zhiyu():PhaseChangeSkill("zhiyu"){
-        view_as_skill = new ZhiyuViewAsSkill;
-    }
-
-    virtual int getPriority() const{
-        return 3;
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *player) const{
-        if(player->getPhase() == Player::NotActive &&
-           player->isWounded() &&
-           player->getSlashCount() == 0 &&
-           player->askForSkillInvoke(objectName())){
-            RecoverStruct rec;
-            rec.who = player;
-            player->getRoom()->recover(player, rec, true);
-        }
-        return false;
     }
 };
 

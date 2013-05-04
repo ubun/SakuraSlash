@@ -280,7 +280,8 @@ function SmartAI:checkMisjudge(player)
 end
 
 function SmartAI:refreshLoyalty(player,intention)
-	if player:isLord() then return end
+	player = player or self.player
+	if not player or player:isLord() then return end
 	local name=player:objectName()
 
 	if (intention>=70) or (intention<=-70) then

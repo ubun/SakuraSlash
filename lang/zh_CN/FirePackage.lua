@@ -1,7 +1,7 @@
 -- translation for FirePackage
 
 return {
-	["fire"] = "侵略如火",
+	["fire"] = "侵掠如火",
 
 	["amurotooru"] = "安室透",
 	["cv:amurotooru"] = "古谷彻",

@@ -130,11 +130,11 @@ local lanman_skill={}
 lanman_skill.name = "lanman"
 table.insert(sgs.ai_skills, lanman_skill)
 lanman_skill.getTurnUseCard=function(self,inclusive)
-	if self.player:getHandcardNum() >= 4 then return end
-    local cards = self.player:getHandcards()
-    cards=sgs.QList2Table(cards)
+	local cards = self.player:getHandcards()
+	cards=sgs.QList2Table(cards)
 	for _,card in ipairs(cards)  do
-		if card:getSuit() == sgs.Card_Diamond or inclusive then
+		if (card:getSuit() == sgs.Card_Diamond and
+			card:getNumber() >= 2 and card:getNumber() <= 9) or inclusive then
 			local number = card:getNumberString()
 			local card_id = card:getEffectiveId()
 			local card_str = ("ex_nihilo:lanman[diamond:%s]=%d"):format(number, card_id)
