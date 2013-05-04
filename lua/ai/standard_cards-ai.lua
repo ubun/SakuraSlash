@@ -138,8 +138,7 @@ function SmartAI:slashIsAvailable(player)
 	end
 end
 
-function SmartAI:useBasicCard(card, use, no_distance)
-	if self.player:hasSkill("chengxiang") and self.player:getHandcardNum() < 8 and card:getNumber() < 7 then return end
+function SmartAI:useCardSlash(card, use)
 	if card:getSkillName() == "wushen" then no_distance = true end
 	if (self.player:getHandcardNum() == 1
 	and self.player:getHandcards():first():inherits("Slash")
@@ -152,7 +151,7 @@ function SmartAI:useBasicCard(card, use, no_distance)
 	end
 
 	self.predictedRange = self.player:getAttackRange()
-	if card:inherits("Slash") and self:slashIsAvailable() then
+	if self:slashIsAvailable() then
 		local target_count = 0
 		if card:isBlack() and self.room:getTag("Zhenwu"):toString() == "slash" then return end
 		if self.player:hasSkill("qingnang") and self:isWeak() and self:getOverflow() == 0 then return end
@@ -250,8 +249,11 @@ function SmartAI:useBasicCard(card, use, no_distance)
 				break
 			end
 		end
-		
-	elseif card:inherits("Peach") and self.player:isWounded() then
+	end
+end
+
+function SmartAI:useCardPeach(card, use)
+	if self.player:isWounded() then
 		if not (self.player:hasSkill("rende") and self:getOverflow() > 1 and #self.friends_noself > 0) then
 			local peaches = 0
 			local cards = self.player:getHandcards()
@@ -264,7 +266,7 @@ function SmartAI:useBasicCard(card, use, no_distance)
 				if (self.player:getHp()-friend:getHp() > peaches) and (friend:getHp() < 3) and not friend:hasSkill("buqu") then return end
 			end
 
-			if self.player:hasSkill("jieyin") and self:getOverflow() > 0 then
+			if self.player:hasSkill("canwu") and self:getOverflow() > 0 then
 				self:sort(self.friends, "hp")
 				for _, friend in ipairs(self.friends) do
 					if friend:isWounded() and friend:getGeneral():isMale() then return end
@@ -273,32 +275,6 @@ function SmartAI:useBasicCard(card, use, no_distance)
 
 			use.card = card
 		end
-	elseif card:inherits("Shit") then
-		if (card:getSuit() == sgs.Card_Heart or card:getSuit() == sgs.Card_Club) and self.player:isChained() and
-			#(self:getChainedFriends()) > #(self:getChainedEnemies()) then return end
-		if self.player:getHp()>3 and self.player:hasSkill("shenfen") and self.player:hasSkill("kuangbao") then use.card = card return end
-		if self.player:hasSkill("kuanggu") and card:getSuitString() ~= "spade" then use.card = card return end
-		if card:getSuit() == sgs.Card_Heart and (self:isEquip("GaleShell") or self:isEquip("Vine")) then return end
-		if not self.player:isWounded() then
-			if self:hasSkills(sgs.need_kongcheng) and self.player:getHandcardNum() == 1 then
-				use.card = card
-				return
-			end
-			if sgs[self.player:getGeneralName() .. "_suit_value"] and
-				(sgs[self.player:getGeneralName() .. "_suit_value"][card:getSuitString()] or 0) > 0 then return end
-			local peach = self:getCard("Peach")
-			if peach then
-				self:sort(self.friends, "hp")
-				if not self:isWeak(self.friends[1]) then
-					use.card = card
-					return
-				end
-			end
-		end
-	elseif card:inherits("Stink") then
-		local next_player = self.player:getNextAlive()
-		if self:isFriend(next_player) then return end
-		use.card = card
 	end
 end
 

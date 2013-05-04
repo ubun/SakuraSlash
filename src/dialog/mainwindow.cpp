@@ -94,8 +94,8 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::restoreFromConfig(){
-    resize(Config.value("WindowSize", QSize(1042, 719)).toSize());
-    move(Config.value("WindowPosition", QPoint(20,20)).toPoint());
+    resize(Config.value("WindowSize", QSize(1042, 730)).toSize());
+    move(Config.value("WindowPosition", QPoint(50,50)).toPoint());
 
     QFont font;
     if(Config.AppFont != font)

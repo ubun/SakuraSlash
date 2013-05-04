@@ -7,68 +7,30 @@ require "middleclass"
 -- initialize the random seed for later use
 math.randomseed(os.time())
 
--- compare functions
-sgs.ai_compare_funcs = {
-	hp = function(a, b)
-		return a:getHp() < b:getHp()
-	end,
-
-	hp2 = function(a, b)
-		return a:getHp() > b:getHp()
-	end,
-
-	handcard = function(a, b)
-		return a:getHandcardNum() < b:getHandcardNum()
-	end,
-
-	value = function(a, b)
-		return SmartAI.GetValue(a) < SmartAI.GetValue(b)
-	end,
-
-	chaofeng = function(a, b)
-		local c1 = sgs.ai_chaofeng[a:getGeneralName()]	or 0
-		local c2 = sgs.ai_chaofeng[b:getGeneralName()] or 0
-
-		if c1 == c2 then
-			return sgs.ai_compare_funcs.value(a, b)
-		else
-			return c1 > c2
-		end
-	end,
-
-	defense = function(a,b)
-		return SmartAI.GetDefense(a) < SmartAI.GetDefense(b)
-	end,
-
-	threat = function ( a, b)
-		local players = sgs.QList2Table(a:getRoom():getOtherPlayers(a))
-		local d1 = a:getHandcardNum()
-		for _, player in ipairs(players) do
-			if a:canSlash(player,true) then
-				d1 = d1+10/(getDefense(player))
-			end
-		end
-		players = sgs.QList2Table(b:getRoom():getOtherPlayers(b))
-		local d2 = b:getHandcardNum()
-		for _, player in ipairs(players) do
-			if b:canSlash(player,true) then
-				d2 = d2+10/(getDefense(player))
-			end
-		end
-
-		local c1 = sgs.ai_chaofeng[a:getGeneralName()]	or 0
-		local c2 = sgs.ai_chaofeng[b:getGeneralName()] or 0
-
-		return d1+c1/2 > d2+c2/2
-	end,
-}
-
+-- SmartAI is the base class for all other specialized AI classes
+SmartAI = class "SmartAI"
+version = "ConanSlash AI 20130501 (V0.4 Stable)"
 --- this function is only function that exposed to the host program
 --- and it clones an AI instance by general name
 -- @param player The ServerPlayer object that want to create the AI object
 -- @return The AI object
 function CloneAI(player)
 	return SmartAI(player).lua_ai
+end
+
+function setInitialTables()
+	sgs.lose_equip_skill = "wuyu|qingdi"
+	sgs.need_kongcheng = "lianying|kongcheng"
+	sgs.masochism_skill = "wuwei|rexue|jingxing|quhu"
+	sgs.wizard_skill = "shouqiu|fating|tiandu"
+	sgs.wizard_harm_skill = "shouqiu|fating"
+	sgs.priority_skill = 		"dimeng|haoshi|qingnang|jizhi|guzheng|qixi|jieyin|guose|duanliang|jujian|fanjian|lijian|manjuan|lihun"
+	sgs.save_skill = 			"jijiu|buyi|nosjiefan|chunlao"
+	sgs.exclusive_skill = 		"huilei|duanchang|enyuan|wuhun|buqu|yiji|ganglie|guixin|jieming|miji"
+	sgs.cardneed_skill =        "paoxiao|tianyi|xianzhen|shuangxiong|jizhi|guose|duanliang|qixi|qingnang|" ..
+								"jieyin|renjie|zhiheng|rende|jujian|guicai|guidao|jilve|longhun|wusheng|longdan"
+	sgs.drawpeach_skill =       "tuxi|qiaobian"
+	sgs.recover_skill =         "rende|kuanggu|zaiqi|jieyin|qingnang|yinghun"	
 end
 
 --- FIXME: ?
@@ -81,8 +43,6 @@ function getCount(name)
 		return sgs.ai_round[name]
 end
 
--- SmartAI is the base class for all other specialized AI classes
-SmartAI = class "SmartAI"
 super = SmartAI
 
 --- Calculate the value for a player, 1 hp = 2 handcard
@@ -158,6 +118,15 @@ function SmartAI:initialize(player)
 
 	self.keepValue = {}
 	self.kept = {}
+	if not sgs.initialized then
+		sgs.initialized = true
+		sgs.ais = {}
+		sgs.turncount = 0
+		global_room = self.room
+		global_room:writeToConsole(version .. ", Powered by " .. _VERSION)
+		
+		setInitialTables()
+	end
 end
 
 sgs.ai_assumed = {}
@@ -1036,6 +1005,10 @@ function SmartAI:getAllPeachNum(player)
 	return n
 end
 
+function SmartAI:useBasicCard(card, use)
+	self:useCardByClassName(card, use)
+end
+
 function SmartAI:useTrickCard(card, use)
 	if card:isBlack() and self.room:getTag("Zhenwu"):toString() == "ndtrick" then return end
 	if card:inherits("AOE") then
@@ -1081,7 +1054,6 @@ function SmartAI:useTrickCard(card, use)
 		end
 	end
 end
-
 
 sgs.weapon_range  =
 {
@@ -1487,12 +1459,10 @@ function SmartAI:getDynamicUsePriority(card)
 		self:useBasicCard(card, dummy_use)
 	elseif type == sgs.Card_Equip then
 		self:useEquipCard(card, dummy_use)
-	elseif type == sgs.Card_Skill then
-		self:useSkillCard(card, dummy_use)
 	else
-		dummy_use.card = card
+		self:useSkillCard(card, dummy_use)
 	end
-	
+
 	local good_null, bad_null = 0, 0
 	for _, friend in ipairs(self.friends) do
 		good_null = good_null + self:getCardsNum("Nullification", friend)
@@ -1610,6 +1580,62 @@ function SmartAI:getDynamicUsePriority(card)
 
 	return value
 end
+
+-- compare functions
+sgs.ai_compare_funcs = {
+	hp = function(a, b)
+		return a:getHp() < b:getHp()
+	end,
+
+	hp2 = function(a, b)
+		return a:getHp() > b:getHp()
+	end,
+
+	handcard = function(a, b)
+		return a:getHandcardNum() < b:getHandcardNum()
+	end,
+
+	value = function(a, b)
+		return SmartAI.GetValue(a) < SmartAI.GetValue(b)
+	end,
+
+	chaofeng = function(a, b)
+		local c1 = sgs.ai_chaofeng[a:getGeneralName()]	or 0
+		local c2 = sgs.ai_chaofeng[b:getGeneralName()] or 0
+
+		if c1 == c2 then
+			return sgs.ai_compare_funcs.value(a, b)
+		else
+			return c1 > c2
+		end
+	end,
+
+	defense = function(a,b)
+		return SmartAI.GetDefense(a) < SmartAI.GetDefense(b)
+	end,
+
+	threat = function ( a, b)
+		local players = sgs.QList2Table(a:getRoom():getOtherPlayers(a))
+		local d1 = a:getHandcardNum()
+		for _, player in ipairs(players) do
+			if a:canSlash(player,true) then
+				d1 = d1+10/(getDefense(player))
+			end
+		end
+		players = sgs.QList2Table(b:getRoom():getOtherPlayers(b))
+		local d2 = b:getHandcardNum()
+		for _, player in ipairs(players) do
+			if b:canSlash(player,true) then
+				d2 = d2+10/(getDefense(player))
+			end
+		end
+
+		local c1 = sgs.ai_chaofeng[a:getGeneralName()]	or 0
+		local c2 = sgs.ai_chaofeng[b:getGeneralName()] or 0
+
+		return d1+c1/2 > d2+c2/2
+	end,
+}
 
 function SmartAI:sortByKeepValue(cards,inverse,kept)
 	local compare_func = function(a,b)
@@ -2429,12 +2455,6 @@ function SmartAI:hasSameEquip(card, player)
 	end
 	return false
 end
-
-sgs.lose_equip_skill = "wuyu|qingdi"
-sgs.need_kongcheng = "lianying|kongcheng"
-sgs.masochism_skill = "wuwei|rexue|jingxing|quhu"
-sgs.wizard_skill = "shouqiu|fating|tiandu"
-sgs.wizard_harm_skill = "shouqiu|fating"
 
 function SmartAI:hasSkills(skill_names, player)
 	player = player or self.player

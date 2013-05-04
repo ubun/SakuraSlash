@@ -14,6 +14,7 @@ class CardContainer;
 class GuanxingBox;
 
 class QGroupBox;
+struct RoomLayout;
 
 #include <QGraphicsScene>
 #include <QTableWidget>
@@ -215,6 +216,8 @@ private:
     ClientLogBox *log_box;
     QTextEdit *chat_box;
     QLineEdit *chat_edit;
+    QGraphicsProxyWidget *chat_box_widget;
+    RoomLayout *room_layout;
 
 #ifdef AUDIO_SUPPORT
     QSharedMemory *memory;
@@ -269,6 +272,7 @@ private:
     void doLightboxAnimation(const QString &name, const QStringList &args);
     void doHuashen(const QString &name, const QStringList &args);
     void doIndicate(const QString &name, const QStringList &args);
+    Pixmap *drawPile;
 
 private slots:
     void updateSkillButtons();

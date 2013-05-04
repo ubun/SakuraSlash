@@ -8,6 +8,9 @@
 Pixmap::Pixmap(const QString &filename, bool center_as_origin)
     :pixmap(filename), markable(false), marked(false)
 {
+
+#ifndef QT_NO_DEBUG
+//only complains about pixmap loading errors under debug mode
     if(pixmap.isNull()){
         QImageReader reader(filename);
         QString error_string = reader.errorString();
@@ -16,7 +19,7 @@ Pixmap::Pixmap(const QString &filename, bool center_as_origin)
                           .arg(filename).arg(metaObject()->className()).arg(error_string);
         QMessageBox::warning(NULL, tr("Warning"), warning);
     }
-
+#endif
     if(center_as_origin)
         setTransformOriginPoint(pixmap.width()/2, pixmap.height()/2);
 }
@@ -30,8 +33,9 @@ QRectF Pixmap::boundingRect() const{
     return QRectF(0, 0, pixmap.width(), pixmap.height());
 }
 
-bool Pixmap::changePixmap(const QString &filename){
+bool Pixmap::changePixmap(const QString &filename, const QRect &copy){
     bool success = pixmap.load(filename);
+    pixmap = pixmap.copy(copy);
     if(success)
         prepareGeometryChange();
 

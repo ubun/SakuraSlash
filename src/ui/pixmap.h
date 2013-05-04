@@ -11,7 +11,7 @@ public:
     Pixmap(const QString &filename, bool center_as_origin = true);
     Pixmap();
     virtual QRectF boundingRect() const;
-    bool changePixmap(const QString &name);
+    bool changePixmap(const QString &name, const QRect &copy = QRect());
     void setPixmap(const QPixmap &pixmap);
     void shift();
     void makeGray();
