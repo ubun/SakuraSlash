@@ -87,6 +87,7 @@ void Settings::init(){
     DetectorPort = value("DetectorPort", 9526u).toUInt();
     MaxCards = value("MaxCards", 15).toInt();
 
+    CircularView = value("CircularView", QApplication::desktop()->width() < 1030 ? false: true).toBool();
     FitInView = value("FitInView", false).toBool();
     EnableHotKey = value("EnableHotKey", true).toBool();
     NeverNullifyMyTrick = value("NeverNullifyMyTrick", true).toBool();
@@ -100,6 +101,7 @@ void Settings::init(){
     EnableBgMusic = value("EnableBgMusic", true).toBool();
     BGMVolume = value("BGMVolume", 1.0f).toFloat();
     EffectVolume = value("EffectVolume", 1.0f).toFloat();
+    DisableLua = value("DisableLua", false).toBool();
 
     BackgroundBrush = value("BackgroundBrush", "backdrop/conan1.jpg").toString();
 

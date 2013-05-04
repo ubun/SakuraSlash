@@ -373,7 +373,7 @@ struct SlashEffectStruct{
 	SlashEffectStruct();
 
 	const Slash *slash;
-	const Jink *jink;
+	const Card *jink;
 
 	ServerPlayer *from;
 	ServerPlayer *to;
@@ -514,7 +514,6 @@ public:
 		Basic,
 		Trick,
 		Equip,
-		Secrets,
 	};
 
 	// constructor
@@ -607,7 +606,7 @@ public:
 %extend Card{
 	Weapon* toWeapon(){
 		return qobject_cast<Weapon*>($self);
-	}	
+	}
 };
 
 class SkillCard: public Card{
@@ -903,6 +902,18 @@ public:
 };
 
 %extend Room {
+	bool broadcastSkillInvoke(const char *skillName, int type){
+		$self->playSkillEffect(skillName, type);
+		return true;
+	}
+
+	void throwCard(const Card *card, ServerPlayer *who = NULL){
+		$self->throwCard(card);
+	}
+	void throwCard(int card_id, ServerPlayer *who = NULL){
+		$self->throwCard(card_id);
+	}
+
 	ServerPlayer *nextPlayer() const{
 		return $self->getCurrent()->getNextAlive();
 	}
@@ -919,7 +930,7 @@ public:
 
 	void writeToConsole(const char *msg){
 		$self->output(msg);
-		qWarning(msg);
+		qWarning("%s", msg);
 	}
 };
 
