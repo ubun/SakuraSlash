@@ -89,15 +89,19 @@ local mazui_skill={}
 mazui_skill.name = "mazui"
 table.insert(sgs.ai_skills, mazui_skill)
 mazui_skill.getTurnUseCard=function(self)
-	if not self.player:hasUsed("MazuiCard") then
-		return sgs.Card_Parse("@MazuiCard=.")
+	if self.player:hasFlag("Mazui") or not self.player:hasSkill("skateboard") then return end
+    local cards = self.player:getHandcards()
+    cards=sgs.QList2Table(cards)
+	for _,card in ipairs(cards)  do
+		if card:getSuit() == sgs.Card_Heart and card:inherits("BasicCard") and not card:inherits("Peach") then
+			local number = card:getNumberString()
+			local card_id = card:getEffectiveId()
+			local card_str = ("turnover:mazui[heart:%s]=%d"):format(number, card_id)
+			local turnover = sgs.Card_Parse(card_str)
+			assert(turnover)
+			return turnover
+		end
 	end
-end
-sgs.ai_skill_use_func["MazuiCard"] = function(card, use, self)
-	self:sort(self.enemies, "handcard")
-	if use.to then use.to:append(self.enemies[1]) end
-	use.card = card
-	return
 end
 
 -- fuyuan

@@ -263,9 +263,9 @@ public:
     }
 };
 
-class Mazui: public OneCardViewAsSkill{
+class MazuiViewAsSkill: public OneCardViewAsSkill{
 public:
-    Mazui(): OneCardViewAsSkill("mazui"){
+    MazuiViewAsSkill(): OneCardViewAsSkill("mazui"){
     }
 
     virtual bool isEnabledAtPlay(const Player *conan) const{
@@ -282,10 +282,26 @@ public:
     virtual const Card *viewAs(CardItem *card_item) const{
         const Card *first = card_item->getCard();
         Turnover *turnover = new Turnover(first->getSuit(), first->getNumber());
-        turnover->addSubcard(first->getId());
-        turnover->setSkillName(objectName());
-        Self->setFlags("Mazui");
+        turnover->addSubcard(first);
+        turnover->setSkillName("mazui");
         return turnover;
+    }
+};
+
+class Mazui: public TriggerSkill{
+public:
+    Mazui():TriggerSkill("mazui"){
+        events << CardUsed;
+        view_as_skill = new MazuiViewAsSkill;
+    }
+
+    virtual bool trigger(TriggerEvent , ServerPlayer *player, QVariant &data) const{
+        if(player->getPhase() == Player::Play){
+            CardUseStruct use = data.value<CardUseStruct>();
+            if(use.card->getSkillName() == "mazui")
+                use.from->getRoom()->setPlayerFlag(use.from, "Mazui");
+        }
+        return false;
     }
 };
 

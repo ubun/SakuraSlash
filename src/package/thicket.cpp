@@ -758,46 +758,35 @@ ZhiquCard::ZhiquCard(){
     once = true;
 }
 
-bool ZhiquCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const{
-    return targets.isEmpty() && !to_select->isAllNude();
+bool ZhiquCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
+    return targets.isEmpty() && to_select->canSlash(Self);
 }
 
-void ZhiquCard::use(Room *room, ServerPlayer *jii, const QList<ServerPlayer *> &targets) const{
-    ServerPlayer *target = targets.first();
-    int card_id = room->askForCardChosen(jii, target, "hej", "zhiqu");
-    room->throwCard(card_id);
-    jii->gainMark("@zhiqu");
+void ZhiquCard::onEffect(const CardEffectStruct &effect) const{
+    Room *room = effect.from->getRoom();
+
+    const Card *slash = room->askForCard(effect.to, "slash", "@zhiqu-slash:" + effect.from->objectName());
+    if(slash){
+        CardUseStruct use;
+        use.card = slash;
+        use.to << effect.from;
+        use.from = effect.to;
+        room->useCard(use);
+    }else if(!effect.to->isNude())
+        room->throwCard(room->askForCardChosen(effect.from, effect.to, "he", skill_name));
 }
 
-class ZhiquViewAsSkill: public ZeroCardViewAsSkill{
+class Zhiqu: public ZeroCardViewAsSkill{
 public:
-    ZhiquViewAsSkill():ZeroCardViewAsSkill("zhiqu"){
+    Zhiqu():ZeroCardViewAsSkill("zhiqu"){
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
-        return !player->hasUsed("ZhiquCard");
+        return ! player->hasUsed("ZhiquCard");
     }
 
     virtual const Card *viewAs() const{
         return new ZhiquCard;
-    }
-};
-
-class Zhiqu: public PhaseChangeSkill{
-public:
-    Zhiqu():PhaseChangeSkill("zhiqu"){
-        view_as_skill = new ZhiquViewAsSkill;
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *player) const{
-        if(player->getPhase() == Player::RoundStart){
-            if(player->getMark("@zhiqu") > 0){
-                player->skip(Player::Play);
-                player->skip(Player::Discard);
-                player->loseAllMarks("@zhiqu");
-            }
-        }
-        return false;
     }
 };
 

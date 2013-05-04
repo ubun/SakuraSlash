@@ -246,3 +246,64 @@ end
 sgs.ai_skill_playerchosen["yinv"] = function(self, targets)
 	return self.yinvtarget
 end
+
+-- zhiqu
+local zhiqu_skill={}
+zhiqu_skill.name="zhiqu"
+table.insert(sgs.ai_skills, zhiqu_skill)
+zhiqu_skill.getTurnUseCard = function(self)
+	if self.player:hasUsed("ZhiquCard") then return end
+	return sgs.Card_Parse("@ZhiquCard=.")
+end
+sgs.slash_property = {}
+sgs.ai_skill_use_func.ZhiquCard = function(card,use,self)
+	local targets = {}
+	for _, enemy in ipairs(self.enemies) do
+		sgs.slash_property =
+		{
+			is_black = false,
+			is_red = false,
+			is_normal = false,
+			is_fire = false,
+			is_thunder = false
+		}
+		local cards = enemy:getHandcards()
+		cards = sgs.QList2Table(cards)
+
+		for _, card in ipairs(cards) do
+			if card:inherits("Slash") then
+				if card:isBlack() then sgs.slash_property.is_black = true end
+				if card:isRed() then sgs.slash_property.is_red = true end
+				if card:inherits("FireSlash") then sgs.slash_property.is_fire = true
+				elseif card:inherits("ThunderSlash") then sgs.slash_property.is_thunder = true
+				else sgs.slash_property.is_normal = true
+				end
+			end
+		end
+		local slash_useless = false
+		local has_armor = self.player:getArmor()
+		if has_armor then
+			if self.player:getArmor():objectName() == "vine" then
+				if not (sgs.slash_property.is_fire or sgs.slash_property.is_thunder) then
+					slash_useless = true
+				end
+			elseif self.player:getArmor():objectName() == "renwang_shield" then
+				if not sgs.slash_property.is_red then
+					slash_useless = true
+				end
+			end
+		end
+		if enemy:distanceTo(self.player) <= enemy:getAttackRange() and
+			(self:getCardsNum("Slash", enemy) == 0 or slash_useless or self:getCardsNum("Jink") > 0) and
+			not enemy:isNude() then
+			table.insert(targets, enemy)
+		end
+	end
+	if #targets == 0 then return end
+	if use.to then
+		self:sort(targets, "hp")
+		use.to:append(targets[1])
+	end
+	use.card = sgs.Card_Parse("@ZhiquCard=.")
+end
+

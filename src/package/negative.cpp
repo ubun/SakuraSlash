@@ -110,6 +110,42 @@ public:
     }
 };
 
+class Suji: public TriggerSkill{
+public:
+    Suji():TriggerSkill("suji"){
+        events << PhaseChange << CardUsed;
+        frequency = Compulsory;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        if(event == CardUsed){
+            if(player->getPhase() == Player::Play && !player->hasFlag("Sujied")){
+                CardUseStruct use = data.value<CardUseStruct>();
+                if(!use.card->isVirtualCard()){
+                    QVariantList cards = player->tag["Suji"].toList();
+                    cards << use.card->getEffectiveId();
+                    player->tag["Suji"] = cards;
+                    player->setFlags("Sujied");
+                }
+            }
+        }
+        else{
+            if(player->getPhase() == Player::Start){
+                QVariantList cards = player->tag["Suji"].toList();
+                if(cards.length() == 3){
+                    Room *room = player->getRoom();
+                    foreach(QVariant card_id, cards){
+                        const Card *card = Sanguosha->getCard(card_id.toInt());
+                        room->moveCardTo(card, player, Player::Hand);
+                    }
+                    player->setFlags("Sujied");
+                }
+            }
+        }
+        return false;
+    }
+};
+
 NegativePackage::NegativePackage()
     :Package("negative")
 {
@@ -121,6 +157,9 @@ NegativePackage::NegativePackage()
     General *mizunashireina = new General(this, "mizunashireina", "yi", "3/4", General::Female, General::Hidden);
     mizunashireina->addSkill(new Ruoshui);
     mizunashireina->addSkill(new Wodi);
+
+    General *hanedashuukichi = new General(this, "hanedashuukichi", "zhen");
+    hanedashuukichi->addSkill(new Suji);
 }
 
 ADD_PACKAGE(Negative)
